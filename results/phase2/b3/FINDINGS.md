@@ -1,6 +1,6 @@
 # B-3 findings
 
-Five. Four fixed in this build; one filed and named rather than fixed.
+Six. Five fixed; one (B3-F5) filed and named rather than fixed.
 
 ---
 
@@ -126,6 +126,31 @@ this morning — every legitimate grant naming it would have been flagged as
 possibly-a-typo. It is now the union of registered systems and systems the
 knowledge base describes, with the reason recorded: they are usually the
 same set and they are not the same fact.
+
+---
+
+## B3-F6 — the runbook's unseal branch was carried in unchecked
+
+**Fixed**, in the runbook. Found by the operator running it, 2026-08-08.
+
+Step 1's vault caveat offered `docker compose exec -T vault vault operator
+unseal "$VK"` as the thing to do "if vault was recreated", with no
+instruction to set `VK` and no check that the condition had fired. Both
+halves were wrong in the same small way.
+
+With `VK` unset the command is `vault operator unseal ""`; vault reads
+that as "prompt me", and the `-T` that keeps the step non-interactive is
+precisely what stops it prompting. The failure is *"file descriptor 0 is
+not a terminal"* — which reads as a docker problem, is not one, and says
+nothing about the actual mistake. Meanwhile vault was not sealed at all:
+compose left the container running, as the caveat itself predicted.
+
+**This is the A5-F2 shape exactly** — a command lifted into a runbook and
+never run in the state the runbook describes. The repair is the same
+shape too: lead with the *check* (`vault status | grep Sealed`), make the
+happy path "skip this", and put the variable assignment in the branch that
+needs it, quoting the migration runbook's own idiom rather than inventing
+a shorter one.
 
 ---
 

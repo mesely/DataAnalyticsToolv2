@@ -75,15 +75,31 @@ CL_BIND=0.0.0.0 CL_HOST_ADDR=$(ipconfig getifaddr en0) make stack-pilot
 
 **About vault and this restart.** Only `core` and `runner` are rebuilt;
 vault runs from an image whose config has not changed, so compose leaves
-the container alone and it stays unsealed — that is what happened on
-2026-08-08 and it is the expected path. But it is not a guarantee: if
-`docker compose ps` shows vault as `unhealthy` afterwards, it *was*
-recreated and it is sealed, and it needs your unseal key before anything
-else here will work:
+the container alone and it stays unsealed. That is the expected path and
+it is what happened on 2026-08-08, twice.
+
+**Check before you act on it** — do not run an unseal command to find out:
 
 ```bash
+docker compose exec -T vault vault status | grep -E "Initialized|Sealed"
+```
+
+`Sealed false` means there is nothing to do; **skip to the policy check
+below.** Only if it says `Sealed true` do you need your unseal key, and
+then you must put the key in a variable first — pasted from your password
+manager, as an assignment, exactly as act 2 of
+`../a4/VAULT-MIGRATION-RUNBOOK.md` does it:
+
+```bash
+VK='paste-your-unseal-key-here'
 docker compose exec -T vault vault operator unseal "$VK"
 ```
+
+> **Why the assignment first.** With `VK` unset, that command becomes
+> `vault operator unseal ""`, vault decides you meant to be prompted, and
+> the `-T` that keeps this non-interactive is exactly what stops it
+> prompting — so it fails with *"file descriptor 0 is not a terminal"*,
+> which reads as a docker problem and is not one. Found by running it.
 
 Then re-run the vault seed, once. It is idempotent, and it adds one thing:
 permission for the core to *read* per-user git identities — the records

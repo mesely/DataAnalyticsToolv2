@@ -118,15 +118,21 @@ export const MODULES: ModuleDef[] = [
     id: "audit",
     title: "Audit",
     path: "/audit",
-    built: false,
-    description: "Who asked what, and what the server decided. The API ships (B-0); the view arrives at B-4.",
+    built: true,
+    description:
+      "Who asked what, and what the server decided — including the refusals, and the governance acts that changed who can reach what.",
   },
   {
     id: "benchmarks",
     title: "Benchmarks",
     path: "/benchmarks",
-    built: false,
-    description: "Golden-suite scores per KB version. Ships dark until a baseline exists.",
+    built: true,
+    // `built: true` and dark are different states, and this one is the
+    // second: the screen exists and works, and has nothing to show
+    // because nothing has been measured (UI-10). Marking it unbuilt
+    // would blame the product for a gap that belongs to BASELINE-1.
+    description:
+      "Golden-suite scores per KB version, read from the results store. Dark until a complete run exists — it renders no number it has not measured.",
   },
 ];
 

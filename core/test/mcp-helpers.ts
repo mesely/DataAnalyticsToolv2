@@ -31,6 +31,22 @@ export const USERS = {
   capped: { username: "cap-user", password: "pw", roles: ["capped"], display: "Capped User" },
   /** CP-5 baseline `no-kb` condition (D-74.4): validate/execute, no content tools. */
   nokb: { username: "nokb-bot", password: "pw", roles: ["nokb"], display: "No-KB Benchmark" },
+  /**
+   * B-4 (D-123.4a). Deliberately **not** in `ROLES_YAML` below: DT-7's
+   * whole claim is that this identity reads nothing extra until the KB
+   * carries the role, so the rig must start without it and the test adds
+   * it. A user in the IdP with no binding in the knowledge base is
+   * exactly the pre-merge state the operator will be in.
+   */
+  auditor: { username: "ada-auditor", password: "pw", roles: ["auditor"], display: "A. Auditor" },
+  /** The dual-role case the pilot actually has: a reporter who also
+   * audits. Her setup bundle must stay unambiguously the reporter one. */
+  reporterAuditor: {
+    username: "eve-both",
+    password: "pw",
+    roles: ["reporter", "auditor"],
+    display: "E. Both",
+  },
 };
 
 const ROLES_YAML = `# Scratch-KB role map (KB-A per-directory globs).
@@ -343,6 +359,14 @@ export async function setupMcpRig(
             cookieSecure: false,
             pageDefault: 50,
             pageMax: 200,
+            // B-4, and the same warning as in `helpers.ts`: this literal
+            // replaces the dashboard config wholesale, and the trailing
+            // spread hides a field that is missing from it. Both values
+            // are the production defaults — no retention policy, and the
+            // export's row cap.
+            auditRetentionDays: 0,
+            auditExportMax: 10000,
+            benchmarkResultsDir: "",
             batchMax: 10,
             // A-3: `ops` and not `steward` — the split the gate asks
             // for, exercised as the product ships it.

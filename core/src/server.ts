@@ -44,6 +44,7 @@ import {
   type ClaimDeclaration,
   type ErrorEnvelope,
 } from "./queue.js";
+import { registerBenchmarks } from "./benchmarks.js";
 import { registerConnections } from "./connections.js";
 import { registerDashboard } from "./dashboard.js";
 import { registerKbHealth } from "./kbhealth.js";
@@ -604,6 +605,10 @@ export function buildServer(
     // credential (D-121.2d) — the one dependency in this list that
     // exists to keep the platform's own credential out of a human edit.
     registerProfileEditor(app, { ...deps, vault: opts?.vault ?? null });
+    // B-4: Benchmarks — a read over the R8 artifact store and nothing
+    // else. It runs no accuracy pass; with no store and no complete run
+    // it renders its dark state and says why (UI-10 / DT-6).
+    registerBenchmarks(app, deps);
     // B-2: the SPA itself — static assets, served by the core behind the
     // same session (D-103.1: no second server, no second identity
     // domain). Registered last so no asset route can shadow an API one.

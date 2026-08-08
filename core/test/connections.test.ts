@@ -30,7 +30,7 @@ import {
 } from "./dashboard-helpers.js";
 import { FEATURE_TOGGLES } from "../src/config.js";
 import { healthFor, readConnectionSpec, PayloadRejected } from "../src/connections.js";
-import { modulesFor } from "../src/spa.js";
+import { MODULES, modulesFor } from "../src/spa.js";
 import { getSyncSystem, upsertSyncSystem, RegistryWriteNotObserved } from "../src/triggers.js";
 import type { KbState } from "../src/kbread.js";
 import type { SyncPolicy } from "../src/policy.js";
@@ -528,9 +528,14 @@ describe("B-2 dashboard shell", () => {
     expect(mine.status).toBe(200);
     const modules = mine.json.modules as { id: string; built: boolean }[];
     expect(modules.find((m) => m.id === "connections")!.built).toBe(true);
-    // The unbuilt ones are declared and marked, not hidden: a menu that
-    // silently omits a module teaches nobody it is coming (UI-10).
-    expect(modules.some((m) => !m.built)).toBe(true);
+    // UI-10: nothing is hidden from the menu. This used to be asserted
+    // as "at least one module is declared and unbuilt" — B-4 built the
+    // last two, so that instance is gone and the *rule* is asserted
+    // instead: with no `dashboard.yaml`, the map is the whole registry,
+    // so `modulesFor` cannot be filtering on `built` (or on anything
+    // else) behind the caller's back.
+    expect(modules.map((m) => m.id)).toEqual(MODULES.map((m) => m.id));
+    for (const module of modules) expect(typeof module.built).toBe("boolean");
     // This KB carries no dashboard.yaml, and the answer says which
     // configuration produced the list rather than implying one.
     expect(mine.json.config_source).toBe("default");

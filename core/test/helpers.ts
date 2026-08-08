@@ -170,6 +170,16 @@ export async function startCore(
       cookieSecure: false, // plain-http test server
       pageDefault: 50,
       pageMax: 200,
+      // B-4. Note that this object is hand-built rather than produced by
+      // `loadDashboardConfig`, and the trailing `...overrides` spread
+      // stops the compiler from noticing a field that is missing from
+      // it — so a new config field lands here as `undefined` at runtime
+      // and fails somewhere far away. Both of these are the production
+      // defaults: no retention policy configured, and the export cap.
+      auditRetentionDays: 0,
+      auditExportMax: 10000,
+      // Unset: Benchmarks is dark unless a suite points it at a store.
+      benchmarkResultsDir: "",
       batchMax: 10,
       // A-3: the production default. `ops` is the playbook's R3 and is
       // deliberately not `steward`, so the suites exercise the split

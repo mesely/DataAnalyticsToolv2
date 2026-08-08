@@ -63,6 +63,40 @@ export interface DashboardConfig {
   /** UI-B: page size default and hard cap for every read endpoint. */
   pageDefault: number;
   pageMax: number;
+  /**
+   * B-4 / UI-B: how long audit rows are retained, in days. **0 means no
+   * retention policy is configured**, which is this product's state
+   * today — MCP §8 fixes the record's shape and defers retention here,
+   * and D-107.4 filed the gap that no policy defines the horizon the
+   * audit read's windows assume.
+   *
+   * A zero is therefore not a default standing in for a real number. It
+   * is the deployment saying "rows are kept indefinitely", and the
+   * export says exactly that rather than printing a horizon nobody set.
+   * When a customer sets one, the export clamps its window to it and
+   * reports the clamp — an export must not hand out rows the deployment
+   * says it no longer keeps, and must not silently narrow either.
+   */
+  auditRetentionDays: number;
+  /**
+   * Hard row cap on one audit export. An export that hit it says so, in
+   * the payload and in the CSV's own header: a truncated evidence file
+   * that looks complete is the one artifact this module must never
+   * produce.
+   */
+  auditExportMax: number;
+  /**
+   * B-4 / U-13: where this deployment's R8 benchmark artifacts live —
+   * one `<run-id>/results.json` per run, exactly as `benchmark.manual
+   * score` writes them.
+   *
+   * Unset by default, and that is the shipping state: no deployment has
+   * a baseline yet (BASELINE-1), the platform never runs an accuracy
+   * pass by itself, and a view with nothing to read says so. Pointing it
+   * at a directory does not make numbers appear — an incomplete run
+   * still renders as coverage, never as a score.
+   */
+  benchmarkResultsDir: string;
   /** Approved requests stamped by one "deliver batch" trigger
    * (ledger §8: batches are cut on demand or at ~10). */
   batchMax: number;
@@ -199,6 +233,23 @@ export function effectiveFlags(cfg: CoreConfig): Record<string, boolean> {
     flags[flag] = byFlag[flag]!;
   }
   return flags;
+}
+
+/**
+ * A day count where **zero is a legitimate answer** meaning "no policy"
+ * (B-4). `intVar` refuses non-positive numbers, which is right for a
+ * page size and wrong for a retention horizon: an operator who writes 0
+ * is saying "keep everything", and refusing to start is a strange way to
+ * answer that. A negative number is still a mistake and still refused.
+ */
+function retentionDays(env: NodeJS.ProcessEnv, name: string): number {
+  const raw = env[name];
+  if (raw === undefined || raw === "") return 0;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 0) {
+    throw new ConfigError(`${name} must be a whole number of days (0 = keep everything), got ${raw}`);
+  }
+  return value;
 }
 
 function intVar(env: NodeJS.ProcessEnv, name: string, fallback: number): number {
@@ -358,6 +409,14 @@ function loadDashboardConfig(
         : mcp.publicUrl.startsWith("https://"),
     pageDefault,
     pageMax,
+    // 0 = no policy configured. See the field's comment: this is a
+    // stated absence, not a default pretending to be a decision. Read
+    // directly rather than through `intVar`, which requires a positive
+    // number — an operator writing `CORE_AUDIT_RETENTION_DAYS=0` means
+    // "keep everything" and must not be met with a startup crash.
+    auditRetentionDays: retentionDays(env, "CORE_AUDIT_RETENTION_DAYS"),
+    auditExportMax: intVar(env, "CORE_AUDIT_EXPORT_MAX", 10000),
+    benchmarkResultsDir: (env.CORE_BENCHMARK_RESULTS_DIR ?? "").trim(),
     batchMax: intVar(env, "CORE_DASHBOARD_BATCH_MAX", 10),
     probeTimeoutS: intVar(env, "CORE_DASHBOARD_PROBE_TIMEOUT_S", 60),
     adminRoles: (env.CORE_DASHBOARD_ADMIN_ROLES ?? "ops")

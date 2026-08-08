@@ -7397,3 +7397,209 @@ flag-and-stop. Recommended as its own small item; the `diff --stat`
 output is its acceptance test. Full write-up in
 `results/phase2/a6/FINDINGS.md`; A-6's own four affected lines are quoted
 verbatim in `PR-A6.md` so this PR stays reviewable.
+
+## D-123 — A-6 CLOSED + B-4 authorization (owner ruling, 2026-08-08)
+
+Recorded verbatim.
+
+> 1. A-6 CLOSED as landed (b2c30bf). Affirmed by name: first-record-
+>    wins and single-armed-run as schema properties, not conventions;
+>    captures proven at their real call sites (a helper nothing calls
+>    passes every test about the helper — the B1-F2 lesson applied
+>    forward); no targets invented, enforced by test. The KB-CI
+>    polling honesty note ACCEPTED as recorded — named, not rounded
+>    down.
+> 2. A6-F1 FIX AUTHORIZED as B-4 task 0: remove the NUL bytes from
+>    setup.ts / ratelimit.ts / visibility.ts (one character per site,
+>    zero runtime change — verify by build + full suite green), PLUS
+>    a CI guard asserting no source file contains NUL bytes (restores
+>    diffability permanently). DECISIONS note: the enforcement files'
+>    standing evidence is their behavioral conformance suites; the
+>    defect was reviewability, not enforcement.
+> 3. B-3 LOOSE END: the pilot reporter sits at row_cap 25000 (step
+>    7's restore never ran). Operator act: restore via the Profiles
+>    editor — one more live pass through the surface, free evidence.
+> 4. NEXT: checkpoint B-4 — the last build of Phase 2. Pre-rulings:
+>    a. AUDITOR SERVER-FIRST (UI-4/DT-7 absolute): the role exists in
+>       the IdP + roles.yaml + whatever server binding the dashboard
+>       authorizes on, BEFORE any view code; the session proposes the
+>       exact binding shape in ≤5 lines. Read-everything,
+>       touch-nothing.
+>    b. AUDIT VIEW per dashboard-spec §3: auditor full read-only;
+>       reporter own-rows (already server-filtered); steward full per
+>       D-102.2; export honoring MCP §8 retention; governance rows
+>       (D-114.1's widened contract) rendered as first-class, not
+>       filtered out.
+>    c. BENCHMARKS VIEW dark per UI-10/DT-6: renders per-kb_ref
+>       scores WHEN THEY EXIST from the R8 artifact store; until
+>       BASELINE-1 lands it states why it is dark; zero placeholder
+>       numerals.
+>    d. Gate: DT-6 + DT-7 proven; the operator hour (standing rule)
+>       with a second identity exercising the auditor role live —
+>       Eda's account gaining the auditor group is the honest test.
+> 5. OUT-OF-BAND PILE: stands as restated in D-122.5; CP-Ω is next
+>    after B-4 and wants clean books.
+
+## D-123 as applied — tasks 0–4
+
+### D-123.2 — A6-F1 fixed, and the guard that makes it stay fixed
+
+**Six sites, one character each.** `core/src/setup.ts`,
+`core/src/ratelimit.ts` and `core/src/visibility.ts` used literal NUL
+bytes as separators inside template literals; each is now the escape
+sequence, which is the same value at runtime and the same behaviour under
+test. Verified by build plus both full suites, not by argument.
+
+**A fourth site, named rather than slipped in.**
+`results/phase2/a6/FINDINGS.md` — the document that reported the
+defect — had embedded a literal NUL in the very sentence recommending the
+escape. Fixing it was not a scope expansion but the same authorized fix
+at a site A-6's own finding did not enumerate; the alternative was a
+guard that fails on its first run, or one whose opening act is to exempt
+an instance of what it exists to catch.
+
+**The guard** is `tools/nul_scan.py`, a pytest file, and its own CI job.
+Three properties are deliberate. It scans **whole files**, not git's
+first-8 KB heuristic, because a byte past that point leaves a file
+diffable today and turns it binary the moment a line is added above it —
+guard the property, not the symptom. It scans **what git tracks**, from
+git, so `node_modules` and the venv are out of scope by construction
+rather than by exemption. And its allowlist ships **empty**, with a stale
+entry counted as a failure: an allowlist that survives the deletion of
+what it excused is there to excuse the next thing.
+
+**The DECISIONS note the ruling asked for.** The two enforcement files
+(`visibility.ts`, the M-4 roles map; `ratelimit.ts`, §7's limiter) have
+their standing evidence in their behavioural conformance suites, which
+have covered them since CP-4 and pass unchanged here. The defect was
+**reviewability**, not enforcement: what four milestones of diffs could
+not show is not the same as what four milestones of tests did not check.
+
+**Finding B4-F4, and it changes how load-bearing this is.** The same
+defect appeared **twice more during this session**, from the same
+authoring path: once in `core/src/benchmarks.ts`, a file written today,
+and once in `PR-B4.md`, in the sentence describing the escape to use
+instead of the byte — which is precisely what the A-6 finding had done
+before it. Neither was visible on screen; both were caught the first time
+the scanner ran. This class is invisible by construction and
+**reintroduces itself at a non-trivial rate**, so the guard is not a
+tidy-up after a one-off.
+
+### D-123.4a — the auditor binding, and the one consequence it carries
+
+Proposed in five lines and built as proposed. The KB half is **PR #54**
+on `Sample-Knowladge-Base` (KB CI green in 12s, open at STOP-1): the
+`roles.yaml` **R4** entry — "Security / compliance reviewer", carrying
+`profile: null` and the note *read/audit surface only* since CP-4 — bound
+at last to `profiles/auditor.yaml`, a profile whose `tools.allow` is
+**empty**. Its `oidc_group` moves from `security`, a placeholder no
+identity was ever issued, to `auditor`.
+
+**The empty allowlist is the security statement.** Read access is the
+`visibility: ["**"]` already on the entry; the inability to act is that
+there is nothing to permit, evaluated by the same `(roles ∩ allow)` check
+every profile goes through. **No new refusal was written for this role**,
+so there is no new refusal to forget on the next endpoint added — which
+is a stronger property than a refusal, because an absence cannot be
+granted by accident.
+
+Server-side the binding is one name read the way `steward` is read
+(`AUDITOR_PROFILE`, `readsAll = isSteward || isAuditor`), widening the
+three B-0 reads' subject scope and the Connections/Ops read gates.
+Every write gate still asks `isSteward` or an ops role; none was touched.
+
+**The consequence, recorded because it is live.** A profile granting no
+tools is **not a setup-bundle binding**: a bundle *is* a client
+configuration, and one that could call nothing is not a candidate for
+one. Without that line, Eda — a reporter about to also be an auditor —
+would have begun receiving `ambiguous_binding` on a download that was
+never ambiguous. **D-107.3 is untouched**: two profiles that both grant
+tools are still refused rather than resolved, asserted beside the new
+case so a later edit cannot turn one into the other. A pure auditor gets
+`no_profile_binding` (403), which is the matrix's "—" for U-2/U-3
+arriving as a server answer; and a profile the KB does not define at all
+is still the loud 503, because a typo in `roles.yaml` must not be
+filtered into "you have no binding".
+
+### D-123.4b/c — what the two views do and do not claim
+
+**Audit.** Window/subject/tool/decision filtering; denials and filtered
+decisions offered first; **governance rows first-class**, tagged and
+counted apart from tool calls *by the server over the whole window*
+rather than by the browser over a page; setup stamps rendered as three
+distinct states (a stamp, the literal `unstamped`, null for rows
+predating the column); and a summary computed over subject-scope and
+window only, so narrowing a filter cannot move the number the filter is
+being read against.
+
+**Retention is stated rather than implied.** MCP §8 fixes the record's
+shape and defers retention here; D-107.4 filed that no policy defines the
+horizon. So the screen and every export say *no retention policy is
+configured — nothing has been aged out*, and when a customer sets one the
+window clamps to it and says it clamped. Export runs through the same
+filter builder as the read — a reporter's export is a reporter's rows and
+a crafted `subject=` is the same 403 — carries its provenance as `#`
+lines inside the CSV so a file that leaves the screen still says what it
+covers, says `THIS FILE IS INCOMPLETE` when the cap truncates it, and
+**writes its own audit row**, because someone taking a copy of the trail
+out of the system is exactly the event the trail should hold.
+
+**Benchmarks ships dark and built** — two different states, and the
+module flag says the first. It reads the R8 artifact store and renders
+per-`kb_ref` scores when they exist; with none it names BASELINE-1 and
+the no-claims constraint in plain language. **DT-6 is asserted
+mechanically**: no score-shaped numeral and no `%` reaches the response
+when nothing is measured — a rule that catches the "just show zeroes"
+edit that a prose promise would not.
+
+**An incomplete run stays dark.** A five-journey smoke is not a small
+baseline, and averaging it would be §2.3's forbidden claim in a lab coat.
+Coverage is stated (`4 of 9 planned journeys, covering 4 of 9
+case×condition pairs`) and `scores` is **null** rather than an object of
+nulls, which is how a rendering ends up printing dashes where numbers go.
+An unparseable artifact is **named**, not skipped, so the store never
+looks smaller than it is.
+
+**The anti-fork check.** The per-condition block reproduces
+`benchmark/report.py::_condition_metrics` in another language — the shape
+that drifts. A test runs the Python function over the same artifact and
+compares every number, which is the D-114.2 lesson (import the
+computation rather than restate it) applied where an import is not
+available.
+
+### D-123.3 — the B-3 restore, booked
+
+The pilot reporter's `row_cap` restore is **step 4 of
+`results/phase2/b4/GATE-STEPS.md`**, and B-3's own step 7 now says so
+rather than standing as an instruction nobody will return to.
+
+### Two tests changed, and why neither is a weakened assertion
+
+**`setup-bundle.test.ts`** stubbed its two profiles as `{}` to assert
+D-107.3. Under B-4's rule a profile with no tools is not a candidate, so
+the fixture — which had no shipped counterpart — stopped exercising the
+ruling it was written for. It now carries a real `tools.allow`, and the
+auditor case is asserted beside it.
+
+**`connections.test.ts`** asserted UI-10 as *"at least one module is
+declared and unbuilt"*. B-4 built the last two, so that instance no
+longer exists. The rule is asserted instead: with no `dashboard.yaml` the
+map is the whole registry, so nothing is being filtered out of the menu
+behind the caller's back.
+
+### Filed, not fixed
+
+**B4-F1 — a pure auditor can still file a gap.** The ledger inlets gate
+on authentication only, by design since B-1, while the matrix reads "—"
+for the auditor at U-6. Gating them would be a new refusal on an existing
+surface, and it is not obvious the refusal is right: roles here are
+**additive**, so "—" may mean *this role does not grant filing* rather
+than *this identity is forbidden to file*, and an oversight role that
+cannot report a wrong metric is a worse product. That is a ruling, not a
+patch. No pure-auditor identity exists on the estate, and any filing is
+audited under the filer's own name. Fix direction on record in
+`results/phase2/b4/FINDINGS.md`.
+
+**B4-F2's second half — `helpers.ts` has no `gitIdentityPath`.** Latent,
+because the Profiles editor is only reached through the rig that does set
+it. Filed in the B3-F5 shape: trigger stated, one-line fix on record.

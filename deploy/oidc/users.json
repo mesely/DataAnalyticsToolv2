@@ -23,5 +23,13 @@
       "benchmark"
     ],
     "display": "Benchmark harness (non-user)"
+  },
+  {
+    "username": "auditor",
+    "password": "auditor-dev-pw",
+    "roles": [
+      "auditor"
+    ],
+    "display": "Auditor (read-only)"
   }
 ]

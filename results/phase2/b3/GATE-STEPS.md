@@ -398,6 +398,12 @@ the one that unpacked an archive.
 
 # Step 7 — put it back, the same way
 
+> **This step did not run on 2026-08-08, and it has moved.** The pilot
+> reporter has been sitting at `row_cap: 25000` since — harmless and
+> untidy, exactly as predicted below. Ruling D-123.3 books the restore
+> as **step 4 of `../b4/GATE-STEPS.md`**, where it doubles as a second
+> pass through the Profiles editor. Do it there rather than here.
+
 Repeat steps 3–5 with `row_cap` back to `50000`.
 
 Do it deliberately rather than quickly. The second time through is when you

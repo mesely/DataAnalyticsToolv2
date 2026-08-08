@@ -83,6 +83,27 @@ interface Viewer {
   scopes: string[];
   profiles: Set<string>;
   isSteward: boolean;
+  /**
+   * B-4 / UI-4: the `auditor` role, bound by profile name exactly as
+   * `steward` is above it. It appears in this interface and nowhere in
+   * the client — the browser learns what it may read by being told, and
+   * the KB is what decides.
+   */
+  isAuditor: boolean;
+  /**
+   * Full read scope: steward (D-102.2) **or** auditor (matrix §4 —
+   * "full, read-only"). One derived field rather than two branches at
+   * every call site, so a read that widens for the steward cannot
+   * silently fail to widen for the auditor.
+   *
+   * There is deliberately no `writesAll` beside it. The auditor is
+   * read-only by *omission*: every write gate in this module still asks
+   * `isSteward`, and no line was added that consults `isAuditor` before
+   * a write. That is a stronger property than a refusal would be — a
+   * refusal can be forgotten on the next endpoint, an absence cannot be
+   * granted by accident.
+   */
+  readsAll: boolean;
 }
 
 /**
@@ -91,6 +112,29 @@ interface Viewer {
  * roles the IdP just asserted — the same mapping the MCP path's
  * visibility uses, read from the same file.
  */
+/**
+ * The profile name the auditor role binds to (B-4, D-123.4a).
+ *
+ * A constant rather than a literal at four call sites, and exported so
+ * the modules that gate on it and the tests that prove the ordering all
+ * name the same string. What it is **not** is a role the server invents:
+ * an estate whose `.contextlayer/roles.yaml` carries no entry with this
+ * profile has no auditors, and every read below then answers exactly as
+ * it did before B-4 — which is what DT-7 checks.
+ */
+export const AUDITOR_PROFILE = "auditor";
+
+/**
+ * How a governance act names itself in `audit_records.tool` (D-114.1).
+ *
+ * `dashboard.<module>.<act>` for a governed act, a bare tool name for an
+ * MCP call. The audit summary counts the two apart with this, so the
+ * Audit view can say "11 tool calls, 4 governance acts" from the
+ * server's own arithmetic over the whole window rather than from
+ * whichever page the browser is holding.
+ */
+export const GOVERNANCE_TOOL_PREFIX = "dashboard.";
+
 export function profilesForRoles(ws: KbState, callerRoles: string[]): Set<string> {
   const out = new Set<string>();
   for (const entry of ws.roles ?? []) {
@@ -172,18 +216,19 @@ function timestamp(value: unknown, field: string): string | undefined {
 /**
  * The single place a request's subject scope is decided.
  *
- * A steward may name a subject or omit one (scope `all`, D-102.2).
- * Anyone else is pinned to their own resolved identity, and asking for
- * another subject is refused outright — the crafted-request case DT-1
- * proves. Note what is *not* here: no branch that reads a subject from
- * the client and trusts it.
+ * A steward may name a subject or omit one (scope `all`, D-102.2), and
+ * from B-4 so may an auditor (matrix §4: U-12 "full, read-only", U-9
+ * "all"). Anyone else is pinned to their own resolved identity, and
+ * asking for another subject is refused outright — the crafted-request
+ * case DT-1 proves. Note what is *not* here: no branch that reads a
+ * subject from the client and trusts it.
  */
 function subjectScope(
   viewer: Viewer,
   query: Record<string, unknown>,
 ): { subject: string | null; roleScope: "self" | "all" } {
   const requested = str(query.subject);
-  if (viewer.isSteward) {
+  if (viewer.readsAll) {
     return { subject: requested ?? null, roleScope: "all" };
   }
   if (requested !== undefined && requested !== viewer.identity.subject) {
@@ -218,12 +263,16 @@ export function registerDashboard(app: FastifyInstance, deps: DashboardDeps): vo
       return null;
     }
     const profiles = profilesForRoles(ws, auth.identity.roles);
+    const isSteward = profiles.has("steward");
+    const isAuditor = profiles.has(AUDITOR_PROFILE);
     return {
       identity: auth.identity,
       ws,
       scopes: visibilityScopes(ws.roles, auth.identity.roles),
       profiles,
-      isSteward: profiles.has("steward"),
+      isSteward,
+      isAuditor,
+      readsAll: isSteward || isAuditor,
     };
   }
 
@@ -268,26 +317,86 @@ export function registerDashboard(app: FastifyInstance, deps: DashboardDeps): vo
 
   // -- (a) Audit read (§5.1, U-12) -------------------------------------------
 
-  app.get("/v1/dashboard/audit", async (req, reply) => {
-    const viewer = await viewerFor(req, reply);
-    if (!viewer) return reply;
-    const query = (req.query ?? {}) as Record<string, unknown>;
-    let page: Page;
-    let scope: { subject: string | null; roleScope: "self" | "all" };
-    let since: string | undefined;
-    let until: string | undefined;
-    try {
-      page = readPage(deps.cfg, query);
-      scope = subjectScope(viewer, query);
-      since = timestamp(query.since, "since");
-      until = timestamp(query.until, "until");
-    } catch (err) {
-      return handle(reply, err);
+  /**
+   * The retention horizon this deployment actually has (B-4, UI-B).
+   *
+   * MCP §8 fixes the audit record's shape and says in as many words that
+   * "retention and export are dashboard-Audit-module concerns" — and
+   * D-107.4 filed the consequence: the audit read's window semantics
+   * assume a horizon that no policy defines. So the honest answer, until
+   * a customer sets one, is *no policy is configured* — said out loud,
+   * on the screen and inside every export, rather than implied by an
+   * absence or papered over with a default number.
+   */
+  function retention(nowMs: number): {
+    configured: boolean;
+    days: number | null;
+    horizon: string | null;
+    note: string;
+  } {
+    const days = deps.cfg.dashboard.auditRetentionDays;
+    if (!days || days <= 0) {
+      return {
+        configured: false,
+        days: null,
+        horizon: null,
+        note:
+          "No audit retention policy is configured for this deployment, so no row has been " +
+          "aged out: what you can read here is everything the server has ever recorded. " +
+          "MCP spec §8 leaves the horizon to this module and no customer has set one " +
+          "(register item D-107.4).",
+      };
     }
-    const order = str(query.order) === "asc" ? "asc" : "desc";
+    const horizon = new Date(nowMs - days * 86400_000).toISOString();
+    return {
+      configured: true,
+      days,
+      horizon,
+      note:
+        `This deployment retains audit rows for ${days} day(s). Rows older than the horizon ` +
+        "below are not retained, so a window reaching past it is clamped rather than answered " +
+        "with a shorter list that looks complete.",
+    };
+  }
+
+  /**
+   * One filter builder for the audit read and its export, so the two
+   * cannot drift into disagreeing about who may see what. The scope
+   * comes from `subjectScope` — the crafted-`subject=` refusal (DT-1)
+   * therefore applies to the export by construction, not by a second
+   * check somebody remembered to copy.
+   */
+  function auditFilters(
+    viewer: Viewer,
+    query: Record<string, unknown>,
+    nowMs: number,
+  ): {
+    scope: { subject: string | null; roleScope: "self" | "all" };
+    since: string | undefined;
+    until: string | undefined;
+    tool: string | undefined;
+    decision: string | undefined;
+    params: unknown[];
+    where: string[];
+    clamped: boolean;
+  } {
+    const scope = subjectScope(viewer, query);
+    let since = timestamp(query.since, "since");
+    const until = timestamp(query.until, "until");
+    const tool = str(query.tool);
     const decision = str(query.decision);
     if (decision !== undefined && !["allowed", "denied", "filtered"].includes(decision)) {
-      return reply.code(400).send({ error: "invalid_argument", detail: "decision must be allowed, denied, or filtered" });
+      throw new BadRequest("invalid_argument", "decision must be allowed, denied, or filtered");
+    }
+
+    // Retention as a floor on the window: a configured horizon is what
+    // the deployment says it still holds, so a `since` reaching past it
+    // is moved to it and the caller is told it moved.
+    const policy = retention(nowMs);
+    let clamped = false;
+    if (policy.horizon && (since === undefined || Date.parse(since) < Date.parse(policy.horizon))) {
+      clamped = since !== undefined;
+      since = policy.horizon;
     }
 
     const params: unknown[] = [];
@@ -304,7 +413,6 @@ export function registerDashboard(app: FastifyInstance, deps: DashboardDeps): vo
       params.push(until);
       where.push(`ts <= $${params.length}::timestamptz`);
     }
-    const tool = str(query.tool);
     if (tool) {
       params.push(tool);
       where.push(`tool = $${params.length}`);
@@ -313,6 +421,84 @@ export function registerDashboard(app: FastifyInstance, deps: DashboardDeps): vo
       params.push(decision);
       where.push(`decision = $${params.length}`);
     }
+    return { scope, since, until, tool, decision, params, where, clamped };
+  }
+
+  /**
+   * What the window contains, counted by the server (B-4).
+   *
+   * Deliberately computed over **subject scope and window only** — not
+   * over the tool/decision filters. Narrowing to `decision=denied` must
+   * not also change the "3 denied" the auditor is reading, or the number
+   * would describe the filter rather than the window, and the one thing
+   * an auditor needs from a summary is that it does not move under them.
+   */
+  async function auditSummary(
+    viewer: Viewer,
+    query: Record<string, unknown>,
+    nowMs: number,
+  ): Promise<{
+    total: number;
+    by_decision: Record<string, number>;
+    by_tool: { tool: string; count: number }[];
+    governance: number;
+    tool_calls: number;
+  }> {
+    const windowOnly = { ...query };
+    delete windowOnly.tool;
+    delete windowOnly.decision;
+    const { params, where } = auditFilters(viewer, windowOnly, nowMs);
+    const { rows } = await deps.pool.query<{ tool: string; decision: string; n: string }>(
+      `SELECT tool, decision, count(*)::text AS n
+         FROM audit_records
+        ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
+        GROUP BY tool, decision`,
+      params,
+    );
+    const byDecision: Record<string, number> = {};
+    const byTool = new Map<string, number>();
+    let total = 0;
+    let governance = 0;
+    for (const row of rows) {
+      const n = Number(row.n);
+      total += n;
+      byDecision[row.decision] = (byDecision[row.decision] ?? 0) + n;
+      byTool.set(row.tool, (byTool.get(row.tool) ?? 0) + n);
+      // D-114.1's widened contract: a governance act names itself
+      // `dashboard.<module>.<act>`, an MCP call names the tool. The
+      // split is counted here so the view states the server's number
+      // rather than one it worked out from a page of fifty rows.
+      if (row.tool.startsWith(GOVERNANCE_TOOL_PREFIX)) governance += n;
+    }
+    return {
+      total,
+      by_decision: byDecision,
+      by_tool: [...byTool.entries()]
+        .map(([tool, count]) => ({ tool, count }))
+        .sort((a, b) => b.count - a.count || (a.tool < b.tool ? -1 : 1)),
+      governance,
+      tool_calls: total - governance,
+    };
+  }
+
+  app.get("/v1/dashboard/audit", async (req, reply) => {
+    const viewer = await viewerFor(req, reply);
+    if (!viewer) return reply;
+    const query = (req.query ?? {}) as Record<string, unknown>;
+    const nowMs = Date.now();
+    let page: Page;
+    let filters: ReturnType<typeof auditFilters>;
+    let summary: Awaited<ReturnType<typeof auditSummary>>;
+    try {
+      page = readPage(deps.cfg, query);
+      filters = auditFilters(viewer, query, nowMs);
+      summary = await auditSummary(viewer, query, nowMs);
+    } catch (err) {
+      return handle(reply, err);
+    }
+    const order = str(query.order) === "asc" ? "asc" : "desc";
+    const { scope, params, where } = filters;
+
     if (page.cursor) {
       params.push(page.cursor.ts, page.cursor.id);
       const n = params.length;
@@ -343,13 +529,158 @@ export function registerDashboard(app: FastifyInstance, deps: DashboardDeps): vo
       scope: { subject: scope.subject, role_scope: scope.roleScope },
       // §5.1: "audit records as stored" — args digests, decisions
       // including denied and filtered, with the true reason (M-8/M-4).
+      // Unchanged by B-4: the fields added to this response are siblings
+      // of `rows`, never keys inside a row, because `extract-audit.sh`
+      // renders these records field by field and the evidence it
+      // produces has to keep comparing line for line.
       rows: window_.map((row) => row.record),
+      summary,
+      retention: retention(nowMs),
+      window: { since: filters.since ?? null, until: filters.until ?? null, clamped: filters.clamped },
       page: {
         limit: page.limit,
         order,
         next_cursor: hasMore && last ? encodeCursor({ ts: last.ts, id: last.audit_id }) : null,
       },
     });
+  });
+
+  // -- (a2) Audit export (§5.1 + MCP §8's deferral, U-12) ---------------------
+
+  /** One CSV field: quoted always, so an embedded comma, quote or the
+   * newline inside a stored SQL statement cannot shift a column. */
+  function csvField(value: unknown): string {
+    const text =
+      value === null || value === undefined
+        ? ""
+        : typeof value === "object"
+          ? JSON.stringify(value)
+          : String(value);
+    return `"${text.replace(/"/g, '""')}"`;
+  }
+
+  const EXPORT_COLUMNS = [
+    "ts",
+    "audit_id",
+    "subject",
+    "roles",
+    "profile",
+    "session_id",
+    "tool",
+    "args_digest",
+    "kb_ref",
+    "snapshot_ref",
+    "decision",
+    "decision_reason",
+    "duration_ms",
+    "setup_stamp",
+    "result_meta",
+    "statement_text",
+  ] as const;
+
+  /**
+   * Export the window the caller is already reading (U-12, "retention /
+   * export").
+   *
+   * Three properties, each of which is the reason this is a server
+   * endpoint rather than a button that serializes whatever the browser
+   * happens to be holding:
+   *
+   * 1. **The same scope.** It builds its filters with `auditFilters`, so
+   *    a reporter exports their own rows and a crafted `subject=` is the
+   *    same 403 the read gives. There is no widening path through the
+   *    export.
+   * 2. **It says what it is.** Window, retention policy, row count, the
+   *    identity that asked and whether the cap truncated it — in the
+   *    JSON body, and in `#` comment lines above the CSV header so the
+   *    file still carries its provenance when it is mailed to somebody.
+   * 3. **Exporting is itself a governed act** and writes its own audit
+   *    row. Someone taking a copy of the audit trail out of the system
+   *    is exactly the event the trail should contain.
+   */
+  app.get("/v1/dashboard/audit/export", async (req, reply) => {
+    const viewer = await viewerFor(req, reply);
+    if (!viewer) return reply;
+    const query = (req.query ?? {}) as Record<string, unknown>;
+    const nowMs = Date.now();
+    const format = str(query.format) ?? "json";
+    if (!["json", "csv"].includes(format)) {
+      return reply.code(400).send({ error: "invalid_argument", detail: "format must be json or csv" });
+    }
+    let filters: ReturnType<typeof auditFilters>;
+    try {
+      filters = auditFilters(viewer, query, nowMs);
+    } catch (err) {
+      return handle(reply, err);
+    }
+    const { scope, params, where } = filters;
+    const cap = deps.cfg.dashboard.auditExportMax;
+    params.push(cap + 1);
+
+    const { rows } = await deps.pool.query<{ record: Record<string, unknown> }>(
+      `SELECT to_jsonb(a) AS record
+         FROM audit_records a
+        ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
+        ORDER BY a.ts ASC, a.audit_id ASC
+        LIMIT $${params.length}`,
+      params,
+    );
+    const truncated = rows.length > cap;
+    const records = (truncated ? rows.slice(0, cap) : rows).map((r) => r.record);
+    const policy = retention(nowMs);
+    const generatedAt = new Date(nowMs).toISOString();
+
+    const meta = {
+      api_version: API_VERSION,
+      generated_at: generatedAt,
+      exported_by: viewer.identity.subject,
+      scope: { subject: scope.subject, role_scope: scope.roleScope },
+      window: { since: filters.since ?? null, until: filters.until ?? null, clamped: filters.clamped },
+      filters: { tool: filters.tool ?? null, decision: filters.decision ?? null },
+      retention: policy,
+      rows: records.length,
+      truncated,
+      truncation_note: truncated
+        ? `This export stopped at the server's cap of ${cap} rows and is INCOMPLETE. ` +
+          "Narrow the window and export again; do not treat this file as the whole window."
+        : null,
+    };
+
+    await governanceAudit(
+      viewer,
+      "dashboard.audit.export",
+      {
+        format,
+        since: filters.since ?? null,
+        until: filters.until ?? null,
+        tool: filters.tool ?? null,
+        decision: filters.decision ?? null,
+      },
+      { decision: "allowed", resultMeta: { rows: records.length, truncated, format } },
+    );
+
+    const stamp = generatedAt.replace(/[:.]/g, "-").slice(0, 19);
+    if (format === "json") {
+      return reply
+        .header("content-disposition", `attachment; filename="audit-${stamp}.json"`)
+        .send({ ...meta, records });
+    }
+
+    const lines = [
+      `# Context Layer audit export — generated ${generatedAt} by ${viewer.identity.subject}`,
+      `# window: ${filters.since ?? "(open)"} .. ${filters.until ?? "(open)"}` +
+        (filters.clamped ? " [clamped to the retention horizon]" : ""),
+      `# scope: ${scope.roleScope}${scope.subject ? ` (subject=${scope.subject})` : ""}` +
+        ` · filters: tool=${filters.tool ?? "(any)"} decision=${filters.decision ?? "(any)"}`,
+      `# retention: ${policy.configured ? `${policy.days} day(s), horizon ${policy.horizon}` : "no policy configured — nothing has been aged out"}`,
+      `# rows: ${records.length}${truncated ? ` — TRUNCATED at the server cap of ${cap}; THIS FILE IS INCOMPLETE` : ""}`,
+      EXPORT_COLUMNS.map(csvField).join(","),
+      ...records.map((rec) => EXPORT_COLUMNS.map((c) => csvField(rec[c])).join(",")),
+    ];
+    return reply
+      .type("text/csv; charset=utf-8")
+      .header("content-disposition", `attachment; filename="audit-${stamp}.csv"`)
+      .send(lines.join("\n") + "\n");
   });
 
   // -- (b) Publish deliveries read (§5.2, U-9) -------------------------------
@@ -573,7 +904,7 @@ export function registerDashboard(app: FastifyInstance, deps: DashboardDeps): vo
     // somebody else is the DT-1 refusal on this endpoint.
     const requestedFiledBy = str(query.filed_by);
     let filedBy: string | undefined;
-    if (viewer.isSteward) {
+    if (viewer.readsAll) {
       filedBy = requestedFiledBy;
     } else {
       if (requestedFiledBy !== undefined && requestedFiledBy !== viewer.identity.subject) {
@@ -615,7 +946,7 @@ export function registerDashboard(app: FastifyInstance, deps: DashboardDeps): vo
 
     return reply.send({
       api_version: API_VERSION,
-      scope: { filed_by: filedBy ?? null, role_scope: viewer.isSteward ? "all" : "self" },
+      scope: { filed_by: filedBy ?? null, role_scope: viewer.readsAll ? "all" : "self" },
       issues: windowIssues.map(renderIssue),
       page: {
         limit: page.limit,
@@ -636,11 +967,12 @@ export function registerDashboard(app: FastifyInstance, deps: DashboardDeps): vo
   /**
    * §8's issue view: one issue plus its event stream.
    *
-   * Per-event `subject` is present for stewards only. That is not a
-   * courtesy — a steward already reads every audit row's subject under
-   * D-102.2, so withholding it here would be theatre; and LED-R7's
-   * counts-only rule governs the *queue*, which never carries an
-   * identity for anybody. Everyone else sees the stream without it.
+   * Per-event `subject` is present for full-read roles only. That is not
+   * a courtesy — a steward already reads every audit row's subject under
+   * D-102.2, and from B-4 so does an auditor, so withholding it here
+   * would be theatre; and LED-R7's counts-only rule governs the *queue*,
+   * which never carries an identity for anybody. Everyone else sees the
+   * stream without it.
    */
   const renderEvent = (viewer: Viewer, event: LedgerEventRow) => {
     const detail = { ...(event.detail ?? {}) };
@@ -652,7 +984,7 @@ export function registerDashboard(app: FastifyInstance, deps: DashboardDeps): vo
       kind: event.kind,
       system: event.system,
       object_fqn: event.object_fqn,
-      ...(viewer.isSteward ? { subject: event.subject } : {}),
+      ...(viewer.readsAll ? { subject: event.subject } : {}),
       profile: event.profile,
       audit_ref: event.audit_ref,
       kb_ref: event.kb_ref,
@@ -724,7 +1056,7 @@ export function registerDashboard(app: FastifyInstance, deps: DashboardDeps): vo
       return reply.code(404).send({ error: "not_found" });
     }
     const events = await listEvents(deps.pool, { issueId, limit: deps.cfg.dashboard.pageMax });
-    if (!viewer.isSteward && !events.some((e) => e.subject === viewer.identity.subject)) {
+    if (!viewer.readsAll && !events.some((e) => e.subject === viewer.identity.subject)) {
       return reply.code(404).send({ error: "not_found" });
     }
     return reply.send({

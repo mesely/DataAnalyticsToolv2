@@ -43,7 +43,7 @@ import type { Identity, OidcClient } from "./oidc.js";
 import { parsePolicy, type SyncPolicy } from "./policy.js";
 import { awaitJobResult, enqueue, EnqueueError } from "./queue.js";
 import { readRemoteFile } from "./gitkb.js";
-import { profilesForRoles } from "./dashboard.js";
+import { AUDITOR_PROFILE, profilesForRoles } from "./dashboard.js";
 import { authenticate, type SessionDeps } from "./session.js";
 import {
   deleteSyncSystem,
@@ -493,9 +493,16 @@ export function registerConnections(app: FastifyInstance, deps: ConnectionsDeps)
     const canWrite = auth.identity.roles.some((role) => deps.cfg.dashboard.adminRoles.includes(role));
     let ws: KbState | null = null;
     let isSteward = false;
+    // B-4: matrix §4 gives the auditor `read` on U-1. It joins the read
+    // gate below and touches neither branch above it — registering,
+    // changing, deleting and testing stay ops acts, and `canWrite` is
+    // still the only thing that decides them.
+    let isAuditor = false;
     try {
       ws = await deps.kb.current();
-      isSteward = profilesForRoles(ws, auth.identity.roles).has("steward");
+      const profiles = profilesForRoles(ws, auth.identity.roles);
+      isSteward = profiles.has("steward");
+      isAuditor = profiles.has(AUDITOR_PROFILE);
     } catch (err) {
       // The KB being unreachable must not silently widen or narrow the
       // gate: an ops role is decided from config and still stands, and a
@@ -528,8 +535,8 @@ export function registerConnections(app: FastifyInstance, deps: ConnectionsDeps)
           "this identity holds no ops role (dashboard spec §4, UI-7)",
       );
     }
-    if (!canWrite && !isSteward) {
-      return refuse("connections are visible to ops and steward identities (dashboard spec §4)");
+    if (!canWrite && !isSteward && !isAuditor) {
+      return refuse("connections are visible to ops, steward and auditor identities (dashboard spec §4)");
     }
     return { identity: auth.identity, ws, canWrite };
   }

@@ -44,6 +44,9 @@ const APP_SOURCES = [
   // B-3
   "Profiles.tsx",
   "Setup.tsx",
+  // B-4
+  "Audit.tsx",
+  "Benchmarks.tsx",
 ];
 
 async function fileRequest(
@@ -1059,19 +1062,22 @@ describe("B-1 dashboard surfaces", () => {
       expect(sources).toContain("secret-once");
     });
 
-    it("the module map now reports KB Health, Gap Triage, Publish and Ops as built", async () => {
+    it("the module map reports every shipped module as built", async () => {
       const res = await apiGet(rig, steward, "/v1/dashboard/modules");
       const modules = res.json.modules as { id: string; built: boolean }[];
-      // B-3 added `setup` and `profiles` to this list; the point of the
-      // assertion is that the flag tracks the build rather than the plan.
-      for (const id of ["kb_health", "gap_triage", "publish", "ops", "connections", "setup", "profiles"]) {
-        expect(modules.find((m) => m.id === id)!.built, `${id} should be built`).toBe(true);
+      // B-3 added `setup` and `profiles`; B-4 added `audit` and
+      // `benchmarks` and emptied this list's second half. The point of
+      // the assertion is that the flag tracks the build rather than the
+      // plan — and note what `built: true` does *not* mean for
+      // Benchmarks, which ships built and dark (UI-10, DT-6): the screen
+      // exists and works, and has nothing to render because nothing has
+      // been measured. Those are different states and the flag says the
+      // first one.
+      for (const module of modules) {
+        expect(module.built, `${module.id} should be built`).toBe(true);
       }
-      // The ones that genuinely are not, still declared and still marked
-      // — a menu that silently omits them teaches nobody (UI-10).
-      for (const id of ["audit", "benchmarks"]) {
-        expect(modules.find((m) => m.id === id)!.built, `${id} should not be built`).toBe(false);
-      }
+      expect(modules.map((m) => m.id)).toContain("audit");
+      expect(modules.map((m) => m.id)).toContain("benchmarks");
     });
 
     it("the SPA serves the inbox route, which is not a dashboard.yaml module", async () => {

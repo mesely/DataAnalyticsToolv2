@@ -311,6 +311,97 @@ export interface DeliveryList {
   page: { limit: number; order: string; next_cursor: string | null };
 }
 
+// -- Audit + Benchmarks (B-4) ------------------------------------------------
+
+/** One row, as the server stored it (§5.1: "audit records as stored").
+ * The shape is the table's, which is why the keys are snake_case and
+ * why nothing here is reformatted before it is shown. */
+export interface AuditRow {
+  audit_id: string;
+  ts: string;
+  subject: string;
+  roles: string[];
+  profile: string | null;
+  session_id: string | null;
+  tool: string;
+  args_digest: string;
+  kb_ref: string | null;
+  snapshot_ref: Record<string, string> | null;
+  decision: "allowed" | "denied" | "filtered";
+  decision_reason: string | null;
+  duration_ms: number | null;
+  result_meta: Record<string, unknown>;
+  statement_text: string | null;
+  /** D-108.4: what the session claimed about its compiled setup, or the
+   * literal `unstamped`. Null only on rows predating the column. */
+  setup_stamp: string | null;
+}
+
+export interface AuditList {
+  scope: { subject: string | null; role_scope: "self" | "all" };
+  rows: AuditRow[];
+  summary: {
+    total: number;
+    by_decision: Record<string, number>;
+    by_tool: { tool: string; count: number }[];
+    governance: number;
+    tool_calls: number;
+  };
+  retention: { configured: boolean; days: number | null; horizon: string | null; note: string };
+  window: { since: string | null; until: string | null; clamped: boolean };
+  page: { limit: number; order: string; next_cursor: string | null };
+}
+
+export interface BenchmarkStat {
+  mean: number;
+  min: number;
+  max: number;
+  n: number;
+}
+
+export interface BenchmarkConditionScores {
+  condition: string;
+  kb_ref: string | null;
+  journeys: number;
+  precision: BenchmarkStat | null;
+  recall: BenchmarkStat | null;
+  executable: BenchmarkStat | null;
+  correctness: BenchmarkStat | null;
+  correctness_scored: number;
+}
+
+export interface BenchmarkRun {
+  run_id: string;
+  kind: string | null;
+  customer: string | null;
+  suite_version: string | null;
+  backend: string | null;
+  model_id: string | null;
+  started_at: string | null;
+  ended_at: string | null;
+  reps: number | null;
+  cases: number;
+  conditions: string[];
+  kb_refs: Record<string, string>;
+  snapshot_refs: Record<string, string>;
+  coverage: {
+    journeys: number;
+    expected: number;
+    pairs: number;
+    expected_pairs: number;
+    complete: boolean;
+    shortfall: string | null;
+  };
+  scores: BenchmarkConditionScores[] | null;
+}
+
+export interface Benchmarks {
+  store: { configured: boolean; path: string | null; reason: string | null };
+  baseline: { landed: boolean; why: string | null };
+  runs: BenchmarkRun[];
+  unreadable: { run_id: string; reason: string }[];
+}
+
 export interface Run {
   run_id: string;
   systems: string[];

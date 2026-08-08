@@ -441,3 +441,59 @@ ul.worklist li.stacked { flex-direction: column; align-items: flex-start; gap: 0
 .legend li { margin-bottom: 0.3rem; }
 .steps { margin: 0.4rem 0 0 1.1rem; padding: 0; }
 .steps li { margin-bottom: 0.5rem; }
+
+/* -- Audit (B-4) ---------------------------------------------------------- */
+
+.filters {
+  display: flex; flex-wrap: wrap; gap: 0.7rem 0.9rem; align-items: flex-end;
+  padding: 0.8rem 1rem; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 0.5rem; margin-bottom: 1rem;
+}
+.filters label {
+  display: flex; flex-direction: column; gap: 0.2rem;
+  font-size: 0.78rem; color: var(--muted); text-transform: lowercase;
+}
+.filters input, .filters select { font: inherit; padding: 0.3rem 0.4rem; }
+
+.counts { margin: 0.4rem 0 0.8rem; }
+.audit-grid { width: 100%; }
+.audit-grid .ts { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.audit-grid .stamp-cell { white-space: nowrap; }
+.audit-row.governance code { color: var(--accent); }
+.audit-row .tag {
+  margin-left: 0.4rem; padding: 0.05rem 0.35rem; border-radius: 0.25rem;
+  font-size: 0.7rem; letter-spacing: 0.04em; text-transform: uppercase;
+  border: 1px solid var(--accent); color: var(--accent);
+}
+.decision { font-weight: 600; }
+.decision.d-denied, .decision.d-filtered { color: var(--red); }
+.decision.d-allowed { color: var(--green); }
+.audit-detail > td { background: var(--panel); border-bottom: 2px solid var(--line); }
+.statement { margin-top: 0.7rem; }
+.statement .label {
+  display: block; font-size: 0.72rem; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.2rem;
+}
+.statement pre {
+  margin: 0; padding: 0.5rem 0.7rem; overflow-x: auto;
+  border: 1px solid var(--line); border-radius: 0.35rem; font-size: 0.85rem;
+}
+.retention { margin: 0.8rem 0 1.2rem; }
+.retention > summary { cursor: pointer; color: var(--muted); font-size: 0.88rem; }
+.retention p { margin: 0.5rem 0; font-size: 0.9rem; }
+
+/* -- Benchmarks (B-4) ----------------------------------------------------- */
+
+.bench-run {
+  padding: 0.9rem 1rem; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 0.5rem; margin-bottom: 1rem;
+}
+.bench-run.partial { border-left: 3px solid var(--amber); }
+.bench-run > header { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: baseline; }
+.bench-run > header h3 { margin: 0; }
+.bench-scores { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.6rem; }
+.bench-condition {
+  flex: 1 1 16rem; padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line); border-radius: 0.4rem;
+}
+.bench-condition > header h4 { margin: 0 0 0.15rem; }

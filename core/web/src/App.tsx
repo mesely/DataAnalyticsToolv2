@@ -21,6 +21,8 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { api, type ApiError, type Inbox as InboxData, type Module, type ModuleMap, type Session } from "./api";
+import { Audit } from "./Audit";
+import { Benchmarks } from "./Benchmarks";
 import { Connections } from "./Connections";
 import { GapTriage } from "./GapTriage";
 import { Inbox } from "./Inbox";
@@ -55,6 +57,8 @@ const SCREENS: Record<string, (props: ScreenProps) => React.ReactNode> = {
   ops: ({ csrf }) => <Ops csrf={csrf} />,
   setup: () => <Setup />,
   profiles: ({ csrf }) => <Profiles csrf={csrf} />,
+  audit: () => <Audit />,
+  benchmarks: () => <Benchmarks />,
 };
 
 /** The inbox is not a `dashboard.yaml` module — it is the reply path

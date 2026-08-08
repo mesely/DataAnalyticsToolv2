@@ -10,6 +10,24 @@ on:
   pull_request:
 
 jobs:
+  # Ruling D-123.2, finding A6-F1: no tracked file may carry a NUL byte,
+  # because git then calls the file binary and every diff of it renders as
+  # "Bin N -> M bytes". Three source files were unreviewable that way for
+  # four milestones. Its own job rather than a step inside `tests`: it
+  # needs no Python package, no Docker and no containers, so it answers in
+  # seconds and a PR learns about an unreviewable diff before the suites
+  # have finished pulling images. The same check runs inside pytest
+  # (tests/test_nul_scan.py) so it holds locally too.
+  nul-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: No NUL bytes in tracked files (A6-F1 / D-123.2)
+        run: python -m tools.nul_scan
+
   tests:
     runs-on: ubuntu-latest
     steps:

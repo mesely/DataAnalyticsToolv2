@@ -40,7 +40,7 @@ import { neutralize } from "./changelog.js";
 import type { CoreConfig } from "./config.js";
 import type { KbState } from "./kbread.js";
 import type { Identity } from "./oidc.js";
-import { profilesForRoles } from "./dashboard.js";
+import { AUDITOR_PROFILE, profilesForRoles } from "./dashboard.js";
 import { onboardingStep, ONBOARDING_STEPS, runReport } from "./onboarding.js";
 import { enqueue, EnqueueError, listJobs } from "./queue.js";
 import { authenticate, type SessionDeps } from "./session.js";
@@ -143,8 +143,16 @@ export async function resolveOpsViewer(
         "are ops acts; this identity holds no ops role (dashboard spec §4, UI-7)",
     );
   }
-  if (!canWrite && !profiles.has("steward")) {
-    return refuse("run and job health is visible to ops and steward identities (dashboard spec §4)");
+  // B-4: matrix §4 gives the auditor `read` on U-10 (run history) and
+  // U-8 (sync state), and `metadata only` on U-11 — which is what this
+  // read already is, because a webhook secret has no read endpoint at
+  // all (UI-8). The write branch above is untouched: the auditor holds
+  // no ops role, so re-enqueue, rotation and the onboarding marks refuse
+  // for them exactly as they refuse for a reporter.
+  if (!canWrite && !profiles.has("steward") && !profiles.has(AUDITOR_PROFILE)) {
+    return refuse(
+      "run and job health is visible to ops, steward and auditor identities (dashboard spec §4)",
+    );
   }
   return { identity: auth.identity, ws, canWrite, profile };
 }

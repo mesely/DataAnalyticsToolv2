@@ -167,14 +167,20 @@ describe("A-2 setup delivery (PA-1): the requester's own bundle, no credential",
     // No IdP user wears two bound roles today, so this is asserted on
     // the binding rule itself: picking one silently would ship a user a
     // smaller product than their roles describe — PA-2's shape again.
+    //
+    // The profiles carry a real `tools.allow`, because from B-4 that is
+    // what makes them candidates at all (D-123.4a): a bundle *is* a
+    // client configuration, so a profile that could call nothing is not
+    // one. The fixture used to stub them as `{}`, which asserted this
+    // ruling through a shape no shipped profile has.
     const ws = {
       roles: [
         { key: "R1", profile: "reporter", oidcGroup: "reporter", visibility: ["**"] },
         { key: "R2", profile: "steward", oidcGroup: "steward", visibility: ["**"] },
       ],
       profiles: new Map<string, Record<string, unknown>>([
-        ["reporter", {}],
-        ["steward", {}],
+        ["reporter", { tools: { allow: ["search_context"] } }],
+        ["steward", { tools: { allow: ["search_context", "list_gaps"] } }],
       ]),
     } as unknown as KbState;
     const two = bindingFor(ws, ["reporter", "steward"]);
@@ -183,6 +189,41 @@ describe("A-2 setup delivery (PA-1): the requester's own bundle, no credential",
     expect(two.ok === false && two.status).toBe(409);
     const one = bindingFor(ws, ["reporter"]);
     expect(one.ok && one.profile).toBe("reporter");
+  });
+
+  it("a view-only profile beside an agent one is not an ambiguity (B-4)", () => {
+    // The auditor case, at the rule rather than over HTTP. D-107.3 —
+    // "refused, not resolved" — is untouched above; this is the other
+    // half of the same rule, and the two are asserted together so a
+    // future edit cannot quietly turn one into the other.
+    const ws = {
+      roles: [
+        { key: "R1", profile: "reporter", oidcGroup: "reporter", visibility: ["**"] },
+        { key: "R4", profile: "auditor", oidcGroup: "auditor", visibility: ["**"] },
+      ],
+      profiles: new Map<string, Record<string, unknown>>([
+        ["reporter", { tools: { allow: ["search_context"] } }],
+        ["auditor", { tools: { allow: [] } }],
+      ]),
+    } as unknown as KbState;
+    const both = bindingFor(ws, ["reporter", "auditor"]);
+    expect(both.ok && both.profile).toBe("reporter");
+
+    // And a pure auditor has no bundle at all — the matrix's "—" for
+    // U-2, arriving as the server's own refusal rather than as a menu
+    // entry nobody drew.
+    const pure = bindingFor(ws, ["auditor"]);
+    expect(pure.ok).toBe(false);
+    expect(pure.ok === false && pure.code).toBe("no_profile_binding");
+
+    // A profile the KB does not define at all is still the loud 503: a
+    // typo in roles.yaml must not be filtered into "you have no
+    // binding".
+    const missing = bindingFor(
+      { roles: [{ key: "RX", profile: "ghost", oidcGroup: "ghost", visibility: ["**"] }], profiles: new Map() } as unknown as KbState,
+      ["ghost"],
+    );
+    expect(missing.ok === false && missing.code).toBe("profile_missing");
   });
 
   it("carries no credential — canaries in the compile's environment never ship", async () => {

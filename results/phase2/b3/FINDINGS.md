@@ -1,6 +1,6 @@
 # B-3 findings
 
-Six. Five fixed; one (B3-F5) filed and named rather than fixed.
+Seven. Six fixed; one (B3-F5) filed and named rather than fixed.
 
 ---
 
@@ -151,6 +151,46 @@ shape too: lead with the *check* (`vault status | grep Sealed`), make the
 happy path "skip this", and put the variable assignment in the branch that
 needs it, quoting the migration runbook's own idiom rather than inventing
 a shorter one.
+
+---
+
+## B3-F7 — every vault step fails the same uninformative way with an empty variable
+
+**Fixed**, in the runbook. Found by the operator hitting it at step 2b,
+2026-08-08 — the second vault-shaped stumble of the same session, which is
+what makes it a finding rather than a typo.
+
+With `VT` unset, `docker compose exec -T -e VAULT_TOKEN="$VT" vault vault
+kv put …` answers:
+
+```
+URL: GET http://127.0.0.1:8200/v1/sys/internal/ui/mounts/secret/contextlayer/users/alper
+Code: 403.  * permission denied
+```
+
+Which reads as *"you may not write that path"* and means *"you sent no
+token"*. Two things make it hard to see. The URL is the KV-version probe
+the `kv` subcommand makes first, so it names the **target path** and not
+the credential. And `-e VAULT_TOKEN=""` is indistinguishable, from
+inside the container, from passing nothing.
+
+Reproduced both ways to be sure the diagnosis was not a guess: an empty
+token gives exactly the message above; an *invalid* token gives
+`* 2 errors occurred:`. So they are distinguishable — once somebody knows
+to look, which nobody does at the moment it happens.
+
+**The fix is a check, not a warning.** Step 1 now loads `VT` through the
+clipboard with a length assertion (28 chars — 44 means the unseal key was
+copied by mistake), proves it with `vault token lookup | grep policies`
+before anything depends on it, and says to stay in that terminal. Step 2b
+re-checks all three variables on one line before the write.
+
+**The pattern across F6 and F7 is worth naming**: both failures were in
+*variable plumbing* around vault, both surfaced as messages about
+something else, and both were in steps this runbook wrote out but never
+executed. The a4 migration runbook had already learned this — its
+`read -rs` note is the same lesson — and this page borrowed its commands
+without borrowing its checks.
 
 ---
 

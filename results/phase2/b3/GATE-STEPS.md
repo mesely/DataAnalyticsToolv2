@@ -106,16 +106,42 @@ permission for the core to *read* per-user git identities — the records
 step 2 creates. Without it, step 3 will refuse to compose a pull request
 and tell you exactly this.
 
-You need your vault root token for this, the same way acts 3–6 of
-`../a4/VAULT-MIGRATION-RUNBOOK.md` needed it. Set it in this shell from
-your password manager — paste the assignment, do not type the value into a
-command:
+You need your vault **root token** for this — not the unseal key — the
+same way acts 3–6 of `../a4/VAULT-MIGRATION-RUNBOOK.md` needed it. Both
+were printed once by `vault operator init` during the A-4 migration and
+should be in your password manager. Load it the way that runbook does, via
+the clipboard, so the value never reaches a command line:
 
 ```bash
-VT='paste-your-vault-root-token-here'
+# copy the ROOT TOKEN to the clipboard, then:
+VT=$(pbpaste); echo "VT is ${#VT} chars"        # expect 28
 ```
 
-Check whether the policy already carries the new path:
+`44 chars` means you copied the **unseal key** by mistake; `0 chars` means
+the variable is empty.
+
+**Prove it before you use it.** Every vault command below fails the same
+uninformative way with an empty variable, and the message is about the
+path you were writing to rather than about the token:
+
+```bash
+docker compose exec -T -e VAULT_TOKEN="$VT" vault vault token lookup | grep policies
+```
+
+You want `[root]`.
+
+> **The failure to recognise.** With `VT` empty you get
+> `Code: 403 … * permission denied` on a
+> `GET /v1/sys/internal/ui/mounts/secret/…` URL — which reads as "that
+> path is forbidden" and is really "no token was sent". An *invalid*
+> token looks different (`* 2 errors occurred:`), so the two are
+> distinguishable once you know to look. Found by the operator hitting
+> it, twice, in one session.
+
+**Stay in this terminal for the rest of step 1 and all of step 2.** `VT`
+lives in the shell, not on disk; a new tab has none.
+
+Now check whether the policy already carries the new path:
 
 ```bash
 docker compose exec -T -e VAULT_TOKEN="$VT" vault vault policy read cl-core | grep -c users
@@ -173,13 +199,23 @@ Nothing else. Copy the token — GitHub shows it once.
 **Where:** the same terminal, in `~/Desktop/DataProject`, with `VT` still
 set from step 1.
 
-Same idiom as the migration runbook: paste the value into a variable, then
-reference the variable — so the token is not sitting in a command line.
+Same idiom as the migration runbook: the value goes into a variable via
+the clipboard, and only the variable appears in a command.
 
 ```bash
-PAT='paste-the-github-token-here'
+# copy the GitHub token to the clipboard, then:
+PAT=$(pbpaste); echo "PAT is ${#PAT} chars"
 GITEMAIL='121034136+AlperCamli@users.noreply.github.com'
 ```
+
+**Check all three before the write** — this is the step that fails
+confusingly if any of them is empty:
+
+```bash
+echo "VT ${#VT} · PAT ${#PAT} · EMAIL ${#GITEMAIL}"
+```
+
+Any `0` means that variable is empty; set it again before continuing.
 
 Use the email GitHub associates with your commits. The address above is
 the one on your own knowledge-base commits, so unless you have changed it,

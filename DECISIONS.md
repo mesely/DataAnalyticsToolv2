@@ -7134,3 +7134,105 @@ because a stamp mismatch would have every session opening with a
 **What remains the operator's, unchanged:** the browser sign-in (PA-1 —
 a bundle carries no credential), every merge, every certification, and the
 floor-check journey under the reporter's own identity.
+
+## D-121 — A-5 CLOSED + B-3 authorization (owner ruling, 2026-08-08)
+
+Recorded verbatim.
+
+> 1. A-5 CLOSED on operator attestation (evidence seen; test runs
+>    successful; the session's closure extraction and re-grade govern
+>    the record — if its clause check is still pending, it completes
+>    as bookkeeping, not as a reopening). Playbook §9 items 3/4
+>    green; item 6's integrity half green, baseline half stays on
+>    BASELINE-1's trigger as ruled.
+> 2. NEXT: checkpoint B-3 per the serial order — profiles editor +
+>    setup export UI. Pre-rulings:
+>    a. The profile editor COMPOSES A PR under the editing user's
+>       identity (dashboard-spec §7.1 absolute): form → diff preview
+>       → PR with generated CL-Resolves trailer where a ledger issue
+>       is being resolved; no write path to KB main (DT-4).
+>    b. Setup export = B-0/A-2's download surfaced as UI: my-bundle
+>       page per role, staleness state visible, one-click download;
+>       a URL never carries a profile name (server-derived).
+>    c. Solo-operator reality applies: the composed PR's merge is
+>       the named act (D-116.3); the editor links to the PR, never
+>       merges.
+>    d. The GitHub PR-composition credential is a genuine decision —
+>       the session proposes in ≤5 lines (constraint: the PR author
+>       identity must be attributable to the editing user; the
+>       contextlayer-sync bot authoring human edits is NOT
+>       acceptable attribution).
+> 3. OPERATOR OUT-OF-BAND PILE, restated once (aging): vault rekey +
+>    root-token revoke; four SECRETS-INVENTORY rows; Stripe verdict
+>    for ledger 4c4ecb3d. None blocks B-3; all block CP-Ω's honest
+>    books.
+
+## D-121 as applied — task 0
+
+### D-121.1 — the A-5 closure bookkeeping, completed
+
+The prior session stopped at STOP awaiting the operator's run; the run
+happened and the record had not caught up. `results/phase2/a5/GATE-CHECK.md`
+is re-graded at the top and its 2026-08-07 grading kept below it verbatim,
+because the distance that grading recorded is the record.
+
+Measured from KB `main` `70760f5`, not from a report of the run:
+
+- **Item 3 GREEN.** Contaminated docs **33 → 0**, in four batches the
+  operator merged as reviewed diffs (KB PRs #49–#52). The criterion's own
+  words are *L1-derived* report-path docs, and grepping HEAD for the L1
+  evidence grade (`inferred from …`) returns one file — `conventions.md`,
+  which documents the ladder rather than using it. The L1 class in this
+  estate is empty; every human doc cites a constraint, a migration, a view
+  definition or a machine doc. Green on its own terms.
+- **Item 4 GREEN.** Ten metric docs at `status: verified` with
+  `last_verified: "2026-08-08 (Alper Camli)"` and a named owner, certified
+  in the operator's own commit `d1ddbfc`.
+- **Item 6 — integrity half GREEN.** KB PR #46 merged (`278a639`): the
+  golden suite and the KB-9 step now run on every KB PR, enforcing rather
+  than merely armed. The baseline half stays on BASELINE-1's trigger, as
+  ruled and as the phase plan §2.2 requires.
+
+**Stated rather than smoothed:** 44 human docs remain `status: draft`, 20
+of them reporting-view docs. That is the ordinary `draft` of an
+L2-grounded document nobody has had cause to certify — not a contamination
+residue, and not an unmet clause of item 3. It is written into GATE-CHECK
+so a later reader of "green" does not have to rediscover which 44
+documents it did not cover.
+
+**The instrument agreed without being asked to.** `test_no_contamination_in_current_kb`
+was red on 08-07 asserting exactly this estate's 33 docs, and is green
+today with nothing relaxed: python **829 passed / 14 skipped / 0 failed**;
+core **375 passed / 4 skipped / 30 files**.
+
+### D-121.2d — the PR-composition credential: a per-user git identity in the vault
+
+**Decided (operator, this session), and it is a DECISIONS entry rather than
+an amendment: the dashboard spec already says the editor composes a PR
+under the editing user's identity — this says with what.**
+
+    vault://<mount>/contextlayer/users/<subject>#git_token
+                                              #git_email
+                                              #git_name      (optional)
+
+The core resolves that record at compose time and uses **that** token to
+push the branch and open the pull request, so the PR's author on the
+provider is the person who filled in the form; the commit's author and
+committer come from the same record. The record is written out-of-band by
+the operator — never through the browser, because a credential field in
+the dashboard bundle would break DT-2 and reading one back would break
+UI-8. One provisioning step per editing user; the pilot needs exactly one.
+
+**No record is a refusal, not a fallback.** The compose endpoint answers
+`409 no_git_identity` naming the vault path to write. The
+`contextlayer-sync` PAT is never used for a human edit — asserted by test
+(`profiles.test.ts`), not by review, because the failure it prevents is
+precisely the one that looks like success: a PR that exists, is correct,
+and is signed by a robot.
+
+**The rejected alternative, named so the rejection is on the record:** a
+GitHub App with user-to-server OAuth. It is the better long-term answer —
+self-service, revocable, no PAT to age — and it is a checkpoint of its own
+(app registration, per-subject refresh-token store, revocation path).
+Shipping B-3's editor dark while that is built would trade a working
+surface for a tidier credential story.

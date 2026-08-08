@@ -73,6 +73,13 @@ export async function createTestDb(): Promise<{ url: string; drop: () => Promise
   };
 }
 
+/** What the core needs of a vault: a health probe for `/healthz` and a
+ * field read for the Profiles editor's per-user git identity (D-121.2d). */
+export interface TestVault {
+  health(): Promise<{ configured: boolean; reachable: boolean }>;
+  read(ref: string): Promise<string>;
+}
+
 export interface TestCore {
   cfg: CoreConfig;
   pool: pg.Pool;
@@ -81,7 +88,14 @@ export interface TestCore {
   stop: () => Promise<void>;
 }
 
-export async function startCore(overrides: Partial<CoreConfig> = {}): Promise<TestCore> {
+export async function startCore(
+  overrides: Partial<CoreConfig> = {},
+  /** B-3: the vault the core resolves per-user git identities through
+   * (D-121.2d). Supplying a stub is how a suite exercises "the pull
+   * request is the editing user's"; omitting one is how it exercises the
+   * refusal, which is the half that must never quietly fall back. */
+  opts: { vault?: TestVault | null } = {},
+): Promise<TestCore> {
   const { url, drop } = await createTestDb();
   const pool = createPool(url);
   await migrate(pool, path.resolve(repoRoot(), "core", "migrations"));
@@ -172,7 +186,7 @@ export async function startCore(overrides: Partial<CoreConfig> = {}): Promise<Te
   await notifier.start();
   let captured = "";
   const stream = { write: (chunk: string) => (captured += chunk) };
-  const app = buildServer(cfg, pool, notifier, stream);
+  const app = buildServer(cfg, pool, notifier, stream, { vault: opts.vault ?? null });
   await app.listen({ host: "127.0.0.1", port: 0 });
   const address = app.server.address();
   const port = typeof address === "object" && address ? address.port : 0;

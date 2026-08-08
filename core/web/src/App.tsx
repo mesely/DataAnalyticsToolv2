@@ -26,7 +26,9 @@ import { GapTriage } from "./GapTriage";
 import { Inbox } from "./Inbox";
 import { KbHealth } from "./KbHealth";
 import { Ops } from "./Ops";
+import { Profiles } from "./Profiles";
 import { Publish } from "./Publish";
+import { Setup } from "./Setup";
 import { Dark, ServerSays, Spinner, Text } from "./ui";
 
 const BASE = "/app";
@@ -51,6 +53,8 @@ const SCREENS: Record<string, (props: ScreenProps) => React.ReactNode> = {
   gap_triage: ({ csrf }) => <GapTriage csrf={csrf} />,
   publish: () => <Publish />,
   ops: ({ csrf }) => <Ops csrf={csrf} />,
+  setup: () => <Setup />,
+  profiles: ({ csrf }) => <Profiles csrf={csrf} />,
 };
 
 /** The inbox is not a `dashboard.yaml` module — it is the reply path

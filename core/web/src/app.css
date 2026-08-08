@@ -380,3 +380,60 @@ ul.worklist li.stacked { flex-direction: column; align-items: flex-start; gap: 0
   border-radius: 0 0.35rem 0.35rem 0; color: var(--muted);
 }
 .value-flags strong { color: var(--fg); }
+
+/* -- B-3: Profiles + Setup ------------------------------------------------ */
+
+/* The boundary sentence, on both screens. It is the server's own text
+   (§7.1 restated in the payload), given the weight of a rule rather than
+   the weight of a hint — this is the line the module exists not to
+   cross. */
+.boundary {
+  margin: 0 0 0.9rem; padding: 0.5rem 0.8rem; font-size: 0.9rem;
+  border-left: 3px solid var(--accent); background: var(--panel);
+  border-radius: 0 0.35rem 0.35rem 0;
+}
+
+.profile-form .row { display: flex; gap: 1rem; }
+.profile-form .row label { flex: 1; }
+.profiles .tools-cell code { display: block; font-size: 0.85em; }
+.profiles table.grid td { padding-right: 1rem; }
+
+/* The diff. Colour is doubled by the leading +/- character that is part
+   of the text itself, so the hunk reads the same to somebody who cannot
+   see the colours. */
+.diff {
+  margin: 0.6rem 0; padding: 0.6rem 0.2rem; overflow-x: auto;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 0.4rem;
+  font-size: 0.86rem; line-height: 1.45;
+}
+.diff .dl { padding: 0 0.6rem; white-space: pre; }
+.diff .dl-add { background: color-mix(in srgb, var(--green) 14%, transparent); }
+.diff .dl-del { background: color-mix(in srgb, var(--red) 14%, transparent); }
+.diff .dl-hunk { color: var(--accent); }
+.diff .dl-file { color: var(--muted); }
+
+.findings { list-style: none; padding: 0; margin: 0.6rem 0; }
+.finding {
+  display: flex; gap: 0.55rem; align-items: baseline; padding: 0.4rem 0.6rem;
+  border-left: 3px solid var(--line); margin-bottom: 0.3rem; font-size: 0.9rem;
+}
+.finding-error { border-left-color: var(--red); }
+.finding-warning { border-left-color: var(--amber); }
+.finding-level { text-transform: uppercase; font-size: 0.72rem; letter-spacing: 0.05em; color: var(--muted); }
+.finding-field { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em; }
+
+.preview, .composed {
+  margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--line);
+}
+.composed h3 { margin-top: 0; }
+
+.setup .my-bundle {
+  padding: 0.9rem 1rem; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 0.5rem; margin-bottom: 1.2rem;
+}
+.setup .my-bundle h3 { margin-top: 0; }
+.setup h3 { margin: 1.4rem 0 0.4rem; }
+.legend { list-style: none; padding: 0; margin: 0.6rem 0 0; font-size: 0.88rem; color: var(--muted); }
+.legend li { margin-bottom: 0.3rem; }
+.steps { margin: 0.4rem 0 0 1.1rem; padding: 0; }
+.steps li { margin-bottom: 0.5rem; }

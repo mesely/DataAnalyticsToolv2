@@ -8,7 +8,7 @@
  */
 
 import { setupMcpRig, USERS, type McpRig } from "./mcp-helpers.js";
-import type { TestCore } from "./helpers.js";
+import type { TestCore, TestVault } from "./helpers.js";
 
 export interface DashboardRig extends McpRig {
   /** Live PR store + refs, for the DT-11 "no git call" assertion. */
@@ -16,11 +16,18 @@ export interface DashboardRig extends McpRig {
 }
 
 export async function setupDashboardRig(
-  overrides: { dashboard?: Partial<TestCore["cfg"]["dashboard"]>; rolesYaml?: string | null } = {},
+  overrides: {
+    dashboard?: Partial<TestCore["cfg"]["dashboard"]>;
+    rolesYaml?: string | null;
+    /** B-3: the per-user git identity store the Profiles editor composes
+     * through. Omit it and the editor refuses — which is itself a case. */
+    vault?: TestVault | null;
+  } = {},
 ): Promise<DashboardRig> {
   const rig = await setupMcpRig({
     dashboard: { enabled: true, ...overrides.dashboard },
     ...(overrides.rolesYaml !== undefined ? { rolesYaml: overrides.rolesYaml } : {}),
+    ...(overrides.vault !== undefined ? { vault: overrides.vault } : {}),
   });
   // The redirect URI is derived from the public URL at request time, so
   // it can be pinned to the port the core actually bound.

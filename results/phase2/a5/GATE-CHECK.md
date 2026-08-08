@@ -1,5 +1,53 @@
 # A-5 gate check — playbook §9 items 3, 4, 6
 
+## Re-graded 2026-08-08 — **A-5 CLOSED** (D-121.1)
+
+Against KB `main` `70760f5` and platform `main` `b2a431d`. The operator ran
+the STOP list; this is the measurement of what it produced, taken from the
+KB at HEAD rather than from the report of the run. The original 2026-08-07
+grading is kept below, because the distance it recorded is the record.
+
+| Item | 2026-08-07 | now | Evidence |
+|---|---|---|---|
+| 3 — hot objects documented, L1 report-path docs human-verified | OPEN | **GREEN** | contaminated docs **33 → 0**; four triage batches merged as reviewed diffs (KB PRs #49 `8023e39`, #50 `40fa6d0`, #51 `f0b7db3`, #52 `70760f5`) |
+| 4 — every seed request resolves to entities + certified metrics | OPEN | **GREEN** | ten metric docs `status: verified`, `last_verified: "2026-08-08 (Alper Camli)"`, `owner: alper (operator)` — the certification commit is `d1ddbfc`, the operator's own |
+| 6 — benchmark baseline recorded and CI-wired | PARTIAL | **integrity half GREEN**, baseline half on BASELINE-1's trigger | KB PR #46 merged (`278a639`): `.contextlayer/benchmark/suite.yaml` + the KB-9 step now run on every KB PR — armed *and* enforcing, where on 08-07 it was armed and demonstrated |
+
+**Item 3, stated precisely, because the wording invites a softer reading.**
+The criterion is *L1-derived* report-path docs. Grepping HEAD for the L1
+evidence grade (`inferred from …`) returns **one file — `conventions.md`,
+which documents the ladder rather than using it**. No human doc in this
+estate is inference-derived: every one cites a constraint, a migration, a
+view definition or a machine doc. So the L1 class is empty and the item is
+green on its own terms, not on a generous one.
+
+**What is true and is not the criterion:** 44 human docs remain
+`status: draft` (20 of them reporting-view docs). That is the ordinary
+`draft` of an L2-grounded doc nobody has had reason to certify, not a
+contamination residue and not an unmet clause of item 3 — the estate's
+certified set is the 10 metrics plus `v_user_signups_by_day.md` and
+`entities/page.md`. Naming it here so a later reading of "green" does not
+have to rediscover which 44 documents it did not cover.
+
+**The suite agreed, without being asked to.** The Python contamination
+test (`test_no_contamination_in_current_kb`) was red on 08-07 asserting
+exactly this estate's 33 docs; it is green today with nothing relaxed —
+**829 passed / 14 skipped / 0 failed**. Core: **375 passed / 4 skipped**.
+
+**A5-F1/F2/F3 are behind us at the current pin.** The stack advertises
+`http://192.168.1.6:8100` and binds it: login `302`, IdP discovery `200`
+at the advertised address, `/healthz` `kb_ref 70760f5`, vault unsealed.
+The DHCP-lease defect A5-F3 names is unchanged and unfixed — it is a
+recommendation carried forward, not a gate item.
+
+**Still riding, and none of it blocks B-3:** the Stripe verdict for ledger
+`4c4ecb3d`; vault rekey + root-token revoke; four `SECRETS-INVENTORY.md`
+rows. All three block CP-Ω's honest books (D-121.3).
+
+---
+
+## The 2026-08-07 grading, kept as the record
+
 Graded 2026-08-07 against KB `main` `6bea39d` and platform `main` after
 this session. **Verdict: A-5 is NOT CLOSED.** All three items remain open,
 each behind an act only the operator can perform. What the session built is

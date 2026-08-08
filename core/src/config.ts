@@ -79,6 +79,17 @@ export interface DashboardConfig {
   /** How long a `test_connection` probe is awaited before the caller is
    * told there is no verdict yet (never told it failed). */
   probeTimeoutS: number;
+  /**
+   * B-3 / D-121.2d: where a user's own git identity lives in the vault.
+   *
+   * The Profiles editor resolves `<this>/<subject>#git_token` (and
+   * `#git_email`, `#git_name`) and pushes the branch and opens the pull
+   * request with it, so the author the provider records is the person who
+   * made the edit. It is a *path*, not a credential, and it is
+   * deployment-shaped: `secret/` is Vault's conventional KV v2 mount and
+   * a customer may mount it elsewhere.
+   */
+  gitIdentityPath: string;
 }
 
 export interface McpConfig {
@@ -353,6 +364,7 @@ function loadDashboardConfig(
       .split(",")
       .map((r) => r.trim())
       .filter(Boolean),
+    gitIdentityPath: (env.CORE_GIT_IDENTITY_PATH ?? "secret/contextlayer/users").replace(/^\/+|\/+$/g, ""),
   };
 }
 

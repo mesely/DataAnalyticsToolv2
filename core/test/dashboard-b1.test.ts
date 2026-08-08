@@ -41,6 +41,9 @@ const APP_SOURCES = [
   "Publish.tsx",
   "Ops.tsx",
   "Inbox.tsx",
+  // B-3
+  "Profiles.tsx",
+  "Setup.tsx",
 ];
 
 async function fileRequest(
@@ -1059,12 +1062,14 @@ describe("B-1 dashboard surfaces", () => {
     it("the module map now reports KB Health, Gap Triage, Publish and Ops as built", async () => {
       const res = await apiGet(rig, steward, "/v1/dashboard/modules");
       const modules = res.json.modules as { id: string; built: boolean }[];
-      for (const id of ["kb_health", "gap_triage", "publish", "ops", "connections"]) {
+      // B-3 added `setup` and `profiles` to this list; the point of the
+      // assertion is that the flag tracks the build rather than the plan.
+      for (const id of ["kb_health", "gap_triage", "publish", "ops", "connections", "setup", "profiles"]) {
         expect(modules.find((m) => m.id === id)!.built, `${id} should be built`).toBe(true);
       }
       // The ones that genuinely are not, still declared and still marked
       // — a menu that silently omits them teaches nobody (UI-10).
-      for (const id of ["profiles", "audit", "benchmarks", "setup"]) {
+      for (const id of ["audit", "benchmarks"]) {
         expect(modules.find((m) => m.id === id)!.built, `${id} should not be built`).toBe(false);
       }
     });

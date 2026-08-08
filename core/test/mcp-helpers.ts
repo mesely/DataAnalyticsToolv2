@@ -16,7 +16,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { startDevIdp, type DevIdp } from "../src/devidp.js";
 import { parseFrontMatter } from "../src/kbread.js";
-import { pythonPath, repoRoot, startCore, type TestCore } from "./helpers.js";
+import { pythonPath, repoRoot, startCore, type TestCore, type TestVault } from "./helpers.js";
 import { drillSnapshot, initScratchKb, py, syncConfig, type ScratchKb } from "./sync-helpers.js";
 
 export const USERS = {
@@ -242,6 +242,10 @@ export async function setupMcpRig(
     rolesYaml?: string | null;
     /** B-0 dashboard surface; off unless a suite asks for it. */
     dashboard?: Partial<TestCore["cfg"]["dashboard"]>;
+    /** B-3: a stub vault, for the suites that compose a pull request as
+     * the editing user (D-121.2d). Absent means the core has none — the
+     * state in which the Profiles editor refuses rather than falls back. */
+    vault?: TestVault | null;
   } = {},
 ): Promise<McpRig> {
   const base = await mkdtemp(path.join(tmpdir(), "cl-mcp-"));
@@ -344,11 +348,12 @@ export async function setupMcpRig(
             // for, exercised as the product ships it.
             adminRoles: ["ops"],
             probeTimeoutS: 5,
+            gitIdentityPath: "secret/contextlayer/users",
             ...overrides.dashboard,
           },
         }
       : {}),
-  });
+  }, { vault: overrides.vault ?? null });
   await insertAcceptedSnapshot(core, drill);
   await insertAcceptedSnapshot(core, ga4);
 

@@ -269,11 +269,31 @@ const TOOL_DEFS: { name: string; description: string; inputSchema: Record<string
   },
 ];
 
-/** Tools whose call takes a system/target qualifier (MCP-R4). */
+/**
+ * The tool surface, by name — "the eleven-tool surface; no other names
+ * exist" made readable by something other than this file.
+ *
+ * The Profiles editor (B-3) validates a `tools.allow` entry against this
+ * list, so a profile cannot be edited to grant a tool the server does not
+ * serve. That grant would not be dangerous — the server allows nothing it
+ * has no handler for — it would be *inert*, which is worse: an operator
+ * reads the profile, believes a permission was given, and the denial
+ * arrives at the point of use with a message about the allowlist.
+ */
+export const TOOL_NAMES: readonly string[] = TOOL_DEFS.map((d) => d.name);
+
+/** Tools whose call takes a system/target qualifier (MCP-R4), and which
+ * argument carries it. One map, read both by the per-call gate below and
+ * by the editor that validates a qualified grant before it is written. */
+export const QUALIFIED_TOOLS: ReadonlyMap<string, "system" | "target"> = new Map([
+  ["execute_sql", "system"],
+  ["publish_report", "target"],
+]);
+
 function qualifierArg(tool: string, args: Record<string, unknown>): string | undefined {
-  if (tool === "execute_sql") return typeof args.system === "string" ? args.system : undefined;
-  if (tool === "publish_report") return typeof args.target === "string" ? args.target : undefined;
-  return undefined;
+  const arg = QUALIFIED_TOOLS.get(tool);
+  if (arg === undefined) return undefined;
+  return typeof args[arg] === "string" ? (args[arg] as string) : undefined;
 }
 
 /**

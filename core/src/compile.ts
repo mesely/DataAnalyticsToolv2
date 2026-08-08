@@ -156,8 +156,12 @@ export interface CompileOptions {
  */
 export const KB_WORKING_COPY = "~/cl-steward/kb";
 
-/** The skills that open PRs against the KB, and therefore need a clone. */
-const KB_WRITING_SKILLS = new Set(["enrich", "review-sync"]);
+/** The skills that open PRs against the KB, and therefore need a clone.
+ * Exported because the Setup module (B-3) renders the clone instructions
+ * from the *same* set that decides whether the CLAUDE.md carries them —
+ * a screen that told a reporter to clone the KB, or omitted the path a
+ * steward needs, would be the B1-F5 shape a second time. */
+export const KB_WRITING_SKILLS = new Set(["enrich", "review-sync"]);
 
 function stringList(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];

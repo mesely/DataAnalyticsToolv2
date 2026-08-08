@@ -376,6 +376,89 @@ export interface RotatedSecret {
   hook_path: string;
 }
 
+// -- Profiles + Setup (B-3) --------------------------------------------------
+
+export interface ProfileRow {
+  name: string;
+  display_name: string;
+  description: string | null;
+  roles: string[];
+  tools_allow: string[];
+  limits: { row_cap?: number; timeout_s?: number };
+  skills: string[];
+  editable_fields: string[];
+}
+
+export interface ProfileCatalog {
+  tools: { name: string; qualifier: "system" | "target" | null }[];
+  skills: string[];
+  systems: string[];
+}
+
+export interface ProfileList {
+  kb: { ref: string; remote: string | null; base_branch: string; provider: string };
+  profiles: ProfileRow[];
+  catalog: ProfileCatalog;
+  composer: { ready: boolean; author: string | null; email: string | null; reason: string | null };
+  boundary: string;
+}
+
+export interface EditFinding {
+  level: "error" | "warning";
+  field: string;
+  message: string;
+}
+
+export interface Preview {
+  profile: string;
+  path: string;
+  changed: boolean;
+  diff: string;
+  findings: EditFinding[];
+  blocking: boolean;
+  stamp: { before: string | null; after: string | null; moves: boolean };
+  trailer: string | null;
+  resolves: { issue_id: string; kind: string; title: string } | null;
+  pr_title: string;
+  pr_body: string;
+  branch: string;
+  preview_digest: string;
+  note: string;
+}
+
+export interface ComposedPr {
+  profile: string;
+  pull_request: { number: number; url: string; branch: string };
+  author: { subject: string; name: string; email: string };
+  trailer: string | null;
+  resolves: { issue_id: string; kind: string; title: string } | null;
+  stamp: { before: string | null; after: string | null; moves: boolean };
+  diff: string;
+  next: string;
+}
+
+export interface SetupStatus {
+  profile: string;
+  subject: string;
+  kb_ref: string;
+  setup_stamp: string | null;
+  state: "current" | "stale" | "unstamped" | "unknown";
+  presented_stamp: boolean;
+  download: string;
+  notice: string | null;
+  sessions: { stamp: string; state: string; last_seen: string; calls: number }[];
+  bundle: {
+    compilable: boolean;
+    reason: string | null;
+    files: { path: string; bytes: number }[];
+    skills: string[];
+    needs_kb_clone: boolean;
+    kb_working_copy: string | null;
+    kb_remote: string | null;
+    mcp_url: string | null;
+  };
+}
+
 export interface TestCheck {
   capability: string;
   status: string;

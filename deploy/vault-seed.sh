@@ -73,6 +73,21 @@ path "secret/data/contextlayer/core" {
 path "secret/data/contextlayer/core/*" {
   capabilities = ["read"]
 }
+# B-3 (D-121.2d): per-user git identities, read only. The Profiles editor
+# resolves the *editing user's* own token here and pushes the branch and
+# opens the pull request with it, so the author the provider records is
+# the person who made the edit rather than this platform.
+#
+# Read, never write: the record is provisioned by an operator, out of
+# band, from their own hands. A core that could write this path could
+# mint a git identity, which is the one thing a credential store exists
+# to stop it doing.
+#
+# Subtree only — nothing is ever stored at the prefix itself, so the
+# exact-path grant the two rules above need does not apply here.
+path "secret/data/contextlayer/users/*" {
+  capabilities = ["read"]
+}
 POLICY
 
 vault policy write cl-runner - <<'POLICY'

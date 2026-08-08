@@ -110,11 +110,34 @@ export async function commitAll(
   return true;
 }
 
+/**
+ * Push a working copy to a *branch*, never to the base.
+ *
+ * The refusal is here rather than in each caller because it is the
+ * product's rule and not one surface's: "the dashboard has no write path
+ * to KB `main`" (dashboard spec §7.1, DT-4) and "the product never
+ * merges" (SO-B) are the same sentence said about two callers, and both
+ * of them reach the remote through this function. A guard in the caller
+ * proves the caller; a guard here proves the repository — including for
+ * the caller nobody has written yet.
+ *
+ * Nothing legitimate is blocked: the sync orchestrator pushes `sync/…`
+ * and the Profiles editor pushes `profile-edit/…`. A push to the base
+ * branch would be a bug of exactly the kind that is invisible in review
+ * and irreversible in effect.
+ */
 export async function pushBranch(
   cfg: SyncConfig,
   workdir: string,
   branch: string,
 ): Promise<void> {
+  if (branch === cfg.baseBranch) {
+    throw new GitError(
+      `refusing to push ${branch}: it is this KB's base branch. Changes reach ` +
+        `${cfg.baseBranch} by a human merging a reviewed pull request, and there is no ` +
+        `code path in this product that does it another way (dashboard spec §7.1, SO-B)`,
+    );
+  }
   await git(cfg, ["push", "--quiet", "origin", `HEAD:refs/heads/${branch}`], workdir);
 }
 

@@ -88,15 +88,17 @@ export const MODULES: ModuleDef[] = [
     id: "setup",
     title: "Setup",
     path: "/setup",
-    built: false,
-    description: "Bundle download and staleness. The server half ships (A-2); the view arrives at B-3.",
+    built: true,
+    description:
+      "Your own compiled bundle: what it carries, whether the sessions running it are current, and a one-click download.",
   },
   {
     id: "profiles",
     title: "Profiles",
     path: "/profiles",
-    built: false,
-    description: "Profile editing, as a pull request under your identity. Arrives at checkpoint B-3.",
+    built: true,
+    description:
+      "Edit a profile's tools, limits and skills as a pull request under your own identity. There is no merge button.",
   },
   {
     id: "ops",

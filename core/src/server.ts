@@ -48,6 +48,7 @@ import { registerConnections } from "./connections.js";
 import { registerDashboard } from "./dashboard.js";
 import { registerKbHealth } from "./kbhealth.js";
 import { registerOps } from "./ops.js";
+import { registerProfileEditor } from "./profileedit.js";
 import { APP_BASE, registerSpa } from "./spa.js";
 import { KbReader } from "./kbread.js";
 import { registerMcp } from "./mcp.js";
@@ -78,9 +79,12 @@ export function buildServer(
   notifier: JobsNotifier,
   logStream?: { write: (chunk: string) => void },
   /** A-4: the vault this core resolved its own config through, so
-   *  `/healthz` can say whether it is still reachable. Null when the
-   *  deployment names no vault, which is a legitimate state. */
-  opts?: { vault?: Pick<VaultClient, "health"> | null },
+   *  `/healthz` can say whether it is still reachable — and, since B-3,
+   *  so the Profiles editor can resolve the editing user's own git
+   *  identity from it (D-121.2d). Null when the deployment names no
+   *  vault, which is a legitimate state: the editor then refuses to
+   *  compose rather than falling back to the platform's credential. */
+  opts?: { vault?: Pick<VaultClient, "health" | "read"> | null },
 ): FastifyInstance {
   const app = Fastify({
     logger: logStream
@@ -592,6 +596,11 @@ export function buildServer(
     // B-1: Ops reads + the write surfaces §3 puts here (dead-letter
     // re-enqueue as the user, webhook secret rotation write-only).
     registerOps(app, deps);
+    // B-3: the Profiles editor. It gets the vault because the pull
+    // request it composes is authored by the *editing user's* own git
+    // credential (D-121.2d) — the one dependency in this list that
+    // exists to keep the platform's own credential out of a human edit.
+    registerProfileEditor(app, { ...deps, vault: opts?.vault ?? null });
     // B-2: the SPA itself — static assets, served by the core behind the
     // same session (D-103.1: no second server, no second identity
     // domain). Registered last so no asset route can shadow an API one.

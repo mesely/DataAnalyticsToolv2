@@ -180,10 +180,21 @@ token gives exactly the message above; an *invalid* token gives
 to look, which nobody does at the moment it happens.
 
 **The fix is a check, not a warning.** Step 1 now loads `VT` through the
-clipboard with a length assertion (28 chars — 44 means the unseal key was
-copied by mistake), proves it with `vault token lookup | grep policies`
-before anything depends on it, and says to stay in that terminal. Step 2b
+clipboard, proves it with `vault token lookup | grep policies` before
+anything depends on it, and says to stay in that terminal. Step 2b
 re-checks all three variables on one line before the write.
+
+**And the first version of that fix was itself wrong**, within minutes.
+It asserted the token's *length* — "expect 28", carried over from the a4
+runbook — and the operator's token is 111 characters, because a token
+minted after `operator init` (by `generate-root`, or any `token create`)
+carries an embedded payload. The assertion fired a false alarm on a
+perfectly good credential. That is the failure the Setup module of this
+same checkpoint exists to avoid — *a false alarm teaches people to ignore
+the true one* — committed in a runbook two hours after it was written into
+the product. The check now reads the `hvs.` **prefix**, which is a fact
+about the format, and defers the verdict to `token lookup`, which is the
+only thing that actually knows.
 
 **The pattern across F6 and F7 is worth naming**: both failures were in
 *variable plumbing* around vault, both surfaced as messages about

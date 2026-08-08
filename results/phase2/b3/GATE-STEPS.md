@@ -114,21 +114,32 @@ the clipboard, so the value never reaches a command line:
 
 ```bash
 # copy the ROOT TOKEN to the clipboard, then:
-VT=$(pbpaste); echo "VT is ${#VT} chars"        # expect 28
+VT=$(pbpaste); echo "VT is ${#VT} chars, prefix ${VT:0:4}"
 ```
 
-`44 chars` means you copied the **unseal key** by mistake; `0 chars` means
-the variable is empty.
+**Read the prefix, not the length.** `hvs.` is a Vault service token and
+that is all this line can tell you. A token straight out of
+`operator init` is about 28 characters; one minted later — by
+`generate-root`, or any `token create` — carries an embedded payload and
+runs past 100. Both are fine. `0 chars` means the variable is empty, and
+a `44`-character value with no `hvs.` prefix is the **unseal key**, copied
+by mistake.
 
-**Prove it before you use it.** Every vault command below fails the same
-uninformative way with an empty variable, and the message is about the
-path you were writing to rather than about the token:
+**Then prove it, which is the only check that means anything.** Every
+vault command below fails the same uninformative way with an empty
+variable, and the message is about the path you were writing to rather
+than about the token:
 
 ```bash
 docker compose exec -T -e VAULT_TOKEN="$VT" vault vault token lookup | grep policies
 ```
 
-You want `[root]`.
+You want `[root]`. If it errors, the usual cause is a label or whitespace
+pasted along with the value:
+
+```bash
+VT=$(pbpaste | tr -d '[:space:]')
+```
 
 > **The failure to recognise.** With `VT` empty you get
 > `Code: 403 … * permission denied` on a

@@ -47,7 +47,7 @@ import {
 import { registerConnections } from "./connections.js";
 import { registerDashboard } from "./dashboard.js";
 import { registerKbHealth } from "./kbhealth.js";
-import { registerOps } from "./ops.js";
+import { registerOnboarding, registerOps } from "./ops.js";
 import { registerProfileEditor } from "./profileedit.js";
 import { APP_BASE, registerSpa } from "./spa.js";
 import { KbReader } from "./kbread.js";
@@ -596,6 +596,9 @@ export function buildServer(
     // B-1: Ops reads + the write surfaces §3 puts here (dead-letter
     // re-enqueue as the user, webhook secret rotation write-only).
     registerOps(app, deps);
+    // A-6: the onboarding timers' governed surface — arm, mark, finish,
+    // report. Same module, same gate; a panel rather than a screen.
+    registerOnboarding(app, deps);
     // B-3: the Profiles editor. It gets the vault because the pull
     // request it composes is authored by the *editing user's* own git
     // credential (D-121.2d) — the one dependency in this list that

@@ -208,6 +208,35 @@ describe("A-2 setup delivery (PA-1): the requester's own bundle, no credential",
     expect(names.some((n) => n.startsWith(".claude/skills/report/") && n.endsWith(".py"))).toBe(true);
   });
 
+  /**
+   * A-6/OB-4: playbook step 7 closes when somebody can actually pick up
+   * their setup, and the instrument is wired *here* — at the route that
+   * compiles and serves it. Asserted at the call site rather than at
+   * `captureAuto`, because a capture helper that nothing calls passes
+   * every test written about the helper.
+   */
+  it("closes onboarding step 7 when a bundle is served, and only while a run is armed", async () => {
+    await rig.core.pool.query(`DELETE FROM onboarding_runs`);
+
+    // Disarmed — the product's normal state. Serving a bundle records nothing.
+    expect((await download(rig, reporter)).status).toBe(200);
+    const idle = await rig.core.pool.query(`SELECT count(*)::int AS n FROM onboarding_step_records`);
+    expect(idle.rows[0].n).toBe(0);
+
+    await rig.core.pool.query(
+      `INSERT INTO onboarding_runs (run_id, label, armed_by) VALUES ('a6-setup', 'setup-case', 'test')`,
+    );
+    expect((await download(rig, reporter)).status).toBe(200);
+    const { rows } = await rig.core.pool.query<{ step_key: string; evidence: Record<string, unknown> }>(
+      `SELECT step_key, evidence FROM onboarding_step_records WHERE run_id = 'a6-setup'`,
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.step_key).toBe("profiles_roles");
+    expect(rows[0]!.evidence.event).toBe("profile_compiled");
+    expect(rows[0]!.evidence.profile).toBe("reporter");
+    await rig.core.pool.query(`DELETE FROM onboarding_runs`);
+  });
+
   it("is byte-identical across downloads of one profile state", async () => {
     const first = await download(rig, reporter);
     const second = await download(rig, reporter);

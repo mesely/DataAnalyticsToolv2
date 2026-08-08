@@ -25,6 +25,11 @@
  * The rotate route generates, stores only a sha256, and returns the
  * plaintext in that one reply. There is no route here that reads a
  * secret back, and there could not be — the store holds a hash.
+ *
+ * A-6 adds the **onboarding timers'** governed surface at the bottom of
+ * this file (arm, mark, finish, report). Their instrument is
+ * `onboarding.ts`; what lives here is the addresses and the role gate,
+ * because the affordance is a panel on this module's screen.
  */
 
 import { createHash, randomBytes } from "node:crypto";
@@ -36,9 +41,11 @@ import type { CoreConfig } from "./config.js";
 import type { KbState } from "./kbread.js";
 import type { Identity } from "./oidc.js";
 import { profilesForRoles } from "./dashboard.js";
+import { onboardingStep, ONBOARDING_STEPS, runReport } from "./onboarding.js";
 import { enqueue, EnqueueError, listJobs } from "./queue.js";
 import { authenticate, type SessionDeps } from "./session.js";
 import { getSyncSystem, setHookSecret } from "./triggers.js";
+import { ulid } from "./ulid.js";
 
 export const API_VERSION = "1";
 
@@ -65,11 +72,81 @@ export interface OpsDeps extends SessionDeps {
   log: (msg: string, err?: unknown) => void;
 }
 
-interface OpsViewer {
+export interface OpsViewer {
   identity: Identity;
   ws: KbState | null;
   canWrite: boolean;
   profile: string | null;
+}
+
+/**
+ * The Ops gate, resolved once and shared.
+ *
+ * Same gate shape as Connections, and deliberately the same roles: an
+ * ops identity writes, a steward reads. Re-enqueueing a job, rotating a
+ * webhook secret and arming an onboarding run are provisioning acts
+ * (UI-7), and the steward's job is to see the estate, not to run it.
+ *
+ * It lives at module scope rather than inside `registerOps` because the
+ * onboarding panel (A-6) is part of this module and must be gated by the
+ * *same* function rather than by a second one that looks like it. Two
+ * copies of an authorization rule is how the copies drift.
+ *
+ * `area` names the act in the audit row (`dashboard.<area>.<need>`) and
+ * nothing else — it never widens or narrows what is permitted.
+ */
+export async function resolveOpsViewer(
+  deps: OpsDeps,
+  req: FastifyRequest,
+  reply: FastifyReply,
+  need: "read" | "write",
+  area = "ops",
+): Promise<OpsViewer | null> {
+  const auth = await authenticate(deps, req, { write: need === "write" });
+  if (!auth.ok) {
+    await reply.code(auth.status).send({ error: auth.code, detail: auth.detail });
+    return null;
+  }
+  const canWrite = auth.identity.roles.some((role) => deps.cfg.dashboard.adminRoles.includes(role));
+  let ws: KbState | null = null;
+  let profiles = new Set<string>();
+  try {
+    ws = await deps.kb.current();
+    profiles = profilesForRoles(ws, auth.identity.roles);
+  } catch (err) {
+    deps.log("KB workspace unavailable while resolving ops access", err);
+  }
+  const profile = [...profiles].sort().join(",") || null;
+  const refuse = async (detail: string): Promise<null> => {
+    // The refusal is audited before it is sent (D-114.1): a denied
+    // governance act is exactly the row an auditor came for.
+    await writeGovernanceAudit(
+      deps.pool,
+      {
+        subject: auth.identity.subject,
+        roles: auth.identity.roles,
+        profile,
+        tool: `dashboard.${area}.${need}`,
+        args: { path: req.url, method: req.method },
+        kbRef: ws?.headSha ?? null,
+        decision: "denied",
+        decisionReason: detail,
+      },
+      deps.log,
+    );
+    await reply.code(403).send({ error: "forbidden", detail });
+    return null;
+  };
+  if (need === "write" && !canWrite) {
+    return refuse(
+      "re-enqueueing a job, rotating a webhook secret and arming or marking an onboarding run " +
+        "are ops acts; this identity holds no ops role (dashboard spec §4, UI-7)",
+    );
+  }
+  if (!canWrite && !profiles.has("steward")) {
+    return refuse("run and job health is visible to ops and steward identities (dashboard spec §4)");
+  }
+  return { identity: auth.identity, ws, canWrite, profile };
 }
 
 
@@ -120,63 +197,11 @@ async function chainOutcomes(
 }
 
 export function registerOps(app: FastifyInstance, deps: OpsDeps): void {
-  /**
-   * Same gate shape as Connections, and deliberately the same roles: an
-   * ops identity writes, a steward reads. Re-enqueueing a job and
-   * rotating a webhook secret are provisioning acts (UI-7), and the
-   * steward's job is to see the estate, not to run it.
-   */
-  async function viewerFor(
+  const viewerFor = (
     req: FastifyRequest,
     reply: FastifyReply,
     need: "read" | "write",
-  ): Promise<OpsViewer | null> {
-    const auth = await authenticate(deps, req, { write: need === "write" });
-    if (!auth.ok) {
-      await reply.code(auth.status).send({ error: auth.code, detail: auth.detail });
-      return null;
-    }
-    const canWrite = auth.identity.roles.some((role) => deps.cfg.dashboard.adminRoles.includes(role));
-    let ws: KbState | null = null;
-    let profiles = new Set<string>();
-    try {
-      ws = await deps.kb.current();
-      profiles = profilesForRoles(ws, auth.identity.roles);
-    } catch (err) {
-      deps.log("KB workspace unavailable while resolving ops access", err);
-    }
-    const profile = [...profiles].sort().join(",") || null;
-    const refuse = async (detail: string): Promise<null> => {
-      // The refusal is audited before it is sent (D-114.1): a denied
-      // governance act is exactly the row an auditor came for.
-      await writeGovernanceAudit(
-        deps.pool,
-        {
-          subject: auth.identity.subject,
-          roles: auth.identity.roles,
-          profile,
-          tool: `dashboard.ops.${need}`,
-          args: { path: req.url, method: req.method },
-          kbRef: ws?.headSha ?? null,
-          decision: "denied",
-          decisionReason: detail,
-        },
-        deps.log,
-      );
-      await reply.code(403).send({ error: "forbidden", detail });
-      return null;
-    };
-    if (need === "write" && !canWrite) {
-      return refuse(
-        "re-enqueueing a job and rotating a webhook secret are ops acts; " +
-          "this identity holds no ops role (dashboard spec §4, UI-7)",
-      );
-    }
-    if (!canWrite && !profiles.has("steward")) {
-      return refuse("run and job health is visible to ops and steward identities (dashboard spec §4)");
-    }
-    return { identity: auth.identity, ws, canWrite, profile };
-  }
+  ): Promise<OpsViewer | null> => resolveOpsViewer(deps, req, reply, need);
 
   const limitOf = (raw: unknown, fallback: number): number => {
     const parsed = Number(raw);
@@ -592,5 +617,248 @@ export function registerOps(app: FastifyInstance, deps: OpsDeps): void {
         "return it again; if it is lost, rotate for a new one.",
       hook_path: `/v1/hooks/${encodeURIComponent(system)}`,
     });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Onboarding timers (A-6 / OB-4, D-122.4)
+//
+// The instrument is `onboarding.ts`; these are its governed addresses,
+// and they live here because the panel that drives them is the Ops
+// module's — the ruling asked for a small panel, not a new module. The
+// gate is `resolveOpsViewer`, the same function the rest of this file
+// uses, so "who may arm a run" cannot drift away from "who may re-enqueue
+// a job".
+
+export function registerOnboarding(app: FastifyInstance, deps: OpsDeps): void {
+  const viewerFor = (req: FastifyRequest, reply: FastifyReply, need: "read" | "write") =>
+    resolveOpsViewer(deps, req, reply, need, "ops.onboarding");
+
+  /**
+   * The run report. **A deployment with no run answers `run: null`**, and
+   * the panel renders that as a dark state rather than as an empty table
+   * of zeroes (UI-10): "nothing has been measured" and "everything took
+   * no time" are different facts, and only one of them is true here.
+   */
+  app.get("/v1/dashboard/ops/onboarding", async (req, reply) => {
+    const viewer = await viewerFor(req, reply, "read");
+    if (!viewer) return reply;
+    const query = (req.query ?? {}) as Record<string, unknown>;
+    const wanted = typeof query.run === "string" && query.run ? query.run : null;
+    const report = await runReport(deps.pool, wanted);
+    const { rows: history } = await deps.pool.query<{ run_id: string; label: string; armed_at: string }>(
+      `SELECT run_id, label, to_jsonb(armed_at) #>> '{}' AS armed_at
+         FROM onboarding_runs ORDER BY armed_at DESC LIMIT 20`,
+    );
+    return reply.send({
+      api_version: API_VERSION,
+      role_scope: viewer.canWrite ? "write" : "read",
+      // The playbook's steps travel with the report so the panel never
+      // holds a second copy of the step list to drift out of date.
+      steps_spec: ONBOARDING_STEPS,
+      run: report ? report.run : null,
+      steps: report ? report.steps : [],
+      targets: report
+        ? report.targets
+        : {
+            set: false,
+            why: "OB-4's duration targets are unset until real onboardings have been measured (D-122.4).",
+          },
+      measurement_note: report?.measurement_note ?? null,
+      history: history.map((h) => ({ ...h, label: neutralize(h.label) })),
+    });
+  });
+
+  /**
+   * Arm a run. One at a time, enforced by the schema — a second armed
+   * run would make every automatic capture ambiguous, so the refusal
+   * names the run that already holds the slot rather than queueing.
+   */
+  app.post("/v1/dashboard/ops/onboarding/arm", async (req, reply) => {
+    const viewer = await viewerFor(req, reply, "write");
+    if (!viewer) return reply;
+    const body = (req.body ?? {}) as Record<string, unknown>;
+    const label = typeof body.label === "string" ? body.label.trim() : "";
+    if (!label) {
+      return reply.code(400).send({
+        error: "label_required",
+        detail:
+          "name the estate this run measures — a run record with no label is a set of durations " +
+          "nobody can attribute a year from now",
+      });
+    }
+    const existing = await deps.pool.query<{ run_id: string; label: string }>(
+      `SELECT run_id, label FROM onboarding_runs WHERE finished_at IS NULL`,
+    );
+    if (existing.rows.length > 0) {
+      const open = existing.rows[0]!;
+      return reply.code(409).send({
+        error: "already_armed",
+        detail:
+          `onboarding run ${open.run_id} (${open.label}) is still armed. Finish it before arming ` +
+          "another — two armed runs would make every automatic capture ambiguous.",
+        run_id: open.run_id,
+      });
+    }
+    const runId = ulid();
+    await deps.pool.query(
+      `INSERT INTO onboarding_runs (run_id, label, topology, armed_by, note)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        runId,
+        label,
+        typeof body.topology === "string" && body.topology ? body.topology : null,
+        viewer.identity.subject,
+        typeof body.note === "string" && body.note ? body.note : null,
+      ],
+    );
+    await writeGovernanceAudit(
+      deps.pool,
+      {
+        subject: viewer.identity.subject,
+        roles: viewer.identity.roles,
+        profile: viewer.profile,
+        tool: "dashboard.ops.onboarding_arm",
+        args: { label, topology: body.topology ?? null },
+        kbRef: viewer.ws?.headSha ?? null,
+        decision: "allowed",
+        decisionReason: null,
+        resultMeta: { run_id: runId },
+      },
+      deps.log,
+    );
+    return reply.code(201).send({
+      api_version: API_VERSION,
+      run_id: runId,
+      label: neutralize(label),
+      armed_by: viewer.identity.subject,
+      note:
+        "Capture is live from now. Five steps close themselves on product events; the other five " +
+        "are yours to mark as you finish them.",
+    });
+  });
+
+  /**
+   * Mark a step the product cannot see.
+   *
+   * An `auto` step may be marked too, and the record then says
+   * `capture: operator` and the report flags it `hand_marked` — a
+   * customer whose KB CI is not wired should not be left with a hole in
+   * the record, but a hand-marked step must never pass for a machine
+   * observation either.
+   */
+  app.post("/v1/dashboard/ops/onboarding/steps/:stepKey/mark", async (req, reply) => {
+    const viewer = await viewerFor(req, reply, "write");
+    if (!viewer) return reply;
+    const { stepKey } = req.params as { stepKey: string };
+    const spec = onboardingStep(stepKey);
+    if (!spec) {
+      return reply.code(400).send({
+        error: "unknown_step",
+        detail: `no playbook step is keyed '${stepKey}'`,
+        fields: ONBOARDING_STEPS.map((s) => s.key),
+      });
+    }
+    const run = await deps.pool.query<{ run_id: string }>(
+      `SELECT run_id FROM onboarding_runs WHERE finished_at IS NULL`,
+    );
+    if (run.rows.length === 0) {
+      return reply.code(409).send({
+        error: "no_armed_run",
+        detail:
+          "no onboarding run is armed, so there is nothing to mark this step against. Arm a run " +
+          "first — marks are never backdated onto a finished run.",
+      });
+    }
+    const runId = run.rows[0]!.run_id;
+    const body = (req.body ?? {}) as Record<string, unknown>;
+    const { rows } = await deps.pool.query<{ occurred_at: string }>(
+      `INSERT INTO onboarding_step_records (run_id, step_key, capture, marked_by, evidence, note)
+       VALUES ($1, $2, 'operator', $3, $4::jsonb, $5)
+       ON CONFLICT (run_id, step_key) DO NOTHING
+       RETURNING to_jsonb(occurred_at) #>> '{}' AS occurred_at`,
+      [
+        runId,
+        stepKey,
+        viewer.identity.subject,
+        JSON.stringify({ marked_via: "governed API", expected_capture: spec.capture }),
+        typeof body.note === "string" && body.note ? body.note : null,
+      ],
+    );
+    if (rows.length === 0) {
+      const prior = await deps.pool.query<{ occurred_at: string; capture: string }>(
+        `SELECT to_jsonb(occurred_at) #>> '{}' AS occurred_at, capture
+           FROM onboarding_step_records WHERE run_id = $1 AND step_key = $2`,
+        [runId, stepKey],
+      );
+      return reply.code(409).send({
+        error: "already_recorded",
+        detail:
+          `step '${stepKey}' was already recorded at ${prior.rows[0]?.occurred_at} ` +
+          `(${prior.rows[0]?.capture}). The first record stands: overwriting it would be ` +
+          "editing a measurement after reading it.",
+      });
+    }
+    await writeGovernanceAudit(
+      deps.pool,
+      {
+        subject: viewer.identity.subject,
+        roles: viewer.identity.roles,
+        profile: viewer.profile,
+        tool: "dashboard.ops.onboarding_mark",
+        args: { run_id: runId, step_key: stepKey },
+        kbRef: viewer.ws?.headSha ?? null,
+        decision: "allowed",
+        decisionReason: null,
+        resultMeta: { expected_capture: spec.capture, hand_marked: spec.capture === "auto" },
+      },
+      deps.log,
+    );
+    return reply.code(201).send({
+      api_version: API_VERSION,
+      run_id: runId,
+      step: { ...spec },
+      occurred_at: rows[0]!.occurred_at,
+      marked_by: viewer.identity.subject,
+      hand_marked: spec.capture === "auto",
+    });
+  });
+
+  /** Finish the run. Capture stops; the report stays readable. */
+  app.post("/v1/dashboard/ops/onboarding/finish", async (req, reply) => {
+    const viewer = await viewerFor(req, reply, "write");
+    if (!viewer) return reply;
+    const body = (req.body ?? {}) as Record<string, unknown>;
+    const { rows } = await deps.pool.query<{ run_id: string }>(
+      `UPDATE onboarding_runs
+          SET finished_at = now(), finished_by = $1,
+              note = COALESCE($2, note)
+        WHERE finished_at IS NULL
+      RETURNING run_id`,
+      [viewer.identity.subject, typeof body.note === "string" && body.note ? body.note : null],
+    );
+    if (rows.length === 0) {
+      return reply.code(409).send({
+        error: "no_armed_run",
+        detail: "no onboarding run is armed",
+      });
+    }
+    const runId = rows[0]!.run_id;
+    await writeGovernanceAudit(
+      deps.pool,
+      {
+        subject: viewer.identity.subject,
+        roles: viewer.identity.roles,
+        profile: viewer.profile,
+        tool: "dashboard.ops.onboarding_finish",
+        args: { run_id: runId },
+        kbRef: viewer.ws?.headSha ?? null,
+        decision: "allowed",
+        decisionReason: null,
+      },
+      deps.log,
+    );
+    const report = await runReport(deps.pool, runId);
+    return reply.send({ api_version: API_VERSION, run_id: runId, run: report?.run ?? null });
   });
 }

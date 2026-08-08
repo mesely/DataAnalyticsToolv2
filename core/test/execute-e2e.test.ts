@@ -197,6 +197,42 @@ describe("execute_sql end to end (§6.7, capability §6)", () => {
     expect(result.payload.refs).toBeTruthy();
   }, 60_000);
 
+  /**
+   * A-6/OB-4: playbook step 9's readiness gate ends at a real question
+   * answered under a customer identity, and this is the only place in
+   * the suite where that whole path actually runs — MCP → queue → a real
+   * runner → a real database. Asserting the capture at the call site is
+   * the difference between a wire that is connected and a helper that is
+   * merely tested.
+   */
+  it("closes onboarding step 9 on a successful governed execution, and only while armed", async () => {
+    await rig.core.pool.query(`DELETE FROM onboarding_runs`);
+
+    // Disarmed: a real execution records nothing at all.
+    const idleRun = await validateAndExecute("SELECT count(*) AS n FROM shop.customers");
+    expect(idleRun.isError).toBe(false);
+    const idle = await rig.core.pool.query(`SELECT count(*)::int AS n FROM onboarding_step_records`);
+    expect(idle.rows[0].n).toBe(0);
+
+    await rig.core.pool.query(
+      `INSERT INTO onboarding_runs (run_id, label, armed_by) VALUES ('a6-exec', 'exec-case', 'test')`,
+    );
+    const armedRun = await validateAndExecute("SELECT count(*) AS n FROM shop.customers");
+    expect(armedRun.isError).toBe(false);
+    const { rows } = await rig.core.pool.query<{ step_key: string; evidence: Record<string, unknown> }>(
+      `SELECT step_key, evidence FROM onboarding_step_records WHERE run_id = 'a6-exec'`,
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.step_key).toBe("readiness_gate");
+    expect(rows[0]!.evidence.event).toBe("governed_execute");
+    expect(rows[0]!.evidence.system).toBe("drill");
+    // The audit id is the pointer from a duration back to the call that
+    // produced it — a measurement with no way back to its evidence is a
+    // number somebody has to trust.
+    expect(String(rows[0]!.evidence.audit_id)).toMatch(/[0-9a-f-]{36}/);
+    await rig.core.pool.query(`DELETE FROM onboarding_runs`);
+  }, 120_000);
+
   it("the audit record carries the full statement and the row count", async () => {
     const statement = "SELECT id, email FROM shop.customers ORDER BY id LIMIT 3";
     const result = await validateAndExecute(statement);

@@ -179,6 +179,21 @@ export interface MergedPr {
   mergedAt: string;
 }
 
+/**
+ * The CI verdict on a git ref, as the provider reports it (A-6 / OB-4).
+ *
+ * `none` is its own state and is not a failure: a repository whose CI has
+ * never run on this ref reports no checks, and reading that as red would
+ * make an unwired KB look broken. The onboarding instrument waits for
+ * `success` and treats every other state as "not yet".
+ */
+export interface ChecksState {
+  ref: string;
+  sha: string | null;
+  state: "success" | "pending" | "failure" | "none";
+  checks: { name: string; conclusion: string | null }[];
+}
+
 export interface PrProvider {
   openPr(args: OpenPrArgs): Promise<PrInfo>;
   /** Open PRs whose head branch is the orchestrator's own (`sync/…`). */
@@ -187,6 +202,13 @@ export interface PrProvider {
   /** Merged PRs (any branch) newer than the cursor — the CL-Resolves
    * loop-closure input (ledger spec §9, LED-R4). */
   listMergedPrs(sinceIso: string | null): Promise<MergedPr[]>;
+  /**
+   * CI state on a ref — the only *read* in this interface that exists
+   * for measurement rather than for the drift flow. Playbook step 2's
+   * exit is "CI green on the bootstrap commit", and nothing in the
+   * product observed that until the A-6 instrument needed to.
+   */
+  checksState(ref: string): Promise<ChecksState>;
 }
 
 export function createProvider(cfg: SyncConfig): PrProvider {
@@ -288,6 +310,29 @@ class GithubProvider implements PrProvider {
         mergedAt: pr.merged_at!,
       }));
   }
+
+  async checksState(ref: string): Promise<ChecksState> {
+    const { status, json } = await this.api(
+      "GET",
+      `/repos/${this.repo}/commits/${encodeURIComponent(ref)}/check-runs?per_page=100`,
+    );
+    if (status !== 200) {
+      throw new ProviderError(`read checks for ${ref} failed (${status}): ${JSON.stringify(json)}`);
+    }
+    const runs = (json as {
+      check_runs?: { name: string; status: string; conclusion: string | null; head_sha?: string }[];
+    }).check_runs ?? [];
+    const checks = runs.map((r) => ({ name: r.name, conclusion: r.conclusion }));
+    const sha = runs[0]?.head_sha ?? null;
+    if (runs.length === 0) return { ref, sha, state: "none", checks };
+    if (runs.some((r) => r.status !== "completed")) return { ref, sha, state: "pending", checks };
+    // `neutral` and `skipped` are green outcomes for a workflow that
+    // decided it had nothing to do — counting them as failures would
+    // hold the timer open forever on a KB whose CI legitimately skips.
+    const green = new Set(["success", "neutral", "skipped"]);
+    const state = runs.every((r) => green.has(r.conclusion ?? "")) ? "success" : "failure";
+    return { ref, sha, state, checks };
+  }
 }
 
 /**
@@ -307,6 +352,21 @@ interface LocalPrRecord {
   comments: string[];
 }
 
+interface LocalStore {
+  next: number;
+  prs: LocalPrRecord[];
+  /**
+   * There is no CI behind a bare repo on a disk. A fixture that wants to
+   * exercise the "CI went green" path writes the verdict here, keyed by
+   * ref, and the instrument reads it through the same interface it reads
+   * GitHub's check-runs through. It is scaffolding and is labelled as
+   * such wherever its output is reported: on this provider the state is
+   * whatever the fixture wrote, and only the GitHub path is an
+   * observation of a real workflow.
+   */
+  checks?: Record<string, { sha: string | null; state: string; names?: string[] }>;
+}
+
 class LocalProvider implements PrProvider {
   private readonly store: string;
 
@@ -314,7 +374,7 @@ class LocalProvider implements PrProvider {
     this.store = cfg.gitRemote.replace(/\/$/, "").replace(/\.git$/, "") + ".prs.json";
   }
 
-  private async load(): Promise<{ next: number; prs: LocalPrRecord[] }> {
+  private async load(): Promise<LocalStore> {
     try {
       return JSON.parse(await readFile(this.store, "utf-8"));
     } catch {
@@ -322,8 +382,26 @@ class LocalProvider implements PrProvider {
     }
   }
 
-  private async save(data: { next: number; prs: LocalPrRecord[] }): Promise<void> {
+  private async save(data: LocalStore): Promise<void> {
     await writeFile(this.store, JSON.stringify(data, null, 2) + "\n");
+  }
+
+  async checksState(ref: string): Promise<ChecksState> {
+    const recorded = (await this.load()).checks?.[ref];
+    if (!recorded) return { ref, sha: null, state: "none", checks: [] };
+    const state =
+      recorded.state === "success" || recorded.state === "pending" || recorded.state === "failure"
+        ? recorded.state
+        : "none";
+    return {
+      ref,
+      sha: recorded.sha ?? null,
+      state,
+      checks: (recorded.names ?? []).map((name) => ({
+        name,
+        conclusion: state === "success" ? "success" : null,
+      })),
+    };
   }
 
   async openPr(args: OpenPrArgs): Promise<PrInfo> {

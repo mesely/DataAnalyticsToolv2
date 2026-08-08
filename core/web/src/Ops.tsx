@@ -29,6 +29,7 @@ import {
   type HookList,
   type Job,
   type JobList,
+  type OnboardingReport,
   type Reenqueued,
   type RotatedSecret,
   type Run,
@@ -487,10 +488,214 @@ function Hooks({ csrf }: { csrf: string | null }) {
   );
 }
 
+/**
+ * Onboarding timers (A-6 / OB-4, D-122.4) — a panel, not a module.
+ *
+ * The five steps the product mediates close themselves; the five it
+ * cannot see get one button each, and the row then says *operator* where
+ * the others say *auto*. That distinction is the panel's whole job: a
+ * marked step and an observed step are different kinds of evidence, and
+ * a screen that rendered them identically would quietly turn a memory
+ * into a measurement.
+ *
+ * **No targets and no grades** (D-122.4). Nothing here is coloured
+ * red for slow or green for fast, because OB-4's targets do not exist
+ * yet and a colour is a threshold with the number left off.
+ */
+function Onboarding({ csrf }: { csrf: string | null }) {
+  const [report, setReport] = useState<OnboardingReport | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [label, setLabel] = useState("");
+  const [arming, setArming] = useState(false);
+
+  const load = useCallback(async () => {
+    const res = await api.get<OnboardingReport>("/v1/dashboard/ops/onboarding");
+    if (!res.ok) {
+      setError(res.error);
+      return;
+    }
+    setError(null);
+    setReport(res.data);
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const act = async (path: string, body: unknown, key: string) => {
+    setBusy(key);
+    const res = await api.post<unknown>(path, body, csrf);
+    setBusy(null);
+    if (!res.ok) {
+      setError(res.error);
+      return;
+    }
+    setError(null);
+    await load();
+  };
+
+  if (!report) {
+    return (
+      <section className="panel">
+        <h3>Onboarding timers</h3>
+        {error ? <ServerSays error={error} /> : <Spinner label="reading the run record…" />}
+      </section>
+    );
+  }
+
+  const run = report.run;
+  const canWrite = report.role_scope === "write";
+
+  return (
+    <section className="panel">
+      <h3>Onboarding timers</h3>
+
+      {/* UI-10: no run is a stated absence, never an empty table. */}
+      {!run ? (
+        <Dark
+          title="No onboarding has been measured on this deployment"
+          why="OB-4's timers exist and are armed per run, not always-on. Nothing has been recorded here — which is a different fact from an onboarding that took no time, and this panel will not show one as the other."
+        >
+          {canWrite && (
+            <div className="actions">
+              <input
+                aria-label="what this run measures"
+                placeholder="what this run measures, e.g. acme-analytics"
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+              />
+              <button
+                disabled={!label.trim() || busy !== null}
+                onClick={() => void act("/v1/dashboard/ops/onboarding/arm", { label: label.trim() }, "arm")}
+              >
+                {busy === "arm" ? <Spinner label="arming…" /> : "Arm a run"}
+              </button>
+            </div>
+          )}
+        </Dark>
+      ) : (
+        <>
+          <p className="muted small">
+            <strong>
+              <Text value={run.label} />
+            </strong>{" "}
+            · <Text value={run.state} /> · armed {ago(run.armed_at)} by <Text value={run.armed_by} /> ·{" "}
+            <Text value={run.captured} />/<Text value={run.total_steps} /> steps ·{" "}
+            {duration(run.elapsed_ms / 1000)} elapsed
+          </p>
+
+          <table className="grid">
+            <thead>
+              <tr>
+                <th>Step</th>
+                <th>Since previous</th>
+                <th>Cumulative</th>
+                <th>How</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {report.steps.map((step) => (
+                <tr key={step.key} className={step.state === "captured" ? "" : "muted"}>
+                  <td>
+                    <Text value={step.step} />
+                    {". "}
+                    <Text value={step.title} />
+                    <div className="muted small">
+                      <Text value={step.section} /> · closes when <Text value={step.closes} />
+                    </div>
+                  </td>
+                  <td>
+                    {step.since_previous_ms === null ? (
+                      <span className="muted">—</span>
+                    ) : (
+                      duration(step.since_previous_ms / 1000)
+                    )}
+                  </td>
+                  <td>
+                    {step.since_armed_ms === null ? (
+                      <span className="muted">—</span>
+                    ) : (
+                      duration(step.since_armed_ms / 1000)
+                    )}
+                  </td>
+                  <td>
+                    {step.state === "pending" ? (
+                      <span className="muted">
+                        pending · <Text value={step.expected_capture} />
+                      </span>
+                    ) : (
+                      <>
+                        <Text value={step.capture} />
+                        {step.marked_by && (
+                          <>
+                            {" "}
+                            by <Text value={step.marked_by} />
+                          </>
+                        )}
+                        {/* A hand-marked auto step is labelled, never blended. */}
+                        {step.hand_marked && (
+                          <div className="muted small">marked by hand; normally observed</div>
+                        )}
+                      </>
+                    )}
+                  </td>
+                  <td>
+                    {step.state === "pending" && canWrite && run.state === "armed" ? (
+                      <button
+                        disabled={busy !== null}
+                        onClick={() =>
+                          void act(
+                            `/v1/dashboard/ops/onboarding/steps/${encodeURIComponent(step.key)}/mark`,
+                            {},
+                            step.key,
+                          )
+                        }
+                      >
+                        {busy === step.key ? <Spinner label="marking…" /> : "Mark done"}
+                      </button>
+                    ) : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <p className="muted small">
+            <Text value={report.measurement_note} />
+          </p>
+          {!report.targets.set && (
+            <p className="muted small">
+              <strong>No targets.</strong> <Text value={report.targets.why} />
+            </p>
+          )}
+          {canWrite && run.state === "armed" && (
+            <div className="actions">
+              <button
+                disabled={busy !== null}
+                onClick={() => void act("/v1/dashboard/ops/onboarding/finish", {}, "finish")}
+              >
+                {busy === "finish" ? <Spinner label="finishing…" /> : "Finish this run"}
+              </button>
+              <span className="muted small">
+                Capture stops; the record stays readable. Nothing here can be edited afterwards — a
+                measurement you can revise after reading it is not one.
+              </span>
+            </div>
+          )}
+        </>
+      )}
+      {error && <ServerSays error={error} />}
+    </section>
+  );
+}
+
 export function Ops({ csrf }: { csrf: string | null }) {
   return (
     <div className="ops-module">
       <Jobs csrf={csrf} />
+      <Onboarding csrf={csrf} />
       <Runs />
       <Hooks csrf={csrf} />
       <section className="panel">

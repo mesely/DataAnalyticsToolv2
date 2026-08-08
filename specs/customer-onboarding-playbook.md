@@ -33,6 +33,45 @@ Onboarding begins by issuing the **ask list** (generalizing phase-1 plan §8 / p
 
 Steps 3-per-source run in parallel; 5 and 6 overlap; 7 can start any time after 2. The critical path is almost always **credential/approval lead time in step 3** — start those asks at step 0.
 
+### 2.1 Timing an onboarding (OB-4, armed at A-6 by ruling D-122.4)
+
+Arm a run before step 0 and every step below records when it finished:
+
+```
+cli.js onboarding arm "<customer>" --topology "<class from step 0>"
+```
+
+or the same button on the dashboard's **Ops** screen. Capture is
+**hybrid**, and the split is where the product's own knowledge ends:
+
+| Step | | Capture | Closes when |
+|---|---|---|---|
+| 0 | Discovery & topology classification | **operator** | the topology record and P1–P5 rulings are written down |
+| 1 | Platform install | **operator** | the stack is up and the customer's IdP is wired |
+| 2 | KB repo bootstrap | **auto** | KB CI is first observed green on the KB's base branch |
+| 3 | Connect sources → first snapshots | **auto** | the first snapshot is accepted |
+| 4 | Generation: the machine KB | **auto** | the first generation pull request is opened |
+| 5 | Enrichment: human semantics | **operator** | the steward certifies the first enrichment batch |
+| 6 | Entities & metrics | **operator** | the first metric is certified by its owner |
+| 7 | Profiles, roles, dashboard | **auto** | the first setup bundle is compiled and served |
+| 8 | Golden benchmark baseline | **operator** | the baseline run is accepted (accuracy runs are human-graded, R7) |
+| 9 | Readiness gate & handover | **auto** | the first governed execution succeeds under a customer identity |
+
+The five **auto** steps end in something this product mediates and can
+therefore observe; the five **operator** steps end in a DBA's terminal,
+an IdP's admin console or a steward's judgement, where it cannot. Those
+are marked as you finish them — `cli.js onboarding mark <step>`, or one
+click on the Ops panel — and the record says *operator* where the others
+say *auto*, because a remembered timestamp and an observed one are
+different kinds of evidence. An auto step may be hand-marked when its
+event cannot fire (a KB whose CI is not wired); the record labels it as
+hand-marked rather than letting it pass for an observation.
+
+**No targets.** OB-4's duration targets do not exist and are not
+implied by this section: the instrument records, and the register item
+stays open until real onboardings have been measured. Read the run with
+`cli.js onboarding report`; nothing is editable after the fact.
+
 ## 3. Step 0 — Discovery & topology classification
 
 **Actors:** R5 with R2/R3. **Governing specs:** HLR §8 case matrices P1–P5.
@@ -250,6 +289,6 @@ The gate is a checklist, every item mechanically verifiable:
 | OB-1 | Compiled read-only KB bundles (§11 row 4) | Not built until a real offline consumer exists; format = compilation of role projection | First air-gapped-site or no-MCP-team requirement |
 | OB-2 | Who authors entity drafts in step 6 — enrich skill vs R5 hand-drafting for the first customer(s) | Skill-drafted, R5-paired review, always customer-certified | After 2–3 onboardings show which is faster |
 | OB-3 | Staged drift drill (gate item 7) as a shipped fixture vs per-customer improvisation | Ship a standard drill fixture (test schema + scripted change) with the product | Build during phase 4 (sync engine) |
-| OB-4 | Onboarding duration targets per topology class | Measure the first three; no promises before data | Third onboarding |
+| OB-4 | Onboarding duration targets per topology class | Measure the first three; no promises before data. **Instrumentation ARMED at A-6 (D-122.4)** — §2.1 is the step-by-step capture map; the timers exist, record to ops Postgres, and are hybrid auto/operator. Targets remain **UNSET**: they are set from the first two real measurements or not at all, and this checkpoint deliberately invented none | Third onboarding (targets); instrumentation closed at A-6 |
 | OB-5 | Profile↔database-role pairing: a profile granting `execute_sql` must be paired with a database role scoped no wider than that profile's visible surface (filed by D-72.5; origin security review #2 F2) | Stated as a deployment obligation, not yet a mechanical gate item — D-71.1 makes the KB visibility map govern the execution surface, but the map is our gate and the database role is the wall, and nothing today checks that the wall matches the gate | Next playbook revision for wording; **load-bearing at the first customer with more than one execute-granted profile**, where the two surfaces can first diverge |
 | OB-6 | Required code-owner review on KB `main` vs solo-operator bypass-merge (§11.1, ruling D-116.3) | **Solo-operator mode**: protection and KB CI stay required, review cannot be satisfied by one human, and each bypass merge is that steward's named certification act — stated in the playbook and in the customer's own `conventions.md` rather than left as an unexplained pattern of overrides | **A second human holds write access to the KB.** Restore required-review then, and not before |

@@ -38,6 +38,7 @@ import { UNSTAMPED, writeAudit } from "./audit.js";
 import { neutralize } from "./changelog.js";
 import type { CoreConfig } from "./config.js";
 import { executeRequest } from "./execute.js";
+import { captureAuto } from "./onboarding.js";
 import { createProvider } from "./gitkb.js";
 // B-1 / D-114.2: freshness and doc-status are computed once, in the
 // module the dashboard's KB Health read also calls. Two surfaces that
@@ -698,6 +699,21 @@ async function toolExecuteSql(ctx: CallContext, args: Record<string, unknown>): 
       statementText: outcome.statementText,
     };
   }
+  // A-6/OB-4: playbook step 9's readiness gate ends at a real question
+  // answered under a customer identity — the first governed execution
+  // that succeeded. A no-op unless an onboarding run is armed.
+  await captureAuto(
+    ctx.deps.pool,
+    "governed_execute",
+    {
+      system,
+      subject: ctx.identity.subject,
+      profile: ctx.profile.name,
+      audit_id: ctx.auditId,
+    },
+    ctx.deps.log,
+  );
+
   return {
     // CI-7: `truncated` is passed through untouched.
     payload: { ...outcome.result, refs: refsEnvelope(ctx.ws) },

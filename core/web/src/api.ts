@@ -368,6 +368,59 @@ export interface HookList {
   hooks: Hook[];
 }
 
+// -- Onboarding timers (A-6 / OB-4) ------------------------------------------
+
+export interface OnboardingStepSpec {
+  step: number;
+  key: string;
+  section: string;
+  title: string;
+  capture: "auto" | "operator";
+  closes: string;
+}
+
+export interface OnboardingStepRow {
+  step: number;
+  key: string;
+  section: string;
+  title: string;
+  expected_capture: "auto" | "operator";
+  closes: string;
+  state: "captured" | "pending";
+  capture: "auto" | "operator" | null;
+  occurred_at: string | null;
+  marked_by: string | null;
+  evidence: Record<string, unknown> | null;
+  note: string | null;
+  since_armed_ms: number | null;
+  since_previous_ms: number | null;
+  previous_key: string | null;
+  hand_marked: boolean;
+}
+
+export interface OnboardingReport {
+  role_scope: "read" | "write";
+  steps_spec: OnboardingStepSpec[];
+  run: {
+    run_id: string;
+    label: string;
+    topology: string | null;
+    armed_by: string;
+    armed_at: string;
+    finished_at: string | null;
+    finished_by: string | null;
+    note: string | null;
+    state: "armed" | "finished";
+    elapsed_ms: number;
+    captured: number;
+    total_steps: number;
+  } | null;
+  steps: OnboardingStepRow[];
+  targets: { set: boolean; why: string };
+  measurement_note: string | null;
+  history: { run_id: string; label: string; armed_at: string }[];
+}
+
 export interface RotatedSecret {
   system: string;
   outcome: string;

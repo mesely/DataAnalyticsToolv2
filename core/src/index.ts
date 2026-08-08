@@ -9,6 +9,7 @@ import { createPool, JobsNotifier, SYNC_CHANNEL } from "./db.js";
 import { createProvider } from "./gitkb.js";
 import { sweepResolutions, sweepRetention, sweepWindowRules } from "./ledger.js";
 import { defaultMigrationsDir, migrate } from "./migrate.js";
+import { startOnboardingWatcher } from "./onboarding.js";
 import { failStaleRunningRuns, runPendingRuns } from "./pipeline.js";
 import { startScheduler } from "./scheduler.js";
 import { buildServer, startSweeper } from "./server.js";
@@ -64,6 +65,14 @@ async function main(): Promise<void> {
     })();
   }
 
+  // A-6/OB-4: the one onboarding capture with no push signal to hang on
+  // — KB CI going green on the KB's base branch (playbook step 2's exit).
+  // It checks "is a run armed and that step still open" first, so a
+  // deployment with nothing armed makes no provider call at all.
+  const stopOnboardingWatcher = cfg.sync.gitRemote
+    ? startOnboardingWatcher({ pool, cfg, provider: createProvider(cfg.sync), log })
+    : () => {};
+
   // Ledger sweeps (CP-4): class-1 window rules, event retention (§10),
   // and CL-Resolves loop closure (§9, LED-R4) on one cadence.
   let stopLedgerSweeps = () => {};
@@ -89,6 +98,7 @@ async function main(): Promise<void> {
     stopSweeper();
     stopScheduler();
     stopLedgerSweeps();
+    stopOnboardingWatcher();
     syncLoopStopped = true;
     await syncNotifier?.stop();
     await app.close();

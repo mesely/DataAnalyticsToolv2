@@ -1,0 +1,410 @@
+{
+  "generated_at": "2026-08-08T16:49:14.344Z",
+  "scratch_estate": {
+    "kb_remote": "/var/folders/27/8kpl4ryj4n19pzygwb6cpg1r0000gn/T/cl-mcp-8Fu7DU/kb.git",
+    "kb_provider": "local",
+    "ops_db": "ephemeral, dropped at teardown",
+    "source": "ephemeral Postgres container (drill fixture, ddl-file mode)"
+  },
+  "governed_report": {
+    "api_version": "1",
+    "role_scope": "write",
+    "steps_spec": [
+      {
+        "step": 0,
+        "key": "discovery",
+        "section": "§3",
+        "title": "Discovery & topology classification",
+        "capture": "operator",
+        "closes": "the topology record and P1–P5 rulings are written down"
+      },
+      {
+        "step": 1,
+        "key": "install",
+        "section": "§4",
+        "title": "Platform install",
+        "capture": "operator",
+        "closes": "the stack is up and the customer's IdP is wired (nothing here is a product event)"
+      },
+      {
+        "step": 2,
+        "key": "kb_bootstrap",
+        "section": "§5",
+        "title": "KB repo bootstrap",
+        "capture": "auto",
+        "closes": "KB CI is first observed green on the KB's base branch"
+      },
+      {
+        "step": 3,
+        "key": "connect_sources",
+        "section": "§6",
+        "title": "Connect sources → first snapshots",
+        "capture": "auto",
+        "closes": "the first snapshot is accepted"
+      },
+      {
+        "step": 4,
+        "key": "generation",
+        "section": "§7",
+        "title": "Generation: the machine KB",
+        "capture": "auto",
+        "closes": "the first generation pull request is opened"
+      },
+      {
+        "step": 5,
+        "key": "enrichment",
+        "section": "§8",
+        "title": "Enrichment: human semantics",
+        "capture": "operator",
+        "closes": "the steward certifies the first enrichment batch (a merge, not an API call)"
+      },
+      {
+        "step": 6,
+        "key": "entities_metrics",
+        "section": "§9",
+        "title": "Entities & metrics",
+        "capture": "operator",
+        "closes": "the first metric is certified by its owner"
+      },
+      {
+        "step": 7,
+        "key": "profiles_roles",
+        "section": "§10",
+        "title": "Profiles, roles, dashboard",
+        "capture": "auto",
+        "closes": "the first setup bundle is compiled and served"
+      },
+      {
+        "step": 8,
+        "key": "benchmark_baseline",
+        "section": "§12",
+        "title": "Golden benchmark baseline",
+        "capture": "operator",
+        "closes": "the baseline run is accepted (an accuracy run is human-graded, per R7)"
+      },
+      {
+        "step": 9,
+        "key": "readiness_gate",
+        "section": "§13",
+        "title": "Readiness gate & handover",
+        "capture": "auto",
+        "closes": "the first governed execution succeeds under a customer identity"
+      }
+    ],
+    "run": {
+      "run_id": "01KZH4ED8M3QMKVNFCE3KV1QE1",
+      "label": "a6-scratch-estate",
+      "topology": "A — DDL files (drill fixture), single source",
+      "armed_by": "alper-steward",
+      "armed_at": "2026-08-08T16:49:05.300748+00:00",
+      "finished_at": "2026-08-08T16:49:14.313595+00:00",
+      "finished_by": "alper-steward",
+      "note": "A-6 rehearsal complete.",
+      "state": "finished",
+      "elapsed_ms": 9013,
+      "captured": 4,
+      "total_steps": 10
+    },
+    "steps": [
+      {
+        "step": 0,
+        "key": "discovery",
+        "section": "§3",
+        "title": "Discovery & topology classification",
+        "expected_capture": "operator",
+        "closes": "the topology record and P1–P5 rulings are written down",
+        "state": "pending",
+        "capture": null,
+        "occurred_at": null,
+        "marked_by": null,
+        "evidence": null,
+        "note": null,
+        "since_armed_ms": null,
+        "since_previous_ms": null,
+        "previous_key": null,
+        "hand_marked": false
+      },
+      {
+        "step": 1,
+        "key": "install",
+        "section": "§4",
+        "title": "Platform install",
+        "expected_capture": "operator",
+        "closes": "the stack is up and the customer's IdP is wired (nothing here is a product event)",
+        "state": "captured",
+        "capture": "operator",
+        "occurred_at": "2026-08-08T16:49:14.257737+00:00",
+        "marked_by": "alper-steward",
+        "evidence": {
+          "marked_via": "governed API",
+          "expected_capture": "operator"
+        },
+        "note": "stack up, IdP wired — marked by hand, as the product cannot see either",
+        "since_armed_ms": 8957,
+        "since_previous_ms": 922,
+        "previous_key": "generation",
+        "hand_marked": false
+      },
+      {
+        "step": 2,
+        "key": "kb_bootstrap",
+        "section": "§5",
+        "title": "KB repo bootstrap",
+        "expected_capture": "auto",
+        "closes": "KB CI is first observed green on the KB's base branch",
+        "state": "captured",
+        "capture": "auto",
+        "occurred_at": "2026-08-08T16:49:06.131478+00:00",
+        "marked_by": null,
+        "evidence": {
+          "ref": "main",
+          "sha": "f9d4b416f878ec5511bf5ad1bc3e066c879b06b0",
+          "event": "kb_ci_green",
+          "checks": [
+            "KB CI (generator.validate, run locally — see REHEARSAL.md)"
+          ],
+          "provider": "local"
+        },
+        "note": null,
+        "since_armed_ms": 831,
+        "since_previous_ms": 831,
+        "previous_key": null,
+        "hand_marked": false
+      },
+      {
+        "step": 3,
+        "key": "connect_sources",
+        "section": "§6",
+        "title": "Connect sources → first snapshots",
+        "expected_capture": "auto",
+        "closes": "the first snapshot is accepted",
+        "state": "captured",
+        "capture": "auto",
+        "occurred_at": "2026-08-08T16:49:10.046359+00:00",
+        "marked_by": null,
+        "evidence": {
+          "event": "snapshot_accepted",
+          "job_id": "01KZH4EE8AP3F0VZXR5T7FB9XS",
+          "system": "drill",
+          "snapshot_id": "01KZH4EHWGVFXB40WZQP7K3Q7B",
+          "source_mode": "ddl-file",
+          "object_count": 5
+        },
+        "note": null,
+        "since_armed_ms": 4746,
+        "since_previous_ms": 3915,
+        "previous_key": "kb_bootstrap",
+        "hand_marked": false
+      },
+      {
+        "step": 4,
+        "key": "generation",
+        "section": "§7",
+        "title": "Generation: the machine KB",
+        "expected_capture": "auto",
+        "closes": "the first generation pull request is opened",
+        "state": "captured",
+        "capture": "auto",
+        "occurred_at": "2026-08-08T16:49:13.33505+00:00",
+        "marked_by": null,
+        "evidence": {
+          "event": "generation_pr_opened",
+          "branch": "sync/01KZH4EJ69VBNDDB9AD317JGFG",
+          "pr_url": "local-pr://1",
+          "run_id": "01KZH4EJ69VBNDDB9AD317JGFG",
+          "systems": [
+            "drill"
+          ],
+          "pr_number": 1
+        },
+        "note": null,
+        "since_armed_ms": 8035,
+        "since_previous_ms": 3289,
+        "previous_key": "connect_sources",
+        "hand_marked": false
+      },
+      {
+        "step": 5,
+        "key": "enrichment",
+        "section": "§8",
+        "title": "Enrichment: human semantics",
+        "expected_capture": "operator",
+        "closes": "the steward certifies the first enrichment batch (a merge, not an API call)",
+        "state": "pending",
+        "capture": null,
+        "occurred_at": null,
+        "marked_by": null,
+        "evidence": null,
+        "note": null,
+        "since_armed_ms": null,
+        "since_previous_ms": null,
+        "previous_key": null,
+        "hand_marked": false
+      },
+      {
+        "step": 6,
+        "key": "entities_metrics",
+        "section": "§9",
+        "title": "Entities & metrics",
+        "expected_capture": "operator",
+        "closes": "the first metric is certified by its owner",
+        "state": "pending",
+        "capture": null,
+        "occurred_at": null,
+        "marked_by": null,
+        "evidence": null,
+        "note": null,
+        "since_armed_ms": null,
+        "since_previous_ms": null,
+        "previous_key": null,
+        "hand_marked": false
+      },
+      {
+        "step": 7,
+        "key": "profiles_roles",
+        "section": "§10",
+        "title": "Profiles, roles, dashboard",
+        "expected_capture": "auto",
+        "closes": "the first setup bundle is compiled and served",
+        "state": "pending",
+        "capture": null,
+        "occurred_at": null,
+        "marked_by": null,
+        "evidence": null,
+        "note": null,
+        "since_armed_ms": null,
+        "since_previous_ms": null,
+        "previous_key": null,
+        "hand_marked": false
+      },
+      {
+        "step": 8,
+        "key": "benchmark_baseline",
+        "section": "§12",
+        "title": "Golden benchmark baseline",
+        "expected_capture": "operator",
+        "closes": "the baseline run is accepted (an accuracy run is human-graded, per R7)",
+        "state": "pending",
+        "capture": null,
+        "occurred_at": null,
+        "marked_by": null,
+        "evidence": null,
+        "note": null,
+        "since_armed_ms": null,
+        "since_previous_ms": null,
+        "previous_key": null,
+        "hand_marked": false
+      },
+      {
+        "step": 9,
+        "key": "readiness_gate",
+        "section": "§13",
+        "title": "Readiness gate & handover",
+        "expected_capture": "auto",
+        "closes": "the first governed execution succeeds under a customer identity",
+        "state": "pending",
+        "capture": null,
+        "occurred_at": null,
+        "marked_by": null,
+        "evidence": null,
+        "note": null,
+        "since_armed_ms": null,
+        "since_previous_ms": null,
+        "previous_key": null,
+        "hand_marked": false
+      }
+    ],
+    "targets": {
+      "set": false,
+      "why": "OB-4's duration targets are unset and stay unset until real onboardings have been measured (D-122.4). This report carries no threshold, no grade and no expected duration: it is a record of what happened, and an absence of targets here is the register item being honest rather than a missing feature."
+    },
+    "measurement_note": "Durations are milestone-to-milestone wall clock, not hands-on effort. `since_previous_ms` is measured from the previous milestone in time order (named in `previous_key`), because playbook steps overlap and run in parallel — a gap against the previous numbered step would not be a duration. Waiting for a customer's DBA is inside these numbers, which is both the honest reading and the one a customer experiences.",
+    "history": [
+      {
+        "run_id": "01KZH4ED8M3QMKVNFCE3KV1QE1",
+        "label": "a6-scratch-estate",
+        "armed_at": "2026-08-08T16:49:05.300748+00:00"
+      }
+    ]
+  },
+  "transcript": [
+    {
+      "at": "2026-08-08T16:49:04.419Z",
+      "event": "scratch estate up",
+      "detail": {
+        "base": "http://127.0.0.1:61301",
+        "kb_remote": "/var/folders/27/8kpl4ryj4n19pzygwb6cpg1r0000gn/T/cl-mcp-8Fu7DU/kb.git",
+        "actor": "alper-steward"
+      }
+    },
+    {
+      "at": "2026-08-08T16:49:05.305Z",
+      "event": "run armed through the governed API",
+      "detail": {
+        "run_id": "01KZH4ED8M3QMKVNFCE3KV1QE1",
+        "http": 201
+      }
+    },
+    {
+      "at": "2026-08-08T16:49:06.108Z",
+      "event": "KB validation run over the bootstrap tree",
+      "detail": {
+        "verdict": "success",
+        "output": [
+          "0 errors, 0 warnings"
+        ]
+      }
+    },
+    {
+      "at": "2026-08-08T16:49:06.133Z",
+      "event": "step 2 captured by the KB-CI watcher",
+      "detail": {
+        "run_id": "01KZH4ED8M3QMKVNFCE3KV1QE1"
+      }
+    },
+    {
+      "at": "2026-08-08T16:49:06.287Z",
+      "event": "connection registered through the governed API",
+      "detail": {
+        "http": 201,
+        "system": "drill"
+      }
+    },
+    {
+      "at": "2026-08-08T16:49:06.288Z",
+      "event": "runner up; triggering the first snapshot (sync now)"
+    },
+    {
+      "at": "2026-08-08T16:49:10.335Z",
+      "event": "step 3 captured: first snapshot accepted"
+    },
+    {
+      "at": "2026-08-08T16:49:13.353Z",
+      "event": "generation pipeline run",
+      "detail": {
+        "runs": 1,
+        "prs": [
+          {
+            "number": 1,
+            "branch": "sync/01KZH4EJ69VBNDDB9AD317JGFG"
+          }
+        ]
+      }
+    },
+    {
+      "at": "2026-08-08T16:49:14.261Z",
+      "event": "step 1 marked by the operator through the governed API",
+      "detail": {
+        "http": 201,
+        "hand_marked": false
+      }
+    },
+    {
+      "at": "2026-08-08T16:49:14.318Z",
+      "event": "run finished",
+      "detail": {
+        "http": 200
+      }
+    }
+  ]
+}

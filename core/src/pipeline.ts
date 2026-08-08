@@ -49,6 +49,7 @@ import {
   type PrProvider,
 } from "./gitkb.js";
 import { recordHealthEvent } from "./health.js";
+import { captureAuto } from "./onboarding.js";
 import { parsePolicy } from "./policy.js";
 import { getJob } from "./queue.js";
 import { getSnapshotBody } from "./snapshots.js";
@@ -643,6 +644,17 @@ export async function executeRun(deps: RunDeps): Promise<string> {
           body: buildBody(input),
           labels: buildLabels(input),
         });
+        // A-6/OB-4: playbook step 4 ends when the generation PR exists.
+        // Captured here rather than at `finish` because the PR is the
+        // step's exit and the record should carry its number, and a
+        // no-op unless an onboarding run is armed.
+        await captureAuto(pool, "generation_pr_opened", {
+          run_id: runId,
+          pr_number: prInfo.number,
+          pr_url: prInfo.url,
+          branch,
+          systems: pending.map((p) => p.system),
+        }, log);
         break;
       } catch (err) {
         lastError = err;

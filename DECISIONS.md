@@ -7236,3 +7236,164 @@ self-service, revocable, no PAT to age — and it is a checkpoint of its own
 (app registration, per-subject refresh-token store, revocation path).
 Shipping B-3's editor dark while that is built would trade a working
 surface for a tidier credential story.
+
+## D-122 — B-3 CLOSED + A-6 authorization (owner ruling, 2026-08-08)
+
+Recorded verbatim.
+
+> 1. B-3 CLOSED on the operator's run (no-fault attestation; the
+>    session's extraction and clause check complete as bookkeeping if
+>    still staged). Affirmed by name: DT-4 relocated into pushBranch;
+>    the no-sync-PAT-fallback negative (whole-flow test asserting no
+>    branch and no PR exist); B3-F3's runbook-checked policy fix — a
+>    defect class no test could reach, caught by the standing
+>    operator-hour rule doing its job.
+> 2. B3-F5 (clone-per-compose latency): operator's run reports no
+>    friction at pilot scale — filed stays filed, trigger: the first
+>    estate where compose latency reads as a hang; the fix direction
+>    on record (cached working copy per the SY-5 pin pattern).
+> 3. The A-5 item-3 honesty note ACCEPTED as recorded: green on its
+>    L1-derived criterion, the 44 remaining draft docs named in
+>    conventions.md so "green" never overclaims. This is the right
+>    shape for every future re-grade.
+> 4. NEXT: checkpoint A-6 — onboarding measures itself. Pre-ruling:
+>    timer records live in ops Postgres (onboarding runs + per-step
+>    records, playbook-step-keyed); capture is HYBRID — automatic
+>    where the product itself mediates the step (first accepted
+>    snapshot, generation PR opened, KB CI first green, first
+>    profile compiled, first governed execute), operator-marked via
+>    one CLI/dashboard action where it doesn't (DDL applied, IdP
+>    wired, steward certification). Session proposes specifics in
+>    ≤5 lines. OB-4's targets stay UNSET until real data exists —
+>    the checkpoint arms measurement, it does not invent numbers
+>    (the UI-10 instinct applied to metrics).
+> 5. OUT-OF-BAND PILE, final restatement before CP-Ω: vault rekey +
+>    root-token revoke; four SECRETS-INVENTORY rows; Stripe verdict
+>    (ledger 4c4ecb3d). CP-Ω's books want them cleared; nothing
+>    else blocks.
+
+## D-122 as applied — tasks 0–3
+
+### D-122.1 — the B-3 closure bookkeeping, completed
+
+The ruling closed B-3 on the operator's attestation; the record had not
+caught up. `results/phase2/b3/GATE-CHECK.md` grades the four clauses from
+the estate rather than from a report of the run, and the evidence is the
+customer KB's own: **PR #53** on `profile-edit/reporter-8667957b`,
+authored by `AlperCamli` (`is_bot: false`), commit `e9088f8` carrying the
+operator's name and email as **both author and committer**, KB CI pass in
+14s, merged as `23de6e3` — which is the `kb_ref` this machine's core
+reports at `/healthz`. `contextlayer-sync` appears nowhere on it.
+
+Two things the closure does not claim, written into the check rather than
+smoothed: the **CL-Resolves trailer** half of clause 1 was never
+exercised live (the edit resolved no ledger issue, so none was due — it
+is test-covered and said to be), and **GATE-STEPS step 7 did not run**,
+so the pilot reporter sits at `row_cap: 25000` with no restore PR. That
+is the harmless-and-untidy state the runbook predicted; restoring it is
+an edit and a merge, which is the operator's act by D-121.2c.
+
+### D-122.4 — the instrument, and the five lines it asked for
+
+**The step list, proposed as ruled — every §-numbered playbook step gets
+a row:**
+
+    0 discovery · 1 install · 5 enrichment · 6 entities_metrics ·
+    8 benchmark_baseline                                    → OPERATOR
+    2 kb_bootstrap    ← KB CI first green on the base branch
+    3 connect_sources ← first accepted snapshot
+    4 generation      ← first generation PR opened
+    7 profiles_roles  ← first setup bundle compiled and served
+    9 readiness_gate  ← first governed execute succeeds        → AUTO
+
+The split is not a preference: the five auto steps end in something this
+product mediates and can observe, and the five operator steps end in a
+DBA's terminal, an IdP console or a steward's judgement, where it cannot.
+The ruling's own examples land where they should — DDL applied and IdP
+wired inside step 1, steward certification across steps 5 and 6.
+
+**Three design points worth not re-deriving.**
+
+*First wins, by primary key.* `(run_id, step_key)` with
+`ON CONFLICT DO NOTHING`, so the *first* accepted snapshot closes step 3
+and the four hundredth changes nothing — and there is no read-then-write
+window for two events to race through. The capture is one statement that
+finds the armed run and inserts in the same breath.
+
+*Milestones, not effort, and gaps measured in time order.* The playbook
+says steps overlap and run in parallel (§2), so a gap against the
+previous *numbered* step would be a negative number wearing a duration's
+clothes. `since_previous_ms` is measured from the previous milestone in
+time order and `previous_key` names it. What that number contains —
+lunch, a weekend, three days waiting for a customer's DBA — is stated in
+the report's own body, because it is also the number a customer
+experiences.
+
+*A hand-marked auto step is labelled.* Marking one is allowed (a KB whose
+CI is not wired should not leave a hole in the record) and the row then
+says `capture: operator` with `hand_marked` in the report. A remembered
+timestamp and an observed one are different kinds of evidence.
+
+**"Zero overhead otherwise", honestly.** True for the five product
+events: no armed run means one indexed probe returning nothing, no write,
+and a helper that cannot throw into its caller — a measurement is never
+worth failing a snapshot acceptance over. **Not literally true for the
+KB-CI watcher**, because CI state has no push signal to hang a capture
+on: it polls, and when nothing is armed it costs one indexed query a
+minute and makes no network call. Named in the module docstring and in
+both evidence pages rather than rounded down.
+
+**No targets, enforced rather than intended.** A test walks the report's
+field names and the two tables' column names and fails on anything shaped
+like `expected_*`, `target_*`, `threshold`, `grade`, `score` or `budget`.
+The first version of that test failed on the report's own sentence
+explaining that there are no targets — which is the difference between
+checking a shape and grepping a paragraph, and is why it now checks keys.
+
+**The rehearsal, and what it is not.** Steps 2–4 on a scratch estate that
+no longer exists, through the governed Connections API, a real runner and
+the real pipeline: 0.8s / 3.9s / 3.3s, each record carrying the snapshot
+id, job id, PR number or commit sha that closed it, plus one operator
+mark under a signed-in identity. Nine seconds on a laptop measure the
+instrument, not an onboarding, and **nothing here becomes a target** —
+OB-4's rows now read *armed, awaiting onboarding #2*.
+
+*The one simulated thing, stated:* a bare git repo has no CI, so step 2's
+transport is the fixture's. The verdict is genuine — the real output of
+`python -m generator.validate`, the validation library KB CI runs from
+its vendored wheel, over the bootstrap tree. What is faked is who
+delivered the news.
+
+**Amendment used:** exactly the one authorized — playbook **§2.1**, the
+auto/operator capture map, with the OB-4 rows in both registers updated
+to match. Nothing else in the spec set changed.
+
+**Out-of-band pile, unchanged and still the operator's** (D-122.5): vault
+rekey + root-token revoke; four `SECRETS-INVENTORY` rows (five, counting
+the B-3 git token); the Stripe verdict for ledger `4c4ecb3d`.
+
+### A6-F1 — flagged, not fixed: three source files git treats as binary
+
+Found by reading this change's own `git diff --stat`.
+`core/src/setup.ts`, `core/src/ratelimit.ts` and `core/src/visibility.ts`
+contain **literal NUL bytes** in their first 8 KB — used as separators
+inside template literals — which is exactly git's binary heuristic. All
+three have rendered as `Bin N -> M bytes` in every diff since **CP-4
+(`11a00f9`)**.
+
+The repo's first engineering norm is *small, reviewable diffs*, and for
+these three files it has silently not held for four milestones. Two of
+them are enforcement code — `visibility.ts` is the M-4 roles map applied
+to every doc, search hit and lineage node, `ratelimit.ts` is §7's
+per-identity limiter — and both were in scope for the CP-4 security
+reviews, which therefore reviewed whole files rather than changes,
+whether or not anyone noticed.
+
+**Not fixed here.** The fix is one character per site (write the escape,
+not the byte) and changes no runtime behaviour, but it touches three
+files A-6 has no other business in, two on the enforcement path, and the
+session's fence puts defects beyond the authorized amendment at
+flag-and-stop. Recommended as its own small item; the `diff --stat`
+output is its acceptance test. Full write-up in
+`results/phase2/a6/FINDINGS.md`; A-6's own four affected lines are quoted
+verbatim in `PR-A6.md` so this PR stays reviewable.

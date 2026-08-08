@@ -26,6 +26,7 @@ import semver from "semver";
 import type { CoreConfig } from "./config.js";
 import { notifyJobDone, notifyJobs, withTransaction } from "./db.js";
 import { recordHealthEvent } from "./health.js";
+import { captureAuto } from "./onboarding.js";
 import { redactDeep, redactError } from "./redact.js";
 import { CLASS_DEFAULTS, JOB_TYPES, TRIGGER_KINDS } from "./registry.js";
 import { ulid } from "./ulid.js";
@@ -734,6 +735,18 @@ export async function succeedSnapshot(
   });
   // A queued follower for this key may be claimable now.
   if (result) await notifyJobs(pool);
+  // A-6/OB-4: playbook step 3 ends at the first accepted snapshot.
+  // Deliberately *outside* the transaction — a measurement must never be
+  // able to roll back an acceptance — and a no-op unless a run is armed.
+  if (result) {
+    await captureAuto(pool, "snapshot_accepted", {
+      snapshot_id: result.snapshotId,
+      job_id: jobId,
+      system: verdict.system,
+      object_count: verdict.object_count,
+      source_mode: verdict.source_mode,
+    });
+  }
   return result;
 }
 

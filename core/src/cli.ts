@@ -56,6 +56,15 @@
  *
  *   node dist/cli.js sync runs [N]
  *       Latest run records.
+ *
+ * Onboarding timers (A-6 / OB-4). The operator half of the hybrid
+ * capture: five playbook steps close themselves on product events, and
+ * these commands are for the five that happen where the product cannot
+ * see — a DBA's terminal, an IdP console, a steward's judgement.
+ *
+ *   node dist/cli.js onboarding arm LABEL [--topology CLASS] [--note T]
+ *   node dist/cli.js onboarding mark STEP [--note TEXT]
+ *   node dist/cli.js onboarding steps | report [RUN_ID] | finish
  */
 
 import { randomBytes, createHash } from "node:crypto";
@@ -489,6 +498,174 @@ async function runCompile(args: string[]): Promise<number> {
 }
 
 /**
+ * `onboarding …` — OB-4's operator half (A-6, D-122.4).
+ *
+ * A client of the same governed endpoints the dashboard panel calls, as
+ * the same person: arming a run and marking a step are governed acts and
+ * are audited as such, so a CLI with its own database path would be a
+ * second way to do them with no row to show for it.
+ *
+ * Five playbook steps close themselves on product events. These commands
+ * exist for the other five — the ones that happen in a DBA's terminal, an
+ * IdP's admin console, or a steward's judgement, where the product has
+ * nothing to observe and a person is the only witness.
+ *
+ *   onboarding arm LABEL [--topology CLASS] [--note TEXT]
+ *   onboarding mark STEP [--note TEXT]
+ *   onboarding steps
+ *   onboarding report [RUN_ID]
+ *   onboarding finish [--note TEXT]
+ */
+async function runOnboarding(args: string[]): Promise<number> {
+  const [sub, ...rest] = args;
+  const positional = rest.filter((a) => !a.startsWith("--"));
+  const flag = (name: string): string | undefined => {
+    const i = rest.indexOf(`--${name}`);
+    return i >= 0 ? rest[i + 1] : undefined;
+  };
+  const ms = (value: number | null): string => {
+    if (value === null) return "—";
+    const s = Math.round(value / 1000);
+    if (s < 90) return `${s}s`;
+    const m = Math.floor(s / 60);
+    if (m < 90) return `${m}m ${s % 60}s`;
+    return `${Math.floor(m / 60)}h ${m % 60}m`;
+  };
+
+  // Printed from the shipped step list rather than from a copy here.
+  if (sub === "steps") {
+    const { ONBOARDING_STEPS } = await import("./onboarding.js");
+    for (const step of ONBOARDING_STEPS) {
+      console.log(
+        `${step.step}  ${step.key.padEnd(20)} ${step.capture.padEnd(8)} ` +
+          `${step.section} ${step.title}\n      closes when: ${step.closes}`,
+      );
+    }
+    return 0;
+  }
+
+  const ctx = apiContext();
+  if (!ctx) return 2;
+  const root = "/v1/dashboard/ops/onboarding";
+
+  if (sub === "arm") {
+    const label = positional[0];
+    if (!label) {
+      console.error("usage: cli.js onboarding arm LABEL [--topology CLASS] [--note TEXT]");
+      return 2;
+    }
+    const { status, json } = await api(ctx.base, ctx.token, "POST", `${root}/arm`, {
+      label,
+      ...(flag("topology") ? { topology: flag("topology") } : {}),
+      ...(flag("note") ? { note: flag("note") } : {}),
+    });
+    if (status !== 201) {
+      console.error(`arm failed (${status}): ${json.detail ?? JSON.stringify(json)}`);
+      return 1;
+    }
+    console.log(`armed ${json.run_id} — ${json.label}`);
+    console.log(String(json.note ?? ""));
+    return 0;
+  }
+
+  if (sub === "mark") {
+    const step = positional[0];
+    if (!step) {
+      console.error("usage: cli.js onboarding mark STEP [--note TEXT]  (cli.js onboarding steps)");
+      return 2;
+    }
+    const { status, json } = await api(
+      ctx.base,
+      ctx.token,
+      "POST",
+      `${root}/steps/${encodeURIComponent(step)}/mark`,
+      { ...(flag("note") ? { note: flag("note") } : {}) },
+    );
+    if (status !== 201) {
+      console.error(`mark failed (${status}): ${json.detail ?? JSON.stringify(json)}`);
+      if (Array.isArray(json.fields)) console.error(`steps: ${(json.fields as string[]).join(", ")}`);
+      return 1;
+    }
+    const marked = json.step as { step: number; title: string };
+    console.log(`marked step ${marked.step} (${marked.title}) at ${json.occurred_at}`);
+    if (json.hand_marked) {
+      console.log(
+        "NOTE: this step is normally captured automatically from a product event. It is recorded\n" +
+          "as a hand mark and the report says so — a marked step never passes for an observed one.",
+      );
+    }
+    return 0;
+  }
+
+  if (sub === "finish") {
+    const { status, json } = await api(ctx.base, ctx.token, "POST", `${root}/finish`, {
+      ...(flag("note") ? { note: flag("note") } : {}),
+    });
+    if (status !== 200) {
+      console.error(`finish failed (${status}): ${json.detail ?? JSON.stringify(json)}`);
+      return 1;
+    }
+    console.log(`finished ${json.run_id}`);
+    return 0;
+  }
+
+  if (sub === "report" || sub === undefined) {
+    const wanted = positional[0];
+    const { status, json } = await api(
+      ctx.base,
+      ctx.token,
+      "GET",
+      wanted ? `${root}?run=${encodeURIComponent(wanted)}` : root,
+    );
+    if (status !== 200) {
+      console.error(`report failed (${status}): ${json.detail ?? JSON.stringify(json)}`);
+      return 1;
+    }
+    const run = json.run as Record<string, unknown> | null;
+    if (!run) {
+      // UI-10 in a terminal: an empty table of zeroes would read as a
+      // measured onboarding that took no time.
+      console.log("no onboarding run has been recorded on this deployment.");
+      console.log("`cli.js onboarding arm LABEL` starts one; capture is live from that moment.");
+      return 0;
+    }
+    console.log(
+      `${run.label} — ${run.state}, armed ${run.armed_at} by ${run.armed_by}` +
+        `${run.topology ? ` (${run.topology})` : ""}`,
+    );
+    console.log(`run ${run.run_id} · ${run.captured}/${run.total_steps} steps · elapsed ${ms(Number(run.elapsed_ms))}\n`);
+    for (const step of (json.steps ?? []) as Record<string, unknown>[]) {
+      const state = step.state === "captured" ? "✓" : "·";
+      const how =
+        step.state === "captured"
+          ? `${step.capture}${step.hand_marked ? " (hand-marked, normally automatic)" : ""}` +
+            `${step.marked_by ? ` by ${step.marked_by}` : ""}`
+          : `pending — ${step.expected_capture}`;
+      console.log(
+        `${state} ${String(step.step).padEnd(2)} ${String(step.key).padEnd(20)} ` +
+          `${ms(step.since_previous_ms === null ? null : Number(step.since_previous_ms)).padStart(8)} ` +
+          `${ms(step.since_armed_ms === null ? null : Number(step.since_armed_ms)).padStart(9)} cum   ${how}`,
+      );
+    }
+    console.log(`\n${json.measurement_note ?? ""}`);
+    const targets = (json.targets ?? {}) as { set?: boolean; why?: string };
+    if (!targets.set) console.log(`\nTARGETS: none. ${targets.why ?? ""}`);
+    // Earlier runs, so `report RUN_ID` has somewhere to get an id from.
+    const history = (json.history ?? []) as { run_id: string; label: string; armed_at: string }[];
+    if (history.length > 1) {
+      console.log("\nearlier runs:");
+      for (const prior of history.filter((h) => h.run_id !== run.run_id)) {
+        console.log(`  ${prior.run_id}  ${prior.armed_at}  ${prior.label}`);
+      }
+    }
+    return 0;
+  }
+
+  console.error("usage: cli.js onboarding arm|mark|steps|report|finish …");
+  return 2;
+}
+
+/**
  * `publish deliveries` — the MCP §6.8 amendment's ops surface: every
  * model delivery per (artifact, target), with revisions that never
  * reached `attest` marked DANGLING, loudly. A delivered-but-unattested
@@ -543,9 +720,13 @@ const run =
   command === "enqueue" ? runEnqueue(rest) :
   command === "sync" ? runSync(rest) :
   command === "compile" ? runCompile(rest) :
+  command === "onboarding" ? runOnboarding(rest) :
   command === "publish" ? runPublish(rest) :
   Promise.resolve().then(() => {
-    console.error("usage: cli.js migrate | enqueue [--wait] FILE... | sync … | compile PROFILE --kb DIR --url URL | publish deliveries");
+    console.error(
+      "usage: cli.js migrate | enqueue [--wait] FILE... | sync … | compile PROFILE --kb DIR --url URL |\n" +
+        "       onboarding arm|mark|steps|report|finish … | publish deliveries",
+    );
     return 2;
   });
 

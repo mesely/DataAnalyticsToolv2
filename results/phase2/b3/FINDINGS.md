@@ -196,6 +196,22 @@ the product. The check now reads the `hvs.` **prefix**, which is a fact
 about the format, and defers the verdict to `token lookup`, which is the
 only thing that actually knows.
 
+**Third round, same step.** With the length alarm gone, the paste itself
+turned out to be the problem: 111 characters because a newline was sitting
+*inside* the token — the shape a value takes when it is copied out of a
+wrapped source, and one `$(…)` does not fix, because command substitution
+strips only *trailing* newlines. Vault's own message here is good
+(*"configured Vault token contains non-printable characters"*) and it
+still arrives only after something else has already failed. The load line
+is now `pbpaste | tr -cd '[:print:]'`, which cannot damage a base64url
+token and removes the whole class.
+
+Three rounds on one variable is the actual lesson of F6/F7, and it is not
+about vault: **a runbook step that hands a secret from a human to a
+process needs the value proven at the point of loading**, not at the point
+of use, because every downstream failure describes the operation instead
+of the value.
+
 **The pattern across F6 and F7 is worth naming**: both failures were in
 *variable plumbing* around vault, both surfaced as messages about
 something else, and both were in steps this runbook wrote out but never

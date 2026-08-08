@@ -114,8 +114,16 @@ the clipboard, so the value never reaches a command line:
 
 ```bash
 # copy the ROOT TOKEN to the clipboard, then:
-VT=$(pbpaste); echo "VT is ${#VT} chars, prefix ${VT:0:4}"
+VT=$(pbpaste | tr -cd '[:print:]'); echo "VT is ${#VT} chars, prefix ${VT:0:4}"
 ```
+
+> **Why the `tr`.** A token copied out of a wrapped source — a chat
+> transcript, a narrow password-manager field — arrives with a newline
+> inside it, and `$(…)` strips only *trailing* ones. Vault then refuses
+> with *"configured Vault token contains non-printable characters"*, which
+> is at least an honest error, but only after you have run something else
+> first. A Vault token is base64url, so stripping every non-printable
+> character can never damage a good one.
 
 **Read the prefix, not the length.** `hvs.` is a Vault service token and
 that is all this line can tell you. A token straight out of
@@ -134,12 +142,10 @@ than about the token:
 docker compose exec -T -e VAULT_TOKEN="$VT" vault vault token lookup | grep policies
 ```
 
-You want `[root]`. If it errors, the usual cause is a label or whitespace
-pasted along with the value:
-
-```bash
-VT=$(pbpaste | tr -d '[:space:]')
-```
+You want `[root]`. If it still errors, the value carried something extra
+that the strip could not remove: a **label** like `Root Token: hvs…`
+survives it and glues itself to the front. Check that the prefix really is
+`hvs.`, and re-copy just the token if it is not.
 
 > **The failure to recognise.** With `VT` empty you get
 > `Code: 403 … * permission denied` on a

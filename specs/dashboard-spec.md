@@ -96,6 +96,8 @@ Two A-2 rulings whose surfaces the read APIs will meet, recorded here so they ar
 - **D-107.3 — verdict history.** An ambiguous profile binding is refused, not resolved. The refusal is a decision with a subject, a time and a reason, and nothing currently retains it; whether verdict history is an audit concern or a ledger one is open.
 - **D-107.4 — jobs retention.** A browser gets the login flow and a script gets 401; both leave job rows whose retention is unset. The audit read's window semantics assume a horizon that no policy defines.
 
+*(Both filed as register rows at CP-Ω per D-126.6: verdict history → fault-ledger §13 **FL-F**; jobs retention → job protocol §11 **JP-7**.)*
+
 ## 6. Render-safety rules
 
 All user-supplied text renders inert (UI-5) — ledger text, gap descriptions, object/column names (the F4 lesson: names are attacker-influenceable), error details, PR titles echoed from the git provider. Links out (drift PRs, reports, git) carry no credentials and open the provider's own auth. Nothing in the dashboard persists API payloads client-side beyond the session.

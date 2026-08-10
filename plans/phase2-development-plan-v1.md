@@ -1,6 +1,6 @@
 # Context Layer — Phase 2 Development Plan (v1)
 
-Status: ratified — D-98 (owner ruling, 2026-08-04) authorizes A-1 per this plan's gate, which is the ratification act this line awaited. Authorized by D-96.6; built from the CP-8 go/no-go report (results/cp8/go-no-go-report.md), whose Part 4/5 inventories and Track A/B proposal are this plan's requirements. Phase 1's plan conventions carry over unchanged: checkpoints are demonstrable events with mechanically verifiable gates; sequence and dependency only, no dates (OB-4 discipline — whose instrumentation this phase finally builds); a checkpoint is not closed while its work is unmerged (D-74.2).
+Status: **CLOSED at CP-Ω, 2026-08-10 (D-126)** — every checkpoint and both milestones closed; the phase retrospective is `results/phase2/cp-omega-report.md`, accepted as written. Ratification history: D-98 (owner ruling, 2026-08-04) authorized A-1 per this plan's gate, which was the ratification act this line awaited. Authorized by D-96.6; built from the CP-8 go/no-go report (results/cp8/go-no-go-report.md), whose Part 4/5 inventories and Track A/B proposal are this plan's requirements. Phase 1's plan conventions carry over unchanged: checkpoints are demonstrable events with mechanically verifiable gates; sequence and dependency only, no dates (OB-4 discipline — whose instrumentation this phase finally builds); a checkpoint is not closed while its work is unmerged (D-74.2).
 
 ## §1 Purpose
 
@@ -122,3 +122,5 @@ Milestones: **M4** = Track A exit (the playbook milestone: onboardable). **M5** 
 ## §7 Phase exit — CP-Ω
 
 M4 + M5 closed; a phase retrospective in the CP-8 pattern (shorter): playbook re-grade, register sweep, and the go/no-go question restated for its real audience — *the next onboarding, assisted or not, with the evidence to say which.*
+
+**CLOSED 2026-08-10 (D-125 / D-126).** M5 closed with B-4 on the operator's hour (KB PRs #54/#55 merged); M4 closed on the CP-Ω re-grade, with the U-2 remainder (publisher-tenant + DDL-handover playbook sections) deferred to onboarding #2 by accepted motion. Verdict adopted verbatim (D-126.1): **GO** vendor-assisted (~one day in the room, at step 1); **GO-WITH-CONDITIONS** unassisted; **NO-GO** only on quoting value numbers before BASELINE-1. Retrospective: `results/phase2/cp-omega-report.md`. Carried debt (owner: operator; trigger: a second human on the stack or Phase 3 opening, whichever first): vault rekey + root-token revoke, SECRETS-INVENTORY purge. **Phase 2 CLOSED.**

@@ -7739,3 +7739,95 @@ operator convenience, not an open item.
 
 The M4 re-grade (D-125.2) and everything else this session produced is
 `results/phase2/cp-omega-report.md`.
+
+## D-126 — CP-Ω dispositions; PHASE 2 CLOSED (owner ruling, 2026-08-10)
+
+Recorded verbatim.
+
+> 1. CP-Ω report ACCEPTED as written; verdict ADOPTED verbatim:
+>    GO vendor-assisted (~one day in the room, at step 1);
+>    GO-WITH-CONDITIONS unassisted (install-story fragilities, two
+>    unwritten playbook sections, and the fact that no non-vendor has
+>    run the playbook — which onboarding #2 itself discharges, OB-4
+>    armed); NO-GO only on quoting value numbers before BASELINE-1.
+> 2. M4 CLOSED: the U-2 remainder motion (publisher-tenant +
+>    DDL-handover playbook sections deferred to onboarding #2) is
+>    ACCEPTED — the sections get written when a real onboarding first
+>    needs them, which is when they can be written truthfully.
+>    M4 + M5 closed ⇒ Phase 2 CLOSED per the plan's §7.
+> 3. CPΩ-F1 (the price, three-way contradiction: Stripe 99.90 vs doc
+>    99.00 vs request 99.99): the Stripe figure is the estate's truth.
+>    Operator steward act: the enrichment repair PR + the two ledger
+>    verdicts, provenance "customer-confirmed via Stripe, Alper,
+>    <date>". Small, but it is the product's own honesty loop working
+>    on its owner — do it through the queue, not around it.
+> 4. CPΩ-F2: remove the tracked expired dev-IdP JWT; extend the
+>    secrets hygiene guard (or .gitignore) so workdirs/ can't track
+>    token-shaped files again. CPΩ-F3: the four absent artifacts
+>    recorded as-is — named absences, never backfilled.
+> 5. CARRIED DEBT, final form: vault rekey + root-token revoke +
+>    SECRETS-INVENTORY purge — owner: operator; trigger: before a
+>    second human touches the stack or Phase 3 opens, whichever
+>    first. This is now the oldest open item in the project; it is
+>    ten minutes at a terminal.
+> 6. R-6 CLOSED on the confirmed PAT scope-drop. The Part-5 proposal
+>    stands as the Phase-3 planning input; the register-disposition
+>    block is ruled ACCEPTED as tabled.
+
+## D-126 as applied (2026-08-10)
+
+**Clause 2 — the plan says closed.** `plans/phase2-development-plan-v1.md`
+status line and §7 now carry the closure, the adopted verdict, the U-2
+deferral, and the clause-5 debt with its owner and trigger (`cd7a08d`).
+**Phase 2 is CLOSED**; the plan document is history, not sequence.
+
+**Clause 4, first half — CPΩ-F2 executed** (`8920523`). The a5/as19
+scenario workdir is untracked (files stay on disk; the JWT was expired
+and dev-issued, so no history rewrite — the R-3 precedent), and the
+root `.gitignore` gains a repo-wide `workdirs/` rule, which is the
+b1-as18/a1-as7 local convention made structural: a scenario workdir
+carries a compiled bundle, and a compiled bundle's `.mcp.json` embeds a
+session token by design, so the directory class is unignorable one
+scratch tree at a time. **Clause 4, second half — CPΩ-F3 stands as
+recorded:** the four named absences (b1/FIELD-NOTES.md, a5/floor-check/,
+a3-b2 evidence, a4/README.md) are permanent named holes, never
+backfilled; any future sentence about them is the operator's to write
+in the D-113 shape.
+
+**Clause 6 — the register-disposition batch, applied** (`cd7a08d`, spec
+diffs leading, the D-96.4 pattern):
+
+- Master rows flipped to their ruled state: **JP-1**, **JP-2** (closed
+  at M2 by D-69.1/.2 — 10.9 ms p95 against 500 ms, 46× margin — rows
+  never flipped) and **SO-F** (closed at B-1 by D-114.3, DT-9 green in
+  both states, U-8 served).
+- Stale home rows reconciled to closures other specs already recorded:
+  **CI-F** (capability §12 → closed by supersession, D-91.6/D-92.1),
+  **OB-3** (playbook §14 → fixture shipped at CP-3 *and* the human half
+  rehearsed at A-1), **JP-4** (job §11 → adopted as sync §4.2). Job
+  §11's JP-1/JP-2 rows were flipped in the same pass — one row beyond
+  the tabled motion, flagged here: leaving them stale spec-locally
+  while flipping the master would recreate the exact skew this batch
+  exists to remove.
+- The two row-less D-107 items are filed at last, home spec first then
+  master, per process: **FL-F** (verdict history — latest +
+  `reopen_count` accepted for v1; trigger: first dispute over a prior
+  rejection reason or the queue UI wanting history) and **JP-7** (jobs
+  retention — trigger: first deployment where jobs-table growth is
+  operationally visible; consistent with the ledger's 90-day
+  precedent). Dashboard §5.2 points at both.
+
+**What stays the operator's, restated once and not softened:** clause
+3's queue act (the CPΩ-F1 repair PR + verdicts on `4c4ecb3d` and
+`3f04d202` at 99.90, provenance "customer-confirmed via Stripe"), and
+clause 5's carried debt — vault rekey, root-token revoke, the
+SECRETS-INVENTORY purge — now the oldest open item in the project, ten
+minutes at a terminal, trigger: a second human on the stack or Phase 3
+opening, whichever first.
+
+**State at this entry:** NUL scan clean over 583 tracked files; working
+tree clean; no code, test, or KB content touched — the batch is
+registers, the plan, `.gitignore`, and tracking state only. Phase 2
+closes at `main` = this commit. The next act in this repository is the
+operator's Phase-3 planning conversation, with the CP-Ω report's Part 5
+as its tabled input.

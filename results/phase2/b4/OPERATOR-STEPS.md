@@ -24,11 +24,38 @@ is where you test whether that reads honestly on the screen.
 
 ---
 
+## Where you are right now (checked on the estate, 2026-08-10)
+
+**Steps 1–4 are done.** Verified against the deployment rather than
+assumed:
+
+| Step | State |
+|---|---|
+| 1 — deployment | done; migration **0016** is applied (both tables exist) |
+| 2 — merge PR #54 | done, merged **08:05 UTC** as `bc3beac`; the auditor role is live |
+| 3 — Eda's group | done; `eda` holds `["reporter", "auditor"]` |
+| 4 — the `row_cap` restore | done, **PR #55** merged; the reporter is back at `50000` |
+
+**Two things changed under you and you should know both.**
+
+1. **This machine's address moved to `192.168.1.13`.** The table below is
+   updated. That is the DHCP fault again, not a new one.
+2. **The core was rebuilt at 11:52 to carry the Benchmarks fix** you
+   found (finding B4-F5 — the dark state did not name BASELINE-1). The
+   rebuild restarted the identity provider too, so **you are signed
+   out**. Sign in again; nothing else is lost, and the audit trail is
+   untouched.
+
+**What is left: step 5 — the hour — and step 6.** Step 5g is worth
+re-reading first, since it is the screen that was wrong.
+
+---
+
 ## Addresses you will need
 
 | What | Where |
 |---|---|
-| The dashboard | **http://192.168.1.6:8100/app/** |
+| The dashboard | **http://192.168.1.13:8100/app/** |
 | The knowledge base on GitHub | **https://github.com/AlperCamli/Sample-Knowladge-Base** |
 | The auditor pull request | **PR #54** on that repo |
 | The project folder | **`~/Desktop/DataProject`** |
@@ -264,7 +291,7 @@ B-3's step 7 never ran, so the pilot reporter has been sitting at
 and one more free pass through a surface that has only ever been used
 once.
 
-1. Open **http://192.168.1.6:8100/app/** and sign in as `alper`.
+1. Open **http://192.168.1.13:8100/app/** and sign in as `alper`.
 2. Click **Profiles**. Read the line at the top: it should say pull
    requests will be authored as **Alper Camli &lt;your email&gt;**. If it is
    red and talks about a vault path, stop and report.
@@ -421,8 +448,17 @@ Sign out of the private window. Back as **`alper`**, click
 It is empty, and it should be. Read what it says.
 
 It should tell you that **BASELINE-1 has not landed** — that no complete
-three-condition run exists in this deployment's results store — and that
-this product does not quote accuracy numbers it has not measured.
+three-condition run exists for this deployment — and that this product
+does not quote accuracy numbers it has not measured. Under that, a
+second line says what is true of *this* deployment: no results store is
+configured, so nothing was read.
+
+> **You read this screen once already and it was wrong** — it gave the
+> deployment detail and neither of the two sentences above. That is
+> finding **B4-F5**, fixed and rebuilt at 11:52. The two questions —
+> *why is this empty* and *what does this deployment have* — are now
+> two lines, which is also why it no longer says the same thing twice.
+> Read it again and see whether it earns the empty space this time.
 
 **WHAT SUCCESS LOOKS LIKE for 5g:** not one number on that screen in the
 shape of a score. No zeroes, no percentages, no faint sample chart behind

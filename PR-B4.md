@@ -190,7 +190,7 @@ everything*, and refusing to boot is a strange way to answer that.
 
 ## Suites
 
-- core: **450 passed / 4 skipped / 32 files** (two added by D-124.1's amendment)
+- core: **454 passed / 4 skipped / 32 files** (two from D-124.1's amendment, four from B4-F5's fix)
 - python: **840 passed / 14 skipped / 0 failed**
 
 ## What this PR does not do

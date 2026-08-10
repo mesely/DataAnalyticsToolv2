@@ -280,6 +280,37 @@ export function readStore(
   return { runs, unreadable, reason: null };
 }
 
+/**
+ * The sentence the dark state exists to say (D-123.4c, finding B4-F5).
+ *
+ * It names **BASELINE-1** and the no-claims constraint, and it is the
+ * same in every state where the screen is dark *and the answer is
+ * known* — because the reason the screen is empty is always the same
+ * reason, whatever this particular deployment has configured. The
+ * deployment's own situation is `detail`, below, and the two were once
+ * mixed together: the no-store branch carried only its own detail and
+ * said neither of these things, which is the branch every real
+ * deployment hits and the only one a person had ever read.
+ */
+const NO_BASELINE =
+  "BASELINE-1 has not landed. No complete three-condition run exists for this deployment, " +
+  "so there are no per-KB-version scores to compare. Nothing is shown in place of them: the " +
+  "plan's no-claims constraint (§2.3) means this product does not quote accuracy numbers it " +
+  "has not measured, and a sample chart here would be exactly that claim in a friendlier font.";
+
+/**
+ * The one dark state that must NOT say the sentence above.
+ *
+ * If the store cannot be read, this view does not know whether a
+ * baseline exists — and "BASELINE-1 has not landed" would be a claim
+ * about the estate made from a fault in the deployment. Not knowing is
+ * its own answer and gets its own words.
+ */
+const CANNOT_TELL =
+  "This view cannot say whether a baseline has been measured: the configured results store " +
+  "could not be read. That is a deployment fault rather than an empty result, and it is not " +
+  "evidence either way about what has been run.";
+
 export function registerBenchmarks(app: FastifyInstance, deps: BenchmarkDeps): void {
   app.get("/v1/dashboard/benchmarks", async (req, reply) => {
     const auth = await authenticate(deps, req);
@@ -313,11 +344,12 @@ export function registerBenchmarks(app: FastifyInstance, deps: BenchmarkDeps): v
         store: { configured: false, path: null, reason: null },
         baseline: {
           landed: false,
-          why:
-            "No benchmark results store is configured for this deployment " +
-            "(CORE_BENCHMARK_RESULTS_DIR), so there is nothing to read. Accuracy runs are a " +
-            "manual command — the platform never runs one by itself — and their artifacts are " +
-            "what this view renders.",
+          why: NO_BASELINE,
+          detail:
+            "No results store is configured for this deployment " +
+            "(CORE_BENCHMARK_RESULTS_DIR), so nothing was read. Accuracy runs are a manual " +
+            "command — the platform never starts one by itself — and their artifacts are what " +
+            "this view renders.",
         },
         runs: [],
         unreadable: [],
@@ -326,26 +358,29 @@ export function registerBenchmarks(app: FastifyInstance, deps: BenchmarkDeps): v
 
     const store = readStore(dir, deps.log);
     const complete = store.runs.filter((r) => r.coverage.complete);
+    const unreadableStore = store.reason !== null;
     return reply.send({
       api_version: API_VERSION,
       store: { configured: true, path: dir, reason: store.reason },
       baseline: {
         landed: complete.length > 0,
-        why:
+        // Why the screen is dark: one sentence, the same one, except
+        // where the honest answer is "I cannot tell".
+        why: complete.length > 0 ? null : unreadableStore ? CANNOT_TELL : NO_BASELINE,
+        // What is true of *this* deployment. Separate from `why` because
+        // they are different questions, and answering only the second is
+        // how B4-F5 happened.
+        detail:
           complete.length > 0
             ? null
-            : store.reason !== null
-              ? "The configured results store could not be read, so this view cannot say whether a baseline exists. That is a deployment fault, not an empty result."
+            : unreadableStore
+              ? `The results store at ${dir} could not be read (${store.reason}).`
               : store.runs.length === 0
-                ? "BASELINE-1 has not landed. No benchmark run exists in this deployment's results " +
-                  "store, so there are no per-KB-version scores to compare. Nothing is shown in " +
-                  "place of them: the plan's no-claims constraint (§2.3) means this product does " +
-                  "not quote accuracy numbers it has not measured, and a sample chart here would " +
-                  "be exactly that claim in a friendlier font."
-                : "BASELINE-1 has not landed. The runs below exist but none is complete — a " +
-                  "baseline is every case in every condition, and a partial run averaged into a " +
-                  "score would read as a measurement this product has not made. Their coverage " +
-                  "is stated so you can see what is actually there.",
+                ? `The results store at ${dir} is configured and holds no runs.`
+                : "The runs below exist and none is complete — a baseline is every case in " +
+                  "every condition, and a partial run averaged into a score would read as a " +
+                  "measurement this product has not made. Their coverage is stated so you can " +
+                  "see what is actually there.",
       },
       runs: store.runs,
       unreadable: store.unreadable,

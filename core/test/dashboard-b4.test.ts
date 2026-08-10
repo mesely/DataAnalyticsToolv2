@@ -595,14 +595,83 @@ describe("B-4 — Benchmarks ships dark and says why (DT-6)", () => {
     await rig?.stop();
   });
 
-  it("with no store configured, the view is dark and names BASELINE-1", async () => {
+  /**
+   * Finding **B4-F5**, and the reason this is a loop rather than three
+   * separate assertions.
+   *
+   * D-123.4c requires the dark state to name BASELINE-1 and the
+   * no-claims constraint. Three branches produce a dark state, and the
+   * first version of this suite asserted the *string each branch
+   * happened to contain* — so the no-store branch, which said neither,
+   * passed a green suite and shipped. It is the branch every real
+   * deployment hits, and the operator read it on the pilot within
+   * minutes of opening the screen.
+   *
+   * A test that enumerates the states and asserts the **requirement** on
+   * each cannot fail that way: a fourth dark branch added later has to
+   * be added here too, and it has to say the sentence.
+   */
+  const DARK_STATES: { name: string; arrange: () => void }[] = [
+    { name: "no store configured", arrange: () => (rig.core.cfg.dashboard.benchmarkResultsDir = "") },
+    {
+      name: "store configured, no runs",
+      arrange: () => (rig.core.cfg.dashboard.benchmarkResultsDir = storeWith({})),
+    },
+    {
+      name: "store configured, only partial runs",
+      arrange: () =>
+        (rig.core.cfg.dashboard.benchmarkResultsDir = storeWith({
+          "smoke-1": artifact({ cases: CASES, conditions: CONDITIONS, journeys: 4 }),
+        })),
+    },
+  ];
+
+  for (const state of DARK_STATES) {
+    it(`names BASELINE-1 and the no-claims constraint — ${state.name}`, async () => {
+      state.arrange();
+      const res = await apiGet(rig, steward, "/v1/dashboard/benchmarks");
+      expect(res.status).toBe(200);
+      const body = res.json as { baseline: { landed: boolean; why: string; detail: string } };
+      expect(body.baseline.landed).toBe(false);
+      expect(body.baseline.why, `${state.name}: the dark state must name BASELINE-1`).toContain(
+        "BASELINE-1",
+      );
+      expect(
+        body.baseline.why,
+        `${state.name}: the dark state must state the no-claims constraint`,
+      ).toContain("does not quote accuracy numbers it has not measured");
+      // And it must still say what is true of *this* deployment — the
+      // two are different questions and both get answered.
+      expect(body.baseline.detail).toBeTruthy();
+    });
+  }
+
+  it("with no store configured, the deployment's own situation is stated too", async () => {
     rig.core.cfg.dashboard.benchmarkResultsDir = "";
     const res = await apiGet(rig, steward, "/v1/dashboard/benchmarks");
-    expect(res.status).toBe(200);
-    const body = res.json as { baseline: { landed: boolean; why: string }; runs: unknown[] };
-    expect(body.baseline.landed).toBe(false);
+    const body = res.json as { baseline: { detail: string }; runs: unknown[] };
     expect(body.runs).toEqual([]);
-    expect(body.baseline.why).toContain("Accuracy runs are a manual command");
+    expect(body.baseline.detail).toContain("CORE_BENCHMARK_RESULTS_DIR");
+    expect(body.baseline.detail).toContain("Accuracy runs are a manual");
+  });
+
+  it("an unreadable store says it cannot tell — never that nothing was measured", async () => {
+    // The one dark state that must NOT claim BASELINE-1 has not landed:
+    // a store the deployment cannot read is a fault, and reporting it as
+    // an absence would be a claim about the estate made from a broken
+    // mount point.
+    rig.core.cfg.dashboard.benchmarkResultsDir = path.join(tmpdir(), "cl-bench-does-not-exist");
+    const res = await apiGet(rig, steward, "/v1/dashboard/benchmarks");
+    expect(res.status).toBe(200);
+    const body = res.json as {
+      baseline: { landed: boolean; why: string; detail: string };
+      store: { reason: string };
+    };
+    expect(body.baseline.landed).toBe(false);
+    expect(body.baseline.why).toContain("cannot say whether a baseline has been measured");
+    expect(body.baseline.why).not.toContain("BASELINE-1 has not landed");
+    expect(body.store.reason).toBeTruthy();
+    expect(body.baseline.detail).toContain("could not be read");
   });
 
   it("no placeholder numerals reach the response when nothing is measured", async () => {

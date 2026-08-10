@@ -148,27 +148,26 @@ export function Benchmarks() {
   return (
     <div className="benchmarks">
       {!data.baseline.landed && (
-        <Dark title="No baseline has been measured" why={data.baseline.why ?? ""}>
+        <Dark
+          title={
+            // "Cannot tell" and "has not landed" are different states and
+            // get different headings (B4-F5): a store the deployment
+            // cannot read is not evidence that nothing was measured.
+            data.store.reason ? "This view cannot say what has been measured" : "No baseline has been measured"
+          }
+          why={data.baseline.why ?? ""}
+        >
+          {/* This deployment's own situation, from the server. It used to
+              be reconstructed here, which meant the screen said the same
+              thing twice and the sentence that mattered not at all. */}
+          <p className="muted">
+            <Text value={data.baseline.detail} />
+          </p>
           <p className="muted">
             When a complete run exists, this screen compares the three conditions — enriched KB,
             machine-only KB, no KB — per <code>kb_ref</code>, from the run&apos;s own artifact.
             Until then it stays empty rather than showing you a shape.
           </p>
-          {data.store.configured ? (
-            <p className="muted">
-              results store: <code><Text value={data.store.path} /></code>
-              {data.store.reason ? (
-                <>
-                  {" — "}
-                  <Text value={data.store.reason} />
-                </>
-              ) : null}
-            </p>
-          ) : (
-            <p className="muted">
-              No results store is configured for this deployment, so nothing was read.
-            </p>
-          )}
         </Dark>
       )}
 

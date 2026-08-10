@@ -1,7 +1,59 @@
 # B-4 — findings
 
-Four: one closed by ruling, two fixed here, and one a lived data point
-about the fix this checkpoint opened with.
+Five: one closed by ruling, three fixed, and one a lived data point about
+the fix this checkpoint opened with. **B4-F5 was found by a person
+reading the screen**, on the deployment, minutes after opening it.
+
+---
+
+## B4-F5 — the dark state did not say the thing it exists to say. **Fixed 2026-08-10, on the operator's report.**
+
+**What.** D-123.4c requires the Benchmarks dark state to name
+**BASELINE-1** and the no-claims constraint. It has three dark branches,
+and only two of them did. The third — **no results store configured** —
+said only that no store was configured. That is the branch every real
+deployment hits before anybody points it at a store, and it is the one
+the operator opened:
+
+> No baseline has been measured
+> No benchmark results store is configured for this deployment
+> (CORE_BENCHMARK_RESULTS_DIR), so there is nothing to read. …
+
+Neither *BASELINE-1* nor *this product does not quote accuracy numbers it
+has not measured* appears anywhere in it. The screen refused to invent a
+number — DT-6 held, and there was not a numeral on it — but it did not
+explain itself, which is the other half of what UI-10 asks a dark state
+to do.
+
+**How it passed a green suite.** The test asserted the string the code
+contained (`"Accuracy runs are a manual command"`) rather than the
+sentence the ruling required. That is a test of the author's typing, not
+of the requirement, and it is the exact failure mode B1-F2 named in a
+different costume: an assertion written to match what was built cannot
+notice that what was built is not what was asked for.
+
+**The fix, and why it is structural rather than three more sentences.**
+`why` and `detail` are now separate fields answering separate questions —
+*why is this screen empty* (BASELINE-1 and the no-claims constraint, the
+same in every state where the answer is known) and *what does this
+deployment have* (no store / an empty store / partial runs / an
+unreadable store). The view renders both and no longer reconstructs the
+second itself, which is also what removed the duplicated sentence the
+operator noticed in the same breath.
+
+**One state deliberately does not say it.** When the store cannot be
+read, the screen says *this view cannot say whether a baseline has been
+measured* and heads itself differently. Not knowing is its own answer:
+"BASELINE-1 has not landed" would be a claim about the estate made from a
+broken mount point.
+
+**The test now enumerates the dark states and asserts the requirement on
+each**, so a fourth branch added later has to be added to the list and
+has to say the sentence — plus one negative pinning the state that must
+not say it.
+
+Verified on the running deployment rather than in the source: the live
+`/v1/dashboard/benchmarks` response carries both sentences.
 
 ---
 

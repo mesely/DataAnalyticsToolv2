@@ -397,7 +397,11 @@ export interface BenchmarkRun {
 
 export interface Benchmarks {
   store: { configured: boolean; path: string | null; reason: string | null };
-  baseline: { landed: boolean; why: string | null };
+  /** `why` is why the screen is dark — BASELINE-1 and the no-claims
+   * constraint, or "cannot tell" when the store is unreadable. `detail`
+   * is what is true of this deployment. Two questions, two fields
+   * (finding B4-F5). */
+  baseline: { landed: boolean; why: string | null; detail: string | null };
   runs: BenchmarkRun[];
   unreadable: { run_id: string; reason: string }[];
 }

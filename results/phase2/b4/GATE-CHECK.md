@@ -49,7 +49,13 @@ filed an issue is still refused every act that would change it.
 ### Clause 3 — Benchmarks renders scores when they exist, dark when they do not. **GREEN.**
 
 - No store configured → dark, naming BASELINE-1 and the no-claims
-  constraint in plain language.
+  constraint in plain language. **This was wrong when first graded** and
+  is fixed: the no-store branch said neither, and the operator read it on
+  the deployment (finding **B4-F5**). The test now enumerates the dark
+  states and asserts the requirement on each, rather than the string each
+  branch happened to carry.
+- An unreadable store → says it *cannot tell*, and deliberately does not
+  claim BASELINE-1 has not landed: not knowing is its own answer.
 - A complete fixture run → per-`kb_ref` scores in the CP-2 shape, and the
   numbers agree with `benchmark/report.py::_condition_metrics` run over
   the same artifact (cross-language comparison test).
@@ -159,11 +165,11 @@ reads all KB content. No new surface, and no cell unserved.
 
 Run against the final tree, after the last edit rather than before it.
 
-- core: **450 passed / 4 skipped / 32 files** (1 file skipped)
+- core: **454 passed / 4 skipped / 32 files** (1 file skipped)
 - python: **840 passed / 14 skipped / 0 failed**
 
-B-4 adds 35 core tests and 11 python ones (the NUL guard). The python
-count moved 829 → 840; the core count 414 → 450, of which one is the
+B-4 adds 39 core tests and 11 python ones (the NUL guard). The python
+count moved 829 → 840; the core count 414 → 454, of which one is the
 cross-language comparison against `benchmark/report.py` and two are
 D-124.1's amended cell, asserted in both directions.
 

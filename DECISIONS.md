@@ -7669,3 +7669,73 @@ D-74.2 (a checkpoint is not closed while its work is unmerged — KB PR
 the session's earlier `GATE-STEPS.md` for this checkpoint: two
 walkthroughs for one hour is how an operator ends up following the
 wrong one. The M5 re-check on "done" is against the amended matrix.
+
+## D-125 — CP-Ω authorization (owner ruling, 2026-08-10)
+
+Recorded verbatim.
+
+> 1. B-4 and M5 CLOSED on the operator's hour (attested; clause
+>    check completes as bookkeeping). This session is CP-Ω, the
+>    final checkpoint of Phase 2: REVIEW ONLY in the CP-8 pattern,
+>    shorter. The one write beyond bookkeeping is the report.
+> 2. M4 closes HERE if and only if its gate re-grade passes; it is
+>    not pre-closed by this ruling.
+> 3. Operator input required at step 0: status of the out-of-band
+>    pile (vault rekey, root-token revoke, four SECRETS-INVENTORY
+>    rows, Stripe verdict for ledger 4c4ecb3d). Uncleared items are
+>    recorded as carried debt with owner and trigger — honestly,
+>    not softened.
+
+## D-125 as applied — the B-4/M5 closure clause check, and the step-0 report
+
+**The clause check, from the estate rather than from a report of the
+hour.** KB PR **#54** (`auditor-role/b4`) merged 2026-08-10T08:05:05Z;
+KB PR **#55** (`profile-edit/reporter-0e366daf`, `row_cap`
+25000 → 50000 — B-3's step 7 / D-123.3) merged 08:18:28Z, which is the
+Profiles-editor pass D-123.3 booked, taken live. The running deployment
+reports `mcp_enabled`/`dashboard_enabled`/`sync_enabled` all true and
+vault `reachable`/unsealed (`/healthz`, read 2026-08-10). B4-F5 — the
+dark state not naming BASELINE-1 or the no-claims constraint — was found
+by the operator on the deployment during the hour and fixed the same day
+(`96f51e9`), with the test rewritten to enumerate the dark states. The
+operator attests the hour otherwise ran clean, no further findings.
+**B-4 CLOSED. M5 CLOSED**, re-checked against the D-124.1-amended matrix
+(auditor → U-6 `file only`; the remaining auditor dashes — U-2, U-3,
+U-17 — are each a server refusal).
+
+**The step-0 out-of-band report (D-125.3), recorded as given:**
+
+1. **Vault rekey + root-token revoke: NEITHER DONE.** Carried debt.
+   Owner: operator. Standing since D-112 (both values passed through a
+   chat transcript; the in-session rekey was deliberately cancelled).
+   Trigger restated: before any second human gains stack access, and
+   before CP-Ω's successor phase opens its books — whichever first.
+2. **The four SECRETS-INVENTORY rows (five counting the B-3 per-user
+   git-token row): NONE PURGED.** Carried debt. Owner: operator.
+   `results/phase2/a4/SECRETS-INVENTORY.md` stays the honest inventory.
+3. **Stripe verdict for ledger `4c4ecb3d`: OBTAINED — 99.90.** The
+   application's constants (`ANNUAL_TOTAL_PRICE = "$99.90"`) were right;
+   the original request's `99.99` was wrong — **and so is the merged
+   doc**: `systems/supabase/public/subscriptions.md` records
+   **99.00 annually** as customer-confirmed. Three figures circulated
+   (99.00 doc / 99.90 app / 99.99 request) and Stripe agrees with none
+   of the two the KB path carried. Filed as CP-Ω finding **CPΩ-F1** in
+   the report; the repair is an ordinary enrichment PR against the
+   `draft` doc plus the ledger resolutions (`4c4ecb3d`, and the
+   still-`batched` `3f04d202` carrying 99.99) — steward acts, not this
+   session's (fence: a defect discovered is a finding, never a fix).
+4. **R-6's operator half: DONE** (asked alongside, since it decides §9
+   gate item 9). The `contextlayer-sync` PAT is narrowed to contents +
+   pull-request write. **R-6 closes** — the last open half of security
+   review #2's F7.
+
+**CP-7 exit item 2's tail, closed on evidence while here:** the
+`get_lineage` walk from `powerbi.report.bae55769…` over the **merged**
+KB graph resolves the node and returns its three reporting views at
+depth 1 (library walk over KB HEAD's `lineage/graph.json`, read-only,
+this session). D-96.4's C-6c "closes on the post-merge call" is
+satisfied on merged content; the live-server form remains a one-command
+operator convenience, not an open item.
+
+The M4 re-grade (D-125.2) and everything else this session produced is
+`results/phase2/cp-omega-report.md`.

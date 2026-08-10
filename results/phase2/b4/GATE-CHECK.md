@@ -37,10 +37,14 @@ Asserted as a property of the code rather than of a rendering:
 - `Audit.tsx` and `Benchmarks.tsx` contain no `api.post`/`api.put`/
   `api.del` at all, asserted statically.
 
-One exception is **named, not hidden**: the ledger filing inlets are
-authenticated-only and would admit a pure auditor — finding **B4-F1**,
-filed with its fix direction and its reasoning, because gating them is a
-ruling and not a patch.
+One exception was **named, not hidden**: the ledger filing inlets are
+authenticated-only and admit an auditor — finding **B4-F1**. It was filed
+rather than patched because gating a shipped inlet is a ruling, and the
+ruling came: **D-124.1 amends the matrix instead** (auditor → U-6 is
+`file only`). Filing a gap is an audit finding; independence is preserved
+by the attributed, audited record. The code is unchanged; two tests were
+added — the filing is accepted *and* attributed, and the auditor who
+filed an issue is still refused every act that would change it.
 
 ### Clause 3 — Benchmarks renders scores when they exist, dark when they do not. **GREEN.**
 
@@ -130,12 +134,14 @@ none silently dropped.**
 | Auditor → U-11 secrets | "metadata only" is what the read already is — **no endpoint returns a secret to anybody** (UI-8/DT-5) |
 | Steward → U-1 write | 403: registering is an ops act (A-3's split) |
 
-**One cell fails this test and is filed rather than papered over:**
-**Auditor → U-6 "File a gap"** reads "—" and is not a 403 — the inlets
-gate on authentication only. Finding **B4-F1**, with the reasoning for
-why a refusal is a ruling rather than an obvious fix, and why the
-exposure today is nil (no pure-auditor identity exists; every filing is
-audited under the filer's name).
+**Every dash in the auditor column is a server refusal.** U-6 was the one
+that was not, and it is no longer a dash: **D-124.1** amends the cell to
+`file only` (spec §4.1). The clause holds as written — not by a code
+change, but because the matrix had been narrower than both the mechanism
+and the intent. The amended cell is asserted in both directions: the
+auditor's filing is accepted *and* carries their name in the ledger event
+and in its own audit row, and the same auditor is refused the verdict,
+triage and return on the issue they just filed.
 
 ### U-14 for the auditor: "read", and where it comes from
 
@@ -153,12 +159,13 @@ reads all KB content. No new surface, and no cell unserved.
 
 Run against the final tree, after the last edit rather than before it.
 
-- core: **448 passed / 4 skipped / 32 files** (1 file skipped)
+- core: **450 passed / 4 skipped / 32 files** (1 file skipped)
 - python: **840 passed / 14 skipped / 0 failed**
 
-B-4 adds 33 core tests and 11 python ones (the NUL guard). The python
-count moved 829 → 840; the core count 414 → 448, of which one is the
-cross-language comparison against `benchmark/report.py`.
+B-4 adds 35 core tests and 11 python ones (the NUL guard). The python
+count moved 829 → 840; the core count 414 → 450, of which one is the
+cross-language comparison against `benchmark/report.py` and two are
+D-124.1's amended cell, asserted in both directions.
 
 ## What this check does not claim
 
@@ -167,7 +174,7 @@ cross-language comparison against `benchmark/report.py`.
    gets it when the operator merges.
 2. **No second identity has exercised the role live.** D-123.4d's honest
    test — Eda's account gaining the auditor group — is step 5 of
-   `GATE-STEPS.md` and is the operator's hour, not the session's.
+   `OPERATOR-STEPS.md` and is the operator's hour, not the session's.
 3. **Nothing has been benchmarked.** The Benchmarks view was proven
    against a synthetic fixture. BASELINE-1 remains where it was; this
    checkpoint built the screen that will show it and made sure the screen

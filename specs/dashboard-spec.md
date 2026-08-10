@@ -44,6 +44,21 @@ Status: v1 draft for implementation. Entry condition for Track B of the Phase-2 
 
 The CP-8 Part 5 matrix is adopted verbatim as this spec's access statement, with its flagged corrections binding: per-subject audit filtering is server-side (UI-3); `auditor` exists server-first (UI-4); U-2 download authorization is server-side against the requester's own binding; U-11 is write-only (UI-8); U-5 rendering is layered (UI-5). Any future change to the matrix is a change to this section — an amendment under the fence, not a frontend decision.
 
+### 4.1 Amendment (D-124.1, 2026-08-10) — auditor → U-6 is `file only`
+
+```diff
+-| U-6 File a gap | yes | yes | yes | — |
++| U-6 File a gap | yes | yes | yes | file only |
+```
+
+**Filing a gap is an audit finding.** The original cell read "—" on the reasonable instinct that an oversight role should not put content into the register it audits. B-4 built the role and found the instinct produced a worse product: an auditor who notices a wrong metric, a stale doc or a contaminated lineage path — which is precisely what an auditor is for — could read the fault ledger and not add to it, and the finding would leave the building in an email.
+
+The independence the "—" was protecting is preserved by a different mechanism, and a stronger one: **the record is attributed and audited.** Both ledger inlets set the filer from the resolved session (LED-R3 — there is no line that reads a client-supplied subject) and each writes its own audit row under the filer's own name (D-116.6). An auditor's filing is therefore as visible, as attributable and as reviewable as anyone else's, and a reader of the queue can tell that the auditor filed it. Independence is preserved by the attributed record, not by muteness.
+
+`file only` is exactly what the inlets already enforce and no more: the auditor may **create** a ledger entry under their own identity, and holds none of the acts that *change* one — verdicts, triage, return-to-queue and the batch trigger remain steward-gated, and the auditor is refused at each (asserted). **No inlet gating was added**, and none is authorized by this amendment: the change is to the statement of access, which had been narrower than both the mechanism and the intent.
+
+**Consequence for the M5 gate:** with this cell amended, the gate's *"every matrix cell reading '—' is a server 403/empty"* clause holds as written — the auditor column's remaining dashes (U-2, U-3, U-17) are each a server refusal, and U-6 is no longer among them. Finding **B4-F1** is closed by this amendment rather than by code.
+
 ## 5. Read-API contracts (B-0 deliverables)
 
 Three endpoints, each: authenticated by the caller's OIDC session; role-and-subject filtered server-side per §4; paginated; stable JSON shapes versioned with the core.

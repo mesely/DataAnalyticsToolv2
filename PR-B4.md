@@ -140,7 +140,8 @@ the parts that are easy to leave out:
 - **Exporting is itself a governed act** and writes its own audit row.
 
 Negatives asserted: a reporter sees own rows only at the surface that now
-renders them; the auditor is refused at every dashboard write; and
+renders them; the auditor is refused at every dashboard write except the
+one D-124.1 later granted (see the amendment below); and
 `Audit.tsx`/`Benchmarks.tsx` contain no write call at all, asserted
 statically.
 
@@ -189,7 +190,7 @@ everything*, and refusing to boot is a strange way to answer that.
 
 ## Suites
 
-- core: **448 passed / 4 skipped / 32 files**
+- core: **450 passed / 4 skipped / 32 files** (two added by D-124.1's amendment)
 - python: **840 passed / 14 skipped / 0 failed**
 
 ## What this PR does not do
@@ -200,10 +201,31 @@ everything*, and refusing to boot is a strange way to answer that.
   empty; nothing was added to the MCP surface.
 - **Nothing merged.** KB PR #54 is open and waiting at STOP-1; the gate
   hour, including Eda's account gaining the group, is the operator's
-  (`results/phase2/b4/GATE-STEPS.md`).
+  (`results/phase2/b4/OPERATOR-STEPS.md`).
 
-**Finding B4-F1 is filed and not fixed** — the gap-filing inlets are
+**Finding B4-F1 was filed and not fixed** — the gap-filing inlets are
 authenticated-only, so an identity holding *nothing but* the auditor role
-can still file a gap, where the matrix reads "—" for U-6. Details in
-`results/phase2/b4/FINDINGS.md`; gating it would be a new refusal on an
-existing surface and is a ruling, not a patch.
+can still file a gap, where the matrix read "—" for U-6. Gating it would
+have been a new refusal on an existing surface, so it went up as a ruling
+rather than a patch.
+
+## Amendment (D-124.1, 2026-08-10) — the matrix was wrong, not the code
+
+**auditor → U-6 becomes `file only`** (spec §4.1, diff leading). Filing a
+gap *is* an audit finding, and an auditor who notices a wrong metric and
+cannot say so is a worse product than one who can. The independence the
+dash protected is preserved by a stronger mechanism: both inlets set the
+filer from the resolved session (LED-R3) and each writes its own audit
+row under the filer's name (D-116.6), so an auditor's filing is as
+attributable as anyone else's.
+
+**No inlet gating was added and the code is unchanged.** What changed is
+the statement of access, which had been narrower than both the mechanism
+and the intent. Two tests came with it: that the filing is accepted *and*
+carries the auditor's name in the ledger event and in its own audit row —
+a filing they could make anonymously is the thing the dash was right to
+fear — and that the same auditor is still refused the verdict, the triage
+and the return **on the issue they just filed**, so `file only` cannot be
+read wider than it is.
+
+With the cell amended, M5's *every-"—"-is-a-403* clause holds as written.

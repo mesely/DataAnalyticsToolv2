@@ -7570,7 +7570,7 @@ available.
 ### D-123.3 — the B-3 restore, booked
 
 The pilot reporter's `row_cap` restore is **step 4 of
-`results/phase2/b4/GATE-STEPS.md`**, and B-3's own step 7 now says so
+`results/phase2/b4/OPERATOR-STEPS.md`**, and B-3's own step 7 now says so
 rather than standing as an instruction nobody will return to.
 
 ### Two tests changed, and why neither is a weakened assertion
@@ -7603,3 +7603,69 @@ audited under the filer's own name. Fix direction on record in
 **B4-F2's second half — `helpers.ts` has no `gitIdentityPath`.** Latent,
 because the Profiles editor is only reached through the rig that does set
 it. Filed in the B3-F5 shape: trigger stated, one-line fix on record.
+
+## D-124 — B-4 gate items + operator walkthrough (owner ruling, 2026-08-10)
+
+Recorded verbatim.
+
+> 1. B4-F1 RESOLVED BY MATRIX AMENDMENT (dashboard spec §4, additive,
+>    diff leads): auditor → U-6 becomes "file only" — filing a gap is
+>    an audit finding; independence is preserved by the attributed,
+>    audited record, not by muteness. With the cell amended, M5's
+>    every-"—"-is-a-403 clause holds as written. No inlet gating.
+> 2. AFFIRMED BY NAME: B4-F4 — the NUL guard is load-bearing (the
+>    defect reproduced twice IN the session that fixed it, invisibly
+>    both times); the ambiguous_binding decision (a no-tools profile
+>    is not a setup-bundle binding — D-107.3 preserved, the new case
+>    asserted beside it); exports carrying provenance in-file and
+>    writing their own audit row.
+> 3. B-4 CLOSES on the operator hour per the standing rule; M5 closes
+>    with it, re-checked against the amended matrix.
+
+## D-124 as applied — the amendment and the walkthrough
+
+### D-124.1 — the one-line diff, and what it did not authorize
+
+`specs/dashboard-spec.md` **§4.1** carries the amendment with its diff
+leading: `| U-6 File a gap | yes | yes | yes | — |` becomes
+`… | file only |`.
+
+**No inlet gating was added, and none is authorized.** The change is to
+the *statement* of access, which had been narrower than both the
+mechanism and the intent — B4-F1 was a spec defect wearing a
+conformance failure's clothes. The code is unchanged.
+
+**The independence argument, recorded because it is the reasoning and
+not the outcome that will be re-litigated.** The dash protected against
+an oversight role putting content into the register it audits. B-4 built
+the role and the instinct produced a worse product: an auditor who
+notices a wrong metric — which is what the role is *for* — could read
+the ledger and not add to it, and the finding would leave the building
+in an email. Independence survives by a stronger mechanism: both inlets
+set the filer from the resolved session (LED-R3 — no line reads a
+client-supplied subject) and each writes its own audit row under the
+filer's name (D-116.6). The queue's reader can see that the auditor
+filed it.
+
+**The boundary the amendment draws** is `file only`: create, and none of
+the acts that *change* an entry. The test asserts both halves rather
+than one — that the filing is accepted, and that it is attributed and
+audited — because a filing an auditor could make anonymously is the
+thing the original dash was right to fear. A second test pins the other
+edge: the auditor files an issue and is still refused the verdict, the
+triage and the return on **that same issue**, so "the auditor can write
+to the ledger" cannot be read wider than it is.
+
+**M5's clause now holds as written.** The auditor column's remaining
+dashes — U-2, U-3, U-17 — are each a server refusal, and U-6 is no
+longer among them.
+
+### D-124.3 — what closes, and when
+
+B-4 and M5 both close on the operator hour, per the standing rule and
+D-74.2 (a checkpoint is not closed while its work is unmerged — KB PR
+**#54** is open at STOP-1). The walkthrough is
+`results/phase2/b4/OPERATOR-STEPS.md`, which **supersedes and replaces**
+the session's earlier `GATE-STEPS.md` for this checkpoint: two
+walkthroughs for one hour is how an operator ends up following the
+wrong one. The M5 re-check on "done" is against the amended matrix.

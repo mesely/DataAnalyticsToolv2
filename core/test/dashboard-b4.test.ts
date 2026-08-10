@@ -385,7 +385,66 @@ describe("B-4 — the auditor role, server-side first", () => {
 
   // -- the negatives ----------------------------------------------------------
 
-  describe("read everything, touch nothing", () => {
+  describe("read everything, touch nothing — except file a finding", () => {
+    /**
+     * The amended cell (D-124.1): auditor → U-6 is **`file only`**, not
+     * "—". An auditor who notices a wrong metric and cannot say so is a
+     * worse product, and the independence the dash was protecting is
+     * preserved by a stronger mechanism — the record is attributed and
+     * audited under the filer's own name.
+     *
+     * So this asserts both halves at once, because either alone would be
+     * the wrong shape: that the filing is *accepted*, and that it is
+     * *attributable* — the subject comes from the resolved session
+     * (LED-R3) and a governance row records the act (D-116.6). A filing
+     * an auditor could make anonymously would be the thing the original
+     * "—" was right to fear.
+     */
+    it("an auditor may file a gap, and the record says it was them", async () => {
+      const res = await apiPost(rig, auditor, "/v1/dashboard/ledger/gaps", {
+        description: "metrics/net-sales cites a column the snapshot no longer has",
+      });
+      expect(res.status).toBe(201);
+      const issueId = res.json.issue_id as string;
+
+      // Attributed in the ledger: the event's subject is the auditor,
+      // taken from the session and not from the body.
+      const detail = await apiGet(rig, auditor, `/v1/dashboard/ledger/issues/${issueId}`);
+      expect(detail.status).toBe(200);
+      const events = detail.json.events as { subject?: string | null; kind: string }[];
+      expect(events.some((e) => e.subject === auditor.subject)).toBe(true);
+
+      // And audited: the filing is a governed act with its own row.
+      const trail = await apiGet(
+        rig,
+        auditor,
+        "/v1/dashboard/audit?tool=dashboard.ledger.file.human_filed",
+      );
+      const rows = trail.json.rows as { subject: string; decision: string }[];
+      expect(rows.some((r) => r.subject === auditor.subject && r.decision === "allowed")).toBe(true);
+    });
+
+    it("filing is the only thing the auditor may do to the ledger", async () => {
+      // `file only` means create, and nothing that *changes* an entry.
+      // The verdict/triage/return/batch refusals are asserted below; this
+      // pins the boundary the amendment drew, so a later reading of
+      // "the auditor can write to the ledger" cannot widen past it.
+      const filed = await apiPost(rig, auditor, "/v1/dashboard/ledger/gaps", {
+        description: "second finding, filed to be triaged by somebody else",
+      });
+      expect(filed.status).toBe(201);
+      const issueId = filed.json.issue_id as string;
+
+      for (const [path_, body] of [
+        [`/v1/dashboard/ledger/issues/${issueId}/verdict`, { verdict: "approved" }],
+        [`/v1/dashboard/ledger/issues/${issueId}/triage`, { status: "triaged" }],
+        [`/v1/dashboard/ledger/issues/${issueId}/return`, { note: "no" }],
+      ] as [string, unknown][]) {
+        const res = await apiPost(rig, auditor, path_, body);
+        expect(res.status, `${path_} — the auditor filed it and still may not judge it`).toBe(403);
+      }
+    });
+
     it("every dashboard write refuses the auditor", async () => {
       const issue = `${"0".repeat(8)}-0000-0000-0000-000000000000`;
       const writes: [string, unknown][] = [

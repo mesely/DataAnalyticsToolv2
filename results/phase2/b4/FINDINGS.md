@@ -1,11 +1,29 @@
 # B-4 — findings
 
-Four, of which one is filed unfixed, two were fixed here, and one is a
-lived data point about the fix this checkpoint opened with.
+Four: one closed by ruling, two fixed here, and one a lived data point
+about the fix this checkpoint opened with.
 
 ---
 
-## B4-F1 — a pure auditor can still file a gap. **Filed, not fixed.**
+## B4-F1 — a pure auditor can still file a gap. **CLOSED by D-124.1 — the matrix was wrong, not the code.**
+
+> **Resolution (2026-08-10).** Ruling D-124.1 amends the role→view matrix
+> rather than the inlets: **auditor → U-6 becomes `file only`**
+> (dashboard spec §4.1, diff leading). Filing a gap *is* an audit
+> finding, and the independence the "—" was protecting is preserved by
+> the attributed, audited record rather than by muteness. **No inlet
+> gating was added**; the code is unchanged and the conformance suite
+> gained two tests — that the filing is accepted, and that it is
+> attributed and audited under the auditor's own name — plus the other
+> edge, that the auditor who filed an issue is still refused the verdict,
+> the triage and the return on it. M5's every-"—"-is-a-403 clause now
+> holds as written.
+>
+> The original filing is kept below because the reasoning is the record,
+> and because it was right about the shape of the question even though
+> the answer went the other way.
+
+## The original filing (2026-08-08)
 
 **What.** The role→view matrix (dashboard spec §4, CP-8 Part 5) reads
 **"—"** for the auditor at **U-6, "File a gap"**. The M5 gate says every

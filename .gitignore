@@ -38,3 +38,8 @@ core/dist/
 
 # stray root-level npx/vitest cache (the workspace lives in core/)
 /node_modules/
+
+# scenario scratch workdirs are never tracked: they carry compiled bundles
+# whose .mcp.json embeds a session bearer token (CPΩ-F2, D-126.4) — b1-as18
+# and a1-as7 already ignored theirs locally; this makes the rule repo-wide
+workdirs/

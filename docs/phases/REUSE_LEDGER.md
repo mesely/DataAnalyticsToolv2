@@ -44,3 +44,20 @@ Yeni `analysis/claims.py` kaynak projeden kopyalanmış gibi sayılmaz: determin
 adviSU provider çekirdeğine `huggingface` ProviderSpec/Settings eklendi; aynı transport/retry/deadline/sanitization gövdeleri `analysis/llm.py` üzerinden runtime'da çağrılır. Strict iki anahtarlı intent/scope planı mevcut allowlisted hesaplara yönlenir; serbest model SQL/code/prose çalıştırılmaz. Gerçek HF çağrısı HTTP402 kredi gereksinimi döndürdü; canlı model başarı/accuracy kanıtı yok. 50 offline plan-contract vakası model benchmark'ı değildir.
 
 `analysis/fingerprint.py`, PostgreSQL advisory admission ve geri alınabilir owner run archive yeni hedef kodudur; kaynak projeden kopyalanmış diye sayılmaz. v4 eski kayıtları overwrite etmez. Locale adaptasyonu çalışır. Önceki adviSU UsageMeter kota/ratio uyarlaması Aşama 4'te kaldırıldı; bu dosya artık gerçek istek durumunu gösterir ve ratio gövdesi runtime reuse olarak sayılmaz. Gemini özgün artwork'ü source asset provenance dosyasında kayıtlıdır. SNIPS/Influencer eğitim durumu değişmedi.
+
+## Aşama 6 — Influencer artık runtime'da
+
+Kaynak: `mesely/Influencer-Category-and-Like-Prediction-Stacking-SMOTE-RF`,
+commit `b217890ec18c35180c7ac7bc3a8dcd28a6c1794e`,
+`influencer_classification_and_like_count_regression.ipynb` hücre63 ve66.
+Kaynak notebook SHA: `analysis/SOURCE_LEDGER.json`; orijinal hücre gövdeleri
+`ML_SOURCE_INVENTORY.json` içinde. 11 pinned dosya doğrulandı.
+
+| Kaynak sembol | Gerçek hedef | Uyarlama / kanıt |
+|---|---|---|
+| cell63 `apply_log_transform`, `preprocess_features` | `analysis/adapted/ml_preprocessing.py`: `apply_log_transform`, `FoldPreprocessor` | Kopya üstünde sütun döngüsü ve log dönüşümü korunur; negatif veriye signed-log genişletmesi. Train-only schema/skew/log seçimi, ayrı fit/transform, MinMaxScaler ve imputer/category encoder her fold pipeline'ında. `test_preprocessor_is_train_only_unknown_categories_and_no_mutation`, `test_no_pipeline_fit_sees_holdout` |
+| cell66 `log_mse_like_counts` | Aynı adapter, `analysis/ml.py::metrics` | Orijinal ölçek log1p → fark karesi → ortalama gövdesi; sonlu/nonnegative guard. RMSLE bunun karekökü; negatiflerde null. Regresyon gerçek açık veride çalışır |
+| cell30/33 SMOTE/RF yaklaşımı | `analysis/ml.py::candidate_models` | Yeni güvenli orchestration; orijinal hücre gövdesi kopyalandı diye sayılmaz. imblearn pipeline sampler'ı yalnız eğitimde; sayısal gate/k=2, CV-only seçim. OOF stacking henüz uygulanmadı |
+
+SNIPS henüz runtime'da değil. Her kaynağı zorla ekleme; TF-IDF/LSTM ancak
+ayrı analytics intent dataset'i ve ölçülmüş baseline kazancıyla değerlendirilir.

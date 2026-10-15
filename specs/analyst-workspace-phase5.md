@@ -1,0 +1,12 @@
+# Analyst workspace — preparation contract (AW-8)
+
+Additive to AW-1–7. This does not change the connector snapshot/generator or authorize live source execution.
+
+1. Authenticated analyst POST `/workbench/prepare` uses existing CSRF, admission, timeout and cancellation. It accepts UTF-8 CSV ≤2MB, ≤10,000 rows, ≤60 unique nonempty columns, fields ≤4,096 characters. Comma/semicolon/tab supported; inconsistent widths/invalid quoting/NUL are refused. Identifiers remain strings; inference never changes stored input.
+2. Any schema can be profiled without persistence or model transmission: row count, missing/distinct/type/leading-zero indicators, duplicate count and file hash. Values are not returned in the generic profile. Dates inferred only from ISO YYYY-MM-DD. Empty/ambiguous schemas produce actionable errors.
+3. Retail conversion is explicit: one source column per required destination, optional customer_id (all missing if omitted), grain `invoice_line`, GBP currency. No automatic currency conversion or metric inference. Numeric quantities/prices use decimal dot, dates ISO. Whitespace trim and exact-row deduplication are explicit recipe options; original bytes stay unchanged and Reset undoes the draft.
+4. Preview applies the same normalization as import. Returns retained/excluded/duplicate counts, real gross pence and immutable receipt hashing CSV + mapping + options + semantic contract + preparation version. Changing any input invalidates preview. Import re-computes receipt and refuses stale/missing receipt when a mapping is supplied. Dataset id includes owner and recipe identity, preventing different mappings overwriting each other.
+5. Preparation recipe/provenance is saved with imported metadata. Original fixed-schema import remains compatible. No raw customer identifiers or uploaded CSV stored in audit/result receipts. Existing currency metric semantics and row-level rounding remain unchanged.
+6. UI: choose file → profile → explicit mapping → preview → import. One primary action per step; controls have visible labels; mobile table scrolls inside its container. General CSV profile does not claim arbitrary dashboards, Parquet support or semantic metric compilation.
+
+Acceptance: malformed/oversized/ambiguous CSV, leading-zero identity, mapping collision, date/price precision, preview/import identity, recipe undo, authentic access/CSRF/role and ownership tests; build/typecheck + desktop/mobile browser evidence. No score guarantee or usability certification.

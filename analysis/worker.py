@@ -601,7 +601,27 @@ def handle(request):
             "rows": len(rows),
         }
 
+    if action == "ml":
+        from analysis.ml import experiment
+        return experiment(request)
+    if action == "prepare":
+        from analysis.preparation import prepare
+        return prepare(request)
     if action == "import":
+        if request.get("mapping") is not None:
+            from analysis.preparation import prepare, read_csv, map_frame, options_for
+            prepared = prepare(request)
+            if request.get("receipt") != prepared["receipt"]:
+                raise ValueError("Önizleme değişti veya eksik. Yeniden önizleyin.")
+            raw, _ = map_frame(read_csv(request["csv"])[0], request["mapping"], options_for(request.get("options")))
+            owner = str(request.get("owner", ""))
+            if not re.fullmatch("[a-f0-9]{12}", owner):
+                raise ValueError("Geçersiz içe aktarma kapsamı.")
+            return store("usr_" + owner + "_" + prepared["receipt"][:12], str(request.get("title", "Yüklenen CSV"))[:80], raw, {
+                "kind": "uploaded", "publisher": "Kullanıcı yüklemesi", "license": "user-provided",
+                "description": "Kullanıcı tarafından sağlanan veri; doğruluğu dış kaynaktan teyit edilmedi.",
+                "preparation": {"recipe": prepared["recipe"], "receipt": prepared["receipt"], "preview": prepared["preview"]},
+            })
         content = str(request.get("csv", ""))
         if len(content.encode()) > 2_000_000:
             raise ValueError("CSV sınırı 2 MB.")

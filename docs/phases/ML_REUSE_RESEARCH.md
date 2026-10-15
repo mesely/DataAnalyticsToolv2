@@ -1,6 +1,6 @@
 # SNIPS ve Influencer: somut yeniden kullanım araştırması
 
-15 Ekim 2026. Bu dosya **araştırma ve sonraki uygulama sözleşmesidir**; aşağıdaki ML kodları mevcut ürün runtime'ına henüz taşınmadı. Pinned notebook kaynaklarının SHA ve seçilmiş kod hücreleri ML_SOURCE_INVENTORY.json içinde; hücre numaraları sıfır tabanlıdır. Çıktı grafikleri/eskiden kaydedilmiş başarı sayıları yeni ürünün ölçümü sayılmaz.
+15 Ekim 2026. Bu dosya **kaynak araştırmasıdır**. Aşama6 ile Influencer cell63/66 gerçek runtime adapterına taşındı; güncel uygulama/kanıt REUSE_LEDGER ve PHASE_6_REPORT içindedir. Diğer adaylar otomatik uygulanmış sayılmaz. Pinned notebook kaynaklarının SHA ve seçilmiş kod hücreleri ML_SOURCE_INVENTORY.json içinde; hücre numaraları sıfır tabanlıdır. Çıktı grafikleri/eskiden kaydedilmiş başarı sayıları yeni ürünün ölçümü sayılmaz.
 
 ## SNIPS
 

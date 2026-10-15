@@ -150,7 +150,12 @@ export function registerWorkbench(
     task: () => Promise<unknown>,
   ) {
     if ((active.get(subject) || 0) >= 1 || totalActive >= 3)
-      return reply.code(429).send({ error: "busy", detail: "Bir işlem çalışıyor. Tamamlanmasını bekleyin." });
+      return reply
+        .code(429)
+        .send({
+          error: "busy",
+          detail: "Bir işlem çalışıyor. Tamamlanmasını bekleyin.",
+        });
     active.set(subject, 1);
     totalActive++;
     const controller = new AbortController();
@@ -162,23 +167,50 @@ export function registerWorkbench(
     let slot = -1;
     try {
       client = await deps.pool.connect();
-      actorLocked = (await client.query("SELECT pg_try_advisory_lock(hashtext($1)::bigint) AS ok", ["workbench:" + subject])).rows[0].ok;
+      actorLocked = (
+        await client.query(
+          "SELECT pg_try_advisory_lock(hashtext($1)::bigint) AS ok",
+          ["workbench:" + subject],
+        )
+      ).rows[0].ok;
       if (actorLocked) {
         for (let i = 0; i < 3; i++) {
-          if ((await client.query("SELECT pg_try_advisory_lock(214774, $1) AS ok", [i])).rows[0].ok) { slot = i; break; }
+          if (
+            (
+              await client.query(
+                "SELECT pg_try_advisory_lock(214774, $1) AS ok",
+                [i],
+              )
+            ).rows[0].ok
+          ) {
+            slot = i;
+            break;
+          }
         }
       }
       if (!actorLocked || slot < 0)
-        return reply.code(429).send({error:"busy",detail:"Analiz kapasitesi dolu. Biraz sonra tekrar deneyin."});
+        return reply
+          .code(429)
+          .send({
+            error: "busy",
+            detail: "Analiz kapasitesi dolu. Biraz sonra tekrar deneyin.",
+          });
       return await workSignals.run(controller.signal, task);
     } finally {
       reply.raw.removeListener("close", abort);
       if (client) {
         let releaseError: Error | undefined;
         try {
-          if (slot >= 0) await client.query("SELECT pg_advisory_unlock(214774,$1)", [slot]);
-          if (actorLocked) await client.query("SELECT pg_advisory_unlock(hashtext($1)::bigint)", ["workbench:" + subject]);
-        } catch (e) { releaseError = e as Error; }
+          if (slot >= 0)
+            await client.query("SELECT pg_advisory_unlock(214774,$1)", [slot]);
+          if (actorLocked)
+            await client.query(
+              "SELECT pg_advisory_unlock(hashtext($1)::bigint)",
+              ["workbench:" + subject],
+            );
+        } catch (e) {
+          releaseError = e as Error;
+        }
         client.release(releaseError);
       }
       active.delete(subject);
@@ -220,7 +252,7 @@ export function registerWorkbench(
           dataset: b.dataset,
           output_sha256: (result.evidence as Obj).output_sha256,
         });
-        return reply.send({ ...result, query_id: id });
+        return { ...result, query_id: id };
       } catch (e) {
         await audit(
           v.identity.subject,
@@ -229,9 +261,8 @@ export function registerWorkbench(
           { dataset: b.dataset },
           "denied",
         );
-        return reply
-          .code(400)
-          .send({ error: "sql_refused", detail: (e as Error).message });
+        reply.code(400);
+        return { error: "sql_refused", detail: (e as Error).message };
       }
     });
   });
@@ -259,11 +290,10 @@ export function registerWorkbench(
           month: b.month,
           window: b.window,
         });
-        return reply.send(result);
+        return result;
       } catch (e) {
-        return reply
-          .code(400)
-          .send({ error: "temporal_failed", detail: (e as Error).message });
+        reply.code(400);
+        return { error: "temporal_failed", detail: (e as Error).message };
       }
     });
   });
@@ -280,17 +310,16 @@ export function registerWorkbench(
       return reply.code(400).send({ error: "input_limit" });
     return bounded(v.identity.subject, reply, async () => {
       try {
-        return reply.send({
+        return {
           hits: await analysisWorker({
             action: "context",
             dataset: b.dataset,
             query: b.query,
           }),
-        });
+        };
       } catch (e) {
-        return reply
-          .code(400)
-          .send({ error: "context_failed", detail: (e as Error).message });
+        reply.code(400);
+        return { error: "context_failed", detail: (e as Error).message };
       }
     });
   });
@@ -321,11 +350,10 @@ export function registerWorkbench(
             query_id: req.params.id,
             format: b.format,
           });
-          return reply.send(result);
+          return result;
         } catch (e) {
-          return reply
-            .code(400)
-            .send({ error: "export_failed", detail: (e as Error).message });
+          reply.code(400);
+          return { error: "export_failed", detail: (e as Error).message };
         }
       });
     },
@@ -360,11 +388,10 @@ export function registerWorkbench(
           before_id: b.before_id,
           after_id: b.after_id,
         });
-        return reply.send(result);
+        return result;
       } catch (e) {
-        return reply
-          .code(400)
-          .send({ error: "incompatible_runs", detail: (e as Error).message });
+        reply.code(400);
+        return { error: "incompatible_runs", detail: (e as Error).message };
       }
     });
   });
@@ -376,21 +403,18 @@ export function registerWorkbench(
       [v.identity.subject],
     );
     return bounded(v.identity.subject, reply, async () => {
-    try {
-      return reply.send(
-        await analysisWorker({
+      try {
+        return await analysisWorker({
           action: "catalog",
           ids: [
             ...PUBLIC,
             ...r.rows.map((x: { dataset_id: string }) => x.dataset_id),
           ],
-        }),
-      );
-    } catch (e) {
-      return reply
-        .code(503)
-        .send({ error: "dataset_unavailable", detail: (e as Error).message });
-    }
+        });
+      } catch (e) {
+        reply.code(503);
+        return { error: "dataset_unavailable", detail: (e as Error).message };
+      }
     });
   });
   app.post(BASE + "/run", async (req, reply) => {
@@ -417,43 +441,150 @@ export function registerWorkbench(
       use_llm: b.use_llm === true,
     };
     return bounded(subject, reply, async () => {
-    try {
-      const result = (await analysisWorker({
-        action: "run",
-        ...recipe,
-      })) as Obj;
-      const runId = randomUUID();
-      // Keep the calculation evidence, but never persist input rejected by its policy.
-      const blocked = (result.answer as Obj | null)?.status === "refused";
-      const storedRecipe = {
-        ...recipe,
-        question: blocked ? "" : recipe.question,
-      };
-      const title = blocked
-        ? "Güvenli analiz sınırı"
-        : String(b.title || b.question || "Veri keşfi").slice(0, 120);
-      await deps.pool.query(
-        "INSERT INTO workbench_runs(run_id,subject,title,recipe,result) VALUES($1,$2,$3,$4,$5)",
-        [runId, subject, title, storedRecipe, result],
-      );
-      await audit(subject, v.identity.roles, "run", {
-        run_id: runId,
-        dataset: b.dataset,
-        answer_status: (result.answer as Obj | null)?.status || null,
-      });
-      return reply.send({ ...result, run_id: runId });
-    } catch (e) {
-      await audit(
-        subject,
-        v.identity.roles,
-        "run",
-        { dataset: b.dataset },
-        "denied",
-      );
+      try {
+        const result = (await analysisWorker({
+          action: "run",
+          ...recipe,
+        })) as Obj;
+        const runId = randomUUID();
+        // Keep the calculation evidence, but never persist input rejected by its policy.
+        const blocked = (result.answer as Obj | null)?.status === "refused";
+        const storedRecipe = {
+          ...recipe,
+          question: blocked ? "" : recipe.question,
+        };
+        const title = blocked
+          ? "Güvenli analiz sınırı"
+          : String(b.title || b.question || "Veri keşfi").slice(0, 120);
+        await deps.pool.query(
+          "INSERT INTO workbench_runs(run_id,subject,title,recipe,result) VALUES($1,$2,$3,$4,$5)",
+          [runId, subject, title, storedRecipe, result],
+        );
+        await audit(subject, v.identity.roles, "run", {
+          run_id: runId,
+          dataset: b.dataset,
+          answer_status: (result.answer as Obj | null)?.status || null,
+        });
+        return { ...result, run_id: runId };
+      } catch (e) {
+        await audit(
+          subject,
+          v.identity.roles,
+          "run",
+          { dataset: b.dataset },
+          "denied",
+        );
+        reply.code(400);
+        return { error: "analysis_failed", detail: (e as Error).message };
+      }
+    });
+  });
+  app.post(BASE + "/ml", async (req, reply) => {
+    const v = await viewer(req, reply, true);
+    if (!v) return;
+    const b = (req.body || {}) as Obj;
+    if (typeof b.csv !== "string" || Buffer.byteLength(b.csv) > 2_000_000)
       return reply
         .code(400)
-        .send({ error: "analysis_failed", detail: (e as Error).message });
-    }
+        .send({ error: "file_limit", detail: "UTF-8 CSV sınırı 2 MB." });
+    return bounded(v.identity.subject, reply, async () => {
+      try {
+        const card = (await analysisWorker({
+          action: "ml",
+          csv: b.csv,
+          target: b.target,
+          features: b.features,
+          task: b.task,
+          split: b.split,
+          split_key: b.split_key,
+          smote: b.smote,
+          decision_context: b.decision_context,
+          features_available: b.features_available,
+        })) as Obj;
+        const id = randomUUID();
+        const title =
+          typeof b.title === "string" ? b.title.slice(0, 80) : "Model deneyi";
+        await deps.pool.query(
+          "INSERT INTO workbench_experiments(experiment_id,subject,title,recipe,card) VALUES($1,$2,$3,$4,$5)",
+          [id, v.identity.subject, title, card.recipe, card],
+        );
+        await audit(v.identity.subject, v.identity.roles, "ml", {
+          experiment_id: id,
+        });
+        return { ...card, experiment_id: id, title };
+      } catch (e) {
+        reply.code(400);
+        return { error: "invalid_experiment", detail: (e as Error).message };
+      }
+    });
+  });
+  app.get(BASE + "/ml", async (req, reply) => {
+    const v = await viewer(req, reply);
+    if (!v) return;
+    const r = await deps.pool.query(
+      "SELECT experiment_id,title,created_at,card->>'selected_model' AS model,recipe->>'task' AS task FROM workbench_experiments WHERE subject=$1 ORDER BY created_at DESC LIMIT 50",
+      [v.identity.subject],
+    );
+    return reply.send({ experiments: r.rows });
+  });
+  app.get<{ Params: { id: string } }>(BASE + "/ml/:id", async (req, reply) => {
+    const v = await viewer(req, reply);
+    if (!v) return;
+    if (!UUID.test(req.params.id))
+      return reply.code(404).send({ error: "not_found" });
+    const r = await deps.pool.query(
+      "SELECT experiment_id,title,card FROM workbench_experiments WHERE experiment_id=$1 AND subject=$2",
+      [req.params.id, v.identity.subject],
+    );
+    if (!r.rowCount) return reply.code(404).send({ error: "not_found" });
+    return reply.send({
+      ...r.rows[0].card,
+      experiment_id: r.rows[0].experiment_id,
+      title: r.rows[0].title,
+    });
+  });
+  app.get<{ Params: { name: string } }>(
+    BASE + "/ml-sample/:name",
+    async (req, reply) => {
+      const v = await viewer(req, reply);
+      if (!v) return;
+      if (!["wine.csv", "diabetes.csv"].includes(req.params.name))
+        return reply.code(404).send({ error: "not_found" });
+      const { readFile } = await import("node:fs/promises");
+      const file = req.params.name.replace(".csv", "-ml.csv");
+      return reply
+        .type("text/csv; charset=utf-8")
+        .header(
+          "content-disposition",
+          `attachment; filename="${req.params.name}"`,
+        )
+        .send(await readFile(path.join(ROOT, "analysis/data", file)));
+    },
+  );
+  app.post(BASE + "/prepare", async (req, reply) => {
+    const v = await viewer(req, reply, true);
+    if (!v) return;
+    const b = (req.body || {}) as Obj;
+    if (typeof b.csv !== "string" || Buffer.byteLength(b.csv) > 2_000_000)
+      return reply
+        .code(400)
+        .send({ error: "file_limit", detail: "UTF-8 CSV sınırı 2 MB." });
+    return bounded(v.identity.subject, reply, async () => {
+      try {
+        const result = await analysisWorker({
+          action: "prepare",
+          csv: b.csv,
+          mapping: b.mapping,
+          options: b.options,
+        });
+        await audit(v.identity.subject, v.identity.roles, "prepare", {
+          preview: b.mapping !== undefined,
+        });
+        return result;
+      } catch (e) {
+        reply.code(400);
+        return { error: "invalid_csv", detail: (e as Error).message };
+      }
     });
   });
   app.post(BASE + "/import", async (req, reply) => {
@@ -469,26 +600,28 @@ export function registerWorkbench(
       .digest("hex")
       .slice(0, 12);
     return bounded(v.identity.subject, reply, async () => {
-    try {
-      const m = (await analysisWorker({
-        action: "import",
-        csv: b.csv,
-        title: b.title,
-        owner,
-      })) as Obj;
-      await deps.pool.query(
-        "INSERT INTO workbench_datasets(dataset_id,subject,metadata) VALUES($1,$2,$3) ON CONFLICT(dataset_id) DO NOTHING",
-        [m.id, v.identity.subject, m],
-      );
-      await audit(v.identity.subject, v.identity.roles, "import", {
-        dataset: m.id,
-      });
-      return reply.send(m);
-    } catch (e) {
-      return reply
-        .code(400)
-        .send({ error: "invalid_csv", detail: (e as Error).message });
-    }
+      try {
+        const m = (await analysisWorker({
+          action: "import",
+          mapping: b.mapping,
+          options: b.options,
+          receipt: b.receipt,
+          csv: b.csv,
+          title: b.title,
+          owner,
+        })) as Obj;
+        await deps.pool.query(
+          "INSERT INTO workbench_datasets(dataset_id,subject,metadata) VALUES($1,$2,$3) ON CONFLICT(dataset_id) DO NOTHING",
+          [m.id, v.identity.subject, m],
+        );
+        await audit(v.identity.subject, v.identity.roles, "import", {
+          dataset: m.id,
+        });
+        return m;
+      } catch (e) {
+        reply.code(400);
+        return { error: "invalid_csv", detail: (e as Error).message };
+      }
     });
   });
   app.get(BASE + "/runs", async (req, reply) => {
@@ -543,16 +676,28 @@ export function registerWorkbench(
       return reply.send(r.rows[0]);
     },
   );
-  app.post<{ Params: { id: string } }>(BASE + "/runs/:id/archive", async (req, reply) => {
-    const v = await viewer(req, reply, true);
-    if (!v) return;
-    const body = (req.body || {}) as Obj;
-    if (!UUID.test(req.params.id) || typeof body.archived !== "boolean") return reply.code(400).send({error:"invalid_input"});
-    const result = await deps.pool.query("UPDATE workbench_runs SET archived_at=CASE WHEN $3 THEN now() ELSE NULL END WHERE run_id=$1 AND subject=$2 RETURNING run_id,archived_at", [req.params.id,v.identity.subject,body.archived]);
-    if (!result.rows[0]) return reply.code(404).send({error:"not_found"});
-    await audit(v.identity.subject,v.identity.roles,body.archived ? "archive" : "restore",{run_id:req.params.id});
-    return reply.send(result.rows[0]);
-  });
+  app.post<{ Params: { id: string } }>(
+    BASE + "/runs/:id/archive",
+    async (req, reply) => {
+      const v = await viewer(req, reply, true);
+      if (!v) return;
+      const body = (req.body || {}) as Obj;
+      if (!UUID.test(req.params.id) || typeof body.archived !== "boolean")
+        return reply.code(400).send({ error: "invalid_input" });
+      const result = await deps.pool.query(
+        "UPDATE workbench_runs SET archived_at=CASE WHEN $3 THEN now() ELSE NULL END WHERE run_id=$1 AND subject=$2 RETURNING run_id,archived_at",
+        [req.params.id, v.identity.subject, body.archived],
+      );
+      if (!result.rows[0]) return reply.code(404).send({ error: "not_found" });
+      await audit(
+        v.identity.subject,
+        v.identity.roles,
+        body.archived ? "archive" : "restore",
+        { run_id: req.params.id },
+      );
+      return reply.send(result.rows[0]);
+    },
+  );
   app.get(BASE + "/sample.csv", async (req, reply) => {
     const v = await viewer(req, reply);
     if (!v) return;

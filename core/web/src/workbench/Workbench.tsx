@@ -52,6 +52,8 @@ import {
   YAxis,
 } from "recharts";
 import { api, type ModuleMap, type Session } from "../api";
+import { ModelStudio } from "./ModelStudio";
+import { Preparation } from "./Preparation";
 import { TemporalView } from "./TemporalView";
 import { ExpertTools, CompareRuns } from "./ExpertTools";
 import { LocaleProvider, useLocale } from "./Locale";
@@ -65,7 +67,12 @@ import type {
   SavedRun,
   Section,
 } from "./types";
-const brandNavIcons: Record<Section,string> = {overview:overviewIcon,analysis:analysisIcon,network:networkIcon,findings:findingsIcon};
+const brandNavIcons: Record<Section, string> = {
+  overview: overviewIcon,
+  analysis: analysisIcon,
+  network: networkIcon,
+  findings: findingsIcon,
+};
 const BASE = "/v1/dashboard/workbench";
 import { csvCell as cell } from "./csv";
 const titles: Record<Section, [string, string]> = {
@@ -126,7 +133,13 @@ function Modal({
 function Empty({ title, text }: { title: string; text: string }) {
   return (
     <div className="wb-empty">
-      <img src={libraryArt} className="wb-empty-art" alt="" width="160" height="160" />
+      <img
+        src={libraryArt}
+        className="wb-empty-art"
+        alt=""
+        width="160"
+        height="160"
+      />
       <h3>{title}</h3>
       <p>{text}</p>
     </div>
@@ -185,6 +198,7 @@ function Workspace({
       | "evidence"
       | "source"
       | "import"
+      | "model"
       | "save"
       | "metrics"
       | null
@@ -194,16 +208,15 @@ function Workspace({
     [archivedRuns, setArchivedRuns] = useState<SavedRun[]>([]),
     [showArchive, setShowArchive] = useState(false),
     [saveTitle, setSaveTitle] = useState(""),
-    [importText, setImportText] = useState(""),
-    [fileName, setFileName] = useState(""),
-    [importBusy, setImportBusy] = useState(false),
     [admin, setAdmin] = useState(false),
     [menu, setMenu] = useState(false),
     [dataTab, setDataTab] = useState<"chart" | "data" | "quality">("chart"),
     [saved, setSaved] = useState(false);
-  const working = busy || childJobs > 0 || importBusy;
+  const working = busy || childJobs > 0;
+  const childJobsRef = useRef(0);
   function activity(delta: number) {
-    setChildJobs((n) => Math.max(0, n + delta));
+    childJobsRef.current = Math.max(0, childJobsRef.current + delta);
+    setChildJobs(childJobsRef.current);
   }
   const requestVersion = useRef(0),
     inFlight = useRef(false);
@@ -218,20 +231,35 @@ function Workspace({
         maximumFractionDigits: 2,
       }).format(n);
   async function catalog() {
-    const r = await api.get<{ datasets: Dataset[]; provider: { connected: boolean; configured?: boolean } }>(BASE + "/catalog");
-    if (r.ok) { setDatasets(r.data.datasets); setProviderReady(r.data.provider.configured ?? r.data.provider.connected); }
-    else setError(r.error.detail);
+    const r = await api.get<{
+      datasets: Dataset[];
+      provider: { connected: boolean; configured?: boolean };
+    }>(BASE + "/catalog");
+    if (r.ok) {
+      setDatasets(r.data.datasets);
+      setProviderReady(r.data.provider.configured ?? r.data.provider.connected);
+    } else setError(r.error.detail);
   }
   async function history() {
     const r = await api.get<{ runs: SavedRun[] }>(BASE + "/runs");
     if (r.ok) setRuns(r.data.runs);
-    const a = await api.get<{runs: SavedRun[]}>(BASE + "/runs?archived=1");
+    const a = await api.get<{ runs: SavedRun[] }>(BASE + "/runs?archived=1");
     if (a.ok) setArchivedRuns(a.data.runs);
   }
   async function archiveRun(id: string, archived: boolean) {
-    const r = await api.post(BASE + "/runs/" + id + "/archive", {archived}, csrf);
-    if (r.ok) { await history(); setNotice(archived ? t("Bulgu arşivlendi.", "Finding archived.") : t("Bulgu geri yüklendi.", "Finding restored.")); }
-    else setError(r.error.detail);
+    const r = await api.post(
+      BASE + "/runs/" + id + "/archive",
+      { archived },
+      csrf,
+    );
+    if (r.ok) {
+      await history();
+      setNotice(
+        archived
+          ? t("Bulgu arşivlendi.", "Finding archived.")
+          : t("Bulgu geri yüklendi.", "Finding restored."),
+      );
+    } else setError(r.error.detail);
   }
   async function analyze(
     o: {
@@ -242,7 +270,7 @@ function Workspace({
       min?: number;
     } = {},
   ) {
-    if (inFlight.current || childJobs > 0) return;
+    if (inFlight.current || childJobsRef.current > 0) return;
     inFlight.current = true;
     const version = ++requestVersion.current;
     setBusy(true);
@@ -360,30 +388,6 @@ function Workspace({
       go("analysis");
     } else setError(r.error.detail);
   }
-  async function importCsv() {
-    setImportBusy(true);
-    setError("");
-    const r = await api.post<Dataset>(
-      BASE + "/import",
-      {
-        csv: importText,
-        title: fileName.replace(/\.csv$/i, "") || "Yüklenen CSV",
-      },
-      csrf,
-    );
-    setImportBusy(false);
-    if (r.ok) {
-      setModal(null);
-      await catalog();
-      changeDataset(r.data.id);
-      setNotice(
-        t(
-          "CSV içe aktarıldı. Kalite raporunu inceleyin.",
-          "CSV imported. Review its quality report.",
-        ),
-      );
-    } else setError(r.error.detail);
-  }
   const selected = datasets.find((d) => d.id === dataset),
     s = result?.summary,
     source = selected?.source,
@@ -432,7 +436,14 @@ function Workspace({
               className={section === n.id ? "active" : ""}
               onClick={() => go(n.id)}
             >
-              <span className="wb-brand-nav-icon" aria-hidden="true" style={{maskImage:`url(${brandNavIcons[n.id]})`,WebkitMaskImage:`url(${brandNavIcons[n.id]})`}} />
+              <span
+                className="wb-brand-nav-icon"
+                aria-hidden="true"
+                style={{
+                  maskImage: `url(${brandNavIcons[n.id]})`,
+                  WebkitMaskImage: `url(${brandNavIcons[n.id]})`,
+                }}
+              />
               {t(...titles[n.id])}
               {n.id === "findings" && runs.some((x) => x.saved) && (
                 <span className="wb-count">
@@ -462,7 +473,6 @@ function Workspace({
           )}
         </div>
         <div className="wb-sidebar-bottom">
-
           <button onClick={() => setModal("help")}>
             <HelpCircle size={18} />
             {t("Kullanım rehberi", "Getting started")}
@@ -532,7 +542,6 @@ function Workspace({
         <main id="wb-main" tabIndex={-1}>
           <div className="wb-page-heading">
             <div>
-
               <h1>
                 {section === "overview"
                   ? t("Satış özeti", "Sales overview")
@@ -954,14 +963,9 @@ function Workspace({
                     <MessageSquare size={24} />
                   </div>
                   <div>
-                    <div className="wb-eyebrow">
-                      {t("ANALİZ", "ANALYSIS")}
-                    </div>
+                    <div className="wb-eyebrow">{t("ANALİZ", "ANALYSIS")}</div>
                     <h2>
-                      {t(
-                        "Satış analizi",
-                        "Ask your data the right question.",
-                      )}
+                      {t("Satış analizi", "Ask your data the right question.")}
                     </h2>
                     <p>
                       {t(
@@ -1024,6 +1028,27 @@ function Workspace({
             </>
           )}
           {section === "analysis" && (
+            <div className="wb-model-entry">
+              <div>
+                <strong>{t("Model stüdyosu", "Model studio")}</strong>
+                <span>
+                  {t(
+                    "Hedefinizi seçin, başlangıç modeliyle karşılaştırın.",
+                    "Choose your target and compare against a baseline.",
+                  )}
+                </span>
+              </div>
+              <button
+                className="wb-btn"
+                disabled={working}
+                onClick={() => setModal("model")}
+              >
+                {t("Model deneyi aç", "Open model experiment")}
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
+          {section === "analysis" && (
             <ExpertTools
               activity={activity}
               dataset={dataset}
@@ -1037,14 +1062,12 @@ function Workspace({
               <section className="wb-panel wb-chat">
                 <div className="wb-panel-head">
                   <div>
-                    <h2>
-                      {t(
-                        "Analiz sorusu",
-                        "Analysis question",
-                      )}
-                    </h2>
+                    <h2>{t("Analiz sorusu", "Analysis question")}</h2>
                     <p>
-                      {t("Geçerli veri seti ve filtreler üzerinden çalışır.", "Uses the current dataset and filters.")}
+                      {t(
+                        "Geçerli veri seti ve filtreler üzerinden çalışır.",
+                        "Uses the current dataset and filters.",
+                      )}
                     </p>
                   </div>
                   <ShieldCheck size={21} />
@@ -1064,8 +1087,31 @@ function Workspace({
                           )}
                     </div>
                     <p>{result.answer.text}</p>
-                    {result.planner && result.planner.status !== "planned" && result.planner.status !== "blocked" && <p className="wb-provider-notice" role="status">{result.planner.http_status === 402 ? t("Llama kullanılamıyor: Hugging Face hesabında çıkarım kredisi gerekiyor. Standart analiz sonucu gösteriliyor.", "Llama is unavailable: Hugging Face inference credits are required. Showing the standard analysis.") : t("Llama planı alınamadı. Standart analiz sonucu gösteriliyor.", "Llama planning is unavailable. Showing the standard analysis.")}</p>}
-                    {result.planner?.status === "planned" && <p className="wb-plan-receipt">{t("Llama planı", "Llama plan")}: {result.planner.intent} · {t("Sayılar hesap kaydından", "Figures from calculation record")}</p>}
+                    {result.planner &&
+                      result.planner.status !== "planned" &&
+                      result.planner.status !== "blocked" && (
+                        <p className="wb-provider-notice" role="status">
+                          {result.planner.http_status === 402
+                            ? t(
+                                "Llama kullanılamıyor: Hugging Face hesabında çıkarım kredisi gerekiyor. Standart analiz sonucu gösteriliyor.",
+                                "Llama is unavailable: Hugging Face inference credits are required. Showing the standard analysis.",
+                              )
+                            : t(
+                                "Llama planı alınamadı. Standart analiz sonucu gösteriliyor.",
+                                "Llama planning is unavailable. Showing the standard analysis.",
+                              )}
+                        </p>
+                      )}
+                    {result.planner?.status === "planned" && (
+                      <p className="wb-plan-receipt">
+                        {t("Llama planı", "Llama plan")}:{" "}
+                        {result.planner.intent} ·{" "}
+                        {t(
+                          "Sayılar hesap kaydından",
+                          "Figures from calculation record",
+                        )}
+                      </p>
+                    )}
                     <div className="wb-answer-citations">
                       <button onClick={() => setModal("metrics")}>
                         <FileText size={14} />
@@ -1120,9 +1166,23 @@ function Workspace({
                   ))}
                 </div>
                 <div className="wb-analysis-mode">
-                  <label><input type="checkbox" checked={useLlm} disabled={!providerReady || working} onChange={e=>setUseLlm(e.target.checked)} />
-                    {t("Llama ile yorumla", "Interpret with Llama")}</label>
-                  <span>{useLlm ? t("Soru Hugging Face'e gönderilir; veri satırları gönderilmez.", "Your question is sent to Hugging Face; data rows stay local.") : t("Standart analiz", "Standard analysis")}</span>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={useLlm}
+                      disabled={!providerReady || working}
+                      onChange={(e) => setUseLlm(e.target.checked)}
+                    />
+                    {t("Llama ile yorumla", "Interpret with Llama")}
+                  </label>
+                  <span>
+                    {useLlm
+                      ? t(
+                          "Soru Hugging Face'e gönderilir; veri satırları gönderilmez.",
+                          "Your question is sent to Hugging Face; data rows stay local.",
+                        )
+                      : t("Standart analiz", "Standard analysis")}
+                  </span>
                 </div>
                 <form
                   className="wb-composer"
@@ -1251,8 +1311,19 @@ function Workspace({
             <section className="wb-panel">
               <div className="wb-panel-head">
                 <div>
-                  <h2>{showArchive ? t("Arşiv", "Archive") : t("Kaydedilen bulgular", "Saved findings")}</h2>
-                  <button className="wb-btn" onClick={()=>setShowArchive(!showArchive)}>{showArchive ? t("Bulgulara dön", "Back to findings") : t("Arşivi aç", "Open archive")}</button>
+                  <h2>
+                    {showArchive
+                      ? t("Arşiv", "Archive")
+                      : t("Kaydedilen bulgular", "Saved findings")}
+                  </h2>
+                  <button
+                    className="wb-btn"
+                    onClick={() => setShowArchive(!showArchive)}
+                  >
+                    {showArchive
+                      ? t("Bulgulara dön", "Back to findings")
+                      : t("Arşivi aç", "Open archive")}
+                  </button>
                   <p>
                     {t(
                       "Yalnızca bu oturum kimliğine ait kayıtlar gösterilir.",
@@ -1296,7 +1367,17 @@ function Workspace({
                           {t("Aç", "Open")}
                           <ArrowUpRight size={15} />
                         </button>
-                        <button className="wb-btn" disabled={working} onClick={()=>void archiveRun(r.run_id,!showArchive)}>{showArchive ? t("Geri yükle", "Restore") : t("Arşivle", "Archive")}</button>
+                        <button
+                          className="wb-btn"
+                          disabled={working}
+                          onClick={() =>
+                            void archiveRun(r.run_id, !showArchive)
+                          }
+                        >
+                          {showArchive
+                            ? t("Geri yükle", "Restore")
+                            : t("Arşivle", "Archive")}
+                        </button>
                         <button
                           className="wb-btn"
                           disabled={working}
@@ -1376,11 +1457,7 @@ function Workspace({
           )}
           <footer className="wb-footer">
             <span>
-              Context Layer <i />{" "}
-              {t(
-                "Analytics",
-                "Analytics",
-              )}
+              Context Layer <i /> {t("Analytics", "Analytics")}
             </span>
             <span>
               <ShieldCheck size={13} />
@@ -1400,14 +1477,16 @@ function Workspace({
                   ? t("Metrik sözlüğü", "Metric dictionary")
                   : modal === "save"
                     ? t("Bulguyu kaydet", "Save finding")
-                    : modal === "import"
-                      ? t("Kendi verinizle deneyin", "Try your own data")
-                      : modal === "search"
-                        ? t("Bir işlem bulun", "Find an action")
-                        : t(
-                            "İlk bulgunuza dört adım",
-                            "Four steps to your first finding",
-                          )
+                    : modal === "model"
+                      ? t("Model stüdyosu", "Model studio")
+                      : modal === "import"
+                        ? t("Veri hazırlama", "Prepare data")
+                        : modal === "search"
+                          ? t("Bir işlem bulun", "Find an action")
+                          : t(
+                              "İlk bulgunuza dört adım",
+                              "Four steps to your first finding",
+                            )
           }
           onClose={() => {
             setModal(null);
@@ -1528,68 +1607,30 @@ function Workspace({
               </button>
             </form>
           )}
+          {modal === "model" && (
+            <ModelStudio
+              csrf={csrf}
+              busy={busy || childJobs > 0}
+              activity={activity}
+            />
+          )}
           {modal === "import" && (
-            <>
-              <p>
-                {t(
-                  "Perakende CSV şeması · GBP · fiyat en çok 4 ondalık · UTF-8 · en fazla 2 MB / 10.000 satır.",
-                  "Retail CSV schema · GBP · up to 4 price decimals · UTF-8 · up to 2 MB / 10,000 rows.",
-                )}
-              </p>
-              <div className="wb-callout">
-                <code>
-                  invoice, product_id, product, quantity, unit_price,
-                  order_date, country, customer_id
-                </code>
-              </div>
-              <a className="wb-btn" href={BASE + "/sample.csv"}>
-                <Download size={16} />
-                {t("Örnek CSV indir", "Download sample CSV")}
-              </a>
-              <label className="wb-upload">
-                <Upload size={27} />
-                <strong>
-                  {fileName || t("CSV dosyası seçin", "Choose a CSV file")}
-                </strong>
-                <span>
-                  {t(
-                    "Veri bu makinede işlenir.",
-                    "Data is processed on this machine.",
-                  )}
-                </span>
-                <input
-                  type="file"
-                  accept=".csv,text/csv"
-                  onChange={async (e) => {
-                    const f = e.target.files?.[0];
-                    if (!f) return;
-                    if (f.size > 2_000_000) {
-                      setError("CSV sınırı 2 MB.");
-                      return;
-                    }
-                    setFileName(f.name);
-                    setImportText(await f.text());
-                  }}
-                />
-              </label>
-              {error && (
-                <p role="alert" className="wb-error-text">
-                  {error}
-                </p>
-              )}
-              <button
-                className="wb-btn wb-primary"
-                disabled={!importText || importBusy}
-                onClick={() => void importCsv()}
-              >
-                {importBusy ? (
-                  <Loader2 className="spin" size={16} />
-                ) : (
-                  <Upload size={16} />
-                )}{" "}
-                {t("İçe aktar ve doğrula", "Import and validate")}
-              </button>
-            </>
+            <Preparation
+              csrf={csrf}
+              busy={busy || childJobs > 0}
+              activity={activity}
+              onImported={async (d) => {
+                setModal(null);
+                await catalog();
+                changeDataset(d.id);
+                setNotice(
+                  t(
+                    "Veri içe aktarıldı. Kalite raporu ve kaynak kaydı hazır.",
+                    "Data imported. Quality report and provenance are ready.",
+                  ),
+                );
+              }}
+            />
           )}
           {modal === "help" && (
             <>
@@ -1723,8 +1764,18 @@ function Workspace({
                     action: () => setModal("evidence"),
                   },
                   {
-                    label: t("CSV içe aktar", "Import CSV"),
+                    label: t(
+                      "Veri hazırlama ve CSV içe aktar",
+                      "Prepare data and import CSV",
+                    ),
                     action: () => setModal("import"),
+                  },
+                  {
+                    label: t(
+                      "Model stüdyosu ve deneylerim",
+                      "Model studio and experiments",
+                    ),
+                    action: () => setModal("model"),
                   },
                   {
                     label: t("Metrik sözlüğü", "Metric dictionary"),
@@ -2209,12 +2260,7 @@ function NetworkView({
             ) : (
               <>
                 <Network size={29} />
-                <h3>
-                  {t(
-                    "Ürün ayrıntıları",
-                    "Look behind a connection.",
-                  )}
-                </h3>
+                <h3>{t("Ürün ayrıntıları", "Look behind a connection.")}</h3>
                 <p>
                   {t(
                     "Bir ürünü seçerek satışını ve ağ içindeki yerini inceleyin.",

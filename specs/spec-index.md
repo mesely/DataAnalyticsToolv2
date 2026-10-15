@@ -54,3 +54,10 @@ The **sync-orchestrator spec** (webhook ingestion detail — JP-4 — scheduling
 | 1.7 | Docs ingested as PRs | Capability KP-*, skill §6, AS-6 |
 | 1.8 | Entity drafts reviewed | KB §4.3, playbook step 6 |
 | 1.9 | View lineage resolves; `get_lineage` walks | Formats §3, FG-1..FG-5, capability LP-* |
+
+## Opt-in analyst product amendments
+
+The analytics workspace contracts are additive to the platform v1.0 set:
+`analyst-workspace-phase1.md` through `analyst-workspace-phase6.md`.
+AW-8 (CSV preparation) and AW-9 (bounded ML experiments) do not change the
+zero-model generator or live governed SQL/publisher authorization paths.

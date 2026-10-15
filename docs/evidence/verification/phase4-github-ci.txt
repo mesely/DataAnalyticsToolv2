@@ -1,0 +1,7 @@
+Run https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38798154680
+Commit e94c520
+All five jobs succeeded. Extracts below from GitHub Actions log (ANSI removed):
+core	Core suite	2026-10-15T20:04:28.7680184Z  Test Files  34 passed | 1 skipped (35)
+core	Core suite	2026-10-15T20:04:28.7681820Z       Tests  471 passed | 4 skipped (475)
+analytics	Offline analytics and planner contracts (no live model key)	2026-10-15T19:59:54.7902015Z 142 passed in 5.09s
+tests	Run full suite (incl. postgres containers)	2026-10-15T20:00:09.0080216Z ================== 841 passed, 17 skipped in 84.54s (0:01:24) ==================

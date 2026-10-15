@@ -77,5 +77,11 @@
       "stage_months"
     ],
     "target": "analysis/adapted/temporal.py"
+  },
+  {
+    "source_repo": "mesely/Influencer-Category-and-Like-Prediction-Stacking-SMOTE-RF",
+    "source_commit": "b217890ec18c35180c7ac7bc3a8dcd28a6c1794e",
+    "source_path": "influencer_classification_and_like_count_regression.ipynb",
+    "source_sha256": "bc7cea3cded5c1ec2b3892ab6ea14762d0e4ded3d16d6d61e058f4536dae68a1"
   }
 ]

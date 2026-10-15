@@ -7851,3 +7851,23 @@ AW-5 (2026-10-15): Temporal workspace is descriptive and dataset-scoped: fixed p
 ## AW-7 — named binary visual assets
 
 The user explicitly requested original Gemini assets and real application screenshots in GitHub/README. D-123.2's NUL guard keeps protecting every source/text file; named exact PNG/JPEG paths are now intentional exceptions. Each is listed in tools/nul_scan.py and docs/evidence/ASSET_MANIFEST.json with SHA256. No broad extension exemption. Missing exceptions still fail as stale; a separate test checks image magic and geometry-only SVG navigation. This is the deliberate binary-asset exception anticipated by the original scanner design.
+
+## AW-8 — explicit CSV preparation
+
+15 Oct 2026. Additive opt-in analyst extension; authoritative contract
+`specs/analyst-workspace-phase5.md`. Arbitrary CSV schema profiling is read-only
+and ephemeral. Explicit retail mapping, grain/currency, reversible draft,
+shared-normalizer preview and source+recipe receipt precede mapped import.
+Source/recipe identities namespace uploads by owner; no arbitrary metric or
+currency inference. Existing connector/snapshot/generator contracts unchanged.
+
+## AW-9 — bounded model experiments
+
+15 Oct 2026. `specs/analyst-workspace-phase6.md` governs local supervised
+experiments, not production model serving. Split before learned transforms;
+CV-only selection, untouched holdout, optional numeric-only fold-local SMOTE,
+baselines and owner-only non-executable model cards. Influencer notebook
+cell63/66 adapted with train-only fit and guarded original-scale error.
+No LSTM/stacking success claim without implemented and measured evaluation.
+Worker permits must be released before HTTP response is emitted so sequential
+prepare/import/catalog/run requests cannot race the prior cleanup.

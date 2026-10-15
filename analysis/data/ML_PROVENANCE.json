@@ -1,0 +1,18 @@
+[
+  {
+    "path": "analysis/data/wine-ml.csv",
+    "sha256": "86d6406802806ec55d1a4b067d8c749d05a92a0f15ae11a6537cf877b4681e72",
+    "title": "Wine — UCI / scikit-learn",
+    "url": "https://archive.ics.uci.edu/dataset/109/wine",
+    "description": "Aeberhard & Forina (1992), DOI10.24432/C5PC7J, CC BY4.0. sklearn load_wine: 178 observations, 13 features; class labels 0–2 are encoded cultivar categories.",
+    "export": "scikit-learn 1.9.1 loader as_frame=True; pandas to_csv; renamed target only"
+  },
+  {
+    "path": "analysis/data/diabetes-ml.csv",
+    "sha256": "2bc61e7fd2fb43607febff223eba28c50dd90d8df941708e927bd87f186b526b",
+    "title": "Diabetes — scikit-learn",
+    "url": "https://scikit-learn.org/stable/datasets/toy_dataset.html#diabetes-dataset",
+    "description": "442 observations, 10 baseline variables and one-year progression target; sklearn standardized feature copy. Original source: Efron et al. (2004), Least Angle Regression; supplied through scikit-learn dataset bundle. Small public benchmark, not a clinical validation.",
+    "export": "scikit-learn 1.9.1 loader as_frame=True; pandas to_csv; renamed target only"
+  }
+]

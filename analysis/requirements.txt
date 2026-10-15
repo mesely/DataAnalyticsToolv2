@@ -6,3 +6,5 @@ networkx==3.7
 openpyxl==3.1.5
 httpx==0.28.1
 langchain-core==1.6.10
+scikit-learn==1.9.1
+imbalanced-learn==0.14.2

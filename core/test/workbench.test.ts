@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   apiGet,
@@ -87,6 +89,102 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
     expect(
       (await apiPost(rig, alice, B + "/run", { dataset })).json.summary,
     ).toMatchObject({ gross_pence: 1050 });
+  });
+  it("prepares arbitrary columns with CSRF and refuses a stale import receipt", async () => {
+    const csv =
+      "order,sku,title,qty,price,day,market\n001,007,Cup,2,5.25,2025-01-01,France\n";
+    const mapping = {
+      invoice: "order",
+      product_id: "sku",
+      product: "title",
+      quantity: "qty",
+      unit_price: "price",
+      order_date: "day",
+      country: "market",
+    };
+    expect(
+      (await apiPost(rig, alice, B + "/prepare", { csv }, { csrf: null }))
+        .status,
+    ).toBe(403);
+    const profile = await apiPost(rig, alice, B + "/prepare", { csv });
+    expect(profile.status).toBe(200);
+    expect(profile.json.profile).toMatchObject({ rows: 1 });
+    expect(JSON.stringify(profile.json)).not.toContain("Cup");
+    const preview = await apiPost(rig, alice, B + "/prepare", { csv, mapping });
+    expect(preview.status).toBe(200);
+    expect(preview.json.preview).toMatchObject({ gross_pence: 1050 });
+    expect(
+      (
+        await apiPost(rig, alice, B + "/import", {
+          csv,
+          mapping,
+          receipt: "old",
+        })
+      ).status,
+    ).toBe(400);
+    const imported = await apiPost(rig, alice, B + "/import", {
+      csv,
+      mapping,
+      receipt: preview.json.receipt,
+    });
+    expect(imported.status).toBe(200);
+    expect(
+      (await apiPost(rig, bob, B + "/run", { dataset: imported.json.id }))
+        .status,
+    ).toBe(404);
+    expect(
+      (await apiPost(rig, alice, B + "/run", { dataset: imported.json.id }))
+        .json.summary,
+    ).toMatchObject({ gross_pence: 1050 });
+  });
+  it("runs a real model experiment, saves only a card and enforces owner access", async () => {
+    const csv = readFileSync(
+      fileURLToPath(
+        new URL("../../analysis/data/wine-ml.csv", import.meta.url),
+      ),
+      "utf8",
+    );
+    const body = {
+      csv,
+      target: "cultivar",
+      features: [
+        "alcohol",
+        "malic_acid",
+        "ash",
+        "alcalinity_of_ash",
+        "magnesium",
+        "total_phenols",
+        "flavanoids",
+        "nonflavanoid_phenols",
+        "proanthocyanins",
+        "color_intensity",
+        "hue",
+        "od280/od315_of_diluted_wines",
+        "proline",
+      ],
+      task: "classification",
+      split: "random",
+      decision_context:
+        "One wine sample; available chemical measurements before cultivar outcome.",
+      features_available: true,
+    };
+    expect(
+      (await apiPost(rig, alice, B + "/ml", body, { csrf: null })).status,
+    ).toBe(403);
+    const r = await apiPost(rig, alice, B + "/ml", body);
+    expect(r.status).toBe(200);
+    expect(r.json.split).toMatchObject({ train_rows: 142, holdout_rows: 36 });
+    const experiment = String(r.json.experiment_id);
+    expect((await apiGet(rig, bob, B + "/ml/" + experiment)).status).toBe(404);
+    const mine = await apiGet(rig, alice, B + "/ml/" + experiment);
+    expect(mine.status).toBe(200);
+    expect(mine.json.sha256).toBe(r.json.sha256);
+    expect(JSON.stringify(mine.json)).not.toContain(csv);
+    expect((await apiGet(rig, alice, B + "/ml")).json.experiments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ experiment_id: experiment }),
+      ]),
+    );
   });
   it("rejects query/filter injection and malformed inputs", async () => {
     expect(
@@ -266,47 +364,104 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
   });
   it("archives and restores runs without deleting evidence or crossing owners", async () => {
     const before = await apiGet(rig, alice, B + "/runs/" + id);
-    expect((await apiPost(rig,bob,B+"/runs/"+id+"/archive",{archived:true})).status).toBe(404);
-    expect((await apiPost(rig,alice,B+"/runs/"+id+"/archive",{archived:true},{csrf:null})).status).toBe(403);
-    expect((await apiPost(rig,alice,B+"/runs/"+id+"/archive",{archived:true})).status).toBe(200);
-    const visible = await apiGet(rig,alice,B+"/runs");
+    expect(
+      (
+        await apiPost(rig, bob, B + "/runs/" + id + "/archive", {
+          archived: true,
+        })
+      ).status,
+    ).toBe(404);
+    expect(
+      (
+        await apiPost(
+          rig,
+          alice,
+          B + "/runs/" + id + "/archive",
+          { archived: true },
+          { csrf: null },
+        )
+      ).status,
+    ).toBe(403);
+    expect(
+      (
+        await apiPost(rig, alice, B + "/runs/" + id + "/archive", {
+          archived: true,
+        })
+      ).status,
+    ).toBe(200);
+    const visible = await apiGet(rig, alice, B + "/runs");
     expect(JSON.stringify(visible.json)).not.toContain(id);
-    const archive = await apiGet(rig,alice,B+"/runs?archived=1");
+    const archive = await apiGet(rig, alice, B + "/runs?archived=1");
     expect(JSON.stringify(archive.json)).toContain(id);
-    expect((await apiGet(rig,alice,B+"/runs/"+id)).json.result).toEqual(before.json.result);
-    expect((await apiPost(rig,alice,B+"/runs/"+id+"/archive",{archived:false})).status).toBe(200);
-    expect(JSON.stringify((await apiGet(rig,alice,B+"/runs")).json)).toContain(id);
+    expect((await apiGet(rig, alice, B + "/runs/" + id)).json.result).toEqual(
+      before.json.result,
+    );
+    expect(
+      (
+        await apiPost(rig, alice, B + "/runs/" + id + "/archive", {
+          archived: false,
+        })
+      ).status,
+    ).toBe(200);
+    expect(
+      JSON.stringify((await apiGet(rig, alice, B + "/runs")).json),
+    ).toContain(id);
   });
   it("shares DB admission across catalog, run and import and releases permits", async () => {
     const lock = await rig.core.pool.connect();
     try {
-      for(let i=0;i<3;i++) await lock.query("SELECT pg_advisory_lock(214774,$1)",[i]);
-      expect((await apiGet(rig,alice,B+"/catalog")).status).toBe(429);
-      expect((await apiPost(rig,alice,B+"/run",{dataset:"demo"})).status).toBe(429);
-      expect((await apiPost(rig,alice,B+"/import",{csv:"x"})).status).toBe(429);
+      for (let i = 0; i < 3; i++)
+        await lock.query("SELECT pg_advisory_lock(214774,$1)", [i]);
+      expect((await apiGet(rig, alice, B + "/catalog")).status).toBe(429);
+      expect(
+        (await apiPost(rig, alice, B + "/prepare", { csv: "x" })).status,
+      ).toBe(429);
+      expect((await apiPost(rig, alice, B + "/ml", { csv: "x" })).status).toBe(
+        429,
+      );
+      expect(
+        (await apiPost(rig, alice, B + "/run", { dataset: "demo" })).status,
+      ).toBe(429);
+      expect(
+        (await apiPost(rig, alice, B + "/import", { csv: "x" })).status,
+      ).toBe(429);
     } finally {
-      for(let i=0;i<3;i++) await lock.query("SELECT pg_advisory_unlock(214774,$1)",[i]);
+      for (let i = 0; i < 3; i++)
+        await lock.query("SELECT pg_advisory_unlock(214774,$1)", [i]);
       lock.release();
     }
-    expect((await apiGet(rig,alice,B+"/catalog")).status).toBe(200);
-    const rerun = await apiPost(rig,alice,B+"/run",{dataset:"demo"});
+    expect((await apiGet(rig, alice, B + "/catalog")).status).toBe(200);
+    const rerun = await apiPost(rig, alice, B + "/run", { dataset: "demo" });
     expect(rerun.status).toBe(200);
-    expect((rerun.json.evidence as {build:{sha256:string}}).build.sha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(
+      (rerun.json.evidence as { build: { sha256: string } }).build.sha256,
+    ).toMatch(/^[a-f0-9]{64}$/);
   });
   it("serves only named brand images with their real MIME type", async () => {
     const { readdir } = await import("node:fs/promises");
-    const assets = await readdir(new URL("../web/dist/assets/",import.meta.url));
-    const name = assets.find(x=>x.startsWith("context-prism-") && x.endsWith(".jpeg"));
+    const assets = await readdir(
+      new URL("../web/dist/assets/", import.meta.url),
+    );
+    const name = assets.find(
+      (x) => x.startsWith("context-prism-") && x.endsWith(".jpeg"),
+    );
     expect(name).toBeTruthy();
-    const image = await fetch(rig.base+"/app/assets/"+name);
+    const image = await fetch(rig.base + "/app/assets/" + name);
     expect(image.status).toBe(200);
     expect(image.headers.get("content-type")).toBe("image/jpeg");
     const bytes = new Uint8Array(await image.arrayBuffer());
-    expect([...bytes.slice(0,3)]).toEqual([255,216,255]);
-    expect((await fetch(rig.base+"/app/assets/secret.env")).status).toBe(404);
+    expect([...bytes.slice(0, 3)]).toEqual([255, 216, 255]);
+    expect((await fetch(rig.base + "/app/assets/secret.env")).status).toBe(404);
   });
   it("revokes access on the next request when roles disappear", async () => {
     rig.idp.setRoles(alice.subject, []);
     expect((await apiGet(rig, alice, B + "/catalog")).status).toBe(403);
+    expect((await apiGet(rig, alice, B + "/ml")).status).toBe(403);
+    expect((await apiPost(rig, alice, B + "/ml", { csv: "x" })).status).toBe(
+      403,
+    );
+    expect(
+      (await apiPost(rig, alice, B + "/prepare", { csv: "x" })).status,
+    ).toBe(403);
   });
 });

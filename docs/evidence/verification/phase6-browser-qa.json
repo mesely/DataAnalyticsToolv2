@@ -1,0 +1,41 @@
+{
+  "date_client": "2026-10-16",
+  "app": "http://127.0.0.1:8123/app/",
+  "import": {
+    "fixture": "analysis/data/demo_retail.csv",
+    "raw_rows": 542,
+    "retained_rows": 540,
+    "orders": 180,
+    "gross_pence": 2140500,
+    "post_import_selected_title": "demo_retail",
+    "post_import_error": "",
+    "preview_matches_dashboard": true
+  },
+  "model_card": {
+    "reopened": "wine · cultivar",
+    "dialog_scroll_top": 0,
+    "expanded_details": 0,
+    "json_download_read_back": true,
+    "contains_raw_csv": false
+  },
+  "keyboard": {
+    "cmd_k_search_autofocus": true,
+    "model_studio_action_opens": true,
+    "escape_closes_dialog": true
+  },
+  "mobile": {
+    "viewport_width": 390,
+    "document_width": 375,
+    "dialog_width": 343,
+    "broken_images": 0,
+    "temporary_viewport_reset": true
+  },
+  "github_readme": {
+    "rendered_images": 13,
+    "all_loaded": true
+  },
+  "limits": [
+    "Task-based user pilot and full WCAG audit not performed.",
+    "Small open-data model results do not establish product-wide accuracy."
+  ]
+}

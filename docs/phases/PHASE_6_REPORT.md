@@ -54,3 +54,8 @@ kontrastı iyileştirildi. Yeni ekranlar05/06/07/08 altındadır.
 Geniş GitHub CI e94819a beş job yeşil:473 core pass/4 skip,841 root Python
 pass/17 skip,173 analytics pass. Son skew fixture sonrası yerel174 pass; son
 görsel dalının CI sonucu progress yayın kartında. Test skipleri başarı sayılmaz.
+
+Son kod041982c / GitHub run38822570859: beş job başarıyla tamamlandı,
+16 Ekim public web summary üzerinden doğrulandı. Receipt
+`docs/evidence/verification/phase6-github-final.json`; detay sayılarını eski
+run'dan yeni run'a taşıma. Ardından yalnız kanıt/devir dokümanı güncellendi.

@@ -2,7 +2,7 @@
 
 ## ŞİMDİ OKU — 16 Ekim 2026
 
-**Durum: AŞAMA1–3 YEREL KABUL TAMAM. AŞAMA4 YEREL PAKETİ TAMAM; CANLI LLAMA/ÜRETİM KAPILARI AÇIK. AŞAMA5 CSV HAZIRLAMA VE AŞAMA6 ML DENEYİ UYGULANDI, e94819a GENİŞ CI BEŞ JOB YEŞİL.** Son ek Gemini görsel/QA paketi ayrı yayın kartıyla izlenir. Geçmiş “A5/A6 henüz başlamadı” notları geçersizdir. Mevcut kodu baştan yazma.
+**Durum: AŞAMA1–3 YEREL KABUL TAMAM. AŞAMA4 YEREL PAKETİ TAMAM; CANLI LLAMA/ÜRETİM KAPILARI AÇIK. AŞAMA5 CSV HAZIRLAMA VE AŞAMA6 ML DENEYİ UYGULANDI, 041982c SON KOD CI BEŞ JOB YEŞİL.** Üç yeni Gemini görseli ve son UX düzeltmeleri bu doğrulanmış kodun içindedir. Sonradan yalnız devir/kanıt dokümanı güncellenmiştir. Geçmiş “A5/A6 henüz başlamadı” notları geçersizdir. Mevcut kodu baştan yazma.
 
 **Tek uygulama kökü:** `/Users/selmanyilmaz/Projects/context-layer`. Yayın hedefi `mesely/DataAnalyticsToolv2`, dal `feat/analytics-workspace-phase4`; PR üzerinden review. Son Git sonucu bu dosyanın yayın kartındadır. Production deploy/main merge yapılmadı. Başlangıç HEAD `0aaac741fd36d0e5b4f0c182d1b8b05c87884c17`.
 
@@ -121,7 +121,7 @@ Test komutları ve 10 dakikalık gerçek kullanıcı turu `docs/phases/TEST_GUID
 
 - **174 analitik Python testi geçti**, `docs/evidence/verification/phase6-python.log`: önceki142 + preparation14 + ML18. 50 offline LLM plan fixture model accuracy değildir. Gerçek fit/holdout, train-only schema, unknown category, group/timestamp boundary, skewed Wine/SMOTE untouched holdout testleri dahildir.
 - **GitHub e94819a koşusu BEŞ JOB YEŞİL:** https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38800676565 . Core473 passed/4 skipped (477); root Python841 passed/17 skipped; analytics173 pass (son skew testinden önce). `phase6-github-ci.txt` gerçek log extract. Eski Docker bağımlı sync-drill/sync-run/mcp-execute kapısı cloud koşusuyla kapandı. Yerel Docker hazır olmayınca fixture bootstrap skip/hata verir; cloud yeşilini yerel sonuç diye yazma.
-- Son görsel/ek skew testi sonrası build/web TypeScript,174 Python ve15 asset/NUL testi geçti; son branch CI sonucu yayın kartına yazılır. Exact image/NUL guard + manifest kontrolü gerekir. Python/Node paket kurulumu test sayılmaz.
+- Son görsel/ek skew testi sonrası build/web TypeScript,174 Python ve15 asset/NUL testi geçti; son kod041982c branch CI beş job success: phase6-github-final.json. Exact image/NUL guard + manifest kontrolü gerekir. Python/Node paket kurulumu test sayılmaz.
 - 11 pinned source dosyası upstream SHA ile doğrulandı. `analysis/verify_sources.py` read-only; `port_sources.py` adaptörleri overwrite edebilir, çalıştırma.
 - A5 tarayıcı gerçek eşleme/receipt invalidation/dedup/import:3 satır/2 sipariş £14.70 →2 satır/2 sipariş £12.60, dashboard aynı tutar. Import sonrası catalog/run yarışı bulundu; sıralı akış + response öncesi permit cleanup ile düzeltildi.
 - A6 tarayıcı gerçek Wine142/36, Logistic macro-F1 .971781 (baseline .186667); Diabetes353/89, Ridge MAE43.902866 (baseline61.370787). JSON kart indirildi/yeniden okundu, ham CSV yok. Model kartı hesaptan tekrar açılır. Bu küçük benchmark sonucu ürün-geneli başarı garantisi değildir.
@@ -150,7 +150,7 @@ LLM planı aynı değilse replay digest değişebilir; temperature0 plan determi
 - Yeni `Perakende satış özeti` QA kaydı görünür/restore durumda; önceki kendi Aşama1 demo fixture bulgusu arşivde, geri alınabilir. İlgisiz kayıt silinmedi. Varsayılan dataset UCI; örnek veri Perakende örneği, source modalında sentetik olduğunu korur.
 - Git hedefi **https://github.com/mesely/DataAnalyticsToolv2**, branch **feat/analytics-workspace-phase4**. `origin` AlperCamli read-only korunur; `publish` meselyv2 remote. Repo normu PR review; main merge veya production deploy otomatik yapılmaz. Son yayın sonucu aşağıdaki kartta güncellenir.
 
-**Yayın kartı:** GitHub push başarılı; PR https://github.com/mesely/DataAnalyticsToolv2/pull/1 açık. README/ekranlar dalda: https://github.com/mesely/DataAnalyticsToolv2/tree/feat/analytics-workspace-phase4 . Main merge/production deploy yapılmadı. Secret scan geçti; token ignored0600. e94819a beş job CI yeşil (473core/841root/173analytics); yeni görsel/skew paketinin son CI sonucu ayrıca kaydedilir. Yerelde174 analitik ve build/typecheck geçti. CI'da .venv olmadığı için CORE_ANALYSIS_PYTHON=python açıkça ayarlandı.
+**Yayın kartı:** GitHub push başarılı; PR https://github.com/mesely/DataAnalyticsToolv2/pull/1 açık. README/ekranlar dalda: https://github.com/mesely/DataAnalyticsToolv2/tree/feat/analytics-workspace-phase4 . Main merge/production deploy yapılmadı. Secret scan geçti; token ignored0600. Son uygulama kodu041982c: https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38822570859 **BEŞ JOB YEŞİL**, GitHub public web summary üzerinden doğrulandı. `docs/evidence/verification/phase6-github-final.json` gerçek status receipt. e94819a tarihsel sayılar473core/841root/173analytics; son koşunun log sayılarını API timeout nedeniyle çıkaramadık, tahmin etme. Sonrasında yalnız kanıt/devir doküman commit'i vardır; kaynak kod değişmedi. Yerelde174 analitik ve build/typecheck geçti. CI'da .venv olmadığı için CORE_ANALYSIS_PYTHON=python açıkça ayarlandı.
 
 ## Aşama5/6 teknik devam kartı
 
@@ -164,6 +164,8 @@ LLM planı aynı değilse replay digest değişebilir; temperature0 plan determi
 
 ## SON ANKOR — devam etmeden önce
 
-**Aşama1–3 tamam; A4 yerel paket tamam/canlı402 ve üretim dış kabul açık. A5 hazırlama ve A6 ML deneyi uygulanmış ve e94819a geniş CI yeşil.** Son görsel/skew/docs paketi yayın kartında izlenir. Kod `/Users/selmanyilmaz/Projects/context-layer`; URL http://127.0.0.1:8123/app/ ; `selman` / `analiz-demo`. İlk sonraki iş PHASE_5/6_REPORT ve NEXT_BACKLOG; A7 henüz başlamadı. Parquet/metric compiler/OOF/serving/tenant/pilot/scale bitmiş sayılmaz. Tüm5 repo link/commit üst tabloda. Secret değerini okuma/yazma/paylaşma. Üst/son kartı, gerçek CI ve PR durumunu birlikte güncelle.
+**Aşama1–3 tamam; A4 yerel paket tamam/canlı402 ve üretim dış kabul açık. A5 hazırlama ve A6 ML deneyi uygulanmış; son kod041982c geniş CI yeşil.** Son görsel/skew kodu041982c beş job CI yeşil; sonrasında yalnız devir/kanıt doküman güncellemesi vardır. Kod `/Users/selmanyilmaz/Projects/context-layer`; URL http://127.0.0.1:8123/app/ ; `selman` / `analiz-demo`. İlk sonraki iş PHASE_5/6_REPORT ve NEXT_BACKLOG; A7 henüz başlamadı. Parquet/metric compiler/OOF/serving/tenant/pilot/scale bitmiş sayılmaz. Tüm5 repo link/commit üst tabloda. Secret değerini okuma/yazma/paylaşma. Üst/son kartı, gerçek CI ve PR durumunu birlikte güncelle.
 
 Son browser turu16 Ekim: demo CSV542→540 satır/180 sipariş/£21.405.00 import sonrası seçili katalog ve dashboard tutarlı, hata yok. Son kart açılanda dialog başa kayar; history ile method disclosure state ayrıldı. CmdK Model stüdyosu eylemini listeler.
+
+Son doğrulama kaynağı: `docs/evidence/verification/phase6-browser-qa.json` (CSV → dashboard, klavye, yeniden açılan model kartı, mobil, README13/13 görsel). Final kod CI linki041982c; doküman commitlerinin yeni workflow sonucunu kaynak kod kapısıyla karıştırma.

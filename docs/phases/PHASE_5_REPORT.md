@@ -24,3 +24,8 @@ Parquet, generic metric compiler ve keyfi dataset dashboard henüz yoktur.
 Profil kolon değerlerini içermez; kaynak bytes kalıcı kaydedilmez. İçe aktarma
 metadata'sında recipe/source hash/kalite receipt saklanır. Bu bir dış doğruluk
 veya para birimi tespit sistemi değildir.
+
+Son kod041982c / GitHub run38822570859: beş job başarıyla tamamlandı,
+16 Ekim public web summary üzerinden doğrulandı. Receipt
+`docs/evidence/verification/phase6-github-final.json`; detay sayılarını eski
+run'dan yeni run'a taşıma. Ardından yalnız kanıt/devir dokümanı güncellendi.

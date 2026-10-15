@@ -1,0 +1,37 @@
+{
+  "run_url": "https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38822570859",
+  "commit": "041982c5d01dfa4b018c322d45c562f585035f11",
+  "verified_date_client": "2026-10-16",
+  "verification_source": "GitHub public workflow summary viewed in browser; Status Success and all five job links completed successfully. CLI API timed out during final status read; no final detailed log counts inferred.",
+  "status": "success",
+  "total_duration": "5m 3s",
+  "jobs": [
+    {
+      "name": "nul-scan",
+      "status": "success",
+      "duration": "6s"
+    },
+    {
+      "name": "tests",
+      "status": "success",
+      "duration": "1m 42s"
+    },
+    {
+      "name": "core",
+      "status": "success",
+      "duration": "4m 57s"
+    },
+    {
+      "name": "benchmark-integrity",
+      "status": "success",
+      "duration": "17s"
+    },
+    {
+      "name": "analytics",
+      "status": "success",
+      "duration": "1m 31s"
+    }
+  ],
+  "local_analytics_tests": 174,
+  "local_asset_nul_tests": 15
+}

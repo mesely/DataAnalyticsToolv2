@@ -1,3 +1,5 @@
+import modelArt from "./assets/model-studio.jpeg";
+import relationshipArt from "./assets/relationship-explorer.jpeg";
 import overviewIcon from "./assets/overview.svg";
 import analysisIcon from "./assets/analysis.svg";
 import networkIcon from "./assets/network.svg";
@@ -231,14 +233,21 @@ function Workspace({
         maximumFractionDigits: 2,
       }).format(n);
   async function catalog() {
-    const r = await api.get<{
-      datasets: Dataset[];
-      provider: { connected: boolean; configured?: boolean };
-    }>(BASE + "/catalog");
-    if (r.ok) {
-      setDatasets(r.data.datasets);
-      setProviderReady(r.data.provider.configured ?? r.data.provider.connected);
-    } else setError(r.error.detail);
+    activity(1);
+    try {
+      const r = await api.get<{
+        datasets: Dataset[];
+        provider: { connected: boolean; configured?: boolean };
+      }>(BASE + "/catalog");
+      if (r.ok) {
+        setDatasets(r.data.datasets);
+        setProviderReady(
+          r.data.provider.configured ?? r.data.provider.connected,
+        );
+      } else setError(r.error.detail);
+    } finally {
+      activity(-1);
+    }
   }
   async function history() {
     const r = await api.get<{ runs: SavedRun[] }>(BASE + "/runs");
@@ -1018,10 +1027,13 @@ function Workspace({
                       <ArrowRight size={15} />
                     </button>
                   </div>
-                  <Network
-                    className="wb-teaser-icon"
-                    size={65}
-                    strokeWidth={1.2}
+                  <img
+                    src={relationshipArt}
+                    className="wb-relationship-art"
+                    alt=""
+                    width="128"
+                    height="128"
+                    loading="lazy"
                   />
                 </section>
               </div>
@@ -1029,6 +1041,14 @@ function Workspace({
           )}
           {section === "analysis" && (
             <div className="wb-model-entry">
+              <img
+                src={modelArt}
+                className="wb-model-entry-art"
+                alt=""
+                width="72"
+                height="72"
+                loading="lazy"
+              />
               <div>
                 <strong>{t("Model stüdyosu", "Model studio")}</strong>
                 <span>

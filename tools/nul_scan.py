@@ -44,7 +44,38 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 #: Exact named image exceptions; no broad extension exemption (AW-7).
-BINARY_PATHS: tuple[str, ...] = ('core/web/src/workbench/assets/analysis-library.jpeg', 'core/web/src/workbench/assets/context-prism.jpeg', 'docs/evidence/phase3/mobile-final.jpeg', 'docs/evidence/phase3/uci-temporal-final.jpeg', 'docs/evidence/phase3/uci-temporal.jpeg', 'docs/evidence/phase4/01-before.jpeg', 'docs/evidence/phase4/02-overview.jpeg', 'docs/evidence/phase4/03-analysis.jpeg', 'docs/evidence/phase4/04-network.jpeg', 'docs/evidence/phase4/05-temporal.jpeg', 'docs/evidence/phase4/06-mobile.jpeg', 'docs/evidence/phase4/07-findings.jpeg', 'docs/evidence/phase4/08-library-empty.jpeg', 'docs/evidence/phase4/09-provider-fallback.jpeg', 'docs/evidence/phase4/overview-delivery.jpeg', 'docs/evidence/workspace-overview.jpeg')
+BINARY_PATHS: tuple[str, ...] = (
+    'core/web/src/workbench/assets/analysis-library.jpeg',
+    'core/web/src/workbench/assets/context-prism.jpeg',
+    'core/web/src/workbench/assets/data-preparation.jpeg',
+    'core/web/src/workbench/assets/model-studio.jpeg',
+    'core/web/src/workbench/assets/relationship-explorer.jpeg',
+    'docs/evidence/phase3/mobile-final.jpeg',
+    'docs/evidence/phase3/uci-temporal-final.jpeg',
+    'docs/evidence/phase3/uci-temporal.jpeg',
+    'docs/evidence/phase4/01-before.jpeg',
+    'docs/evidence/phase4/02-overview.jpeg',
+    'docs/evidence/phase4/03-analysis.jpeg',
+    'docs/evidence/phase4/04-network.jpeg',
+    'docs/evidence/phase4/05-temporal.jpeg',
+    'docs/evidence/phase4/06-mobile.jpeg',
+    'docs/evidence/phase4/07-findings.jpeg',
+    'docs/evidence/phase4/08-library-empty.jpeg',
+    'docs/evidence/phase4/09-provider-fallback.jpeg',
+    'docs/evidence/phase4/overview-delivery.jpeg',
+    'docs/evidence/phase5/01-before.jpeg',
+    'docs/evidence/phase5/02-preview.jpeg',
+    'docs/evidence/phase5/03-mobile.jpeg',
+    'docs/evidence/phase6/01-contract.jpeg',
+    'docs/evidence/phase6/02-wine-result.jpeg',
+    'docs/evidence/phase6/03-mobile.jpeg',
+    'docs/evidence/phase6/04-regression.jpeg',
+    'docs/evidence/phase6/05-preparation-art.jpeg',
+    'docs/evidence/phase6/06-model-art.jpeg',
+    'docs/evidence/phase6/07-overview-art.jpeg',
+    'docs/evidence/phase6/08-mobile-art.jpeg',
+    'docs/evidence/workspace-overview.jpeg',
+)
 
 
 def tracked_files(root: Path = REPO_ROOT) -> list[str]:

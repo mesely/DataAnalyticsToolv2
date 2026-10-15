@@ -85,3 +85,39 @@ CSV birim fiyatları en fazla dört ondalık basamak kabul eder. UCI toplamı **
 6. Masaüstü/mobilde dört ana görev, Cmd/Ctrl-K odak, Tab/Esc ve tablo alternatiflerini deneyin. Sahte günlük kota/yüzde göstergesi kaldırıldı; gerçek işlem durumu gösterilir. Ürüne özel Gemini görselleri marka ve boş kayıt durumunda kullanılır.
 
 `python -m analysis.benchmark` mevcut 530.104 satırlık veride, 1 ve 3 eşzamanlı subprocess ile 12'şer yerel gözlem üretir. HTTP/auth/DB roundtrip veya üretim SLA testi değildir. Sonuç dosyası PHASE_4_REPORT içinde. Gerçek model kalitesi, üretim tenant/RLS, dataset/query retention ve 5M/50M ölçek kabulü henüz açık.
+
+## Aşama 5 — farklı başlıklı dosyadan satış analizi (5 dakika)
+
+1. Veri ekle → `analysis/data/preparation-example.csv` seç → Sütunları incele.
+2. Profil3 satır,7 sütun,1 tekrar olmalı. Sütun kalitesinde order/sku baştaki
+   sıfırı korur. Sipariş/order, ürün kodu/sku, ürün adı/title, miktar/qty,
+   fiyat/price, tarih/day, ülke/market eşle. Müşteri kodu Kullanma kalabilir.
+3. Önizle: 3 satır,2 sipariş,£14.70. Tamamen aynı satırları çıkar'ı seç;
+   onay butonu yeniden Önizle olmalı. Yeniden önizle:2 satır,2 sipariş,£12.60.
+4. Taslağı sıfırla dönüşümleri/otomatik eşlemeyi geri alır; yeniden eşlemeden
+   import onayı görünmemeli. İstersen yukarıdaki eşleme ve dedup ile import et.
+5. Dashboard2 satır/2 sipariş/3 adet/£12.60/AOV£6.30 göstermeli. Başlık ve
+   kaynak bilgisi yüklenen dosyanı göstermeli; kapasite hatası oluşmamalı.
+
+## Aşama 6 — gerçek sınıflama/regresyon ve model kartı (5 dakika)
+
+1. Analiz asistanı → Model deneyi aç (veya Cmd/Ctrl+K → Model stüdyosu).
+2. Wine örneği → hedef cultivar → Sayısal alanları seç → karar-anı metnini oku
+   ve özelliklerin hedef öncesi mevcut olduğunu doğrula → Modelleri karşılaştır.
+3. 142 eğitim/36 bağımsız test; seed47 ile Logistic seçilir. Macro-F1 yaklaşık
+   .971781, baseline .186667; accuracy .972222. Bunlar küçük Wine benchmark'ı;
+   başka veri için garanti değildir. Adaylar ve hata dağılımını aç.
+4. Model kartını indir. JSON recipe/split/sha/runtime versions içermeli; raw
+   CSV veya executable model içermemeli. Kapat/aç → Kaydedilmiş deneylerimden
+   aynı kartı aç. Başka kimlik bu kart id'sini bilse de404 almalı.
+5. Yeni deney → Diabetes örneği → progression → sayısal alanlar → onayla.
+   353 eğitim/89 test; Ridge MAE43.902866, baseline61.370787 beklenir.
+6. Grup/zaman seçersen uygun sütunu açıkça seç; bu sütun özellik olamaz.
+   Tarihler YYYY-MM-DD, aynı tarih taraflar arasında bölünmez. Grup+zaman
+   eşzamanlı izolasyonu yok. Kategorik veriyle SMOTE seçimi açıklamalı reddedilir.
+7. 390px görünümde giriş görselleri/CTA ve sonuç tablosu taşmamalı. Esc
+   diyaloğu kapatır. Yeni görseller dekoratiftir; hesapları temsil etmez.
+
+Tam test: `.venv/bin/python -m pytest analysis/tests -q`; yeni paket174 test.
+CI e94819a:473 core pass/4 skip,841 root Python pass/17 skip,173 analytics
+pass (skew fixture sonrasında174 yerelde). Son publish için güncelCI loguna bak.

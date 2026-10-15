@@ -1,0 +1,22 @@
+
+> @contextlayer/core@0.1.0 build
+> node web/build.mjs && tsc -p tsconfig.json
+
+
+  web/dist/app.css  72.7kb
+
+⚡ Done in 28ms
+
+  web/dist/app.js                                      710.4kb
+  web/dist/assets/relationship-explorer-OKU4WN5J.jpeg   95.1kb
+  web/dist/assets/model-studio-ZOGPXEIT.jpeg            78.5kb
+  web/dist/assets/data-preparation-FT6TZG4Z.jpeg        77.0kb
+  web/dist/assets/context-prism-SZEQDK2Q.jpeg           68.3kb
+  web/dist/assets/analysis-library-PHLTAUAQ.jpeg        67.2kb
+  web/dist/assets/network-2IYE3AHK.svg                   462b 
+  web/dist/assets/findings-WGG2S7TB.svg                  422b 
+  web/dist/assets/overview-JMYANLN5.svg                  361b 
+  web/dist/assets/analysis-4WQQA5JN.svg                  283b 
+
+⚡ Done in 287ms
+built dashboard bundle -> web/dist

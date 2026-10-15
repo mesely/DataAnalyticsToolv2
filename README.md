@@ -1,8 +1,8 @@
 <p align="center"><img src="core/web/src/workbench/assets/context-prism.jpeg" width="112" alt="Context Layer brand artwork"></p>
 <h1 align="center">Context Layer</h1>
-<p align="center">A workspace for sales analysis, relationship networks and traceable findings.</p>
+<p align="center">A workspace for data preparation, sales analysis, relationship networks and measured model experiments.</p>
 
-Context Layer brings dataset exploration, governed SQL, product networks and reproducible analysis into one authenticated workspace. It builds on Alper Çamlı's metadata and governance platform, with adapted retrieval, safety and export components from adviSU and network methods from PoliEcoTRNetSci.
+Context Layer brings CSV preparation, dataset exploration, governed SQL, product networks, bounded machine learning experiments and reproducible analysis into one authenticated workspace. It builds on Alper Çamlı's metadata and governance platform, with adapted retrieval, safety and export components from adviSU and network methods from PoliEcoTRNetSci.
 
 ![Sales overview on the UCI Online Retail dataset](docs/evidence/phase4/02-overview.jpeg)
 
@@ -10,6 +10,8 @@ Context Layer brings dataset exploration, governed SQL, product networks and rep
 
 | Workspace | What you can do |
 |---|---|
+| **Prepare data** | Profile any bounded CSV schema, preserve leading-zero identifiers, map retail fields, preview quality and totals, and explicitly remove duplicates before import. |
+| **Model studio** | Choose a target and features, use random/group/time splits, compare baseline/forest/linear candidates with training CV, inspect held-out metrics, and save/export an owner-scoped model card. |
 | **Overview** | Inspect gross sales, orders, units and average order value. Filter dates/countries, inspect monthly trends, review schema and data quality. |
 | **Analysis** | Ask bounded analytics questions, inspect formulas and calculation evidence, search metric/schema context, and use the read-only SQL lab. |
 | **Relationships** | Explore invoice co-purchase or country-profile similarity, select products, inspect communities/centralities, and switch to accessible data tables. |
@@ -53,6 +55,37 @@ Co-purchase edges represent products on the same invoice. Similarity edges compa
 
 </details>
 
+### Prepare data and compare models
+
+Explicit mappings and a source/recipe receipt connect the import preview to the
+actual calculation. Draft transformations can be reset; changing a field or
+option invalidates the previous preview.
+
+![CSV preparation with a custom brand illustration](docs/evidence/phase6/05-preparation-art.jpeg)
+
+The model studio compares fixed-budget baseline, Random Forest and linear
+candidates using three training folds. Preprocessing is fitted inside each
+fold. Optional numeric-only SMOTE resamples training data only. A separate
+20% holdout is evaluated after selection; group and chronological strategies
+are available for suitable data. Saved cards contain split/source/runtime
+receipts, metrics and limitations. Raw training CSV and fitted executable
+models are not persisted.
+
+![Actual Wine held-out result compared with a constant baseline](docs/evidence/phase6/02-wine-result.jpeg)
+
+<details><summary>Original visual identity and responsive model studio</summary>
+
+<p><img src="core/web/src/workbench/assets/data-preparation.jpeg" width="180" alt="Original data preparation instrument"><img src="core/web/src/workbench/assets/model-studio.jpeg" width="180" alt="Original model comparison sculpture"><img src="core/web/src/workbench/assets/relationship-explorer.jpeg" width="180" alt="Original relationship constellation"></p>
+
+Five original Gemini raster illustrations and four custom navigation vectors
+form the product's visual family. New illustrations orient the preparation,
+model and relationship entrances; calculated charts and results retain their
+own clear visual language. [Asset provenance](core/web/src/workbench/assets/PROVENANCE.md).
+
+<img src="docs/evidence/phase6/03-mobile.jpeg" width="280" alt="Model results on a narrow screen">
+
+</details>
+
 ## Try it locally
 
 Requirements: **Python 3.12**, **Node.js 22+** (tested with 24), and **PostgreSQL 16**. On macOS, the launcher uses the Homebrew PostgreSQL installation, creates an isolated loopback database, prepares datasets, builds the UI and starts the app. It does not require Docker or change other projects' containers.
@@ -69,13 +102,14 @@ To configure Llama, set `HF_TOKEN` and optionally `HF_MODEL=meta-llama/Llama-3.3
 
 - **Retail sample:** deterministic synthetic data, independent Decimal oracle, £21,405 gross sales / 180 invoices. Useful for checking filters and calculations.
 - **UCI Online Retail:** historical 2010–2011 public data by Daqing Chen, [DOI 10.24432/C5BW33](https://doi.org/10.24432/C5BW33), CC BY 4.0. Preparation downloads the official source; the full dataset is not committed. Of 541,909 source rows, 530,104 positive eligible invoice lines contribute **£10,666,684.54 / 19,960 invoices**.
-- **Private CSV:** owner-scoped retail-schema import, UTF-8, up to 2 MB / 10,000 rows. Unit prices accept up to four decimal places.
+- **Private CSV:** bounded generic profiling, explicit owner-scoped retail field mapping and import, UTF-8, up to 2 MB / 10,000 rows. Retail metrics require GBP and invoice-line grain; unit prices accept up to four decimal places.
+- **ML examples:** original measured records from UCI Wine (178 observations, 13 features, CC BY 4.0) and the scikit-learn Diabetes benchmark (442 observations, 10 features). Source notes and SHA-256 hashes are in [ML provenance](analysis/data/ML_PROVENANCE.json). Model experiments accept 100–3,000 observations and up to 30 selected features.
 
 Sales exclude returns/cancellations and are rounded to pence per invoice line. They are **gross sales**, not net revenue or profit. Duplicate lines and postage/service/manual invoice lines are retained and disclosed. Boundary months may be partial. Source definitions and quality counts stay available inside the app.
 
 ## Trust and reproducibility
 
-The workspace reuses existing OIDC sessions, CSRF checks, roles and audit logging. Dataset/run/query ownership is checked server-side. SQL uses the original validator plus a narrow AST/function policy, read-only DuckDB, disabled external access and execution/output limits. CSV/Excel exports protect string cells against spreadsheet formulas while preserving numeric values.
+The workspace reuses existing OIDC sessions, CSRF checks, roles and audit logging. Dataset/run/query/experiment ownership is checked server-side. SQL uses the original validator plus a narrow AST/function policy, read-only DuckDB, disabled external access and execution/output limits. CSV/Excel exports protect string cells against spreadsheet formulas while preserving numeric values.
 
 All analytic worker routes share subject/global admission, including PostgreSQL advisory permits across core processes using the same database. Run archival is reversible. Recipe v4 evidence binds dataset identity, filters, computed artifacts and a calculation-source/dependency fingerprint. Historic v1/v2/v3 results are retained rather than rewritten.
 
@@ -84,6 +118,7 @@ This is a **locally verified development release**. Production identity/tenant R
 ## Verification and project map
 
 - [Test walkthrough](docs/phases/TEST_GUIDE.md) — expected values and UI scenarios.
+- [Preparation release](docs/phases/PHASE_5_REPORT.md), [model experiment release](docs/phases/PHASE_6_REPORT.md).
 - [Phase 4 release report](docs/phases/PHASE_4_REPORT.md) — actual checks, observations and remaining gates.
 - [Source reuse ledger](docs/phases/REUSE_LEDGER.md) — exact adaptations, runtime status and attribution.
 - [Architecture and setup](docs/PLATFORM_OVERVIEW.md), [core service](core/README.md), [specifications](specs/spec-index.md).
@@ -94,8 +129,8 @@ This is a **locally verified development release**. Production identity/tenant R
 npm --prefix core run build
 ```
 
-Core integration tests require the test PostgreSQL environment described in the walkthrough. Latest logs are under `docs/evidence/verification/`; remaining Docker-dependent baseline checks are documented rather than reported as passing.
+Core integration tests require the test PostgreSQL environment described in the walkthrough. Latest logs are under `docs/evidence/verification/`. The e94819a GitHub run passed all five jobs, including Docker-dependent core and Python regressions; each later release keeps its own checks and evidence.
 
 ## Source projects
 
-Built on [AlperCamli/DataAnalyticsTool](https://github.com/AlperCamli/DataAnalyticsTool), with actual adaptations from [mesely/adviSU](https://github.com/mesely/adviSU) and [mesely/PoliEcoTRNetSci](https://github.com/mesely/PoliEcoTRNetSci). [SNIPS intent detection](https://github.com/mesely/NLP-Intent-Detection-with-SNIPS-Dataset) and [Influencer stacking/SMOTE/RF](https://github.com/mesely/Influencer-Category-and-Like-Prediction-Stacking-SMOTE-RF) have detailed reuse and leakage reviews; their models have not yet been integrated or trained in this workspace. Pinned commits, symbols and hashes are recorded in the source ledger.
+Built on [AlperCamli/DataAnalyticsTool](https://github.com/AlperCamli/DataAnalyticsTool), with actual adaptations from [mesely/adviSU](https://github.com/mesely/adviSU) and [mesely/PoliEcoTRNetSci](https://github.com/mesely/PoliEcoTRNetSci). [Influencer stacking/SMOTE/RF](https://github.com/mesely/Influencer-Category-and-Like-Prediction-Stacking-SMOTE-RF) contributes adapted train-only preprocessing and log-error functions to the model studio. Its notebook models and historical scores are not imported; models are fitted and measured locally. [SNIPS intent detection](https://github.com/mesely/NLP-Intent-Detection-with-SNIPS-Dataset) remains researched but deferred until an analytics-intent baseline shows a measured need. Pinned commits, symbols and hashes are recorded in the source ledger.

@@ -1,8 +1,8 @@
 # Context Layer / Analytics — tek giriş ve devir rehberi
 
-## ŞİMDİ OKU — 15 Ekim 2026
+## ŞİMDİ OKU — 16 Ekim 2026
 
-**Durum: AŞAMA 1–3 YEREL KABUL TAMAM. AŞAMA 4 YEREL PAKETİ TAMAM; CANLI LLAMA / ÜRETİM DIŞ KAPILARI AÇIK.** Bu dosya önceki çelişen günlükleri temizleyen güncel durumdur. Tarihsel “uygulanıyor / son browser bekliyor” notlarını güncel durum sanma. Mevcut çalışmayı baştan yazma.
+**Durum: AŞAMA1–3 YEREL KABUL TAMAM. AŞAMA4 YEREL PAKETİ TAMAM; CANLI LLAMA/ÜRETİM KAPILARI AÇIK. AŞAMA5 CSV HAZIRLAMA VE AŞAMA6 ML DENEYİ UYGULANDI, e94819a GENİŞ CI BEŞ JOB YEŞİL.** Son ek Gemini görsel/QA paketi ayrı yayın kartıyla izlenir. Geçmiş “A5/A6 henüz başlamadı” notları geçersizdir. Mevcut kodu baştan yazma.
 
 **Tek uygulama kökü:** `/Users/selmanyilmaz/Projects/context-layer`. Yayın hedefi `mesely/DataAnalyticsToolv2`, dal `feat/analytics-workspace-phase4`; PR üzerinden review. Son Git sonucu bu dosyanın yayın kartındadır. Production deploy/main merge yapılmadı. Başlangıç HEAD `0aaac741fd36d0e5b4f0c182d1b8b05c87884c17`.
 
@@ -10,7 +10,7 @@
 
 **GitHub teslimi:** [PR #1](https://github.com/mesely/DataAnalyticsToolv2/pull/1) · [Ürün README ve ekranlar](https://github.com/mesely/DataAnalyticsToolv2/tree/feat/analytics-workspace-phase4).
 
-**İlk devam hareketi:** `docs/phases/PHASE_4_REPORT.md` ve `NEXT_BACKLOG.md` oku. HF gerçek completion HTTP402 credit/payment gerektiriyor; yeni token isteme/anahtar arama/hesaba ödeme yapma. Bağlantı kodu ve offline kontratlar hazır; başarılı canlı 50+ görev eval kredili hesapla açık. Üretim tenant/RLS/retention, 5M/50M/HTTP yük ve gerçek UX pilotu ayrı açık kapılar. Yeni Aşama5 genel veri/ML veya Aşama6 BI/pilot işine kullanıcı yönlendirmesine göre geç; bitmiş özellikleri yeniden yazma.
+**İlk devam hareketi:** `docs/phases/PHASE_5_REPORT.md`, `PHASE_6_REPORT.md`, ardından `NEXT_BACKLOG.md` oku. A5/A6 dar sözleşmeleri AW-8/AW-9; genel Parquet/metric compiler, OOF stacking/model serving tamamlanmadı. Sonraki Aşama7 henüz başlamadı; uygulama sözleşmesini önce yaz. HF inference402 için ödeme/anahtar arama yapma. Gerçek pilot/tenant/IdP/large-scale dış kabulü varsayma. T01–T26'nın veya geniş backlog'un tamamı kapanmış değildir.
 
 ## Kullanıcının amacı ve yetki
 
@@ -40,6 +40,8 @@ Araştırma arşivi `/Users/selmanyilmaz/Desktop/guncel_cvler/analytics_tool_rev
 | 2 / uzman araçları | Alper sqlval kullanan read-only SQL, güvenli CSV/XLSX, gerçek adviSU BM25 bağlam arama, iki owner run karşılaştırması, genişletilmiş digest | `docs/phases/PHASE_2.md`, `PHASE_2_REPORT.md` |
 | 3 / zaman ve ağ | Önce/odak/sonra dönemler, sabit ürün evreninde ağ/Jaccard, HHI/affinity, seed'li invoice bootstrap, kapsam/varsayımlar, graph çakışma giderme, numeric claim kontrolü ve UX güvenlik düzeltmeleri | `docs/phases/PHASE_3.md`, `PHASE_3_REPORT.md` |
 | 4 / yerel paket tamam, dış kabul açık | HF strict intent planner + gerçek402 fallback; bütün worker admission/PG permits/cancel; v4 fingerprint; owner archive/restore; özgün Gemini tasarımı ve ürün README | `docs/phases/PHASE_4.md`, `PHASE_4_REPORT.md`, `NEXT_BACKLOG.md` |
+| 5 / CSV hazırlama | Genel CSV profil, identifier koruma, açık retail/GBP eşleme, dönüşüm önizle/geri al, receipt ile doğrulanmış import | `docs/phases/PHASE_5.md`, `PHASE_5_REPORT.md`, `specs/analyst-workspace-phase5.md` |
+| 6 / ML deneyi ve görsel genişletme | Train-only CV, baseline/RF/linear, random/group/time, sayısal fold-içi SMOTE, gerçek holdout ve owner kart; Influencer adaptasyonu; üç ek Gemini görsel | `docs/phases/PHASE_6.md`, `PHASE_6_REPORT.md`, `specs/analyst-workspace-phase6.md` |
 
 Aşama 3'ün sözleşmeyle seçilmiş kapsamı betimleyici zaman/ağ analizidir; model eğitimi zorla eklenmedi. “Aşama 3 tamam” demek “SNIPS/Influencer modelleri eğitildi” demek değildir. T01–T26'nın tamamı veya bütün kaynakların entegrasyonu kapanmış sayılmaz.
 
@@ -54,7 +56,8 @@ Tam kayıt `docs/phases/REUSE_LEDGER.md`, kaynak SHA/commit/semboller `analysis/
 - **adviSU adapte/testli ama canlı değil:** `providers.py` gerçek transport/retry/deadline/circuit/stream sanitizer gövdeleri, MockTransport testleri. HF ProviderSpec/Settings ve `analysis/llm.py` gerçek çağrıya bağlandı. Kullanıcı seçerse strict intent/scope planı alınır; model SQL/Python/olgusal prose çalıştırmaz. Gerçek HF çağrısı HTTP402; başarılı model yanıtı yok. UI açık hata ile hesaplanmış standart cevabı korur. API yapılandırılmış olma durumu ile başarılı connection ayrıdır. `claim_coverage.py` lexical modülü taşındı ama runtime kullanılmıyor; sayı doğruluğu kontrolü diye sunulmaz. `identity.py` bytes/cache yardımcıları da henüz runtime kullanılmıyor.
 - **PoliEco runtime:** `adapted/networks.py` zscore_frame/build_sparse_signed_graph; `adapted/temporal.py` stage_months/owner_concentration_hhi/build_party_affinity/negative_edge_share gövdeleri. Siyasi adlandırmalara verilen ürün/ülke eşlemesi kayıtlı; ideoloji/IO/global RNG taşınmadı. İki kutuplu gatekeeper kodu adapte fakat generic ürün skorunda kullanılmıyor.
 - **Yeni hedef kod:** `analysis/claims.py` beyan edilmiş metric/dimension/unit/rank sayılarını artifact'a çözer ve adviSU confidence'a verir; serbest LLM metin entailment verifier değildir. `layout.py` collision-spaced yerleşim ve pozitif bağlardan cohesion; `temporal.py` invoice bootstrap ve sabit ürün evreni yeni uygulama kodudur.
-- **SNIPS ve Influencer:** `docs/phases/ML_REUSE_RESEARCH.md` + `ML_SOURCE_INVENTORY.json` tam dosya/hücre/fonksiyon/hash incelemesi. SNIPS tokenizer'ın train+valid+test'e fit edilmesi ve padded last state; Influencer SMOTE-before-CV, validation'a fit_transform ve gelecek bilgi sızıntısı riskleri kaynakla bulunup düzeltme yolu yazıldı. Henüz eğitim/runtime adaptasyonu yok. Model paketi train-only preprocessing/group-time split/untouched holdout olmadan kapanmaz.
+- **Influencer artık runtime'da:** cell63 `apply_log_transform/preprocess_features` → `analysis/adapted/ml_preprocessing.py::FoldPreprocessor`; train-only schema/skew/log seçimi, ayrı fit/transform, MinMaxScaler + imputer/OHE her fold içinde. Negatif girdiler için signed-log. cell66 `log_mse_like_counts` aynı adapterda, sonlu/nonnegative guard ile özgün ölçekte RMSLE hesabı. `analysis/ml.py` yeni güvenli CV/SMOTE/RF orchestration; SMOTE/RF yaklaşımı kullanıldı diye notebook stacking gövdesi kopyalandı denmez. 18 ML testi, gerçek Wine/Diabetes holdout; source SHA 11 dosyalık ledger içinde. Cell60 domain ratio/interaction henüz taşınmadı; OOF stacking yok.
+- **SNIPS araştırılmış, henüz runtime değil:** `ML_REUSE_RESEARCH.md` ve `ML_SOURCE_INVENTORY.json`. Train-only vocab/padding sorunları kayıtlı. Analytics intent baseline faydası olmadan LSTM ekleme.
 - Ek adviSU conversation_memory/response_formatter/source_indexer/file_lifecycle/retrieval_policy ve PoliEco robustness adayları `EXTRA_REUSE_RESEARCH.md/.json`, `ML_REUSE_RESEARCH.md` ve NEXT_BACKLOG içinde. Araştırılan aday, çalışır özellik olarak sayılmaz.
 
 `analysis/verify_sources.py` pinned upstream hash'lerini read-only doğrular; 10 dosya eşleşti. **`analysis/port_sources.py` adaptasyonları overwrite edebilir; körlemesine tekrar çalıştırma.** Kaynak commit lisans/attribution notlarını ve hedef testlerini koru.
@@ -63,15 +66,15 @@ Tam kayıt `docs/phases/REUSE_LEDGER.md`, kaynak SHA/commit/semboller `analysis/
 
 | Konu | Repo köküne göre dosyalar |
 |---|---|
-| Veri hazırlama | `analysis/prepare.py`, `analysis/data/demo_retail.csv`, `analysis/data/demo_oracle.json`, `analysis/.local/` ignored DuckDB/metadata |
+| Veri hazırlama | `analysis/prepare.py`, `preparation.py`, `ml.py`, `adapted/ml_preprocessing.py`, `analysis/data/demo_retail.csv`, `analysis/data/demo_oracle.json`, `analysis/.local/` ignored DuckDB/metadata |
 | Hesap / provenance / soru | `analysis/worker.py`, `claims.py`, `context.py`, `layout.py`, `temporal.py`, `sql_lab.py` (`compare_results` burada) (hepsi analysis/ altında) |
 | Adaptörler / kaynak kanıtı | `analysis/adapted/`, `analysis/SOURCE_LEDGER.json`, `verify_sources.py` |
-| API / kimlik | `core/src/workbench.ts`, `server.ts`, `spa.ts`; `core/migrations/0017_analyst_workspace.sql`, `0018_workbench_queries.sql` |
-| UI | `core/web/src/workbench/Workbench.tsx`, `ExpertTools.tsx`, `TemporalView.tsx`, `Locale.tsx`, `UsageMeter.tsx`, `types.ts`, `csv.ts`, `workbench.css` |
+| API / kimlik | `core/src/workbench.ts`, `server.ts`, `spa.ts`; `core/migrations/0017_analyst_workspace.sql`, `0018_workbench_queries.sql`, `0019_workbench_lifecycle.sql`, `0020_workbench_ml.sql` |
+| UI | `core/web/src/workbench/Workbench.tsx`, `ExpertTools.tsx`, `TemporalView.tsx`, `Preparation.tsx`, `ModelStudio.tsx`, `Locale.tsx`, `UsageMeter.tsx`, `types.ts`, `csv.ts`, `workbench.css` |
 | Uygulama entegrasyonu | `core/web/src/App.tsx`, `app.css`, `core/web/build.mjs`; `core/src/devidp.ts` optional bindHost sadece fixture'da loopback |
 | Test | `analysis/tests/`, `core/test/workbench.test.ts`, `workbench-csv.test.ts`; mevcut auth/KB/property regresyonu |
 | Çalıştırma | `deploy/phase1/start.sh`, `start.mjs`; sabit sürümler `analysis/requirements.txt` + root constraints |
-| Ürün/test/devam | `docs/phases/TEST_GUIDE.md`, `UX_DECISIONS.md`, `PHASE_1–4*.md`, `NEXT_BACKLOG.md`; `specs/analyst-workspace-phase1–3.md` |
+| Ürün/test/devam | `docs/phases/TEST_GUIDE.md`, `UX_DECISIONS.md`, `PHASE_1–6*.md`, `NEXT_BACKLOG.md`; `specs/analyst-workspace-phase1–6.md` |
 
 Not: Yukarıdaki kompakt tabloda bazı Python dosyaları aynı `analysis/` kökünü paylaşır; gerçek tam yolları rg --files ile kontrol et. Frontend build çıktıları generated/ignored'dır; kaynağı değiştirip build et.
 
@@ -83,7 +86,7 @@ Not: Yukarıdaki kompakt tabloda bazı Python dosyaları aynı `analysis/` kök�
 
 Brüt satış satır seviyesinde GBP kuruşuna yuvarlanır; net gelir veya kâr değildir. Kargo/hizmet/Manual satırları korunur ve kullanıcıya kapsam notu gösterilir. Fiziksel ürün/hizmet sınıflandırması henüz yapılmadı. İlk/son ay kısmi olabilir; dönem coverage metadata ve filtre tarih uçlarına dayanır, aradaki her gün tam kaydedildi demek değildir.
 
-CSV içe aktarma mevcut retail schema/GBP/UTF-8 ile sınırlı: 2 MB / 10.000 satır, birim fiyat en fazla dört ondalık basamak; fazlası sessizce yuvarlanmadan reddedilir. Formül metinleri boşluk/BOM/control dahil güvenli dışa aktarılır; numeric Excel hücreleri numeric kalır. SQL en fazla 500 satır / 30 kolon; standart CSV önizleme ilk 30 satırdır.
+CSV artık herhangi bir schema için profil çıkarır; dashboard dönüşümü explicit retail/GBP/invoice_line eşlemesine bağlıdır. Önizleme/source/mapping/options receipt hash ile importa bağlanır; alan/dönüşüm değişirse yeniden önizle. Müşteri kodu opsiyonel, kolon değerleri generic profile dönmez. CSV sınırları: 2 MB / 10.000 satır, birim fiyat en fazla dört ondalık basamak; fazlası sessizce yuvarlanmadan reddedilir. Formül metinleri boşluk/BOM/control dahil güvenli dışa aktarılır; numeric Excel hücreleri numeric kalır. SQL en fazla 500 satır / 30 kolon; standart CSV önizleme ilk 30 satırdır.
 
 ## Analitik ve güvenlik sınırları
 
@@ -92,7 +95,7 @@ CSV içe aktarma mevcut retail schema/GBP/UTF-8 ile sınırlı: 2 MB / 10.000 sa
 - Ana graph top 24 ürün / en güçlü 150 kenar; derece/betweenness yalnız görünür subgraph'ta unweighted. Cohesion toplulukları yalnız pozitif bağlardan. Similarity ülke satış profiline dayanır; tek ülke kaldığında kenar üretilmez. Co-purchase aynı invoice içinde DISTINCT ürün; nedensellik değildir.
 - Dönem graph aynı en fazla 24 ürün evrenini üç pencerenin birleşiminden seçer; 276 çift sınırı. Jaccard empty union'da null. AOV iid invoice bootstrap seed 47 / 200 tekrar, n 20–50.000; dışındaysa neden gösterilir. Cluster/time uncertainty veya etki testi değildir.
 - Recipe `retail-analysis-v4`, metric `retail-v1`. v1 summary, v2 daha geniş sonuç, v3 yerleşim/signed community, v4 hesap source/dependency fingerprint + plan identity; eski kayıtlar overwrite edilmez. Yeni digest summary/series/rankings/preview/graph/answer ve build/planı kapsar; telemetry zaman/token değerleri digest dışında. Fingerprint analiz Python kaynakları + listed root dependency inputs + core route kodudur; OS/container/driver attestation değildir. Custom SQL sabit sıra için ORDER BY ister.
-- Net/profit/why/predict desteklenmez; ağ/zaman sorusu ilgili araca yönlenir. Policy-refused prompt title/rerun recipe'ye yazılmaz; bu genel DLP garantisi değildir. LLM soru bazında kapalı başlar; seçimle soru+sabit policy HF'e gider, veri satırı/sonucu gitmez. Anahtar environment veya mode0600 ignored `analysis/.local/hf-provider.json` içindedir; değeri okuma/ekrana/loga/Git'e yazma. Gerçek inference402 çözülmeden live model başarısı iddia etme.
+- Standart satış asistanında net/profit/why/predict desteklenmez; ayrı Model stüdyosu kullanıcı hedefiyle sınıflama/regresyon deneyidir. Asistan geleceği tahmin ediyormuş gibi konuşmaz; ağ/zaman sorusu ilgili araca yönlenir. Policy-refused prompt title/rerun recipe'ye yazılmaz; bu genel DLP garantisi değildir. LLM soru bazında kapalı başlar; seçimle soru+sabit policy HF'e gider, veri satırı/sonucu gitmez. Anahtar environment veya mode0600 ignored `analysis/.local/hf-provider.json` içindedir; değeri okuma/ekrana/loga/Git'e yazma. Gerçek inference402 çözülmeden live model başarısı iddia etme.
 - Üretim IdP/tenant RLS/retention ve dağıtık kuyruk/load test eksik. Yerel demo güvenliğini production sertifikası diye sunma. İngilizce bazı veri/metot metinleri ve dev login ekranı polish bekler.
 
 ## Runtime ve tekrar çalıştırma
@@ -114,16 +117,16 @@ Yeni ortamda Python kurulumu gerekiyorsa (mevcut .venv'i gereksiz yere yeniden k
 
 Test komutları ve 10 dakikalık gerçek kullanıcı turu `docs/phases/TEST_GUIDE.md` içinde. Yeni test eklersen rapordaki sayıyı gerçek logdan güncelle; yalnız paket yüklenmesini test başarısı sayma.
 
-## Son doğrulama — kalıcı loglar ve açık hata
+## Son doğrulama — gerçek kanıt
 
-- **142 analitik Python testi geçti**, `docs/evidence/verification/phase4-python.log`. Bunlara 50 offline plan-contract fixture dahildir; canlı model accuracy değildir.
-- **45 ilgili core/CSV testi / 5 dosya geçti**, `phase4-core.log`: workbench14, csv2, KB Health13, auth12, property4. Son brand route/core doğrulaması da bu release kapısında. Gerçek auth/CSRF/owner/SQL/export/compare/temporal/rol revocation/prompt persistence kontrolleri.
-- Core/web build, web TypeScript noEmit, diff whitespace geçti. Son Gemini navigation SVG/request-state değişimi sonrası build/typecheck tekrar geçti. Boyut phase4-build.log içinde; production p95 benchmark'ı değil.
-- 10 pinned upstream dosya SHA doğrulaması geçti; `source-verification.log`.
-- Geniş Python **856 pass / 17 skip**, Aşama 1 tarihsel baseline logu `phase1-full-python.log`; sonraki değişiklikler için bütün repo tekrar koşulmuş demek değil.
-- Geniş core ilk koşu 438 pass / 19 skip / 8 fail + 2 setup errors. UTC dashboard-extract7, lisans/KB13 ve normatif coalescing property4 düzeltilip tekrar geçti. Queue production kodu değişmedi. **Kalan Docker bağımlı sync-drill, sync-run ve mcp-execute snapshot-advance testleri doğrulanamadı**: daemon yanıt vermiyor, ephemeral snapshot/PR/timeouts. Ayrıntı PHASE_1_REPORT. Bütün suite yeşil diye raporlama; daemon sağlıklı olduğunda bu kapıyı yeniden çalıştır.
-- Gerçek browser: login, demo/UCI, filtre, kaydet/aç/yeniden çalıştır, CSV import, SQL/BM25/compare, JSON ve Excel indirip yeniden okuma, Cmd-K otomatik focus, Esc, 390px belge genişliği, 24 node/150 edge tablo alternatifi, zaman analizi. Tam WCAG/pilot değil.
-- İncelenmiş son ekranlar `docs/evidence/phase4/02-overview.jpeg`, `03-analysis.jpeg`, `04-network.jpeg`, `05-temporal.jpeg`, `06-mobile.jpeg`, `07-findings.jpeg`, `08-library-empty.jpeg`, `overview-delivery.jpeg` (hepsi phase4 altında). Önceki Aşama3 kanıtı `docs/evidence/workspace-overview.jpeg`, `phase3/uci-temporal-final.png`, `phase3/mobile-final.png`. `phase3/uci-temporal.png` ara QA; final diye kullanma. Önceki ekranlar araştırma arşivinde evidence/phase1–3.
+- **174 analitik Python testi geçti**, `docs/evidence/verification/phase6-python.log`: önceki142 + preparation14 + ML18. 50 offline LLM plan fixture model accuracy değildir. Gerçek fit/holdout, train-only schema, unknown category, group/timestamp boundary, skewed Wine/SMOTE untouched holdout testleri dahildir.
+- **GitHub e94819a koşusu BEŞ JOB YEŞİL:** https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38800676565 . Core473 passed/4 skipped (477); root Python841 passed/17 skipped; analytics173 pass (son skew testinden önce). `phase6-github-ci.txt` gerçek log extract. Eski Docker bağımlı sync-drill/sync-run/mcp-execute kapısı cloud koşusuyla kapandı. Yerel Docker hazır olmayınca fixture bootstrap skip/hata verir; cloud yeşilini yerel sonuç diye yazma.
+- Son görsel/ek skew testi sonrası build/web TypeScript,174 Python ve15 asset/NUL testi geçti; son branch CI sonucu yayın kartına yazılır. Exact image/NUL guard + manifest kontrolü gerekir. Python/Node paket kurulumu test sayılmaz.
+- 11 pinned source dosyası upstream SHA ile doğrulandı. `analysis/verify_sources.py` read-only; `port_sources.py` adaptörleri overwrite edebilir, çalıştırma.
+- A5 tarayıcı gerçek eşleme/receipt invalidation/dedup/import:3 satır/2 sipariş £14.70 →2 satır/2 sipariş £12.60, dashboard aynı tutar. Import sonrası catalog/run yarışı bulundu; sıralı akış + response öncesi permit cleanup ile düzeltildi.
+- A6 tarayıcı gerçek Wine142/36, Logistic macro-F1 .971781 (baseline .186667); Diabetes353/89, Ridge MAE43.902866 (baseline61.370787). JSON kart indirildi/yeniden okundu, ham CSV yok. Model kartı hesaptan tekrar açılır. Bu küçük benchmark sonucu ürün-geneli başarı garantisi değildir.
+- Ekranlar `docs/evidence/phase5/`, `phase6/` gerçek UI; özellikle `05-preparation-art.jpeg`, `06-model-art.jpeg`, `08-mobile-art.jpeg`. 390px mobil belge375/dialog343, brokenImages0, Esc kapatma doğrulandı. Görevli kullanıcı pilotu/tamWCAG değil.
+- Gemini3 ek raster: `assets/data-preparation.jpeg`, `model-studio.jpeg`, `relationship-explorer.jpeg`; toplam5 raster/4 navigationSVG. `assets/PROVENANCE.md` chat URL/turn/usage; manifest hash ve scanner exact binary exception. Dekoratif alt boş, boyut sabit; metrik/sonuç resmi yerine kullanılmaz.
 
 ## Sonraki ajana birkaç örnek
 
@@ -131,9 +134,9 @@ Test komutları ve 10 dakikalık gerçek kullanıcı turu `docs/phases/TEST_GUID
 
 **“Aşama 4'e devam et.”** Önce PHASE_4_REPORT açık kapılarını kontrol et. Admission/cancel/fingerprint/run archive zaten uygulandı; yeniden yapma. Gerçek HTTP402 kredi kapısı açık; model kalitesi değil fixture kontratları test edildi. Production IdP/tenant/RLS, dataset/query retention, HTTP/cancel stress/5M/50M ve UX pilotu kalan işlerdir. Eksik dış koşulu varsayma; bağımsız teknik paketi testleyip gerçek sonucu raporla.
 
-**“Influencer kodunu kullan.”** ML_REUSE_RESEARCH ve envanterde gerçek notebook/hücreyi bul; target/decision time/group-time split/holdout'u önce yaz. SMOTE/scaler yalnız train fold'a fit edilir; güncel/gelecek aggregate ve test üstünde model seçimi aktarılmaz. Modülü test+model card ile kapat, sadece import edilmiş kodu runtime başarı sayma.
+**“Influencer kodunu kullan.”** Cell63/66 A6 runtime adapterında zaten kullanılıyor; REUSE_LEDGER ve `analysis/adapted/ml_preprocessing.py` oku, baştan kopyalama. Yeni ratio/interaction/OOF işinde ML_REUSE_RESEARCH ve envanterde gerçek notebook/hücreyi bul; target/decision time/group-time split/holdout'u önce yaz. SMOTE/scaler yalnız train fold'a fit edilir; güncel/gelecek aggregate ve test üstünde model seçimi aktarılmaz. Modülü test+model card ile kapat, sadece import edilmiş kodu runtime başarı sayma.
 
-**“Nerede kaldık / bir önceki aşamayı göster.”** Yerel URL, doğrulanmış üç aşama ve PHASE_3_REPORT karşılaştırmasını ver. 78 uzman puanını measured industry win diye sunma. Test sayısını logdan al; hedef puanı mevcut sonuçla karıştırma.
+**“Nerede kaldık / bir önceki aşamayı göster.”** Yerel URL, güncel A5/A6 rapor ve önce/sonra karşılaştırmasını ver; eski üç aşama durumunu güncel sanma. 78 uzman puanını measured industry win diye sunma. Test sayısını logdan al; hedef puanı mevcut sonuçla karıştırma.
 
 LLM planı aynı değilse replay digest değişebilir; temperature0 plan determinism garantisi değildir. Donmuş plan replay modu/live eval açık.
 
@@ -147,8 +150,20 @@ LLM planı aynı değilse replay digest değişebilir; temperature0 plan determi
 - Yeni `Perakende satış özeti` QA kaydı görünür/restore durumda; önceki kendi Aşama1 demo fixture bulgusu arşivde, geri alınabilir. İlgisiz kayıt silinmedi. Varsayılan dataset UCI; örnek veri Perakende örneği, source modalında sentetik olduğunu korur.
 - Git hedefi **https://github.com/mesely/DataAnalyticsToolv2**, branch **feat/analytics-workspace-phase4**. `origin` AlperCamli read-only korunur; `publish` meselyv2 remote. Repo normu PR review; main merge veya production deploy otomatik yapılmaz. Son yayın sonucu aşağıdaki kartta güncellenir.
 
-**Yayın kartı:** GitHub push başarılı; PR https://github.com/mesely/DataAnalyticsToolv2/pull/1 açık. README/ekranlar dalda: https://github.com/mesely/DataAnalyticsToolv2/tree/feat/analytics-workspace-phase4 . Main merge/production deploy yapılmadı. Secret scan geçti; token ignored0600. Uzak CI çalışıyor, sonucu geçmiş sayma. Yerel 142 analitik +45 core/CSV +15 asset/NUL kapısı geçti. CI'da .venv olmadığı için CORE_ANALYSIS_PYTHON=python açıkça ayarlandı.
+**Yayın kartı:** GitHub push başarılı; PR https://github.com/mesely/DataAnalyticsToolv2/pull/1 açık. README/ekranlar dalda: https://github.com/mesely/DataAnalyticsToolv2/tree/feat/analytics-workspace-phase4 . Main merge/production deploy yapılmadı. Secret scan geçti; token ignored0600. e94819a beş job CI yeşil (473core/841root/173analytics); yeni görsel/skew paketinin son CI sonucu ayrıca kaydedilir. Yerelde174 analitik ve build/typecheck geçti. CI'da .venv olmadığı için CORE_ANALYSIS_PYTHON=python açıkça ayarlandı.
+
+## Aşama5/6 teknik devam kartı
+
+- `analysis/preparation.py`: bounded UTF-8 CSV parser, schema profile, strict ISO mapping, options/receipt; `worker.py` prepare ve receipt-bound mapped import; eski sabit şema import geriye uyumlu.
+- `/v1/dashboard/workbench/prepare`, `/import`: `core/src/workbench.ts`, aynı viewer/CSRF/bounded. Mappingli dataset id owner12 + receipt12; başka transform overwrite etmez. Source metadata preparation recipe/preview içerir.
+- `analysis/ml.py`: explicit target/features/task/split/context/availability;100–3000 rows/30 features; seed47; split önce; training3fold selection; holdout20%; MLv1 card/source/runtime versions/hash. `.data/ML_PROVENANCE.json` gerçek fixture atfı; `wine-ml.csv`, `diabetes-ml.csv`.
+- `analysis/adapted/ml_preprocessing.py`: gerçek Influencer cell63/66; test `analysis/tests/test_ml.py`. Fit transformer hiçbir holdout indeksini görmez; bu tüm semantic leakage ispatı değildir.
+- Migration0020 `workbench_experiments`. POST `/ml`; GET `/ml` ve `/ml/:id` owner; `/ml-sample/wine.csv` ve `diabetes.csv` authenticated. CSV/executable model PostgreSQL'e yazılmaz; kart/recipe yazılır. Model card retention henüz yok.
+- `Preparation.tsx`, `ModelStudio.tsx`; dört ana nav korunur, Model stüdyosu analiz girişinde ve CmdK içinde. Ham CSV yalnız yükleme/worker süresince browser/process belleğinde; Gemini/HF'e gönderilmez.
+- A7–A10 kalan plan ve somut giriş dosyaları `NEXT_BACKLOG.md`. Önce yeni spec/contract; acceptance log+browser+devir+push sırasını aynı kaliteyle uygula. Yeni iş başlatmadan eski ürün için refactor/rewrite yapma.
 
 ## SON ANKOR — devam etmeden önce
 
-**Aşama 1–3 tamam. Aşama 4 yerel uygulaması tamam; canlı Llama402/üretim dış kabul açık.** Kod `/Users/selmanyilmaz/Projects/context-layer`; URL http://127.0.0.1:8123/app/ ; `selman` / `analiz-demo`. İlk sonraki iş PHASE_4_REPORT açık kapıları ve NEXT_BACKLOG. Yeni Aşama5 genel veri/ML, Aşama6 BI/pilot henüz başlamadı. Kaynak bağlantıları/commitler üst tabloda; token değeri hiçbir devir/yayın dosyasına girmez. Üst/son kartı ve gerçek test/PR durumunu birlikte güncelle.
+**Aşama1–3 tamam; A4 yerel paket tamam/canlı402 ve üretim dış kabul açık. A5 hazırlama ve A6 ML deneyi uygulanmış ve e94819a geniş CI yeşil.** Son görsel/skew/docs paketi yayın kartında izlenir. Kod `/Users/selmanyilmaz/Projects/context-layer`; URL http://127.0.0.1:8123/app/ ; `selman` / `analiz-demo`. İlk sonraki iş PHASE_5/6_REPORT ve NEXT_BACKLOG; A7 henüz başlamadı. Parquet/metric compiler/OOF/serving/tenant/pilot/scale bitmiş sayılmaz. Tüm5 repo link/commit üst tabloda. Secret değerini okuma/yazma/paylaşma. Üst/son kartı, gerçek CI ve PR durumunu birlikte güncelle.
+
+Son browser turu16 Ekim: demo CSV542→540 satır/180 sipariş/£21.405.00 import sonrası seçili katalog ve dashboard tutarlı, hata yok. Son kart açılanda dialog başa kayar; history ile method disclosure state ayrıldı. CmdK Model stüdyosu eylemini listeler.

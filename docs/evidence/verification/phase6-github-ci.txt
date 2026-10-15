@@ -1,0 +1,8 @@
+Run https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38800676565
+Commit e94819a
+All five jobs succeeded. New visual changes/skew fixture are verified separately.
+Extracts from GitHub log (ANSI removed):
+analytics	UNKNOWN STEP	2026-10-15T20:19:11.8615112Z 173 passed in 6.53s
+core	UNKNOWN STEP	2026-10-15T20:23:14.3483956Z  Test Files  34 passed | 1 skipped (35)
+core	UNKNOWN STEP	2026-10-15T20:23:14.3485792Z       Tests  473 passed | 4 skipped (477)
+tests	UNKNOWN STEP	2026-10-15T20:18:42.2510005Z ================== 841 passed, 17 skipped in 68.73s (0:01:08) ==================

@@ -1,14 +1,14 @@
 # Sonraki işler — beklenen katkıya göre
 
-Bu liste Aşama 1/2/3 ve Aşama 4 yerel paketinden sonraki açık işleri sıralar. Aşama 4 provider/üretim dış kabulü açıktır. Tarihsel T01–T26 listesinin tamamının kapandığı anlamına gelmez. Katkı aralıkları uzman öncelik tahminidir; toplamsal garanti veya ölçülmüş puan değildir. Her iş kendi sözleşme/test/QA raporuyla kapanır.
+16 Ekim güncellemesi: Aşama5 CSV hazırlama ve Aşama6 ML deneyi uygulandı; bunların dar sözleşmeleri ve kalmış geniş kapsam aşağıda ayrıdır. Bu liste hâlâ açık işleri sıralar. Aşama 4 provider/üretim dış kabulü açıktır. Tarihsel T01–T26 listesinin tamamının kapandığı anlamına gelmez. Katkı aralıkları uzman öncelik tahminidir; toplamsal garanti veya ölçülmüş puan değildir. Her iş kendi sözleşme/test/QA raporuyla kapanır.
 
 | Öncelik | İş | Beklenen toplam puan katkısı | Somut uygulama ve kabul |
 |---:|---|---:|---|
 | 1 | Gerçek LLM ve kanıt-iddia değerlendirmesi | +3–6 | HF yapılandırması ve strict intent planı uygulandı; gerçek HTTP402 kredi kapısını çöz, başarılı canlı model doğrulamasını ve geniş structured plan schema işini tamamla; numeric claims sadece hesap artifact'ından; source-linked citations; en az50 golden soru + ret/ambiguity/OOD/PII/injection; gerçek provider usage/deadline/charge raporu. Anahtar arama veya model cevabı taklidi yok |
 | 2 | Gerçek kullanıcıyla görevli kullanılabilirlik turu | +3–5 | İlk bulgu süresi, görevi tamamlama, hata/geri dönüş ve memnuniyet; yeni/uzman kullanıcı 5–8 kişi; ekran okuyucu/keyboard/zoom/contrast matrisi; bulguya göre UI düzeltmesi ve tekrar ölçüm |
 | 3 | Üretim kimliği/tenant izolasyonu/retention | +3–5 | Gerçek IdP rol eşlemesi; tenant+subject predicates/RLS; query/import/run retention ve owner-visible lifecycle; secret referansları; export audit; yeni yetki gerektiren gerçek deployment ayrı |
-| 4 | Genel dataset keşfi/hazırlama ve semantik metrik sözleşmesi | +2–5 | Retail dışı CSV/Parquet şema eşleme; grain/unit/denominator; nullable/type/uniqueness/profile; transform preview/undo/recipe; approved metric compiler ve fanout testleri |
-| 5 | Sızıntısız ML stüdyosu | +2–5 | ML_REUSE_RESEARCH.md gerçek kaynak sembolleri; hedef/split/holdout sözleşmesi; train-fold-only preprocess/SMOTE; class_weight/RF baseline + OOF stacking; model card ve gerçek bağımsız holdout |
+| 4 | Genel dataset/semantik genişletme (CSV profili ve retail mapping tamam) | +2–5 | Parquet ve retail dışı semantik eşleme; grain/unit/denominator; nullable/type/uniqueness/profile; transform preview/undo/recipe; approved metric compiler ve fanout testleri |
+| 5 | ML ileri değerlendirme (ilk stüdyo tamam) | +2–5 | İlk sürüm train-only preprocessing + RF/linear/baseline + group/time/random + optional SMOTE + owner kart çalışıyor; kalan OOF stacking ve calibration, PR-AUC/error slices, uygun real target ve as-of join; train-fold-only preprocess/SMOTE; class_weight/RF baseline + OOF stacking; model card ve gerçek bağımsız holdout |
 | 6 | Ölçek, kuyruk, cache ve p95 kanıtı | +2–4 | 0.5M/5M/50M satır için kaynak bütçesi; owner/visibility/dataset/metric sürümlü cache; tüm worker yolları admission ve PG advisory permits uygulandı; HTTP yük/cancel ve dead-client stres testleri; subprocess memory/CPU hard limit; 3+ eşzamanlı kullanıcı p95 ve hata/geri basınç |
 | 7 | Zaman/ağ sağlamlık paketi | +1–3 | Müşteri/time cluster bootstrap, pencere/eşik hassasiyeti, aynı graph universe, geçmişe dönük kararlılık, baseline network karşılaştırması; yeni istatistiksel iddialar ayrıca testli |
 | 8 | BI export ve rapor tasarımcısı | +1–3 | Alper'in governed Power BI deliver/attest zincirini yeni analytic artifact'a bağla; bağlantı/rol/token kontrolleri; gerçek BI publish ayrı yetki gerektirir |
@@ -17,12 +17,15 @@ Bu liste Aşama 1/2/3 ve Aşama 4 yerel paketinden sonraki açık işleri sıral
 | 11 | Analytics intent için LSTM | +0–2 | SNIPS sınıfları yeniden eğitim; train-only vocab ve padding-invariance; basit TF-IDF baseline'dan ölçülmüş fayda yoksa ürüne ekleme |
 | 12 | Özel görsel varlıklar ve ileri polish | +0–1 | Mevcut işlevsel ikon dilini koru; gerekirse marka illüstrasyonu üret. Ulaşılabilirlik ve veri anlamını dekorla zayıflatma |
 
-## İlk devam komutu
+## Güncel aşama haritası / otomatik devam
 
-“progress.md'yi oku ve Aşama 4'e başla” denirse önce PHASE_3_REPORT.md'nin kapılarını kontrol et. Aşama 4'ü yerel üretim hazırlığı ve gerçek deployment olarak ayır; provider/live source bilgisi eksikse bağımsız yerel hardening/test işlerini tamamla ve kalan yapılandırmayı açık kaydet. Production veya ücretli servis sonucunu varmış gibi işaretleme.
+- **Aşama1–3:** yerel kontratlar tamam; başlangıç ürününe dönme.
+- **Aşama4:** yerel paket tamam; e94c520 ve e94819a beş CI job yeşil, eski Docker regresyon kapısı bu koşularla kapandı. HF402/gerçek model eval, gerçek tenant/IdP, pilot/large-scale kapıları açık.
+- **Aşama5:** AW-8 CSV profile/mapping/receipt/preview/import tamam; Parquet ve generic metric compiler bitmedi. PHASE_5_REPORT.
+- **Aşama6:** AW-9 gerçek model deneyi ve Influencer adapterı tamam; model serving/OOF stacking/grup+zaman birlikte/calibration bitmedi. Üç ek Gemini asset ve mobile/keyboard polish aynı teslimde. PHASE_6_REPORT.
+- **Aşama7 (başlamadı):** güvenli tabular deney genişletmesi. İlk bağımsız işler: Parquet bounded read (metadata/decompression bütçesi, no external path), explicit numeric/categorical schema ve metric grain/unit sözleşmesi; group/time-safe OOF stacking ile mevcut CV-only baseline karşılaştırması. Önce `specs/analyst-workspace-phase7.md` ve PHASE_7 sözleşmesini yaz, kullanıcı verisinde hedef varsayma. AW-8/9'u geriye dönük bozma. Yeni routes aynı viewer/bounded; profile/ML kartları owner/audit kapsamını korur. Holdout'u model seçimine sokmadan golden/property/adversarial + browser desktop/mobile + CI ile kapa.
+- **Aşama8 (başlamadı):** local production hardening: tenant+subject migration/RLS fixture, retention tombstone/reference contract; hard worker resource process izolasyonu; 5M ölçümü ve cancel/backpressure HTTP stress. Gerçek müşteri/IdP config ve prod rollout dış kapıdır. Başka projelerin Docker daemon'unu restart etme.
+- **Aşama9 (başlamadı):** governed report/BI artifact delivery + adviSU conversation reference. Önce mevcut `core/src/publish*.ts`/`specs/lineage-and-report-artifact-formats-spec.md` ve `EXTRA_REUSE_RESEARCH.md` symbol kaydını oku. Kimlik/visibility/dataset sürümü bağlanmadan publish token yolu bypass edilmez; real BI publish ayrıca yetki gerektirir.
+- **Aşama10 (dış katılım):** 5–8 kullanıcı pilotu ve ölçümlü erişilebilirlik/üretim kabulü; task protocol, consent, gerçek ölçümler. Sahte kullanıcı/uydurulmuş completion süresi yok. SNIPS/LSTM ayrıca ölçülmüş gerekçeye bağlı.
 
-## Teslimlerden sonra aşama haritası
-
-- **Aşama 4 açık dış kapılar:** HF çıkarım kredisi ve başarılı canlı Llama eval; gerçek IdP/tenant/RLS/retention; geniş Docker regresyonu, 5M/50M yük ve görevli kullanıcı pilotu. Yerel arşiv/fingerprint/admission/asset/README işi tamamlanınca bunlar otomatik kapanmaz.
-- **Önerilen Aşama 5:** genel CSV/Parquet hazırlama, grain/unit/metric mapping ve sızıntısız ML stüdyosu; Influencer kodunun gerçek modüler adaptasyonu ve bağımsız holdout. Henüz başlanmadı.
-- **Önerilen Aşama 6:** BI entegrasyonu, çok kullanıcılı pilot, üretim ölçümü ve sürüm operasyonları. Henüz başlanmadı. SNIPS/LSTM ölçülmüş baseline kazancına bağlı isteğe bağlı alt iş.
+“Aşama7'ye devam et” denirse bu sırayı uygula: progress üst/son kartı → PHASE_5/6_REPORT → açık test kapısı → A7 spec/plan → kod → anlamlı test → görsel QA → log/report/progress/README → secret/diff kontrolü → aynı açık PR'a push. Yeni aşama adı vererek eski geniş backlog'un tamamını kapatma. Ücret/gerçek erişim gerektiren işi dış kapı olarak koru ve bağımsız teknik işe devam et.

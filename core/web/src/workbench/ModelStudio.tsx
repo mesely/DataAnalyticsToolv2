@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import modelArt from "./assets/model-studio.jpeg";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FlaskConical,
   Loader2,
@@ -76,6 +77,7 @@ export function ModelStudio({
   activity: (n: number) => void;
 }) {
   const { t, locale } = useLocale();
+  const panelRef = useRef<HTMLDivElement>(null);
   const [text, setText] = useState(""),
     [name, setName] = useState(""),
     [profile, setProfile] = useState<DataProfile | null>(null);
@@ -91,6 +93,9 @@ export function ModelStudio({
     [error, setError] = useState(""),
     [card, setCard] = useState<ModelCard | null>(null),
     [saved, setSaved] = useState<Saved[]>([]);
+  useEffect(() => {
+    if (card) panelRef.current?.closest("dialog")?.scrollTo({ top: 0 });
+  }, [card?.experiment_id]);
   const locked = busy || loading;
   const fmt = (v: number | null | undefined) =>
     v == null
@@ -194,7 +199,7 @@ export function ModelStudio({
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   return (
-    <div className="wb-model-studio">
+    <div className="wb-model-studio" ref={panelRef}>
       {card ? (
         <>
           <div className="wb-model-result-head">
@@ -270,7 +275,7 @@ export function ModelStudio({
                   "MAE/RMSE use original target units; lower is better. RMSLE is unavailable for negative targets/predictions.",
                 )}
           </p>
-          <details className="wb-prep-details">
+          <details className="wb-prep-details" key="model-candidates">
             <summary>
               {t("Adaylar ve hata dağılımı", "Candidates and error breakdown")}
             </summary>
@@ -340,7 +345,7 @@ export function ModelStudio({
               · {card.source.description}
             </p>
           )}
-          <details className="wb-prep-details">
+          <details className="wb-prep-details" key="model-method">
             <summary>
               {t("Yöntem, kapsam ve kanıt", "Method, scope and evidence")}
             </summary>
@@ -382,12 +387,33 @@ export function ModelStudio({
         </>
       ) : (
         <>
-          <p>
-            {t(
-              "Bir hedef seçin, basit modelleri karşılaştırın ve ayrılmış test verisinde ne kadar işe yaradıklarını görün.",
-              "Choose a target, compare simple models, and evaluate them on held-out observations.",
-            )}
-          </p>
+          {!profile && (
+            <div className="wb-feature-intro">
+              <img src={modelArt} alt="" width="116" height="116" />
+              <div>
+                <h3>
+                  {t(
+                    "Tahmini ölçülebilir bir deneye dönüştürün",
+                    "Turn prediction into a measurable experiment",
+                  )}
+                </h3>
+                <p>
+                  {t(
+                    "Basit bir başlangıç modeliyle karşılaştırın. Sonucu eğitimden ayrı tuttuğunuz veride görün.",
+                    "Compare against a simple baseline. Check the result on data kept separate from training.",
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
+          {profile && (
+            <p>
+              {t(
+                "Bir hedef seçin, basit modelleri karşılaştırın ve ayrılmış test verisinde ne kadar işe yaradıklarını görün.",
+                "Choose a target, compare simple models, and evaluate them on held-out observations.",
+              )}
+            </p>
+          )}
           <div className="wb-model-examples">
             <button
               className="wb-btn"
@@ -682,7 +708,7 @@ export function ModelStudio({
             </>
           )}
           {saved.length > 0 && (
-            <details className="wb-prep-details">
+            <details className="wb-prep-details" key="model-history">
               <summary>
                 {t("Kaydedilmiş deneylerim", "My saved experiments")} ·{" "}
                 {saved.length}

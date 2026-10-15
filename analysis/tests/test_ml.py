@@ -141,3 +141,18 @@ def test_smote_categorical_refused_and_target_copy_refused():
     f["copied"] = f.cultivar
     with pytest.raises(ValueError, match="kopyası"):
         experiment(r | {"csv": f.to_csv(index=False), "features": ["copied"]})
+
+
+def test_skewed_wine_subset_keeps_natural_holdout_distribution():
+    r = request()
+    frame = pd.read_csv(DATA / "wine-ml.csv", dtype=str)
+    # Real records, deliberately reduced third class; not a new field dataset.
+    frame = pd.concat(
+        [frame[frame.cultivar != "2"], frame[frame.cultivar == "2"].head(10)]
+    )
+    card = experiment(r | {"csv": frame.to_csv(index=False), "smote": True})
+    minority = next(c for c in card["class_distribution"] if c["label"] == "2")
+    assert minority == {"label": "2", "train": 8, "holdout": 2}
+    assert card["split"]["holdout_rows"] == 28
+    assert sum(map(sum, card["holdout"]["confusion_matrix"])) == 28
+    assert "smote_forest" in [c["model"] for c in card["candidates"]]

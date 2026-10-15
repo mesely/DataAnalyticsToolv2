@@ -16,7 +16,7 @@ Güncel durum: yerel uygulama paketi tamam; canlı HF çağrısı HTTP402, dış
 
 ## LLM alt paketi
 
-adviSU transport `analysis/adapted/providers.py` hazır ve MockTransport testli; gerçek model/key yok. Açık provider/model/key-ref ve veri gönderme kapsamı belirlendiğinde structured query-plan + safe executor + numeric facts/citations + answer pipeline kur. Model hiçbir zaman ham serbest Python veya kontrolsüz SQL çalıştırmaz. Generic OpenAI API entegrasyonuna girerken ilgili openai-docs becerisini oku. Key arama/varsayma; fiyat ve usage'ı uydurma. Serbest metindeki beyan edilmemiş yanlış iddialar mevcut numeric claim resolver tarafından otomatik yakalanmış sayılmaz.
+Güncel durum: adviSU transport gerçek HF Llama plannerına bağlandı; server-side secret mevcut, gerçek inference HTTP402. Anahtar arama veya yeni token isteme; yapılandırılmış olmak başarılı model yanıtı değildir. Strict allowlist plan + local executor + numeric artifact yolu uygulanmıştır; başarılı canlı model/eval kredili hesap gerektirir. Model hiçbir zaman ham serbest Python veya kontrolsüz SQL çalıştırmaz. Generic OpenAI API entegrasyonuna girerken ilgili openai-docs becerisini oku. Key arama/varsayma; fiyat ve usage'ı uydurma. Serbest metindeki beyan edilmemiş yanlış iddialar mevcut numeric claim resolver tarafından otomatik yakalanmış sayılmaz.
 
 Eval: en az50 kullanıcı görevi; golden numeric oracle, net/gross/currency/denominator, grain, OOD/ambiguity/injection/secret, multi-turn reference; actual tokens/cost/deadline, provider failure/circuit/retention. Replay verisi owner/visibility sınırında. Anahtarsız golden/sandbox testlerini bağımsız tamamla; gerçek sağlayıcı doğrulaması eksikse partial de.
 

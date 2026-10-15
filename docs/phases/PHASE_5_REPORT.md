@@ -1,6 +1,6 @@
 # Aşama 5 teslim kaydı
 
-15 Ekim 2026. AW-8 yerel uygulama ve tarayıcı turu tamam; bu paketin geniş CI
+15 Ekim 2026. AW-8 yerel uygulama ve tarayıcı turu tamam; bu paketin e94819a geniş CI koşusu beş job yeşil; son görsel dalının CI
 sonucu en son progress yayın kartında. Aşama4'ün e94c520 koşusu beş job yeşil:
 `docs/evidence/verification/phase4-github-ci.txt`. Yeni kodun CI'si bununla
 karıştırılmaz.
@@ -14,7 +14,7 @@ karıştırılmaz.
 | Dosya sorunları çoğu zaman parser ayrıntısı | Başlık/alan/satır/tarih/precision sınırında anlaşılır ret |
 
 Kanıt: `analysis/tests/test_preparation.py` 14 test; tüm analitik paket bu aşama
-ve ML ile173 test. Tarayıcı `docs/evidence/phase5/`: before, preview, mobile.
+ve ML ile174 test. Tarayıcı `docs/evidence/phase5/`: before, preview, mobile.
 Örnek `analysis/data/preparation-example.csv`: 3 satır/2 sipariş £14.70;
 dedup seçilince2 satır/2 sipariş £12.60. Gerçek import aynı £12.60 hesapladı.
 390px mobilde document.scrollWidth375, dialog343; yatay taşma yok.

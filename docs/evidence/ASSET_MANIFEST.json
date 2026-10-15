@@ -10,6 +10,21 @@
     "kind": "original-gemini-artwork"
   },
   {
+    "path": "core/web/src/workbench/assets/data-preparation.jpeg",
+    "sha256": "7b5fff31f6cf01244a0b47dcf14aa291fead59d69af6ba6f310847b72af53085",
+    "kind": "original-gemini-artwork"
+  },
+  {
+    "path": "core/web/src/workbench/assets/model-studio.jpeg",
+    "sha256": "9542cc8fa2ff835ed6c3382b2e523194412fd23eee55b46cdec85bdb04aa133a",
+    "kind": "original-gemini-artwork"
+  },
+  {
+    "path": "core/web/src/workbench/assets/relationship-explorer.jpeg",
+    "sha256": "0357df331d083d7e1f6f04760f590a9f9f8bc3a08827c9e8a82e9369eb36e150",
+    "kind": "original-gemini-artwork"
+  },
+  {
     "path": "docs/evidence/phase3/mobile-final.jpeg",
     "sha256": "f5ae63d18aca65bf9828ea0337ce9fdab173943369739500598714a799574f3d",
     "kind": "actual-local-application-screenshot"
@@ -72,6 +87,61 @@
   {
     "path": "docs/evidence/phase4/overview-delivery.jpeg",
     "sha256": "7b302b662074b5032eb833d59b62cc985a592b7211c71c4fdd66331c224dddb5",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase5/01-before.jpeg",
+    "sha256": "190ca225afd0d7d2d45b34d87754e763ec35b4d9fdafcc73b4004984c5e0bd17",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase5/02-preview.jpeg",
+    "sha256": "46f452767d43c56e64fc783d0ed1a5444b496db713a269757afc1045ffbf1688",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase5/03-mobile.jpeg",
+    "sha256": "c14e6f2b5da4aff6d7b132c12cf98a3a0628357e0ac90c8ce033b9bab5774524",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase6/01-contract.jpeg",
+    "sha256": "f34857c5f629418552ff3c37c71611cc4b4f41866ad6a731a014efa27156607a",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase6/02-wine-result.jpeg",
+    "sha256": "fe7b3d93920604c4ab8deaaf06ed8fe337af13a72729dab293b84d75384fe584",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase6/03-mobile.jpeg",
+    "sha256": "1574c6f343546d2a9c96b8cee91eff2f3ddb5acd47d31e2e1376bea4cafe3278",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase6/04-regression.jpeg",
+    "sha256": "89f9ffc9e05b048f4ec234fae5c53b0f106f3c67a56e4a7789ac45a1fd7f4d76",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase6/05-preparation-art.jpeg",
+    "sha256": "f40094c18055b29b2bc7b34aea951137d9cfb80f252041e657fa901d5c33d60a",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase6/06-model-art.jpeg",
+    "sha256": "bdecea37fb398e83832828361a5b91574396b7b9c5b48d6037e62cf9a89ba798",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase6/07-overview-art.jpeg",
+    "sha256": "ac199026ee89ec2b6d636f2dcf6c95bb72a29ee466f6d5dc92b4cb5088e427c8",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase6/08-mobile-art.jpeg",
+    "sha256": "987bf621bb624223c21d4e9504c56cdd3b12e9a3ad3c20c17053d799ecc318ee",
     "kind": "actual-local-application-screenshot"
   },
   {

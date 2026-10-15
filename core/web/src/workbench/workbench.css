@@ -2857,3 +2857,126 @@
     width: 100%;
   }
 }
+/* Original Gemini instrument family: quiet orientation, no decoration on results. */
+.wb-feature-intro {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  background: #f6f7fa;
+  border: 1px solid #e6eaf1;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0 22px;
+}
+.wb-feature-intro img {
+  flex: 0 0 auto;
+  width: 116px;
+  height: 116px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.wb-feature-intro h3 {
+  margin: 0 0 9px;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #24334e;
+  letter-spacing: -0.25px;
+}
+.wb-feature-intro p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.75;
+  color: #55657d;
+}
+.wb-model-entry-art {
+  flex-shrink: 0;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.wb-model-entry > div {
+  flex: 1;
+}
+.wb-relationship-art {
+  width: 128px;
+  height: 128px;
+  object-fit: cover;
+  border-radius: 14px;
+  flex: 0 0 auto;
+}
+@media (max-width: 600px) {
+  .wb-feature-intro {
+    gap: 12px;
+    padding: 12px;
+  }
+  .wb-feature-intro img {
+    width: 86px;
+    height: 86px;
+  }
+  .wb-feature-intro h3 {
+    font-size: 14px;
+  }
+  .wb-model-entry {
+    position: relative;
+    align-items: stretch;
+  }
+  .wb-model-entry-art {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 56px;
+    height: 56px;
+  }
+  .wb-model-entry > div {
+    min-height: 52px;
+    padding-right: 62px;
+  }
+  .wb-relationship-art {
+    width: 90px;
+    height: 90px;
+  }
+}
+.wb-upload {
+  position: relative;
+  color: #465b7e;
+}
+.wb-upload input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  cursor: pointer;
+}
+.wb-upload span {
+  font-size: 11px;
+  color: #5d6d85;
+  line-height: 1.6;
+}
+.wb-upload:focus-within {
+  outline: 2px solid #456bc2;
+  outline-offset: 3px;
+}
+.wb-upload:has(input:disabled) {
+  cursor: default;
+  opacity: 0.65;
+}
+.wb-model-studio .wb-table-wrap table,
+.wb-preparation .wb-table-wrap table {
+  font-size: 12px;
+}
+.wb-model-studio .wb-table-wrap th,
+.wb-preparation .wb-table-wrap th {
+  color: #4e607b;
+}
+.wb-model-studio .wb-table-wrap tbody th,
+.wb-preparation .wb-table-wrap tbody th {
+  position: static;
+}
+.wb-model-studio .wb-table-wrap caption,
+.wb-preparation .wb-table-wrap caption {
+  font-size: 11px;
+  color: #5b6c85;
+  line-height: 1.65;
+}

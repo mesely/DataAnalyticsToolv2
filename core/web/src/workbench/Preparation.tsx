@@ -1,3 +1,4 @@
+import preparationArt from "./assets/data-preparation.jpeg";
 import React, { useRef, useState } from "react";
 import {
   Upload,
@@ -159,12 +160,33 @@ export function Preparation({
           </li>
         ))}
       </ol>
-      <p>
-        {t(
-          "CSV dosyanızın yapısını inceleyin. Satış analizi için alanları eşleyip içe aktarmadan önce sonucu görün.",
-          "Inspect any CSV schema. For sales analysis, map its fields and preview the result before importing.",
-        )}
-      </p>
+      {!profile && (
+        <div className="wb-feature-intro">
+          <img src={preparationArt} alt="" width="116" height="116" />
+          <div>
+            <h3>
+              {t(
+                "Dağınık tablodan güvenilir analize",
+                "From raw tables to reliable analysis",
+              )}
+            </h3>
+            <p>
+              {t(
+                "Önce yapıyı görün, sonra alanları eşleyin. Sonucu onaylamadan önce kontrol edin.",
+                "Inspect the structure, map the fields, and review the result before confirming.",
+              )}
+            </p>
+          </div>
+        </div>
+      )}
+      {profile && (
+        <p>
+          {t(
+            "CSV dosyanızın yapısını inceleyin. Satış analizi için alanları eşleyip içe aktarmadan önce sonucu görün.",
+            "Inspect any CSV schema. For sales analysis, map its fields and preview the result before importing.",
+          )}
+        </p>
+      )}
       <div className="wb-prep-file">
         <label className="wb-upload">
           <Upload size={24} />

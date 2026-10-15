@@ -7,7 +7,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -47,6 +47,14 @@ const APP_SOURCES = [
   // B-4
   "Audit.tsx",
   "Benchmarks.tsx",
+  "assets.d.ts",
+  "workbench/Workbench.tsx",
+  "workbench/ExpertTools.tsx",
+  "workbench/TemporalView.tsx",
+  "workbench/UsageMeter.tsx",
+  "workbench/Locale.tsx",
+  "workbench/types.ts",
+  "workbench/csv.ts",
 ];
 
 async function fileRequest(
@@ -1016,8 +1024,8 @@ describe("B-1 dashboard surfaces", () => {
   describe("the shipped bundle keeps UI-1, UI-5, UI-8 structural", () => {
     it("every screen in the bundle is covered by these assertions", () => {
       const listed = new Set(APP_SOURCES);
-      const onDisk = execFileSync("ls", [path.join(CORE_DIR, "web", "src")], { encoding: "utf-8" })
-        .split("\n")
+      const onDisk = readdirSync(path.join(CORE_DIR, "web", "src"), { recursive: true })
+        .map(String)
         .filter((f) => f.endsWith(".tsx") || f.endsWith(".ts"));
       for (const file of onDisk) {
         expect(listed.has(file), `${file} is not in APP_SOURCES — add it or it escapes these checks`).toBe(true);

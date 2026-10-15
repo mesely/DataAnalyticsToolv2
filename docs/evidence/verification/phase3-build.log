@@ -1,0 +1,13 @@
+
+> @contextlayer/core@0.1.0 build
+> node web/build.mjs && tsc -p tsconfig.json
+
+
+  web/dist/app.css  63.6kb
+
+⚡ Done in 66ms
+
+  web/dist/app.js  683.8kb
+
+⚡ Done in 1416ms
+built dashboard bundle -> web/dist

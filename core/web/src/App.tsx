@@ -21,6 +21,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { api, type ApiError, type Inbox as InboxData, type Module, type ModuleMap, type Session } from "./api";
+import { Workbench } from "./workbench/Workbench";
 import { Audit } from "./Audit";
 import { Benchmarks } from "./Benchmarks";
 import { Connections } from "./Connections";
@@ -148,6 +149,7 @@ export function App() {
   const Screen = active ? SCREENS[active.id] : undefined;
   const unread = inbox?.unread ?? 0;
   const csrf = session.csrf_token ?? null;
+  if (active?.id === "workspace") return <Workbench session={session} csrf={csrf} map={map} navigate={navigate} logout={() => void logout()} />;
 
   return (
     <div className="shell">

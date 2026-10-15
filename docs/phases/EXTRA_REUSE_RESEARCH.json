@@ -1,0 +1,150 @@
+[
+  {
+    "path": "conversation_memory.py",
+    "functions": [
+      "extract_course_code",
+      "resolve_reference",
+      "_automatic_title",
+      "get_working_context",
+      "recent_turns",
+      "append_turn",
+      "_summarise",
+      "list_conversations",
+      "get_conversation",
+      "conversation_owner",
+      "delete_conversation",
+      "rename_conversation",
+      "set_conversation_pinned"
+    ],
+    "imports": [
+      "from __future__ import annotations",
+      "import re",
+      "from datetime import datetime, timezone",
+      "from typing import Any",
+      "from logger import logger",
+      "from modules.mongodb import db",
+      "from modules.config import MAX_TRANSCRIPT_MESSAGES"
+    ]
+  },
+  {
+    "path": "export_utils.py",
+    "functions": [
+      "audit_rows",
+      "course_rows",
+      "rows_to_csv",
+      "rows_to_xlsx"
+    ],
+    "imports": [
+      "from __future__ import annotations",
+      "import csv",
+      "import io",
+      "from typing import Any, Iterable"
+    ]
+  },
+  {
+    "path": "file_lifecycle.py",
+    "functions": [
+      "create_pending_whatsapp_batch",
+      "confirm_whatsapp_batch",
+      "ingest_exam_upload",
+      "cascade_delete_source",
+      "_save_bytes",
+      "_safe_filename"
+    ],
+    "imports": [
+      "from __future__ import annotations",
+      "import re",
+      "import shutil",
+      "from pathlib import Path",
+      "from typing import Any",
+      "from fastapi import UploadFile",
+      "from modules.config import DOCUMENT_STORAGE_DIR",
+      "from modules.load_vectorstore import _read_validated_upload, get_vectorstore, ingest_file_paths",
+      "from modules.source_of_truth import (\n    content_hash_bytes,\n    exams,\n    instructor_reviews,\n    soft_delete_source,\n    source_id_for,\n    source_documents,\n    upload_batches,\n    utc_now,\n)"
+    ]
+  },
+  {
+    "path": "source_of_truth.py",
+    "functions": [
+      "_db",
+      "_LazyCollection",
+      "utc_now",
+      "content_hash_bytes",
+      "content_hash_text",
+      "file_content_hash",
+      "source_id_for",
+      "embedding_cache_key",
+      "ensure_source_of_truth_indexes",
+      "upsert_source_document",
+      "start_ingestion_job",
+      "finish_ingestion_job",
+      "soft_delete_source"
+    ],
+    "imports": [
+      "from __future__ import annotations",
+      "from datetime import datetime, timezone",
+      "from hashlib import sha256",
+      "from pathlib import Path",
+      "from typing import Any",
+      "from pymongo import ASCENDING, MongoClient",
+      "from modules.config import MONGO_DB_NAME, MONGO_URI"
+    ]
+  },
+  {
+    "path": "logging_utils.py",
+    "functions": [
+      "_estimate_tokens_from_text",
+      "estimate_prompt_tokens",
+      "estimate_completion_tokens",
+      "_resolve_cost_per_1k",
+      "estimate_cost_usd",
+      "Timer",
+      "time_block"
+    ],
+    "imports": [
+      "from __future__ import annotations",
+      "import math",
+      "import time",
+      "from dataclasses import dataclass, field",
+      "from typing import Optional"
+    ]
+  },
+  {
+    "path": "response_formatter.py",
+    "functions": [
+      "_plain_text",
+      "split_summary",
+      "compact_summary",
+      "ensure_summary_section",
+      "sanitize_student_answer",
+      "audit_summary",
+      "audit_answer",
+      "graduation_plan_answer",
+      "_category_label",
+      "audit_structured_content",
+      "course_update_structured_content",
+      "merge_structured_content"
+    ],
+    "imports": [
+      "from __future__ import annotations",
+      "import re",
+      "from typing import Any, Iterable"
+    ]
+  },
+  {
+    "path": "retrieval_policy.py",
+    "functions": [
+      "RetrievalPolicy",
+      "policy_for",
+      "_and",
+      "build_metadata_filter",
+      "ProfileGate",
+      "check_profile"
+    ],
+    "imports": [
+      "from __future__ import annotations",
+      "from dataclasses import dataclass, field",
+      "from modules import curriculum_registry, intents"
+    ]
+  }
+]

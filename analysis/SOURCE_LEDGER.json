@@ -1,0 +1,81 @@
+[
+  {
+    "source_repo": "mesely/adviSU",
+    "source_commit": "e1e224134a3ce9a52c758c35ce517b1d42c9b75a",
+    "source_path": "server/modules/llm_providers.py",
+    "source_sha256": "3e0932c3565c86f09e2b57e3fe9201b22ed7321f1bbb54230053b8ed7192fa63"
+  },
+  {
+    "source_repo": "mesely/adviSU",
+    "source_commit": "e1e224134a3ce9a52c758c35ce517b1d42c9b75a",
+    "source_path": "server/modules/guardrails.py",
+    "source_sha256": "998989ceb77a2bc1218a9828b5964850fce1afc147cbd71306bce46ecf3dbffc"
+  },
+  {
+    "source_repo": "mesely/adviSU",
+    "source_commit": "e1e224134a3ce9a52c758c35ce517b1d42c9b75a",
+    "source_path": "server/modules/confidence.py",
+    "source_sha256": "405636bea78d31a0fb3488ef85c0563c222976bbcc380f9c94cdd0acf2354ed5"
+  },
+  {
+    "source_repo": "mesely/adviSU",
+    "source_commit": "e1e224134a3ce9a52c758c35ce517b1d42c9b75a",
+    "source_path": "server/modules/language.py",
+    "source_sha256": "1b4c39430a2e31d240381b699b54e064edc67a2e18e3644e928cbc6daa1f6e71"
+  },
+  {
+    "source_repo": "mesely/adviSU",
+    "source_commit": "e1e224134a3ce9a52c758c35ce517b1d42c9b75a",
+    "source_path": "server/modules/claim_coverage.py",
+    "source_sha256": "41e8730c3b7af20f3832c486e41314ce56436bbc57bee7fdb3529051537f6c90"
+  },
+  {
+    "source_repo": "mesely/adviSU",
+    "source_commit": "e1e224134a3ce9a52c758c35ce517b1d42c9b75a",
+    "source_path": "server/modules/bm25_retriever.py",
+    "source_sha256": "47d7f56e21f31c105765bdc2724995826d65ed2f0cc178581be04789b0180c72"
+  },
+  {
+    "source_repo": "mesely/PoliEcoTRNetSci",
+    "source_commit": "c1705e76a9e2c36ddda36c95d03bd733cf52a17a",
+    "source_path": "src/build_term_interval_polarization.py",
+    "source_sha256": "11d135020dee559a6bb830c4b300f479ad30c2024f07e0e42135fc84aeb2fbe1"
+  },
+  {
+    "source_repo": "mesely/adviSU",
+    "source_commit": "e1e224134a3ce9a52c758c35ce517b1d42c9b75a",
+    "source_path": "server/modules/export_utils.py",
+    "source_sha256": "55afee863aef3120820e1a72129771e5ec2812ffaba3d07d8f0706899cd985ad",
+    "extracted_symbols": [
+      "rows_to_csv",
+      "rows_to_xlsx"
+    ],
+    "target": "analysis/adapted/exports.py"
+  },
+  {
+    "source_repo": "mesely/adviSU",
+    "source_commit": "e1e224134a3ce9a52c758c35ce517b1d42c9b75a",
+    "source_path": "server/modules/source_of_truth.py",
+    "source_sha256": "0de038ed05f07ad3db85129f3cd27aa19f3f24604c626702dfe0a10523e50f85",
+    "extracted_symbols": [
+      "content_hash_bytes",
+      "content_hash_text",
+      "embedding_cache_key",
+      "source_id_for"
+    ],
+    "target": "analysis/adapted/identity.py"
+  },
+  {
+    "source_repo": "mesely/PoliEcoTRNetSci",
+    "source_commit": "c1705e76a9e2c36ddda36c95d03bd733cf52a17a",
+    "source_path": "src/build_economic_shock_study.py",
+    "source_sha256": "85cccb2f1e77ecda97803350c30589d0b5cf57fbd0c425724c173b1d2be41e99",
+    "extracted_symbols": [
+      "build_party_affinity",
+      "negative_edge_share",
+      "owner_concentration_hhi",
+      "stage_months"
+    ],
+    "target": "analysis/adapted/temporal.py"
+  }
+]

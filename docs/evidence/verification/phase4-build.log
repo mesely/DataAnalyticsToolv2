@@ -1,0 +1,19 @@
+
+> @contextlayer/core@0.1.0 build
+> node web/build.mjs && tsc -p tsconfig.json
+
+
+  web/dist/app.css  65.6kb
+
+⚡ Done in 31ms
+
+  web/dist/app.js                                 685.4kb
+  web/dist/assets/context-prism-SZEQDK2Q.jpeg      68.3kb
+  web/dist/assets/analysis-library-PHLTAUAQ.jpeg   67.2kb
+  web/dist/assets/network-2IYE3AHK.svg              462b
+  web/dist/assets/findings-WGG2S7TB.svg             422b
+  web/dist/assets/overview-JMYANLN5.svg             361b
+  web/dist/assets/analysis-4WQQA5JN.svg             283b
+
+⚡ Done in 329ms
+built dashboard bundle -> web/dist

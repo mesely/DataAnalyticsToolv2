@@ -1,0 +1,543 @@
+invoice,product_id,product,quantity,unit_price,order_date,country,customer_id
+D0001,P01,Seramik kupa,5,6.5,2025-01-01,United Kingdom,DEMO-0
+D0001,P02,Keten defter,4,12.0,2025-01-01,United Kingdom,DEMO-0
+D0001,P04,Cam vazo,5,18.5,2025-01-01,United Kingdom,DEMO-0
+D0002,P06,Bez çanta,4,8.5,2025-01-02,France,DEMO-1
+D0002,P03,Masa lambası,4,29.9,2025-01-02,France,DEMO-1
+D0002,P05,Ahşap kalemlik,5,9.0,2025-01-02,France,DEMO-1
+D0003,P01,Seramik kupa,1,6.5,2025-01-03,Germany,DEMO-2
+D0003,P07,Çay kutusu,1,11.0,2025-01-03,Germany,DEMO-2
+D0003,P04,Cam vazo,1,18.5,2025-01-03,Germany,DEMO-2
+D0004,P01,Seramik kupa,5,6.5,2025-01-04,United Kingdom,DEMO-3
+D0004,P02,Keten defter,1,12.0,2025-01-04,United Kingdom,DEMO-3
+D0004,P04,Cam vazo,3,18.5,2025-01-04,United Kingdom,DEMO-3
+D0005,P07,Çay kutusu,5,11.0,2025-01-05,France,DEMO-4
+D0005,P02,Keten defter,5,12.0,2025-01-05,France,DEMO-4
+D0005,P08,Mum seti,3,14.5,2025-01-05,France,DEMO-4
+D0006,P08,Mum seti,5,14.5,2025-01-06,Germany,DEMO-5
+D0006,P02,Keten defter,3,12.0,2025-01-06,Germany,DEMO-5
+D0006,P01,Seramik kupa,3,6.5,2025-01-06,Germany,DEMO-5
+D0007,P01,Seramik kupa,2,6.5,2025-01-07,United Kingdom,DEMO-6
+D0007,P02,Keten defter,2,12.0,2025-01-07,United Kingdom,DEMO-6
+D0007,P04,Cam vazo,1,18.5,2025-01-07,United Kingdom,DEMO-6
+D0008,P03,Masa lambası,3,29.9,2025-01-08,France,DEMO-7
+D0008,P08,Mum seti,5,14.5,2025-01-08,France,DEMO-7
+D0008,P01,Seramik kupa,4,6.5,2025-01-08,France,DEMO-7
+D0009,P05,Ahşap kalemlik,2,9.0,2025-01-09,Germany,DEMO-8
+D0009,P01,Seramik kupa,3,6.5,2025-01-09,Germany,DEMO-8
+D0009,P06,Bez çanta,2,8.5,2025-01-09,Germany,DEMO-8
+D0010,P01,Seramik kupa,4,6.5,2025-01-10,United Kingdom,DEMO-9
+D0010,P02,Keten defter,5,12.0,2025-01-10,United Kingdom,DEMO-9
+D0010,P04,Cam vazo,3,18.5,2025-01-10,United Kingdom,DEMO-9
+D0011,P05,Ahşap kalemlik,5,9.0,2025-01-11,France,DEMO-10
+D0011,P07,Çay kutusu,3,11.0,2025-01-11,France,DEMO-10
+D0011,P02,Keten defter,3,12.0,2025-01-11,France,DEMO-10
+D0012,P01,Seramik kupa,5,6.5,2025-01-12,Germany,DEMO-11
+D0012,P04,Cam vazo,4,18.5,2025-01-12,Germany,DEMO-11
+D0012,P03,Masa lambası,3,29.9,2025-01-12,Germany,DEMO-11
+D0013,P01,Seramik kupa,2,6.5,2025-01-13,United Kingdom,DEMO-12
+D0013,P02,Keten defter,4,12.0,2025-01-13,United Kingdom,DEMO-12
+D0013,P04,Cam vazo,4,18.5,2025-01-13,United Kingdom,DEMO-12
+D0014,P05,Ahşap kalemlik,2,9.0,2025-01-14,France,DEMO-13
+D0014,P08,Mum seti,4,14.5,2025-01-14,France,DEMO-13
+D0014,P07,Çay kutusu,1,11.0,2025-01-14,France,DEMO-13
+D0015,P03,Masa lambası,1,29.9,2025-01-15,Germany,DEMO-14
+D0015,P05,Ahşap kalemlik,1,9.0,2025-01-15,Germany,DEMO-14
+D0015,P06,Bez çanta,3,8.5,2025-01-15,Germany,DEMO-14
+D0016,P01,Seramik kupa,3,6.5,2025-01-16,United Kingdom,DEMO-15
+D0016,P02,Keten defter,1,12.0,2025-01-16,United Kingdom,DEMO-15
+D0016,P04,Cam vazo,5,18.5,2025-01-16,United Kingdom,DEMO-15
+D0017,P05,Ahşap kalemlik,5,9.0,2025-01-17,France,DEMO-16
+D0017,P06,Bez çanta,4,8.5,2025-01-17,France,DEMO-16
+D0017,P08,Mum seti,3,14.5,2025-01-17,France,DEMO-16
+D0018,P01,Seramik kupa,2,6.5,2025-01-18,Germany,DEMO-17
+D0018,P05,Ahşap kalemlik,3,9.0,2025-01-18,Germany,DEMO-17
+D0018,P02,Keten defter,4,12.0,2025-01-18,Germany,DEMO-17
+D0019,P01,Seramik kupa,2,6.5,2025-01-19,United Kingdom,DEMO-18
+D0019,P02,Keten defter,2,12.0,2025-01-19,United Kingdom,DEMO-18
+D0019,P04,Cam vazo,1,18.5,2025-01-19,United Kingdom,DEMO-18
+D0020,P03,Masa lambası,3,29.9,2025-01-20,France,DEMO-19
+D0020,P06,Bez çanta,5,8.5,2025-01-20,France,DEMO-19
+D0020,P05,Ahşap kalemlik,4,9.0,2025-01-20,France,DEMO-19
+D0021,P02,Keten defter,1,12.0,2025-01-21,Germany,DEMO-20
+D0021,P03,Masa lambası,1,29.9,2025-01-21,Germany,DEMO-20
+D0021,P04,Cam vazo,4,18.5,2025-01-21,Germany,DEMO-20
+D0022,P01,Seramik kupa,3,6.5,2025-01-22,United Kingdom,DEMO-21
+D0022,P02,Keten defter,1,12.0,2025-01-22,United Kingdom,DEMO-21
+D0022,P04,Cam vazo,2,18.5,2025-01-22,United Kingdom,DEMO-21
+D0023,P03,Masa lambası,4,29.9,2025-01-23,France,DEMO-22
+D0023,P06,Bez çanta,2,8.5,2025-01-23,France,DEMO-22
+D0023,P05,Ahşap kalemlik,4,9.0,2025-01-23,France,DEMO-22
+D0024,P08,Mum seti,1,14.5,2025-01-24,Germany,DEMO-23
+D0024,P05,Ahşap kalemlik,1,9.0,2025-01-24,Germany,DEMO-23
+D0024,P07,Çay kutusu,2,11.0,2025-01-24,Germany,DEMO-23
+D0025,P01,Seramik kupa,1,6.5,2025-01-25,United Kingdom,DEMO-24
+D0025,P02,Keten defter,5,12.0,2025-01-25,United Kingdom,DEMO-24
+D0025,P04,Cam vazo,2,18.5,2025-01-25,United Kingdom,DEMO-24
+D0026,P01,Seramik kupa,1,6.5,2025-01-26,France,DEMO-25
+D0026,P04,Cam vazo,1,18.5,2025-01-26,France,DEMO-25
+D0026,P08,Mum seti,3,14.5,2025-01-26,France,DEMO-25
+D0027,P01,Seramik kupa,2,6.5,2025-01-27,Germany,DEMO-26
+D0027,P05,Ahşap kalemlik,5,9.0,2025-01-27,Germany,DEMO-26
+D0027,P03,Masa lambası,5,29.9,2025-01-27,Germany,DEMO-26
+D0028,P01,Seramik kupa,3,6.5,2025-01-01,United Kingdom,DEMO-27
+D0028,P02,Keten defter,5,12.0,2025-01-01,United Kingdom,DEMO-27
+D0028,P04,Cam vazo,5,18.5,2025-01-01,United Kingdom,DEMO-27
+D0029,P02,Keten defter,3,12.0,2025-01-02,France,DEMO-28
+D0029,P05,Ahşap kalemlik,5,9.0,2025-01-02,France,DEMO-28
+D0029,P04,Cam vazo,1,18.5,2025-01-02,France,DEMO-28
+D0030,P02,Keten defter,3,12.0,2025-01-03,Germany,DEMO-29
+D0030,P04,Cam vazo,3,18.5,2025-01-03,Germany,DEMO-29
+D0030,P07,Çay kutusu,5,11.0,2025-01-03,Germany,DEMO-29
+D0031,P01,Seramik kupa,1,6.5,2025-01-04,United Kingdom,DEMO-30
+D0031,P02,Keten defter,5,12.0,2025-01-04,United Kingdom,DEMO-30
+D0031,P04,Cam vazo,1,18.5,2025-01-04,United Kingdom,DEMO-30
+D0032,P08,Mum seti,1,14.5,2025-01-05,France,DEMO-31
+D0032,P06,Bez çanta,4,8.5,2025-01-05,France,DEMO-31
+D0032,P04,Cam vazo,5,18.5,2025-01-05,France,DEMO-31
+D0033,P02,Keten defter,4,12.0,2025-01-06,Germany,DEMO-32
+D0033,P07,Çay kutusu,5,11.0,2025-01-06,Germany,DEMO-32
+D0033,P03,Masa lambası,1,29.9,2025-01-06,Germany,DEMO-32
+D0034,P01,Seramik kupa,2,6.5,2025-01-07,United Kingdom,DEMO-33
+D0034,P02,Keten defter,4,12.0,2025-01-07,United Kingdom,DEMO-33
+D0034,P04,Cam vazo,1,18.5,2025-01-07,United Kingdom,DEMO-33
+D0035,P02,Keten defter,4,12.0,2025-01-08,France,DEMO-34
+D0035,P06,Bez çanta,3,8.5,2025-01-08,France,DEMO-34
+D0035,P04,Cam vazo,5,18.5,2025-01-08,France,DEMO-34
+D0036,P01,Seramik kupa,3,6.5,2025-01-09,Germany,DEMO-35
+D0036,P05,Ahşap kalemlik,1,9.0,2025-01-09,Germany,DEMO-35
+D0036,P02,Keten defter,3,12.0,2025-01-09,Germany,DEMO-35
+D0037,P01,Seramik kupa,1,6.5,2025-01-10,United Kingdom,DEMO-36
+D0037,P02,Keten defter,5,12.0,2025-01-10,United Kingdom,DEMO-36
+D0037,P04,Cam vazo,5,18.5,2025-01-10,United Kingdom,DEMO-36
+D0038,P08,Mum seti,3,14.5,2025-01-11,France,DEMO-37
+D0038,P05,Ahşap kalemlik,5,9.0,2025-01-11,France,DEMO-37
+D0038,P06,Bez çanta,3,8.5,2025-01-11,France,DEMO-37
+D0039,P07,Çay kutusu,2,11.0,2025-01-12,Germany,DEMO-38
+D0039,P08,Mum seti,1,14.5,2025-01-12,Germany,DEMO-38
+D0039,P06,Bez çanta,1,8.5,2025-01-12,Germany,DEMO-38
+D0040,P01,Seramik kupa,5,6.5,2025-01-13,United Kingdom,DEMO-39
+D0040,P02,Keten defter,3,12.0,2025-01-13,United Kingdom,DEMO-39
+D0040,P04,Cam vazo,1,18.5,2025-01-13,United Kingdom,DEMO-39
+D0041,P02,Keten defter,4,12.0,2025-01-14,France,DEMO-40
+D0041,P07,Çay kutusu,3,11.0,2025-01-14,France,DEMO-40
+D0041,P05,Ahşap kalemlik,1,9.0,2025-01-14,France,DEMO-40
+D0042,P06,Bez çanta,4,8.5,2025-01-15,Germany,DEMO-41
+D0042,P05,Ahşap kalemlik,3,9.0,2025-01-15,Germany,DEMO-41
+D0042,P01,Seramik kupa,3,6.5,2025-01-15,Germany,DEMO-41
+D0043,P01,Seramik kupa,4,6.5,2025-01-16,United Kingdom,DEMO-0
+D0043,P02,Keten defter,3,12.0,2025-01-16,United Kingdom,DEMO-0
+D0043,P04,Cam vazo,4,18.5,2025-01-16,United Kingdom,DEMO-0
+D0044,P08,Mum seti,1,14.5,2025-01-17,France,DEMO-1
+D0044,P03,Masa lambası,2,29.9,2025-01-17,France,DEMO-1
+D0044,P06,Bez çanta,5,8.5,2025-01-17,France,DEMO-1
+D0045,P08,Mum seti,4,14.5,2025-01-18,Germany,DEMO-2
+D0045,P01,Seramik kupa,4,6.5,2025-01-18,Germany,DEMO-2
+D0045,P07,Çay kutusu,5,11.0,2025-01-18,Germany,DEMO-2
+D0046,P01,Seramik kupa,3,6.5,2025-01-19,United Kingdom,DEMO-3
+D0046,P02,Keten defter,1,12.0,2025-01-19,United Kingdom,DEMO-3
+D0046,P04,Cam vazo,3,18.5,2025-01-19,United Kingdom,DEMO-3
+D0047,P02,Keten defter,3,12.0,2025-01-20,France,DEMO-4
+D0047,P08,Mum seti,4,14.5,2025-01-20,France,DEMO-4
+D0047,P04,Cam vazo,4,18.5,2025-01-20,France,DEMO-4
+D0048,P04,Cam vazo,5,18.5,2025-01-21,Germany,DEMO-5
+D0048,P05,Ahşap kalemlik,3,9.0,2025-01-21,Germany,DEMO-5
+D0048,P07,Çay kutusu,3,11.0,2025-01-21,Germany,DEMO-5
+D0049,P01,Seramik kupa,4,6.5,2025-01-22,United Kingdom,DEMO-6
+D0049,P02,Keten defter,5,12.0,2025-01-22,United Kingdom,DEMO-6
+D0049,P04,Cam vazo,5,18.5,2025-01-22,United Kingdom,DEMO-6
+D0050,P08,Mum seti,2,14.5,2025-01-23,France,DEMO-7
+D0050,P05,Ahşap kalemlik,4,9.0,2025-01-23,France,DEMO-7
+D0050,P07,Çay kutusu,1,11.0,2025-01-23,France,DEMO-7
+D0051,P03,Masa lambası,5,29.9,2025-01-24,Germany,DEMO-8
+D0051,P05,Ahşap kalemlik,1,9.0,2025-01-24,Germany,DEMO-8
+D0051,P02,Keten defter,4,12.0,2025-01-24,Germany,DEMO-8
+D0052,P01,Seramik kupa,4,6.5,2025-01-25,United Kingdom,DEMO-9
+D0052,P02,Keten defter,2,12.0,2025-01-25,United Kingdom,DEMO-9
+D0052,P04,Cam vazo,5,18.5,2025-01-25,United Kingdom,DEMO-9
+D0053,P07,Çay kutusu,2,11.0,2025-01-26,France,DEMO-10
+D0053,P01,Seramik kupa,1,6.5,2025-01-26,France,DEMO-10
+D0053,P05,Ahşap kalemlik,5,9.0,2025-01-26,France,DEMO-10
+D0054,P07,Çay kutusu,4,11.0,2025-01-27,Germany,DEMO-11
+D0054,P01,Seramik kupa,4,6.5,2025-01-27,Germany,DEMO-11
+D0054,P04,Cam vazo,3,18.5,2025-01-27,Germany,DEMO-11
+D0055,P01,Seramik kupa,1,6.5,2025-01-01,United Kingdom,DEMO-12
+D0055,P02,Keten defter,1,12.0,2025-01-01,United Kingdom,DEMO-12
+D0055,P04,Cam vazo,4,18.5,2025-01-01,United Kingdom,DEMO-12
+D0056,P07,Çay kutusu,5,11.0,2025-01-02,France,DEMO-13
+D0056,P05,Ahşap kalemlik,2,9.0,2025-01-02,France,DEMO-13
+D0056,P01,Seramik kupa,4,6.5,2025-01-02,France,DEMO-13
+D0057,P08,Mum seti,1,14.5,2025-01-03,Germany,DEMO-14
+D0057,P04,Cam vazo,4,18.5,2025-01-03,Germany,DEMO-14
+D0057,P05,Ahşap kalemlik,5,9.0,2025-01-03,Germany,DEMO-14
+D0058,P01,Seramik kupa,2,6.5,2025-01-04,United Kingdom,DEMO-15
+D0058,P02,Keten defter,3,12.0,2025-01-04,United Kingdom,DEMO-15
+D0058,P04,Cam vazo,4,18.5,2025-01-04,United Kingdom,DEMO-15
+D0059,P02,Keten defter,4,12.0,2025-01-05,France,DEMO-16
+D0059,P08,Mum seti,3,14.5,2025-01-05,France,DEMO-16
+D0059,P06,Bez çanta,1,8.5,2025-01-05,France,DEMO-16
+D0060,P05,Ahşap kalemlik,3,9.0,2025-01-06,Germany,DEMO-17
+D0060,P04,Cam vazo,1,18.5,2025-01-06,Germany,DEMO-17
+D0060,P01,Seramik kupa,4,6.5,2025-01-06,Germany,DEMO-17
+D0061,P01,Seramik kupa,5,6.5,2025-02-07,United Kingdom,DEMO-18
+D0061,P02,Keten defter,2,12.0,2025-02-07,United Kingdom,DEMO-18
+D0061,P04,Cam vazo,5,18.5,2025-02-07,United Kingdom,DEMO-18
+D0062,P05,Ahşap kalemlik,5,9.0,2025-02-08,France,DEMO-19
+D0062,P06,Bez çanta,5,8.5,2025-02-08,France,DEMO-19
+D0062,P03,Masa lambası,1,29.9,2025-02-08,France,DEMO-19
+D0063,P01,Seramik kupa,2,6.5,2025-02-09,Germany,DEMO-20
+D0063,P03,Masa lambası,4,29.9,2025-02-09,Germany,DEMO-20
+D0063,P06,Bez çanta,2,8.5,2025-02-09,Germany,DEMO-20
+D0064,P01,Seramik kupa,1,6.5,2025-02-10,United Kingdom,DEMO-21
+D0064,P02,Keten defter,5,12.0,2025-02-10,United Kingdom,DEMO-21
+D0064,P04,Cam vazo,4,18.5,2025-02-10,United Kingdom,DEMO-21
+D0065,P04,Cam vazo,3,18.5,2025-02-11,France,DEMO-22
+D0065,P06,Bez çanta,1,8.5,2025-02-11,France,DEMO-22
+D0065,P05,Ahşap kalemlik,3,9.0,2025-02-11,France,DEMO-22
+D0066,P02,Keten defter,1,12.0,2025-02-12,Germany,DEMO-23
+D0066,P08,Mum seti,2,14.5,2025-02-12,Germany,DEMO-23
+D0066,P05,Ahşap kalemlik,2,9.0,2025-02-12,Germany,DEMO-23
+D0067,P01,Seramik kupa,2,6.5,2025-02-13,United Kingdom,DEMO-24
+D0067,P02,Keten defter,2,12.0,2025-02-13,United Kingdom,DEMO-24
+D0067,P04,Cam vazo,1,18.5,2025-02-13,United Kingdom,DEMO-24
+D0068,P02,Keten defter,4,12.0,2025-02-14,France,DEMO-25
+D0068,P08,Mum seti,3,14.5,2025-02-14,France,DEMO-25
+D0068,P05,Ahşap kalemlik,1,9.0,2025-02-14,France,DEMO-25
+D0069,P07,Çay kutusu,2,11.0,2025-02-15,Germany,DEMO-26
+D0069,P03,Masa lambası,3,29.9,2025-02-15,Germany,DEMO-26
+D0069,P05,Ahşap kalemlik,1,9.0,2025-02-15,Germany,DEMO-26
+D0070,P01,Seramik kupa,2,6.5,2025-02-16,United Kingdom,DEMO-27
+D0070,P02,Keten defter,5,12.0,2025-02-16,United Kingdom,DEMO-27
+D0070,P04,Cam vazo,2,18.5,2025-02-16,United Kingdom,DEMO-27
+D0071,P06,Bez çanta,4,8.5,2025-02-17,France,DEMO-28
+D0071,P01,Seramik kupa,5,6.5,2025-02-17,France,DEMO-28
+D0071,P03,Masa lambası,5,29.9,2025-02-17,France,DEMO-28
+D0072,P06,Bez çanta,5,8.5,2025-02-18,Germany,DEMO-29
+D0072,P07,Çay kutusu,4,11.0,2025-02-18,Germany,DEMO-29
+D0072,P05,Ahşap kalemlik,4,9.0,2025-02-18,Germany,DEMO-29
+D0073,P01,Seramik kupa,4,6.5,2025-02-19,United Kingdom,DEMO-30
+D0073,P02,Keten defter,1,12.0,2025-02-19,United Kingdom,DEMO-30
+D0073,P04,Cam vazo,2,18.5,2025-02-19,United Kingdom,DEMO-30
+D0074,P06,Bez çanta,4,8.5,2025-02-20,France,DEMO-31
+D0074,P01,Seramik kupa,1,6.5,2025-02-20,France,DEMO-31
+D0074,P05,Ahşap kalemlik,4,9.0,2025-02-20,France,DEMO-31
+D0075,P02,Keten defter,4,12.0,2025-02-21,Germany,DEMO-32
+D0075,P01,Seramik kupa,1,6.5,2025-02-21,Germany,DEMO-32
+D0075,P03,Masa lambası,3,29.9,2025-02-21,Germany,DEMO-32
+D0076,P01,Seramik kupa,4,6.5,2025-02-22,United Kingdom,DEMO-33
+D0076,P02,Keten defter,4,12.0,2025-02-22,United Kingdom,DEMO-33
+D0076,P04,Cam vazo,5,18.5,2025-02-22,United Kingdom,DEMO-33
+D0077,P08,Mum seti,1,14.5,2025-02-23,France,DEMO-34
+D0077,P06,Bez çanta,2,8.5,2025-02-23,France,DEMO-34
+D0077,P05,Ahşap kalemlik,2,9.0,2025-02-23,France,DEMO-34
+D0078,P01,Seramik kupa,3,6.5,2025-02-24,Germany,DEMO-35
+D0078,P05,Ahşap kalemlik,2,9.0,2025-02-24,Germany,DEMO-35
+D0078,P04,Cam vazo,2,18.5,2025-02-24,Germany,DEMO-35
+D0079,P01,Seramik kupa,5,6.5,2025-02-25,United Kingdom,DEMO-36
+D0079,P02,Keten defter,3,12.0,2025-02-25,United Kingdom,DEMO-36
+D0079,P04,Cam vazo,1,18.5,2025-02-25,United Kingdom,DEMO-36
+D0080,P01,Seramik kupa,2,6.5,2025-02-26,France,DEMO-37
+D0080,P03,Masa lambası,5,29.9,2025-02-26,France,DEMO-37
+D0080,P07,Çay kutusu,2,11.0,2025-02-26,France,DEMO-37
+D0081,P06,Bez çanta,2,8.5,2025-02-27,Germany,DEMO-38
+D0081,P03,Masa lambası,4,29.9,2025-02-27,Germany,DEMO-38
+D0081,P02,Keten defter,5,12.0,2025-02-27,Germany,DEMO-38
+D0082,P01,Seramik kupa,3,6.5,2025-02-01,United Kingdom,DEMO-39
+D0082,P02,Keten defter,5,12.0,2025-02-01,United Kingdom,DEMO-39
+D0082,P04,Cam vazo,3,18.5,2025-02-01,United Kingdom,DEMO-39
+D0083,P07,Çay kutusu,4,11.0,2025-02-02,France,DEMO-40
+D0083,P01,Seramik kupa,3,6.5,2025-02-02,France,DEMO-40
+D0083,P04,Cam vazo,4,18.5,2025-02-02,France,DEMO-40
+D0084,P05,Ahşap kalemlik,5,9.0,2025-02-03,Germany,DEMO-41
+D0084,P01,Seramik kupa,4,6.5,2025-02-03,Germany,DEMO-41
+D0084,P06,Bez çanta,2,8.5,2025-02-03,Germany,DEMO-41
+D0085,P01,Seramik kupa,1,6.5,2025-02-04,United Kingdom,DEMO-0
+D0085,P02,Keten defter,4,12.0,2025-02-04,United Kingdom,DEMO-0
+D0085,P04,Cam vazo,2,18.5,2025-02-04,United Kingdom,DEMO-0
+D0086,P07,Çay kutusu,1,11.0,2025-02-05,France,DEMO-1
+D0086,P03,Masa lambası,3,29.9,2025-02-05,France,DEMO-1
+D0086,P05,Ahşap kalemlik,5,9.0,2025-02-05,France,DEMO-1
+D0087,P06,Bez çanta,1,8.5,2025-02-06,Germany,DEMO-2
+D0087,P04,Cam vazo,4,18.5,2025-02-06,Germany,DEMO-2
+D0087,P01,Seramik kupa,3,6.5,2025-02-06,Germany,DEMO-2
+D0088,P01,Seramik kupa,2,6.5,2025-02-07,United Kingdom,DEMO-3
+D0088,P02,Keten defter,4,12.0,2025-02-07,United Kingdom,DEMO-3
+D0088,P04,Cam vazo,4,18.5,2025-02-07,United Kingdom,DEMO-3
+D0089,P04,Cam vazo,1,18.5,2025-02-08,France,DEMO-4
+D0089,P03,Masa lambası,5,29.9,2025-02-08,France,DEMO-4
+D0089,P01,Seramik kupa,5,6.5,2025-02-08,France,DEMO-4
+D0090,P01,Seramik kupa,2,6.5,2025-02-09,Germany,DEMO-5
+D0090,P03,Masa lambası,5,29.9,2025-02-09,Germany,DEMO-5
+D0090,P05,Ahşap kalemlik,3,9.0,2025-02-09,Germany,DEMO-5
+D0091,P01,Seramik kupa,4,6.5,2025-02-10,United Kingdom,DEMO-6
+D0091,P02,Keten defter,1,12.0,2025-02-10,United Kingdom,DEMO-6
+D0091,P04,Cam vazo,5,18.5,2025-02-10,United Kingdom,DEMO-6
+D0092,P07,Çay kutusu,3,11.0,2025-02-11,France,DEMO-7
+D0092,P03,Masa lambası,1,29.9,2025-02-11,France,DEMO-7
+D0092,P05,Ahşap kalemlik,1,9.0,2025-02-11,France,DEMO-7
+D0093,P01,Seramik kupa,5,6.5,2025-02-12,Germany,DEMO-8
+D0093,P03,Masa lambası,2,29.9,2025-02-12,Germany,DEMO-8
+D0093,P08,Mum seti,5,14.5,2025-02-12,Germany,DEMO-8
+D0094,P01,Seramik kupa,5,6.5,2025-02-13,United Kingdom,DEMO-9
+D0094,P02,Keten defter,1,12.0,2025-02-13,United Kingdom,DEMO-9
+D0094,P04,Cam vazo,4,18.5,2025-02-13,United Kingdom,DEMO-9
+D0095,P08,Mum seti,3,14.5,2025-02-14,France,DEMO-10
+D0095,P02,Keten defter,4,12.0,2025-02-14,France,DEMO-10
+D0095,P01,Seramik kupa,5,6.5,2025-02-14,France,DEMO-10
+D0096,P06,Bez çanta,3,8.5,2025-02-15,Germany,DEMO-11
+D0096,P01,Seramik kupa,5,6.5,2025-02-15,Germany,DEMO-11
+D0096,P07,Çay kutusu,3,11.0,2025-02-15,Germany,DEMO-11
+D0097,P01,Seramik kupa,4,6.5,2025-02-16,United Kingdom,DEMO-12
+D0097,P02,Keten defter,4,12.0,2025-02-16,United Kingdom,DEMO-12
+D0097,P04,Cam vazo,3,18.5,2025-02-16,United Kingdom,DEMO-12
+D0098,P02,Keten defter,3,12.0,2025-02-17,France,DEMO-13
+D0098,P03,Masa lambası,1,29.9,2025-02-17,France,DEMO-13
+D0098,P04,Cam vazo,4,18.5,2025-02-17,France,DEMO-13
+D0099,P07,Çay kutusu,1,11.0,2025-02-18,Germany,DEMO-14
+D0099,P02,Keten defter,1,12.0,2025-02-18,Germany,DEMO-14
+D0099,P03,Masa lambası,5,29.9,2025-02-18,Germany,DEMO-14
+D0100,P01,Seramik kupa,2,6.5,2025-02-19,United Kingdom,DEMO-15
+D0100,P02,Keten defter,1,12.0,2025-02-19,United Kingdom,DEMO-15
+D0100,P04,Cam vazo,1,18.5,2025-02-19,United Kingdom,DEMO-15
+D0101,P07,Çay kutusu,4,11.0,2025-02-20,France,DEMO-16
+D0101,P04,Cam vazo,5,18.5,2025-02-20,France,DEMO-16
+D0101,P08,Mum seti,2,14.5,2025-02-20,France,DEMO-16
+D0102,P03,Masa lambası,4,29.9,2025-02-21,Germany,DEMO-17
+D0102,P07,Çay kutusu,5,11.0,2025-02-21,Germany,DEMO-17
+D0102,P06,Bez çanta,4,8.5,2025-02-21,Germany,DEMO-17
+D0103,P01,Seramik kupa,2,6.5,2025-02-22,United Kingdom,DEMO-18
+D0103,P02,Keten defter,1,12.0,2025-02-22,United Kingdom,DEMO-18
+D0103,P04,Cam vazo,1,18.5,2025-02-22,United Kingdom,DEMO-18
+D0104,P04,Cam vazo,5,18.5,2025-02-23,France,DEMO-19
+D0104,P07,Çay kutusu,2,11.0,2025-02-23,France,DEMO-19
+D0104,P06,Bez çanta,1,8.5,2025-02-23,France,DEMO-19
+D0105,P01,Seramik kupa,5,6.5,2025-02-24,Germany,DEMO-20
+D0105,P02,Keten defter,2,12.0,2025-02-24,Germany,DEMO-20
+D0105,P08,Mum seti,5,14.5,2025-02-24,Germany,DEMO-20
+D0106,P01,Seramik kupa,4,6.5,2025-02-25,United Kingdom,DEMO-21
+D0106,P02,Keten defter,5,12.0,2025-02-25,United Kingdom,DEMO-21
+D0106,P04,Cam vazo,4,18.5,2025-02-25,United Kingdom,DEMO-21
+D0107,P01,Seramik kupa,5,6.5,2025-02-26,France,DEMO-22
+D0107,P02,Keten defter,5,12.0,2025-02-26,France,DEMO-22
+D0107,P05,Ahşap kalemlik,2,9.0,2025-02-26,France,DEMO-22
+D0108,P04,Cam vazo,2,18.5,2025-02-27,Germany,DEMO-23
+D0108,P07,Çay kutusu,3,11.0,2025-02-27,Germany,DEMO-23
+D0108,P01,Seramik kupa,5,6.5,2025-02-27,Germany,DEMO-23
+D0109,P01,Seramik kupa,4,6.5,2025-02-01,United Kingdom,DEMO-24
+D0109,P02,Keten defter,4,12.0,2025-02-01,United Kingdom,DEMO-24
+D0109,P04,Cam vazo,5,18.5,2025-02-01,United Kingdom,DEMO-24
+D0110,P05,Ahşap kalemlik,5,9.0,2025-02-02,France,DEMO-25
+D0110,P04,Cam vazo,2,18.5,2025-02-02,France,DEMO-25
+D0110,P07,Çay kutusu,1,11.0,2025-02-02,France,DEMO-25
+D0111,P07,Çay kutusu,4,11.0,2025-02-03,Germany,DEMO-26
+D0111,P08,Mum seti,4,14.5,2025-02-03,Germany,DEMO-26
+D0111,P04,Cam vazo,3,18.5,2025-02-03,Germany,DEMO-26
+D0112,P01,Seramik kupa,3,6.5,2025-02-04,United Kingdom,DEMO-27
+D0112,P02,Keten defter,4,12.0,2025-02-04,United Kingdom,DEMO-27
+D0112,P04,Cam vazo,4,18.5,2025-02-04,United Kingdom,DEMO-27
+D0113,P01,Seramik kupa,3,6.5,2025-02-05,France,DEMO-28
+D0113,P05,Ahşap kalemlik,2,9.0,2025-02-05,France,DEMO-28
+D0113,P07,Çay kutusu,4,11.0,2025-02-05,France,DEMO-28
+D0114,P07,Çay kutusu,1,11.0,2025-02-06,Germany,DEMO-29
+D0114,P01,Seramik kupa,5,6.5,2025-02-06,Germany,DEMO-29
+D0114,P06,Bez çanta,1,8.5,2025-02-06,Germany,DEMO-29
+D0115,P01,Seramik kupa,5,6.5,2025-02-07,United Kingdom,DEMO-30
+D0115,P02,Keten defter,2,12.0,2025-02-07,United Kingdom,DEMO-30
+D0115,P04,Cam vazo,1,18.5,2025-02-07,United Kingdom,DEMO-30
+D0116,P05,Ahşap kalemlik,5,9.0,2025-02-08,France,DEMO-31
+D0116,P03,Masa lambası,1,29.9,2025-02-08,France,DEMO-31
+D0116,P02,Keten defter,4,12.0,2025-02-08,France,DEMO-31
+D0117,P08,Mum seti,2,14.5,2025-02-09,Germany,DEMO-32
+D0117,P06,Bez çanta,3,8.5,2025-02-09,Germany,DEMO-32
+D0117,P03,Masa lambası,3,29.9,2025-02-09,Germany,DEMO-32
+D0118,P01,Seramik kupa,1,6.5,2025-02-10,United Kingdom,DEMO-33
+D0118,P02,Keten defter,2,12.0,2025-02-10,United Kingdom,DEMO-33
+D0118,P04,Cam vazo,2,18.5,2025-02-10,United Kingdom,DEMO-33
+D0119,P04,Cam vazo,2,18.5,2025-02-11,France,DEMO-34
+D0119,P03,Masa lambası,4,29.9,2025-02-11,France,DEMO-34
+D0119,P06,Bez çanta,5,8.5,2025-02-11,France,DEMO-34
+D0120,P06,Bez çanta,3,8.5,2025-02-12,Germany,DEMO-35
+D0120,P02,Keten defter,1,12.0,2025-02-12,Germany,DEMO-35
+D0120,P05,Ahşap kalemlik,2,9.0,2025-02-12,Germany,DEMO-35
+D0121,P01,Seramik kupa,5,6.5,2025-03-13,United Kingdom,DEMO-36
+D0121,P02,Keten defter,5,12.0,2025-03-13,United Kingdom,DEMO-36
+D0121,P04,Cam vazo,5,18.5,2025-03-13,United Kingdom,DEMO-36
+D0122,P06,Bez çanta,5,8.5,2025-03-14,France,DEMO-37
+D0122,P08,Mum seti,2,14.5,2025-03-14,France,DEMO-37
+D0122,P07,Çay kutusu,2,11.0,2025-03-14,France,DEMO-37
+D0123,P01,Seramik kupa,2,6.5,2025-03-15,Germany,DEMO-38
+D0123,P03,Masa lambası,4,29.9,2025-03-15,Germany,DEMO-38
+D0123,P04,Cam vazo,5,18.5,2025-03-15,Germany,DEMO-38
+D0124,P01,Seramik kupa,4,6.5,2025-03-16,United Kingdom,DEMO-39
+D0124,P02,Keten defter,1,12.0,2025-03-16,United Kingdom,DEMO-39
+D0124,P04,Cam vazo,4,18.5,2025-03-16,United Kingdom,DEMO-39
+D0125,P06,Bez çanta,1,8.5,2025-03-17,France,DEMO-40
+D0125,P05,Ahşap kalemlik,3,9.0,2025-03-17,France,DEMO-40
+D0125,P07,Çay kutusu,1,11.0,2025-03-17,France,DEMO-40
+D0126,P03,Masa lambası,5,29.9,2025-03-18,Germany,DEMO-41
+D0126,P07,Çay kutusu,5,11.0,2025-03-18,Germany,DEMO-41
+D0126,P06,Bez çanta,2,8.5,2025-03-18,Germany,DEMO-41
+D0127,P01,Seramik kupa,1,6.5,2025-03-19,United Kingdom,DEMO-0
+D0127,P02,Keten defter,3,12.0,2025-03-19,United Kingdom,DEMO-0
+D0127,P04,Cam vazo,5,18.5,2025-03-19,United Kingdom,DEMO-0
+D0128,P06,Bez çanta,3,8.5,2025-03-20,France,DEMO-1
+D0128,P01,Seramik kupa,5,6.5,2025-03-20,France,DEMO-1
+D0128,P04,Cam vazo,2,18.5,2025-03-20,France,DEMO-1
+D0129,P05,Ahşap kalemlik,3,9.0,2025-03-21,Germany,DEMO-2
+D0129,P03,Masa lambası,5,29.9,2025-03-21,Germany,DEMO-2
+D0129,P08,Mum seti,1,14.5,2025-03-21,Germany,DEMO-2
+D0130,P01,Seramik kupa,3,6.5,2025-03-22,United Kingdom,DEMO-3
+D0130,P02,Keten defter,1,12.0,2025-03-22,United Kingdom,DEMO-3
+D0130,P04,Cam vazo,2,18.5,2025-03-22,United Kingdom,DEMO-3
+D0131,P03,Masa lambası,3,29.9,2025-03-23,France,DEMO-4
+D0131,P07,Çay kutusu,3,11.0,2025-03-23,France,DEMO-4
+D0131,P08,Mum seti,1,14.5,2025-03-23,France,DEMO-4
+D0132,P05,Ahşap kalemlik,3,9.0,2025-03-24,Germany,DEMO-5
+D0132,P02,Keten defter,5,12.0,2025-03-24,Germany,DEMO-5
+D0132,P01,Seramik kupa,2,6.5,2025-03-24,Germany,DEMO-5
+D0133,P01,Seramik kupa,4,6.5,2025-03-25,United Kingdom,DEMO-6
+D0133,P02,Keten defter,1,12.0,2025-03-25,United Kingdom,DEMO-6
+D0133,P04,Cam vazo,4,18.5,2025-03-25,United Kingdom,DEMO-6
+D0134,P01,Seramik kupa,2,6.5,2025-03-26,France,DEMO-7
+D0134,P06,Bez çanta,1,8.5,2025-03-26,France,DEMO-7
+D0134,P05,Ahşap kalemlik,4,9.0,2025-03-26,France,DEMO-7
+D0135,P05,Ahşap kalemlik,2,9.0,2025-03-27,Germany,DEMO-8
+D0135,P02,Keten defter,1,12.0,2025-03-27,Germany,DEMO-8
+D0135,P04,Cam vazo,2,18.5,2025-03-27,Germany,DEMO-8
+D0136,P01,Seramik kupa,5,6.5,2025-03-01,United Kingdom,DEMO-9
+D0136,P02,Keten defter,4,12.0,2025-03-01,United Kingdom,DEMO-9
+D0136,P04,Cam vazo,3,18.5,2025-03-01,United Kingdom,DEMO-9
+D0137,P06,Bez çanta,1,8.5,2025-03-02,France,DEMO-10
+D0137,P03,Masa lambası,3,29.9,2025-03-02,France,DEMO-10
+D0137,P01,Seramik kupa,4,6.5,2025-03-02,France,DEMO-10
+D0138,P04,Cam vazo,1,18.5,2025-03-03,Germany,DEMO-11
+D0138,P07,Çay kutusu,5,11.0,2025-03-03,Germany,DEMO-11
+D0138,P01,Seramik kupa,3,6.5,2025-03-03,Germany,DEMO-11
+D0139,P01,Seramik kupa,1,6.5,2025-03-04,United Kingdom,DEMO-12
+D0139,P02,Keten defter,3,12.0,2025-03-04,United Kingdom,DEMO-12
+D0139,P04,Cam vazo,3,18.5,2025-03-04,United Kingdom,DEMO-12
+D0140,P07,Çay kutusu,1,11.0,2025-03-05,France,DEMO-13
+D0140,P03,Masa lambası,1,29.9,2025-03-05,France,DEMO-13
+D0140,P05,Ahşap kalemlik,3,9.0,2025-03-05,France,DEMO-13
+D0141,P08,Mum seti,5,14.5,2025-03-06,Germany,DEMO-14
+D0141,P05,Ahşap kalemlik,5,9.0,2025-03-06,Germany,DEMO-14
+D0141,P02,Keten defter,4,12.0,2025-03-06,Germany,DEMO-14
+D0142,P01,Seramik kupa,5,6.5,2025-03-07,United Kingdom,DEMO-15
+D0142,P02,Keten defter,2,12.0,2025-03-07,United Kingdom,DEMO-15
+D0142,P04,Cam vazo,5,18.5,2025-03-07,United Kingdom,DEMO-15
+D0143,P06,Bez çanta,2,8.5,2025-03-08,France,DEMO-16
+D0143,P05,Ahşap kalemlik,5,9.0,2025-03-08,France,DEMO-16
+D0143,P08,Mum seti,2,14.5,2025-03-08,France,DEMO-16
+D0144,P04,Cam vazo,1,18.5,2025-03-09,Germany,DEMO-17
+D0144,P02,Keten defter,5,12.0,2025-03-09,Germany,DEMO-17
+D0144,P01,Seramik kupa,5,6.5,2025-03-09,Germany,DEMO-17
+D0145,P01,Seramik kupa,3,6.5,2025-03-10,United Kingdom,DEMO-18
+D0145,P02,Keten defter,2,12.0,2025-03-10,United Kingdom,DEMO-18
+D0145,P04,Cam vazo,3,18.5,2025-03-10,United Kingdom,DEMO-18
+D0146,P06,Bez çanta,3,8.5,2025-03-11,France,DEMO-19
+D0146,P05,Ahşap kalemlik,3,9.0,2025-03-11,France,DEMO-19
+D0146,P02,Keten defter,2,12.0,2025-03-11,France,DEMO-19
+D0147,P03,Masa lambası,4,29.9,2025-03-12,Germany,DEMO-20
+D0147,P06,Bez çanta,1,8.5,2025-03-12,Germany,DEMO-20
+D0147,P07,Çay kutusu,1,11.0,2025-03-12,Germany,DEMO-20
+D0148,P01,Seramik kupa,4,6.5,2025-03-13,United Kingdom,DEMO-21
+D0148,P02,Keten defter,3,12.0,2025-03-13,United Kingdom,DEMO-21
+D0148,P04,Cam vazo,5,18.5,2025-03-13,United Kingdom,DEMO-21
+D0149,P02,Keten defter,4,12.0,2025-03-14,France,DEMO-22
+D0149,P07,Çay kutusu,3,11.0,2025-03-14,France,DEMO-22
+D0149,P06,Bez çanta,3,8.5,2025-03-14,France,DEMO-22
+D0150,P05,Ahşap kalemlik,4,9.0,2025-03-15,Germany,DEMO-23
+D0150,P06,Bez çanta,1,8.5,2025-03-15,Germany,DEMO-23
+D0150,P02,Keten defter,3,12.0,2025-03-15,Germany,DEMO-23
+D0151,P01,Seramik kupa,3,6.5,2025-03-16,United Kingdom,DEMO-24
+D0151,P02,Keten defter,2,12.0,2025-03-16,United Kingdom,DEMO-24
+D0151,P04,Cam vazo,2,18.5,2025-03-16,United Kingdom,DEMO-24
+D0152,P03,Masa lambası,3,29.9,2025-03-17,France,DEMO-25
+D0152,P08,Mum seti,1,14.5,2025-03-17,France,DEMO-25
+D0152,P02,Keten defter,2,12.0,2025-03-17,France,DEMO-25
+D0153,P08,Mum seti,1,14.5,2025-03-18,Germany,DEMO-26
+D0153,P01,Seramik kupa,3,6.5,2025-03-18,Germany,DEMO-26
+D0153,P03,Masa lambası,3,29.9,2025-03-18,Germany,DEMO-26
+D0154,P01,Seramik kupa,2,6.5,2025-03-19,United Kingdom,DEMO-27
+D0154,P02,Keten defter,4,12.0,2025-03-19,United Kingdom,DEMO-27
+D0154,P04,Cam vazo,4,18.5,2025-03-19,United Kingdom,DEMO-27
+D0155,P01,Seramik kupa,2,6.5,2025-03-20,France,DEMO-28
+D0155,P07,Çay kutusu,4,11.0,2025-03-20,France,DEMO-28
+D0155,P08,Mum seti,4,14.5,2025-03-20,France,DEMO-28
+D0156,P03,Masa lambası,4,29.9,2025-03-21,Germany,DEMO-29
+D0156,P02,Keten defter,4,12.0,2025-03-21,Germany,DEMO-29
+D0156,P01,Seramik kupa,5,6.5,2025-03-21,Germany,DEMO-29
+D0157,P01,Seramik kupa,5,6.5,2025-03-22,United Kingdom,DEMO-30
+D0157,P02,Keten defter,4,12.0,2025-03-22,United Kingdom,DEMO-30
+D0157,P04,Cam vazo,5,18.5,2025-03-22,United Kingdom,DEMO-30
+D0158,P08,Mum seti,2,14.5,2025-03-23,France,DEMO-31
+D0158,P07,Çay kutusu,2,11.0,2025-03-23,France,DEMO-31
+D0158,P05,Ahşap kalemlik,2,9.0,2025-03-23,France,DEMO-31
+D0159,P05,Ahşap kalemlik,2,9.0,2025-03-24,Germany,DEMO-32
+D0159,P06,Bez çanta,5,8.5,2025-03-24,Germany,DEMO-32
+D0159,P03,Masa lambası,4,29.9,2025-03-24,Germany,DEMO-32
+D0160,P01,Seramik kupa,3,6.5,2025-03-25,United Kingdom,DEMO-33
+D0160,P02,Keten defter,5,12.0,2025-03-25,United Kingdom,DEMO-33
+D0160,P04,Cam vazo,1,18.5,2025-03-25,United Kingdom,DEMO-33
+D0161,P04,Cam vazo,2,18.5,2025-03-26,France,DEMO-34
+D0161,P07,Çay kutusu,1,11.0,2025-03-26,France,DEMO-34
+D0161,P03,Masa lambası,2,29.9,2025-03-26,France,DEMO-34
+D0162,P04,Cam vazo,4,18.5,2025-03-27,Germany,DEMO-35
+D0162,P06,Bez çanta,1,8.5,2025-03-27,Germany,DEMO-35
+D0162,P07,Çay kutusu,3,11.0,2025-03-27,Germany,DEMO-35
+D0163,P01,Seramik kupa,1,6.5,2025-03-01,United Kingdom,DEMO-36
+D0163,P02,Keten defter,3,12.0,2025-03-01,United Kingdom,DEMO-36
+D0163,P04,Cam vazo,5,18.5,2025-03-01,United Kingdom,DEMO-36
+D0164,P03,Masa lambası,2,29.9,2025-03-02,France,DEMO-37
+D0164,P08,Mum seti,2,14.5,2025-03-02,France,DEMO-37
+D0164,P07,Çay kutusu,1,11.0,2025-03-02,France,DEMO-37
+D0165,P03,Masa lambası,5,29.9,2025-03-03,Germany,DEMO-38
+D0165,P07,Çay kutusu,2,11.0,2025-03-03,Germany,DEMO-38
+D0165,P01,Seramik kupa,5,6.5,2025-03-03,Germany,DEMO-38
+D0166,P01,Seramik kupa,3,6.5,2025-03-04,United Kingdom,DEMO-39
+D0166,P02,Keten defter,2,12.0,2025-03-04,United Kingdom,DEMO-39
+D0166,P04,Cam vazo,1,18.5,2025-03-04,United Kingdom,DEMO-39
+D0167,P08,Mum seti,3,14.5,2025-03-05,France,DEMO-40
+D0167,P03,Masa lambası,2,29.9,2025-03-05,France,DEMO-40
+D0167,P01,Seramik kupa,5,6.5,2025-03-05,France,DEMO-40
+D0168,P08,Mum seti,2,14.5,2025-03-06,Germany,DEMO-41
+D0168,P05,Ahşap kalemlik,2,9.0,2025-03-06,Germany,DEMO-41
+D0168,P06,Bez çanta,2,8.5,2025-03-06,Germany,DEMO-41
+D0169,P01,Seramik kupa,3,6.5,2025-03-07,United Kingdom,DEMO-0
+D0169,P02,Keten defter,4,12.0,2025-03-07,United Kingdom,DEMO-0
+D0169,P04,Cam vazo,1,18.5,2025-03-07,United Kingdom,DEMO-0
+D0170,P05,Ahşap kalemlik,1,9.0,2025-03-08,France,DEMO-1
+D0170,P02,Keten defter,4,12.0,2025-03-08,France,DEMO-1
+D0170,P06,Bez çanta,2,8.5,2025-03-08,France,DEMO-1
+D0171,P05,Ahşap kalemlik,2,9.0,2025-03-09,Germany,DEMO-2
+D0171,P06,Bez çanta,4,8.5,2025-03-09,Germany,DEMO-2
+D0171,P04,Cam vazo,1,18.5,2025-03-09,Germany,DEMO-2
+D0172,P01,Seramik kupa,4,6.5,2025-03-10,United Kingdom,DEMO-3
+D0172,P02,Keten defter,5,12.0,2025-03-10,United Kingdom,DEMO-3
+D0172,P04,Cam vazo,2,18.5,2025-03-10,United Kingdom,DEMO-3
+D0173,P03,Masa lambası,1,29.9,2025-03-11,France,DEMO-4
+D0173,P02,Keten defter,2,12.0,2025-03-11,France,DEMO-4
+D0173,P05,Ahşap kalemlik,3,9.0,2025-03-11,France,DEMO-4
+D0174,P07,Çay kutusu,3,11.0,2025-03-12,Germany,DEMO-5
+D0174,P06,Bez çanta,1,8.5,2025-03-12,Germany,DEMO-5
+D0174,P03,Masa lambası,3,29.9,2025-03-12,Germany,DEMO-5
+D0175,P01,Seramik kupa,4,6.5,2025-03-13,United Kingdom,DEMO-6
+D0175,P02,Keten defter,3,12.0,2025-03-13,United Kingdom,DEMO-6
+D0175,P04,Cam vazo,2,18.5,2025-03-13,United Kingdom,DEMO-6
+D0176,P05,Ahşap kalemlik,2,9.0,2025-03-14,France,DEMO-7
+D0176,P07,Çay kutusu,2,11.0,2025-03-14,France,DEMO-7
+D0176,P04,Cam vazo,5,18.5,2025-03-14,France,DEMO-7
+D0177,P05,Ahşap kalemlik,3,9.0,2025-03-15,Germany,DEMO-8
+D0177,P07,Çay kutusu,3,11.0,2025-03-15,Germany,DEMO-8
+D0177,P04,Cam vazo,5,18.5,2025-03-15,Germany,DEMO-8
+D0178,P01,Seramik kupa,1,6.5,2025-03-16,United Kingdom,DEMO-9
+D0178,P02,Keten defter,1,12.0,2025-03-16,United Kingdom,DEMO-9
+D0178,P04,Cam vazo,5,18.5,2025-03-16,United Kingdom,DEMO-9
+D0179,P07,Çay kutusu,4,11.0,2025-03-17,France,DEMO-10
+D0179,P05,Ahşap kalemlik,2,9.0,2025-03-17,France,DEMO-10
+D0179,P08,Mum seti,4,14.5,2025-03-17,France,DEMO-10
+D0180,P07,Çay kutusu,2,11.0,2025-03-18,Germany,DEMO-11
+D0180,P06,Bez çanta,5,8.5,2025-03-18,Germany,DEMO-11
+D0180,P05,Ahşap kalemlik,5,9.0,2025-03-18,Germany,DEMO-11
+C0001,P01,Seramik kupa,-2,6.5,2025-01-02,France,DEMO-1
+BAD1,P02,Keten defter,1,0.0,2025-01-03,France,

@@ -43,3 +43,23 @@ core/dist/
 # whose .mcp.json embeds a session bearer token (CPΩ-F2, D-126.4) — b1-as18
 # and a1-as7 already ignored theirs locally; this makes the rule repo-wide
 workdirs/
+
+# Local analyst extension
+.venv
+analysis/.local/
+
+# Local legacy screenshot aliases; canonical published files have correct JPEG extensions.
+/docs/evidence/phase3/mobile-final.png
+/docs/evidence/phase3/uci-temporal-final.png
+/docs/evidence/phase3/uci-temporal.png
+/docs/evidence/phase4/01-before.png
+/docs/evidence/phase4/02-overview.png
+/docs/evidence/phase4/03-analysis.png
+/docs/evidence/phase4/04-network.png
+/docs/evidence/phase4/05-temporal.png
+/docs/evidence/phase4/06-mobile.png
+/docs/evidence/phase4/07-findings.png
+/docs/evidence/phase4/08-library-empty.png
+/docs/evidence/phase4/09-provider-fallback.png
+/docs/evidence/phase4/overview-delivery.png
+/docs/evidence/workspace-overview.png

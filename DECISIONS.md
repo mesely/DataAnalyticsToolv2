@@ -7831,3 +7831,23 @@ registers, the plan, `.gitignore`, and tracking state only. Phase 2
 closes at `main` = this commit. The next act in this repository is the
 operator's Phase-3 planning conversation, with the CP-Ω report's Part 5
 as its tabled input.
+
+## Analyst workspace extension — 2026-10-15 owner-authorized local Phase 1
+
+Local extension decision namespace AW-1: add the opt-in analyst workspace under existing OIDC/session/CSRF, documented in specs/analyst-workspace-phase1.md. New domain graph/run artifacts do not change lineage or live execute_sql/token contracts. Reuse real adviSU and PoliEco source code with pinned source ledger. No model call is simulated when credentials are absent. Public UCI data and explicitly synthetic oracle fixture support independent verification. Production deployment and live customer configuration are not performed.
+
+AW-2: Docker daemon became unavailable during the broad regression attempt; isolate the demo with a native PostgreSQL 16 cluster under analysis/.local/postgres, localhost:5549, no global launch service. The failed Docker-backed test attempt is retained; rerun against the independent local cluster. Existing unrelated containers/services are not modified.
+
+AW-3: core/test/helpers.ts fills gitIdentityPath with its documented production default, closing the test-rig omission already described in the source and historical B4-F2. Production policy is unchanged.
+
+AW-4 (2026-10-15): Phase2 adds narrowly bounded expert SQL over local materialized retail datasets, reusing sqlval with additional AST/function/privacy/resource guards, under the existing workspace identity boundary. Query persistence/export and run comparison remain subject-owned. This does not relax live execute_sql token or gateway requirements. See specs/analyst-workspace-phase2.md.
+
+AW-5 (2026-10-15): Temporal workspace is descriptive and dataset-scoped: fixed product universe, explicit date-bound coverage, seeded invoice bootstrap with declared assumptions, separate co-purchase/profile semantics. Analysis recipe v3 uses a collision-spaced display layout and positive-only cohesion communities for signed similarity. Declared deterministic numeric claims are checked against computed artifacts; rejected prompts are not retained in titles/rerun recipes. Neither change certifies general LLM truth, causal inference, DLP or production readiness. See specs/analyst-workspace-phase3.md.
+
+## AW-6 — opt-in HF Llama planning and Phase 4 release
+
+2026-10-15: user-authorized Hugging Face Llama via the adapted adviSU transport. A strict current-scope intent plan selects existing computations; no model-generated SQL/code/factual prose. Secrets stay outside Git. Configuration and real connection success are distinct; HTTP402 is an explicit fallback state. Worker admission is unified with cross-process PostgreSQL advisory permits, run archive is reversible, and v4 evidence adds a source/dependency fingerprint. Original Gemini brand artwork and direct task copy replace development labels/slogans. See specs/analyst-workspace-phase4.md; production and live-model evaluation gates remain open.
+
+## AW-7 — named binary visual assets
+
+The user explicitly requested original Gemini assets and real application screenshots in GitHub/README. D-123.2's NUL guard keeps protecting every source/text file; named exact PNG/JPEG paths are now intentional exceptions. Each is listed in tools/nul_scan.py and docs/evidence/ASSET_MANIFEST.json with SHA256. No broad extension exemption. Missing exceptions still fail as stale; a separate test checks image magic and geometry-only SVG navigation. This is the deliberate binary-asset exception anticipated by the original scanner design.

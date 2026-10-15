@@ -44,6 +44,7 @@ import {
   type ClaimDeclaration,
   type ErrorEnvelope,
 } from "./queue.js";
+import { registerWorkbench, workbenchEnabled } from "./workbench.js";
 import { registerBenchmarks } from "./benchmarks.js";
 import { registerConnections } from "./connections.js";
 import { registerDashboard } from "./dashboard.js";
@@ -584,6 +585,7 @@ export function buildServer(
         err ? app.log.error({ err }, msg) : app.log.info(msg),
     };
     registerAuth(app, deps);
+    if (workbenchEnabled()) registerWorkbench(app, deps);
     registerDashboard(app, deps);
     // A-2: the Setup module's server half — bundle download + staleness,
     // on the same session layer and the same KB read.

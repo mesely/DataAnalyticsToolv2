@@ -24,10 +24,14 @@ const options = {
   format: "iife",
   target: ["es2020"],
   jsx: "automatic",
-  minify: false,
+  minify: true,
+  // Keep dependency notices without the EOF module-path index (mergeClasses is not an API).
+  legalComments: "inline",
   sourcemap: false,
   outfile: path.join(out, "app.js"),
-  loader: { ".css": "css" },
+  loader: { ".css": "css", ".jpeg": "file", ".svg": "file" },
+  assetNames: "assets/[name]-[hash]",
+  publicPath: "/app/",
   define: { "process.env.NODE_ENV": '"production"' },
   logLevel: "info",
 };

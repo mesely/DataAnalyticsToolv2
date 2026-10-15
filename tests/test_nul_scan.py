@@ -122,10 +122,14 @@ def test_a_stale_exemption_is_itself_a_failure(
     assert nul_scan.main(["--root", str(scratch_repo)]) == 1
 
 
-def test_the_shipped_allowlist_is_empty():
-    # Stated as a test so that adding an exemption is a visible diff on a
-    # line somebody has to change on purpose.
-    assert nul_scan.BINARY_PATHS == ()
+def test_the_shipped_allowlist_contains_only_named_real_images():
+    # AW-7 permits actual UI/brand images, never source files or wildcard exemptions.
+    assert nul_scan.BINARY_PATHS
+    for name in nul_scan.BINARY_PATHS:
+        assert not any(c in name for c in "*?[")
+        assert name.endswith((".png", ".jpeg"))
+        raw = (REPO_ROOT / name).read_bytes()
+        assert raw.startswith(b"\x89PNG\r\n\x1a\n") if name.endswith(".png") else raw.startswith(b"\xff\xd8\xff")
 
 
 def test_the_cli_exits_nonzero_and_names_the_file(

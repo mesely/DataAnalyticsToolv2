@@ -1,0 +1,22 @@
+{
+  "dataset_rows": 530104,
+  "scope": "loopback subprocess full analysis; no HF; no HTTP/login/DB overhead; warm OS cache, small sample; not SLA or user benchmark",
+  "observations": [
+    {
+      "concurrency": 1,
+      "samples": 12,
+      "p50_ms": 882.0,
+      "sample_p95_ms": 1219,
+      "max_ms": 1219,
+      "failures": 0
+    },
+    {
+      "concurrency": 3,
+      "samples": 12,
+      "p50_ms": 1086.0,
+      "sample_p95_ms": 1185,
+      "max_ms": 1185,
+      "failures": 0
+    }
+  ]
+}

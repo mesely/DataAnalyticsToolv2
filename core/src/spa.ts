@@ -30,6 +30,7 @@ import { fileURLToPath } from "node:url";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import type { CoreConfig } from "./config.js";
 import type { KbReader, KbState } from "./kbread.js";
+import { workbenchEnabled, workbenchAllowed } from "./workbench.js";
 import { authenticate, type SessionDeps } from "./session.js";
 
 export const API_VERSION = "1";
@@ -215,6 +216,9 @@ const CONTENT_TYPES: Record<string, string> = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
   ".svg": "image/svg+xml",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
   ".map": "application/json; charset=utf-8",
 };
 
@@ -252,7 +256,7 @@ export function registerSpa(app: FastifyInstance, deps: SpaDeps): void {
       // the file was never read, without reading logs.
       config_source: ws === null ? "unreadable_kb" : resolved.source,
       branding: resolved.branding,
-      modules: resolved.modules,
+      modules: workbenchEnabled() && workbenchAllowed(auth.identity.roles) ? [{ id: "workspace", title: "Analiz çalışma alanı", path: "/workspace", built: true, description: "Keşfet, analiz et, ilişkileri incele ve bulguları kaydet." }, ...resolved.modules] : resolved.modules,
     });
   });
 
@@ -273,6 +277,10 @@ export function registerSpa(app: FastifyInstance, deps: SpaDeps): void {
   };
 
   app.get(`${APP_BASE}/app.js`, async (_req, reply) => serve(reply, "app.js"));
+  app.get<{ Params: { file: string } }>(`${APP_BASE}/assets/:file`, async (req, reply) => {
+    if (!/^[a-zA-Z0-9_-]+\.(jpeg|png|webp|svg)$/.test(req.params.file)) return reply.code(404).send();
+    return serve(reply, "assets/" + req.params.file);
+  });
   app.get(`${APP_BASE}/app.css`, async (_req, reply) => serve(reply, "app.css"));
 
   // Every in-app route serves the same shell; the client resolves the
@@ -287,6 +295,7 @@ export function registerSpa(app: FastifyInstance, deps: SpaDeps): void {
   // identity that can file something has an inbox, whatever modules
   // their roles show them, so it is not a thing a deployment turns off.
   app.get(`${APP_BASE}/inbox`, shell);
+  if (workbenchEnabled()) app.get(`${APP_BASE}/workspace`, shell);
 
   // A person handed the bare address should land somewhere, not on a
   // 401 from the ops surface.

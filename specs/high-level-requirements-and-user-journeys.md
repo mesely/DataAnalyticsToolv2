@@ -16,6 +16,8 @@ It deliberately does not contain interface signatures, schemas, or wire formats.
 
 Three locked decisions from the product spec shape everything in this document and are restated here because every section leans on them.
 
+**Base-platform rule; opt-in extension amended 2026-10-15.** See `analyst-workspace-phase1.md` for the first-party analyst workspace, optional provider transport and shared identity boundary. The deterministic generator and base external-MCP deployment retain the original rule below.
+
 **The product contains no LLM.** Therefore "which agents do we need" resolves to "which agent *profiles* and *skills* do we ship." An agent in this system is: the customer's own Claude Code session + a profile (tool allowlist, skills bundle, CLAUDE.md fragment, limits) + the MCP server enforcing that profile server-side on every call. The agent catalog is a set of YAML files and skill packages — cheap to add, version, and customize per customer.
 
 **Git holds knowledge, Postgres holds operations.** Docs, entities, metrics, conventions, and profiles live in the KB git repo; runs, logs, audit, benchmarks, and the fault ledger (§6) live in Postgres. Every knowledge change is a PR; every operational event is a row.

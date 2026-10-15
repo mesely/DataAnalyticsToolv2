@@ -1,0 +1,37 @@
+
+> @contextlayer/core@0.1.0 test
+> vitest run test/workbench.test.ts test/workbench-csv.test.ts test/dashboard-kbhealth.test.ts test/dashboard-auth.test.ts test/property.test.ts --maxWorkers=2 --minWorkers=1
+
+
+ RUN  v2.1.9 /Users/selmanyilmaz/Projects/context-layer/core
+
+warning: You appear to have cloned an empty repository.
+warning: You appear to have cloned an empty repository.
+ ✓ test/dashboard-auth.test.ts (12 tests) 5493ms
+   ✓ dashboard session auth (D-102.1) > an expired session is a 401 that re-authenticates cleanly 1208ms
+ ✓ test/property.test.ts (4 tests) 429ms
+warning: You appear to have cloned an empty repository.
+ ✓ test/dashboard-kbhealth.test.ts (13 tests) 14123ms
+   ✓ B-1 KB Health (§3) > maps every source against the policy at HEAD, and says which are stale 1104ms
+   ✓ B-1 KB Health (§3) > a source outside sync-policy.yaml is reported as not-a-sync-source, never as fresh 1223ms
+   ✓ B-1 KB Health (§3) > a policy that does not parse is reported as unreadable, not as no-thresholds 1258ms
+   ✓ B-1 KB Health (§3) > DT-9: sync configured but disabled (SO-F, the two-silent-days shape) > renders the warning state, and reports the same value /healthz does 914ms
+   ✓ B-1 KB Health (§3) > DT-9: sync configured but disabled (SO-F, the two-silent-days shape) > a configured-but-disabled state needs a policy to be about 1007ms
+   ✓ B-1 KB Health (§3) > counts doc status over the docs this caller can see, and says the count is theirs 871ms
+   ✓ B-1 KB Health (§3) > a path the KB cannot establish is null, never an empty list 1027ms
+   ✓ B-1 KB Health (§3) > DT-3: a payload in an object name renders inert on this screen 1154ms
+   ✓ B-1 KB Health (§3) > routes drift PRs to the provider and offers no way to merge one (§7.3) 1144ms
+ ✓ test/workbench.test.ts (11 tests) 10350ms
+   ✓ analyst extension identity, CSRF, ownership and real calculation > computes oracle values and saves a version-bound run 849ms
+   ✓ analyst extension identity, CSRF, ownership and real calculation > keeps uploaded datasets private even if a dataset id is guessed 786ms
+   ✓ analyst extension identity, CSRF, ownership and real calculation > rejects query/filter injection and malformed inputs 332ms
+   ✓ analyst extension identity, CSRF, ownership and real calculation > uses authenticated SQL validation, applies filters, and scopes exports 2682ms
+   ✓ analyst extension identity, CSRF, ownership and real calculation > compares only owner runs with real scope deltas 801ms
+   ✓ analyst extension identity, CSRF, ownership and real calculation > protects temporal analysis and returns real three-period evidence 658ms
+   ✓ analyst extension identity, CSRF, ownership and real calculation > does not retain a policy-refused prompt in the title or rerun recipe 393ms
+ ✓ test/workbench-csv.test.ts (2 tests) 1ms
+
+ Test Files  5 passed (5)
+      Tests  42 passed (42)
+   Start at  13:38:33
+   Duration  18.34s (transform 387ms, setup 0ms, collect 1.70s, tests 30.40s, environment 1ms, prepare 183ms)

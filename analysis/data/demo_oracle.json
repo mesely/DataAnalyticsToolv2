@@ -1,0 +1,9 @@
+{
+  "dataset": "demo",
+  "raw_rows": 542,
+  "valid_rows": 540,
+  "orders": 180,
+  "units": 1639,
+  "gross_pence": 2140500,
+  "excluded_rows": 2
+}

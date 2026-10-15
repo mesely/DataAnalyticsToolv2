@@ -1,0 +1,8 @@
+# Tested Phase 1 runtime, additional to root editable project.
+duckdb==1.5.6
+pandas==3.0.6
+numpy==2.5.4
+networkx==3.7
+openpyxl==3.1.5
+httpx==0.28.1
+langchain-core==1.6.10

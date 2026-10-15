@@ -1,0 +1,12 @@
+{
+  "provider": "huggingface",
+  "model": "meta-llama/Llama-3.3-70B-Instruct",
+  "catalog_http_status": 200,
+  "actual_inference_http_status": 402,
+  "response_class": "inference_credit_payment_required",
+  "successful_model_response_verified": false,
+  "prompt_tokens": null,
+  "completion_tokens": null,
+  "cost_usd": null,
+  "credentials_included": false
+}

@@ -189,6 +189,7 @@ export async function startCore(
       // "no verdict yet" is what they assert, and waiting a real minute
       // for it proves nothing extra.
       probeTimeoutS: 5,
+      gitIdentityPath: "secret/contextlayer/users",
     },
     ...overrides,
   };

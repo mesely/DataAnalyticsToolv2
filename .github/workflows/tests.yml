@@ -58,7 +58,11 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install Python package (delivery gate + e2e runner)
-        run: python -m pip install -e '.[dev]' -c constraints.txt
+        run: python -m pip install -e '.[dev]' -c constraints.txt -r analysis/requirements.txt
+      - name: Prepare public analytics fixtures
+        run: |
+          curl --fail -L --max-time 120 https://archive.ics.uci.edu/static/public/352/online+retail.zip -o /tmp/online-retail.zip
+          python -m analysis.prepare
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -94,3 +98,19 @@ jobs:
         run: python -m pip install -e '.[dev]' -c constraints.txt
       - name: Suite-integrity check (R7)
         run: python -m benchmark.integrity
+
+  analytics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install analytics dependencies
+        run: python -m pip install -e '.[dev]' -c constraints.txt -r analysis/requirements.txt
+      - name: Prepare attributed public and synthetic data
+        run: |
+          curl --fail -L --max-time 120 https://archive.ics.uci.edu/static/public/352/online+retail.zip -o /tmp/online-retail.zip
+          python -m analysis.prepare
+      - name: Offline analytics and planner contracts (no live model key)
+        run: python -m pytest analysis/tests -q

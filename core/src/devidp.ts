@@ -61,6 +61,8 @@ export async function startDevIdp(options: {
   /** Advertised issuer host (compose: the service name); default 127.0.0.1. */
   host?: string;
   tokenTtlS?: number;
+  /** Network bind distinct from the advertised issuer host. */
+  bindHost?: string;
 }): Promise<DevIdp> {
   const users = new Map(options.users.map((u) => [u.username, { ...u, roles: [...u.roles] }]));
   const codes = new Map<string, CodeGrant>();
@@ -108,14 +110,15 @@ export async function startDevIdp(options: {
         return v ? `<input type="hidden" name="${k}" value="${v.replace(/"/g, "&quot;")}">` : "";
       })
       .join("\n");
-    return `<!doctype html><html><body style="font-family:sans-serif;max-width:22rem;margin:4rem auto">
-<h2>Context Layer dev IdP</h2><p style="color:#a00">${error}</p>
+    return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in — Context Layer</title>
+<style>body{font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f6f7fa;color:#172238;max-width:360px;margin:12vh auto;padding:32px}h2{font-size:27px;letter-spacing:-.8px;margin:0 0 24px}form{background:#fff;border:1px solid #e5e9f0;border-radius:12px;padding:28px}label{display:block;font-size:13px}input{box-sizing:border-box;display:block;width:100%;padding:12px;margin-top:8px;border:1px solid #c5cdd9;border-radius:7px;font:inherit}button{width:100%;background:#4557c7;color:white;border:0;border-radius:7px;padding:13px;font:inherit;cursor:pointer}input:focus-visible,button:focus-visible{outline:3px solid #9da9ff;outline-offset:3px}p{font-size:12px;color:#637086}</style></head><body>
+<h2>Context Layer</h2><p role="alert" style="color:#a00">${error}</p>
 <form method="post" action="/authorize">
 ${fields}
 <label>User <input name="username" autofocus></label><br><br>
 <label>Password <input name="password" type="password"></label><br><br>
 <button type="submit">Sign in</button>
-</form><p style="color:#666;font-size:0.8rem">dev-only provider — not for production</p></body></html>`;
+</form><p style="color:#666;font-size:0.8rem">Development identity provider · local access only</p></body></html>`;
   }
 
   const server = http.createServer((req, res) => {
@@ -311,7 +314,7 @@ ${fields}
     json(res, 404, { error: "not_found" });
   }
 
-  await new Promise<void>((resolve) => server.listen(options.port ?? 0, "0.0.0.0", resolve));
+  await new Promise<void>((resolve) => server.listen(options.port ?? 0, options.bindHost ?? "0.0.0.0", resolve));
   const address = server.address();
   const port = typeof address === "object" && address ? address.port : 0;
   issuer = `http://${options.host ?? "127.0.0.1"}:${port}`;

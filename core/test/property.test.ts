@@ -150,7 +150,7 @@ it("dedupe invariant holds under arbitrary interleavings (§8)", async () => {
   );
 }, 240_000);
 
-it("defer absorbs a queued follower before requeueing the active batch", async () => {
+it("D-106.2: defer coalesces into the queued survivor without losing triggers", async () => {
   const system = `defer-follower-${namespace++}`;
   const connector = `conn-${system}`;
   const first = await enqueue(core.pool, core.cfg, {
@@ -184,7 +184,7 @@ it("defer absorbs a queued follower before requeueing the active batch", async (
     0,
     { code: "quota", message: "staged" },
   );
-  expect(outcome).toBe("deferred");
+  expect(outcome).toBe("coalesced");
 
   const { rows } = await core.pool.query<{
     job_id: string;
@@ -196,11 +196,17 @@ it("defer absorbs a queued follower before requeueing the active batch", async (
       WHERE system = $1 AND type = 'snapshot'`,
     [system],
   );
-  expect(rows).toHaveLength(1);
-  expect(rows[0]!.job_id).toBe(first.jobId);
-  expect(rows[0]!.state).toBe("queued");
-  expect(rows[0]!.triggers).toHaveLength(2);
-  expect(rows[0]!.triggers[1]!.merged_from).toBe(follower.jobId);
+  // The spec keeps the terminal row for audit, and the follower carries the work.
+  expect(rows).toHaveLength(2);
+  const terminal=rows.find(r=>r.job_id===first.jobId)!;
+  const survivor=rows.find(r=>r.job_id===follower.jobId)!;
+  expect(terminal.state).toBe("coalesced");
+  expect(survivor.state).toBe("queued");
+  expect(survivor.triggers).toHaveLength(2);
+  expect(survivor.triggers[1]!.merged_from).toBe(first.jobId);
+  const record=await core.pool.query('SELECT error,result_meta FROM jobs WHERE job_id=$1',[first.jobId]);
+  expect(record.rows[0].error).toBeNull();
+  expect(record.rows[0].result_meta.coalesced_into).toBe(follower.jobId);
 });
 
 it("repeated lease expiry reclaims exactly max_attempts times, then dead-letters", async () => {

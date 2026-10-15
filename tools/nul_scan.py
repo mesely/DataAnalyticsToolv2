@@ -26,11 +26,10 @@ it binary the moment a line is added above. Guarding the property rather
 than the symptom means the guard does not depend on where in the file
 somebody types.
 
-**BINARY_PATHS is deliberately empty.** Every tracked path in this repo
-is text (py/md/ts/tsx/json/sql/yaml/sh/…). If a genuinely binary asset
-is ever committed — an image, a vendored wheel — its path goes here as a
-named exception, which is a decision somebody makes on purpose rather
-than a check quietly weakening. A pattern listed here that matches no
+**BINARY_PATHS contains named image exceptions (AW-7).** Analytic UI screenshots
+and original brand JPEGs are intentionally binary. Each exact path is listed
+below; text/code files are never exempted. Additional binary assets require
+a visible named exception and an evidence manifest update. A pattern listed here that matches no
 tracked file is itself an error: stale exemptions are how allowlists rot.
 """
 
@@ -44,9 +43,8 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
-#: Tracked paths (fnmatch patterns) that are legitimately binary. Empty by
-#: design — see the module docstring before adding to it.
-BINARY_PATHS: tuple[str, ...] = ()
+#: Exact named image exceptions; no broad extension exemption (AW-7).
+BINARY_PATHS: tuple[str, ...] = ('core/web/src/workbench/assets/analysis-library.jpeg', 'core/web/src/workbench/assets/context-prism.jpeg', 'docs/evidence/phase3/mobile-final.jpeg', 'docs/evidence/phase3/uci-temporal-final.jpeg', 'docs/evidence/phase3/uci-temporal.jpeg', 'docs/evidence/phase4/01-before.jpeg', 'docs/evidence/phase4/02-overview.jpeg', 'docs/evidence/phase4/03-analysis.jpeg', 'docs/evidence/phase4/04-network.jpeg', 'docs/evidence/phase4/05-temporal.jpeg', 'docs/evidence/phase4/06-mobile.jpeg', 'docs/evidence/phase4/07-findings.jpeg', 'docs/evidence/phase4/08-library-empty.jpeg', 'docs/evidence/phase4/09-provider-fallback.jpeg', 'docs/evidence/phase4/overview-delivery.jpeg', 'docs/evidence/workspace-overview.jpeg')
 
 
 def tracked_files(root: Path = REPO_ROOT) -> list[str]:

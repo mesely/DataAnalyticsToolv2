@@ -1,0 +1,82 @@
+[
+  {
+    "path": "core/web/src/workbench/assets/analysis-library.jpeg",
+    "sha256": "c8a1649c336eccefbe53492c2135d9dc8d6a8169903235e27bd023ddff1f50ad",
+    "kind": "original-gemini-artwork"
+  },
+  {
+    "path": "core/web/src/workbench/assets/context-prism.jpeg",
+    "sha256": "979e19f1b5f84467ebbc0ed736236ea18ada0e4705f4bc96054ca1986943ef84",
+    "kind": "original-gemini-artwork"
+  },
+  {
+    "path": "docs/evidence/phase3/mobile-final.jpeg",
+    "sha256": "f5ae63d18aca65bf9828ea0337ce9fdab173943369739500598714a799574f3d",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase3/uci-temporal-final.jpeg",
+    "sha256": "02fe373b445c734cd8da3e9fd1aeff01cc949a35ec770f63b49994b5db33b713",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase3/uci-temporal.jpeg",
+    "sha256": "da3b6446226d9784c5b38897bcbf753ce7bd4996d4e7a47262aba3145bb60a35",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase4/01-before.jpeg",
+    "sha256": "524392f2a6ed3766e1f0c7a342026e5393649125f6d0e60e948dac87db802c50",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase4/02-overview.jpeg",
+    "sha256": "fee530dbdf514b3c1c665ed6ed68f6769d257549afc9d4bfaaba882ed6fcc5c1",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase4/03-analysis.jpeg",
+    "sha256": "5c361b25382324ea314b60f26465980a4d5232cd4bbce6f23ff6bf3322b19fd2",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase4/04-network.jpeg",
+    "sha256": "2cf74184b503c9bcaad3d8639596bca35c02f571621f9629c83c3433f5ab978e",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase4/05-temporal.jpeg",
+    "sha256": "e6d299f7208ea208ab9efd0cf4ddd0df0de57dbde89e763d701a6a8ff59fd481",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase4/06-mobile.jpeg",
+    "sha256": "ff569e870ae0437e7f8c8a46785b935f37b6f94c4fd9026121a07e6e8ed27469",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase4/07-findings.jpeg",
+    "sha256": "416f31c2b0979de8f1f4064ba0be35945d14e0e4540ae38075b19bee3be68d1f",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase4/08-library-empty.jpeg",
+    "sha256": "143fe1658ec5e28f88ed12cae0bc04ef6224c23957239941879796f089ae3fa2",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase4/09-provider-fallback.jpeg",
+    "sha256": "b4d896ea338667422162283c1f763a7079edc8616d7028a76f06e2ff046915f7",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/phase4/overview-delivery.jpeg",
+    "sha256": "7b302b662074b5032eb833d59b62cc985a592b7211c71c4fdd66331c224dddb5",
+    "kind": "actual-local-application-screenshot"
+  },
+  {
+    "path": "docs/evidence/workspace-overview.jpeg",
+    "sha256": "f62a2d85d917adb19c14fd79edcf125bfeb75e3f947384cde2b8c4f0cd80cfd8",
+    "kind": "actual-local-application-screenshot"
+  }
+]

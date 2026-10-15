@@ -8,6 +8,8 @@
 
 **Çalışan uygulama:** http://127.0.0.1:8123/app/ — `selman` / `analiz-demo`. İkinci kimlik `alper` / aynı parola; `viewer` aynı parolayla yetkisiz rol testidir. Bunlar yalnız yerel fixture hesaplarıdır. Yeni başlangıç: repo kökünden `./deploy/phase1/start.sh`.
 
+**GitHub teslimi:** [PR #1](https://github.com/mesely/DataAnalyticsToolv2/pull/1) · [Ürün README ve ekranlar](https://github.com/mesely/DataAnalyticsToolv2/tree/feat/analytics-workspace-phase4).
+
 **İlk devam hareketi:** `docs/phases/PHASE_4_REPORT.md` ve `NEXT_BACKLOG.md` oku. HF gerçek completion HTTP402 credit/payment gerektiriyor; yeni token isteme/anahtar arama/hesaba ödeme yapma. Bağlantı kodu ve offline kontratlar hazır; başarılı canlı 50+ görev eval kredili hesapla açık. Üretim tenant/RLS/retention, 5M/50M/HTTP yük ve gerçek UX pilotu ayrı açık kapılar. Yeni Aşama5 genel veri/ML veya Aşama6 BI/pilot işine kullanıcı yönlendirmesine göre geç; bitmiş özellikleri yeniden yazma.
 
 ## Kullanıcının amacı ve yetki
@@ -145,7 +147,7 @@ LLM planı aynı değilse replay digest değişebilir; temperature0 plan determi
 - Yeni `Perakende satış özeti` QA kaydı görünür/restore durumda; önceki kendi Aşama1 demo fixture bulgusu arşivde, geri alınabilir. İlgisiz kayıt silinmedi. Varsayılan dataset UCI; örnek veri Perakende örneği, source modalında sentetik olduğunu korur.
 - Git hedefi **https://github.com/mesely/DataAnalyticsToolv2**, branch **feat/analytics-workspace-phase4**. `origin` AlperCamli read-only korunur; `publish` meselyv2 remote. Repo normu PR review; main merge veya production deploy otomatik yapılmaz. Son yayın sonucu aşağıdaki kartta güncellenir.
 
-**Yayın kartı:** Yerel hazırlık tamam; secret/NUL/asset kapısı 15 test ve secret scan geçti; branch push/PR doğrulaması sürüyor. Bu kart tamamlanmadan yayımlandı diye iddia etme.
+**Yayın kartı:** GitHub push başarılı; PR https://github.com/mesely/DataAnalyticsToolv2/pull/1 açık. README/ekranlar dalda: https://github.com/mesely/DataAnalyticsToolv2/tree/feat/analytics-workspace-phase4 . Main merge/production deploy yapılmadı. Secret scan geçti; token ignored0600. Uzak CI çalışıyor, sonucu geçmiş sayma. Yerel 142 analitik +45 core/CSV +15 asset/NUL kapısı geçti. CI'da .venv olmadığı için CORE_ANALYSIS_PYTHON=python açıkça ayarlandı.
 
 ## SON ANKOR — devam etmeden önce
 

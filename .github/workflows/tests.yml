@@ -81,6 +81,7 @@ jobs:
         working-directory: core
         env:
           CORE_TEST_PYTHON: python
+          CORE_ANALYSIS_PYTHON: python
 
   # R7: the ONLY benchmark check in CI — the deterministic suite-integrity
   # gate (schema + expected_object resolution + golden object/column

@@ -120,6 +120,13 @@ bant kapsaması" tablosu (Markdown raporunda da); kaydırılabilir tablo bölges
 odak, ok tuşu ile kaydırma doğrulandı). TR kapsama cümlesi artık "%85 / %70" yazar. Kanıt: `phase11-forecast-uci.json`
 (`period_slices`), `phase11-browser-binding.json` 10/10. Analytics **277 passed**.
 
+## 7e. TR teşhis metinleri (Opus devam turu) — IMPLEMENTED · TESTED · BROWSER
+Tahmin teşhisleri artık `params` taşır (sayılar, tarihler, aylar); İngilizce `message` rapor ve model paketi için
+korunur. Karar stüdyosu TR modunda 12 kodun her biri için TR şablonu kullanır; bilinmeyen kod veya eksik params
+İngilizce mesaja düşer, hiçbir teşhis gizlenmez. Koruyucu test: forecast.py'deki her kod params taşır ve TS'de bir
+`case` karşılığı vardır (yeni kod eklenip çevrilmezse test kırılır). Tarayıcı: UCI'nin 6 teşhisi TR'de tamamen Türkçe;
+EN'e geçince sunucu mesajları aynen. Analytics **278 passed**.
+
 ## 8. Açık kalanlar
 Gerçek LLM erişimi (402), 5–8 kullanıcı pilotu, üretim RLS/retention/hard isolation, 5M+ ölçek, decisions yolunun
 decisions/run yolunda kalan ~0,7 s başlangıç (pandas/networkx; graph gerektirir), ≥2 sezon veriyle seasonal naive doğrulaması, dönem (ay) dilimleri ve anlatı için anlamsal iddia-dayanak doğrulaması (ölçü/dönem bağı kelime düzeyinde eklendi). Parquet core TS rotası önceki CI’da geçti; açık iş olarak tutulmaz.

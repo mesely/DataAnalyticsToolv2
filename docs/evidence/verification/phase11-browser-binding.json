@@ -47,6 +47,10 @@
   {
    "name": "keyboard: Tab reaches the month table region (role=region, aria-label) with a 2px focus outline; ArrowRight x8 scrolls it 240 of 297px",
    "ok": true
+  },
+  {
+   "name": "forecast diagnostics: Turkish UI renders all six UCI diagnostics from code+params (no English left); switching to English shows the server messages unchanged",
+   "ok": true
   }
  ],
  "not_checked": [
@@ -54,7 +58,7 @@
   "light theme and keyboard pass for this change (unchanged paths; covered by phase11-browser-qa.json)"
  ],
  "summary": {
-  "passed": 10,
+  "passed": 11,
   "failed": 0
  },
  "web_sha256_after_period_slices": {

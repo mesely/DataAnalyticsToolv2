@@ -69,7 +69,7 @@ type Forecast = {
       }
     >;
   };
-  diagnostics?: { code: string; severity: string; message: string }[];
+  diagnostics?: Diagnostic[];
   period_slices?: {
     month: string;
     phase: string;
@@ -97,6 +97,57 @@ type Forecast = {
   }[];
   notes: string[];
 };
+
+type Diagnostic = {
+  code: string;
+  severity: string;
+  message: string;
+  params?: Record<string, unknown>;
+};
+
+/** Turkish text for a forecast diagnostic, built from its code and params. English uses the server
+ * message; an unknown code or missing params falls back to it as well, so nothing is ever hidden. */
+function diagnosticTr(d: Diagnostic): string | null {
+  const p = d.params;
+  if (!p) return null;
+  const pct = (v: unknown) => `%${Math.round(Number(v) * 100)}`;
+  const gbp = (v: unknown) =>
+    new Intl.NumberFormat("tr-TR", {
+      style: "currency",
+      currency: "GBP",
+      maximumFractionDigits: 0,
+    }).format(Number(v));
+  switch (d.code) {
+    case "seasonal_naive_unavailable":
+      return `Mevsimsel naif yöntem (52 hafta) en az ${p.required} tam hafta ister; ${p.available} hafta var. Yıllık mevsimsellik bu geçmişle doğrulanamaz.`;
+    case "zero_weeks":
+      return `${p.count} tam haftada gözlenen brüt satış yok; sıfır sayıldı ve veri toplama boşluğu olabilir.`;
+    case "outlier_weeks":
+      return `Tipik düzeyden çok uzak haftalar (dayanıklı 3-sigma): ${(p.weeks as string[]).join(", ")}${p.more ? " …" : ""}.`;
+    case "possible_level_shift":
+      return "Son 8 haftanın ortalaması önceki 8 haftadan tipik haftalık değişimin iki katından fazla farklı; yapısal bir değişim dışlanamaz.";
+    case "unstable_development_error":
+      return `Seçilen yöntemin hatası geliştirme dönemlerinin ilk ve ikinci yarısı arasında iki kattan fazla değişiyor (MAE ${gbp(p.first_half_mae_gbp)} / ${gbp(p.second_half_mae_gbp)}).`;
+    case "small_selection_margin":
+      return "Seçilen yöntem geliştirmede naifi %5'ten az farkla geçiyor; naif yöntem neredeyse aynı iyilikte.";
+    case "band_undercovers_development":
+      return `%90 bandı, önceki artıklardan kurulduğunda değerlendirilen geliştirme dönemlerinin yalnız ${pct(p.coverage)}'ini kapsadı; gösterilen aralığı iyimser kabul edin.`;
+    case "band_undercovers_final":
+      return `Nominal %90 bandı ${p.origins} final dönemin yalnız ${pct(p.coverage)}'ini kapsadı. Bu gözlenen eksik kapsamadır, kalibre edilmiş %90 aralık değildir; final pencere ayar için hiç kullanılmaz.`;
+    case "relative_band_collapsed":
+      return "Göreli ölçek final pencerede veya sonraki dönemde sıfır tahminle karşılaştı; aralık sıfıra çöker. Kapsama ve genişlik betimseldir; bu aralık planlama için zayıftır.";
+    case "final_window_worse_than_naive":
+      return "Final pencerede seçilen yöntem naif referansı geçemedi; projeksiyonu zayıf kabul edin.";
+    case "final_month_worse_than_naive":
+      return `${(p.months as { month: string; weeks: number }[])
+        .map((m) => `${m.month} (${m.weeks} final hafta)`)
+        .join(", ")} döneminde seçilen yöntemin MAE'si naiften yüksek; final penceredeki üstünlük her ayda geçerli değil.`;
+    case "slice_disagreement":
+      return `Lider ülke dilimlerinin ${p.ready} tanesinden ${p.disagree} tanesinde, toplamda seçilen yöntem final pencerede naifi geçemedi; toplam sonuç her pazara aktarılamaz.`;
+    default:
+      return null;
+  }
+}
 
 function forecastMethodLabel(id: string | undefined): [string, string] {
   const label = id ? FORECAST_METHOD_LABELS[id] : undefined;
@@ -914,7 +965,7 @@ export function DecisionStudio({
                   <ul className="wb-forecast-diagnostics">
                     {forecast.diagnostics.map((d) => (
                       <li key={d.code} data-severity={d.severity}>
-                        {d.message}
+                        {(locale === "tr" && diagnosticTr(d)) || d.message}
                       </li>
                     ))}
                   </ul>

@@ -117,12 +117,12 @@ def _diagnostics(weeks, values, seasonal_available, scale, selected, candidates,
     n = len(values)
     if not seasonal_available:
         out.append({
-            "code": "seasonal_naive_unavailable", "severity": "info",
+            "code": "seasonal_naive_unavailable", "severity": "info", "params": {"required": 2 * SEASON_WEEKS, "available": n},
             "message": f"Seasonal naive (52-week) needs at least {2 * SEASON_WEEKS} complete weeks; {n} available. Yearly seasonality cannot be validated from this history.",
         })
     zero = sum(1 for v in values if v == 0)
     if zero:
-        out.append({"code": "zero_weeks", "severity": "warning",
+        out.append({"code": "zero_weeks", "severity": "warning", "params": {"count": zero},
                     "message": f"{zero} complete week(s) have no observed gross sales; they count as zero and may be collection gaps."})
     med = statistics.median(values)
     mad = statistics.median(abs(v - med) for v in values)
@@ -131,12 +131,12 @@ def _diagnostics(weeks, values, seasonal_available, scale, selected, candidates,
     if robust > 0:
         outliers = [w["period"] for w, v in zip(weeks, values) if abs(v - med) > 3 * robust]
         if outliers:
-            out.append({"code": "outlier_weeks", "severity": "warning",
+            out.append({"code": "outlier_weeks", "severity": "warning", "params": {"weeks": outliers[:5], "more": len(outliers) > 5},
                         "message": "Weeks far from the typical level (robust 3-sigma): " + ", ".join(outliers[:5]) + (" …" if len(outliers) > 5 else "") + "."})
     if n >= 16 and scale:
         recent, prior = sum(values[-8:]) / 8, sum(values[-16:-8]) / 8
         if abs(recent - prior) > 2 * scale:
-            out.append({"code": "possible_level_shift", "severity": "warning",
+            out.append({"code": "possible_level_shift", "severity": "warning", "params": {},
                         "message": "The mean of the last 8 weeks differs from the previous 8 by more than twice the typical weekly change; a structural change cannot be excluded."})
     dev = candidates[selected]["records"]
     if len(dev) >= 8:
@@ -144,26 +144,26 @@ def _diagnostics(weeks, values, seasonal_available, scale, selected, candidates,
         a = metrics(dev[:half])["mae_gbp"]
         b = metrics(dev[half:])["mae_gbp"]
         if min(a, b) > 0 and max(a, b) / min(a, b) > 2:
-            out.append({"code": "unstable_development_error", "severity": "warning",
+            out.append({"code": "unstable_development_error", "severity": "warning", "params": {"first_half_mae_gbp": a, "second_half_mae_gbp": b},
                         "message": f"The selected method's error differs more than twofold between the first and second half of the development origins ({a:,.0f} vs {b:,.0f} GBP MAE)."})
     naive_dev = candidates["naive"]["development"]["mae_gbp"]
     best_dev = candidates[selected]["development"]["mae_gbp"]
     if selected != "naive" and naive_dev > 0 and (naive_dev - best_dev) / naive_dev < 0.05:
-        out.append({"code": "small_selection_margin", "severity": "info",
+        out.append({"code": "small_selection_margin", "severity": "info", "params": {},
                     "message": "The selected method beats naive by less than 5% on development origins; the naive method is nearly as good."})
     cov = (uncertainty or {}).get("levels", {}).get("0.9", {}).get("development_rolling_coverage")
     if cov is not None and cov < 0.8:
-        out.append({"code": "band_undercovers_development", "severity": "warning",
+        out.append({"code": "band_undercovers_development", "severity": "warning", "params": {"coverage": cov},
                     "message": f"The 90% band covered only {cov:.0%} of evaluated development origins when built from earlier residuals; treat the displayed range as optimistic."})
     final_cov = (uncertainty or {}).get("levels", {}).get("0.9", {}).get("final_window_coverage")
     if final_cov is not None and final_cov < 0.8:
-        out.append({"code": "band_undercovers_final", "severity": "warning",
+        out.append({"code": "band_undercovers_final", "severity": "warning", "params": {"coverage": final_cov, "origins": holdout["origins"]},
                     "message": f"The nominal 90% band covered only {final_cov:.0%} of {holdout['origins']} final origins. This is observed undercoverage, not a calibrated 90% range; the final window is never used to tune it."})
     if (uncertainty or {}).get("collapsed_relative_band"):
-        out.append({"code": "relative_band_collapsed", "severity": "warning",
+        out.append({"code": "relative_band_collapsed", "severity": "warning", "params": {},
                     "message": "Relative scaling met a zero forecast in the final window or next period: its range collapses to zero. Coverage and width remain descriptive; this range is weak for planning."})
     if holdout["selected"]["mae_gbp"] >= holdout["naive"]["mae_gbp"]:
-        out.append({"code": "final_window_worse_than_naive", "severity": "warning",
+        out.append({"code": "final_window_worse_than_naive", "severity": "warning", "params": {},
                     "message": "On the final window the selected method did not beat the naive benchmark; treat the projection as weak."})
     return out
 
@@ -394,7 +394,7 @@ def backtest(weeks):
     losing = [x for x in result["period_slices"] if x["phase"] == "final" and x["n"] >= 2 and not x["selected_beats_naive"]]
     if losing and selected != "naive":
         result["diagnostics"].append({
-            "code": "final_month_worse_than_naive", "severity": "warning",
+            "code": "final_month_worse_than_naive", "severity": "warning", "params": {"months": [{"month": x["month"], "weeks": x["n"]} for x in losing]},
             "message": "In " + ", ".join(f"{x['month']} ({x['n']} final weeks)" for x in losing)
             + " the selected method's MAE exceeded naive; the final-window advantage does not hold in every month.",
         })
@@ -486,6 +486,7 @@ def forecast(request, metadata, where, args, data_dir):
         if disagree:
             result["diagnostics"].append({
                 "code": "slice_disagreement", "severity": "warning",
+                "params": {"disagree": len(disagree), "ready": sum(1 for x in result["slices"] if x["status"] == "ready")},
                 "message": f"In {len(disagree)} of {sum(1 for x in result['slices'] if x['status'] == 'ready')} leading-country slices the aggregate's selected method did not beat naive on the final window; the aggregate conclusion does not transfer to every market.",
             })
     final_count = result.get("split", {}).get("holdout_origins")

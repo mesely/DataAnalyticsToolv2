@@ -34,7 +34,7 @@ E2E = tıklamadan görünen sonuca. Kaynak dosyalar `docs/evidence/` altındadı
 | H. Erişilebilirlik | A11 gerçek tarayıcı kabulü: karar/anlatı/dilim/tema/390px/klavye/CSV/Parquet/indirmeler | 16/16 PASS; 44px form hedefleri; sayfa taşması ve bozuk görsel yok | MEASURED (tam WCAG değil) | BROWSER | `phase11-browser-qa.json` |
 | H. Erişilebilirlik | Tam WCAG denetimi / ekran okuyucu | — | NOT MEASURED | — | — |
 | I. Görsel kalite | 6 raster / 37 SVG özgün aile; manifest hash | doğrulandı | MEASURED | — | `ASSET_MANIFEST.json`, 48 test |
-| J. Sürdürülebilirlik | Analytics pytest / NUL-asset / web tsc+build | 277 / 48 / geçti | MEASURED | MICRO | bu tur logu |
+| J. Sürdürülebilirlik | Analytics pytest / NUL-asset / web tsc+build | 278 / 48 / geçti | MEASURED | MICRO | bu tur logu |
 | J. Sürdürülebilirlik | Core TS suite (yerel) | Docker fixture → koşmaz | BLOCKED (yerel) / CI'da koşar | — | progress kartı |
 | K. Ölçeklenebilirlik | 5M/50M satır bütçesi | — | NOT MEASURED | — | NEXT_BACKLOG 6 |
 | L. Tekrarlanabilirlik | Aynı girdi → aynı output_sha256 (karar/tahmin/ML kartı) | geçiyor | MEASURED | MICRO | test_decisions/test_narrative/test_ml |

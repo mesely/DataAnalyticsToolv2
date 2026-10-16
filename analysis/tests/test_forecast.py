@@ -259,3 +259,18 @@ def test_final_month_worse_than_naive_diagnostic_names_months_not_labels():
         pytest.skip("naive selected on development; the diagnostic only applies to other methods")
     d = [x for x in r["diagnostics"] if x["code"] == "final_month_worse_than_naive"]
     assert d and all(m["month"] in d[0]["message"] for m in r["period_slices"] if m["phase"] == "final" and m["n"] >= 2 and not m["selected_beats_naive"])
+
+
+def test_every_diagnostic_carries_params_and_a_turkish_template():
+    import re
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    source = (root / "analysis/forecast.py").read_text()
+    codes = set(re.findall(r'"code": "([a-z_]+)"', source))
+    ui = (root / "core/web/src/workbench/DecisionStudio.tsx").read_text()
+    missing = sorted(c for c in codes if f'case "{c}":' not in ui)
+    assert not missing, f"diagnostic codes without a Turkish template: {missing}"
+    spiky = [40000] * 24
+    spiky[5], spiky[10] = 0, 400000
+    for d in backtest(series(spiky))["diagnostics"]:
+        assert isinstance(d.get("params"), dict) and d["message"], d["code"]

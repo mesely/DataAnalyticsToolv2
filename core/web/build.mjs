@@ -11,7 +11,7 @@
  */
 
 import { build, context } from "esbuild";
-import { copyFile, mkdir } from "node:fs/promises";
+import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -44,6 +44,7 @@ const css = {
 };
 
 await mkdir(out, { recursive: true });
+await writeFile(path.join(out,"brand.svg"),(await readFile(path.join(here,"src/workbench/assets/brand.svg"),"utf8")).replaceAll("currentColor","#7d91ee"));
 
 if (process.argv.includes("--watch")) {
   const js = await context(options);

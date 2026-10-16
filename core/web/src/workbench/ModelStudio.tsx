@@ -1,13 +1,8 @@
+import { ArrowRight, Download } from "./BrandIcons";
+import { Upload } from "./BrandIcons";
 import modelArt from "./assets/model-studio.jpeg";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  FlaskConical,
-  Loader2,
-  Download,
-  Upload,
-  ArrowRight,
-  FolderOpen,
-} from "lucide-react";
+import { FlaskConical, Loader2, FolderOpen } from "lucide-react";
 import { api } from "../api";
 import { useLocale } from "./Locale";
 import type { DataProfile } from "./Preparation";

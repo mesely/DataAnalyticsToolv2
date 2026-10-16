@@ -83,5 +83,17 @@
     "source_commit": "b217890ec18c35180c7ac7bc3a8dcd28a6c1794e",
     "source_path": "influencer_classification_and_like_count_regression.ipynb",
     "source_sha256": "bc7cea3cded5c1ec2b3892ab6ea14762d0e4ded3d16d6d61e058f4536dae68a1"
+  },
+  {
+    "source_repo": "mesely/adviSU",
+    "source_commit": "e1e224134a3ce9a52c758c35ce517b1d42c9b75a",
+    "source_path": "server/modules/response_formatter.py",
+    "source_sha256": "57f89f2e7386b0410fc8625bab11d0f31138d5de93c5bf6fbe1ff6382eba5b5e",
+    "extracted_symbols": [
+      "_plain_text",
+      "compact_summary",
+      "split_summary"
+    ],
+    "target": "analysis/adapted/formatting.py"
   }
 ]

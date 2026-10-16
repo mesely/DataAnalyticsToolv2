@@ -58,6 +58,8 @@ The **sync-orchestrator spec** (webhook ingestion detail — JP-4 — scheduling
 ## Opt-in analyst product amendments
 
 The analytics workspace contracts are additive to the platform v1.0 set:
-`analyst-workspace-phase1.md` through `analyst-workspace-phase6.md`.
+`analyst-workspace-phase1.md` through `analyst-workspace-phase10.md`.
 AW-8 (CSV preparation) and AW-9 (bounded ML experiments) do not change the
 zero-model generator or live governed SQL/publisher authorization paths.
+
+AW-10–13 add bounded forecasts, evidence-bound decision artifacts, a Gemini icon family, appearance modes and local evaluation. Earlier deferred production/semantic/OOF tasks remain open.

@@ -1,12 +1,6 @@
+import { ChevronRight, Download, Info } from "./BrandIcons";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Clock3,
-  ChevronRight,
-  Download,
-  Loader2,
-  Info,
-  Play,
-} from "lucide-react";
+import { Clock3, Loader2, Play } from "lucide-react";
 import { api } from "../api";
 import { useLocale } from "./Locale";
 import type { Dataset, Filters } from "./types";

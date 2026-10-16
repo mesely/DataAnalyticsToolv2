@@ -282,7 +282,16 @@ def explain(request, result):
         for country in result["dataset"]["countries"]
     )
     if country_change:
-        return {"status": "clarify", "reason": "explicit_filter_required", "text": "Apply the requested country filter, then run the analysis." if en else "Önce istediğiniz ülkeyi filtrelerden seçip Uygula'ya basın; ardından soruyu çalıştırın.", "mode": "deterministic"}
+        return {
+            "status": "clarify",
+            "reason": "explicit_filter_required",
+            "text": (
+                "Apply the requested country filter, then run the analysis."
+                if en
+                else "Önce istediğiniz ülkeyi filtrelerden seçip Uygula'ya basın; ardından soruyu çalıştırın."
+            ),
+            "mode": "deterministic",
+        }
     if any(
         x in t
         for x in [
@@ -493,11 +502,15 @@ def run(request):
         result["graph"] = graph(request)
     result["answer"] = explain(request, result)
     from analysis.llm import status, plan_question, INTENTS
+
     result["provider"] = status()
     if request.get("use_llm") is True and request.get("question"):
         # Local refusal takes precedence: never send policy-refused text to a provider.
         baseline = result["answer"] or {}
-        if baseline.get("status") == "refused" or baseline.get("reason") in {"unsupported_metric_or_causality", "explicit_filter_required"}:
+        if baseline.get("status") == "refused" or baseline.get("reason") in {
+            "unsupported_metric_or_causality",
+            "explicit_filter_required",
+        }:
             result["planner"] = {"status": "blocked", "intent": "unsupported"}
         else:
             plan = plan_question(str(request["question"]))
@@ -506,10 +519,19 @@ def run(request):
             if plan["status"] == "planned":
                 canonical = INTENTS[plan["intent"]]
                 if request.get("locale") != "en":
-                    canonical = {"summary": "Satışları özetle", "products": "En çok satan ürün", "countries": "Ülke satışları", "network": "Birlikte alım", "temporal": "Aylık trend", "unsupported": "Net gelir", "clarify": "belirsiz"}[plan["intent"]]
+                    canonical = {
+                        "summary": "Satışları özetle",
+                        "products": "En çok satan ürün",
+                        "countries": "Ülke satışları",
+                        "network": "Birlikte alım",
+                        "temporal": "Aylık trend",
+                        "unsupported": "Net gelir",
+                        "clarify": "belirsiz",
+                    }[plan["intent"]]
                 result["answer"] = explain({**request, "question": canonical}, result)
                 result["answer"]["mode"] = "llama-plan-verified-facts"
     from analysis.fingerprint import fingerprint
+
     result["build"] = fingerprint()
     from analysis.adapted.identity import content_hash_text
 
@@ -518,7 +540,9 @@ def run(request):
         "dataset_sha256": result["dataset"]["sha256"],
         "filters": result["filters"],
         "build": result["build"],
-        "plan": {k: v for k, v in result.get("planner", {}).items() if k != "telemetry"},
+        "plan": {
+            k: v for k, v in result.get("planner", {}).items() if k != "telemetry"
+        },
         **{
             key: result.get(key)
             for key in [
@@ -560,6 +584,23 @@ def handle(request):
         }
     if action == "run":
         return run(request)
+    if action in {"forecast", "decisions"}:
+        from analysis.forecast import forecast
+
+        m = meta(request["dataset"])
+        where, args, _ = filters_for(request, m)
+        _, _, clean = filters_for(request, m)
+        request = {**request, "filters": clean}
+        prediction = forecast(request, m, where, args, DATA)
+        if action == "forecast":
+            return prediction
+        from analysis.decisions import decision_brief
+
+        observed = overview(request)
+        observed["graph"] = graph(
+            {**request, "graph_mode": "copurchase", "min_shared": 2}
+        )
+        return decision_brief(request, observed, prediction)
     if action == "graph":
         return graph(request)
     if action == "temporal":
@@ -603,25 +644,43 @@ def handle(request):
 
     if action == "ml":
         from analysis.ml import experiment
+
         return experiment(request)
     if action == "prepare":
         from analysis.preparation import prepare
+
         return prepare(request)
     if action == "import":
         if request.get("mapping") is not None:
             from analysis.preparation import prepare, read_csv, map_frame, options_for
+
             prepared = prepare(request)
             if request.get("receipt") != prepared["receipt"]:
                 raise ValueError("Önizleme değişti veya eksik. Yeniden önizleyin.")
-            raw, _ = map_frame(read_csv(request["csv"])[0], request["mapping"], options_for(request.get("options")))
+            raw, _ = map_frame(
+                read_csv(request["csv"])[0],
+                request["mapping"],
+                options_for(request.get("options")),
+            )
             owner = str(request.get("owner", ""))
             if not re.fullmatch("[a-f0-9]{12}", owner):
                 raise ValueError("Geçersiz içe aktarma kapsamı.")
-            return store("usr_" + owner + "_" + prepared["receipt"][:12], str(request.get("title", "Yüklenen CSV"))[:80], raw, {
-                "kind": "uploaded", "publisher": "Kullanıcı yüklemesi", "license": "user-provided",
-                "description": "Kullanıcı tarafından sağlanan veri; doğruluğu dış kaynaktan teyit edilmedi.",
-                "preparation": {"recipe": prepared["recipe"], "receipt": prepared["receipt"], "preview": prepared["preview"]},
-            })
+            return store(
+                "usr_" + owner + "_" + prepared["receipt"][:12],
+                str(request.get("title", "Yüklenen CSV"))[:80],
+                raw,
+                {
+                    "kind": "uploaded",
+                    "publisher": "Kullanıcı yüklemesi",
+                    "license": "user-provided",
+                    "description": "Kullanıcı tarafından sağlanan veri; doğruluğu dış kaynaktan teyit edilmedi.",
+                    "preparation": {
+                        "recipe": prepared["recipe"],
+                        "receipt": prepared["receipt"],
+                        "preview": prepared["preview"],
+                    },
+                },
+            )
         content = str(request.get("csv", ""))
         if len(content.encode()) > 2_000_000:
             raise ValueError("CSV sınırı 2 MB.")

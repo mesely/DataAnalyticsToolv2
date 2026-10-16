@@ -1,14 +1,7 @@
+import { ChevronRight, Download, ShieldCheck } from "./BrandIcons";
+import { Search, BookOpen, Code2 } from "./BrandIcons";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Code2,
-  Search,
-  Play,
-  Download,
-  ChevronRight,
-  BookOpen,
-  ShieldCheck,
-  Loader2,
-} from "lucide-react";
+import { Play, Loader2 } from "lucide-react";
 import { api } from "../api";
 import { useLocale } from "./Locale";
 import type { Filters, SavedRun } from "./types";

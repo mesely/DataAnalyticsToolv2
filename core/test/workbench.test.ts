@@ -86,9 +86,31 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
       (await apiPost(rig, bob, B + "/temporal", { dataset, month: "2025-01" }))
         .status,
     ).toBe(404);
+    expect((await apiPost(rig,bob,B+"/decisions",{dataset})).status).toBe(404);
+    expect((await apiPost(rig,bob,B+"/forecast",{dataset})).status).toBe(404);
     expect(
       (await apiPost(rig, alice, B + "/run", { dataset })).json.summary,
     ).toMatchObject({ gross_pence: 1050 });
+  });
+  it("binds decision briefs and forecasts to owner, CSRF and calculated evidence", async () => {
+    expect((await apiPost(rig,alice,B+"/decisions",{dataset:"demo"},{csrf:null})).status).toBe(403);
+    expect((await apiPost(rig,null,B+"/forecast",{dataset:"demo"})).status).toBe(401);
+    const response=await apiPost(rig,alice,B+"/decisions",{dataset:"demo",scenario:{volume_pct:5,price_pct:0,budget_gbp:100}});
+    expect(response.status).toBe(200);
+    expect(response.json.forecast.status).toBe("insufficient_data");
+    expect(response.json.artifacts.summary.gross_pence).toBe(2140500);
+    expect(response.json.provider.status).toBe("not_requested");
+    expect(response.json.scenario.gross_delta_pence).toBe(10341);
+    const decisionId=String(response.json.decision_id);
+    expect((await apiGet(rig,bob,B+"/decisions/"+decisionId)).status).toBe(404);
+    const reopened=await apiGet(rig,alice,B+"/decisions/"+decisionId);
+    expect(reopened.json.output_sha256).toBe(response.json.output_sha256);
+    expect((await apiGet(rig,alice,B+"/decisions")).json.decisions.some((d:{decision_id:string})=>d.decision_id===decisionId)).toBe(true);
+    const bad=await apiPost(rig,alice,B+"/decisions",{dataset:"demo",scenario:{volume_pct:999}});
+    expect(bad.status).toBe(400);
+    const prediction=await apiPost(rig,alice,B+"/forecast",{dataset:"demo"});
+    expect(prediction.status).toBe(200);
+    expect(prediction.json.complete_weeks).toBeGreaterThan(0);
   });
   it("prepares arbitrary columns with CSRF and refuses a stale import receipt", async () => {
     const csv =

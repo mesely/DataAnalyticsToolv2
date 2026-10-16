@@ -150,12 +150,10 @@ export function registerWorkbench(
     task: () => Promise<unknown>,
   ) {
     if ((active.get(subject) || 0) >= 1 || totalActive >= 3)
-      return reply
-        .code(429)
-        .send({
-          error: "busy",
-          detail: "Bir işlem çalışıyor. Tamamlanmasını bekleyin.",
-        });
+      return reply.code(429).send({
+        error: "busy",
+        detail: "Bir işlem çalışıyor. Tamamlanmasını bekleyin.",
+      });
     active.set(subject, 1);
     totalActive++;
     const controller = new AbortController();
@@ -189,12 +187,10 @@ export function registerWorkbench(
         }
       }
       if (!actorLocked || slot < 0)
-        return reply
-          .code(429)
-          .send({
-            error: "busy",
-            detail: "Analiz kapasitesi dolu. Biraz sonra tekrar deneyin.",
-          });
+        return reply.code(429).send({
+          error: "busy",
+          detail: "Analiz kapasitesi dolu. Biraz sonra tekrar deneyin.",
+        });
       return await workSignals.run(controller.signal, task);
     } finally {
       reply.raw.removeListener("close", abort);
@@ -479,6 +475,87 @@ export function registerWorkbench(
       }
     });
   });
+  for (const action of ["forecast", "decisions"] as const) {
+    app.post(BASE + "/" + action, async (req, reply) => {
+      const v = await viewer(req, reply, true);
+      if (!v) return;
+      const b = (req.body || {}) as Obj;
+      if (
+        typeof b.dataset !== "string" ||
+        !(await permitted(v.identity.subject, b.dataset))
+      )
+        return reply.code(404).send({ error: "not_found" });
+      return bounded(v.identity.subject, reply, async () => {
+        try {
+          const recipe = {
+            dataset: b.dataset,
+            filters: b.filters || {},
+            locale: b.locale === "en" ? "en" : "tr",
+            objective: b.objective || "balanced",
+            scenario: b.scenario,
+            use_llm: b.use_llm === true,
+          };
+          const result = (await analysisWorker({ action, ...recipe })) as Obj;
+          if (action === "forecast") {
+            await audit(v.identity.subject, v.identity.roles, "forecast", {
+              dataset: b.dataset,
+              output_sha256: result.output_sha256,
+            });
+            return result;
+          }
+          const id = randomUUID();
+          await deps.pool.query(
+            "INSERT INTO workbench_decisions(decision_id,subject,dataset_id,recipe,result) VALUES($1,$2,$3,$4,$5)",
+            [id, v.identity.subject, b.dataset, recipe, result],
+          );
+          await audit(v.identity.subject, v.identity.roles, "decisions", {
+            decision_id: id,
+            dataset: b.dataset,
+            output_sha256: result.output_sha256,
+            provider_status: (result.provider as Obj)?.status,
+          });
+          return { ...result, decision_id: id };
+        } catch (e) {
+          await audit(
+            v.identity.subject,
+            v.identity.roles,
+            action,
+            { dataset: b.dataset },
+            "denied",
+          );
+          reply.code(400);
+          return { error: "decision_refused", detail: (e as Error).message };
+        }
+      });
+    });
+  }
+  app.get(BASE + "/decisions", async (req, reply) => {
+    const v = await viewer(req, reply);
+    if (!v) return;
+    const rows = await deps.pool.query(
+      "SELECT decision_id,dataset_id,created_at,result->>'objective' AS objective,result->>'summary' AS summary,result->>'output_sha256' AS output_sha256 FROM workbench_decisions WHERE subject=$1 ORDER BY created_at DESC,decision_id LIMIT 50",
+      [v.identity.subject],
+    );
+    return reply.send({ decisions: rows.rows });
+  });
+  app.get<{ Params: { id: string } }>(
+    BASE + "/decisions/:id",
+    async (req, reply) => {
+      const v = await viewer(req, reply);
+      if (!v) return;
+      if (!UUID.test(req.params.id))
+        return reply.code(404).send({ error: "not_found" });
+      const row = await deps.pool.query(
+        "SELECT decision_id,result FROM workbench_decisions WHERE decision_id=$1 AND subject=$2",
+        [req.params.id, v.identity.subject],
+      );
+      if (!row.rowCount) return reply.code(404).send({ error: "not_found" });
+      return reply.send({
+        ...row.rows[0].result,
+        decision_id: row.rows[0].decision_id,
+      });
+    },
+  );
   app.post(BASE + "/ml", async (req, reply) => {
     const v = await viewer(req, reply, true);
     if (!v) return;

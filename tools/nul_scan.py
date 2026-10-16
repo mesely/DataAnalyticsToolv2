@@ -45,6 +45,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 #: Exact named image exceptions; no broad extension exemption (AW-7).
 BINARY_PATHS: tuple[str, ...] = (
+    'core/web/src/workbench/assets/app-icon.jpeg',
     'core/web/src/workbench/assets/analysis-library.jpeg',
     'core/web/src/workbench/assets/context-prism.jpeg',
     'core/web/src/workbench/assets/data-preparation.jpeg',

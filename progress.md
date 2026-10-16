@@ -1,3 +1,5 @@
+> **16 Ekim — Aşama7–10 aktif teslim çalışması:** kullanıcı son kapsamı tahmin/karar/tema yönüne genişletti. AW-10–13 specs önce yazıldı; forecast.py, decisions.py, curated XML/BM25, gerçek adviSU formatting adapterı, /forecast ve owner /decisions API+migration0021, DecisionStudio, Gemini app icon+33 utility SVG, lacivert/füme appearance toggle uygulandı. 205 analytics pytest PASS; web build/tsc PASS. Yerel core regression Docker bootstrap engeline takıldı, PASS değil; GitHub CI ve final browser QA henüz bekliyor. HF yeni credential ignored mode0600; gerçek probe HTTP402, başarılı canlı LLM cevabı/accuracy yok. Kaynak/secret değerini tekrar isteme veya yazdırma. Önce bu kartı, specs/analyst-workspace-phase7..10.md ve alt eski açık backlog'u oku; test/QA/rapor tamamlanmadan aşamaları tamam diye işaretleme. Eski Parquet/OOF/RLS/retention/5M/live BI/pilot işleri kapanmadı.
+
 # Context Layer / Analytics — tek giriş ve devir rehberi
 
 ## ŞİMDİ OKU — 16 Ekim 2026

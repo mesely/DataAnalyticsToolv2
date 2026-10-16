@@ -281,6 +281,7 @@ export function registerSpa(app: FastifyInstance, deps: SpaDeps): void {
     if (!/^[a-zA-Z0-9_-]+\.(jpeg|png|webp|svg)$/.test(req.params.file)) return reply.code(404).send();
     return serve(reply, "assets/" + req.params.file);
   });
+  app.get(`${APP_BASE}/brand.svg`, async (_req, reply) => serve(reply, "brand.svg"));
   app.get(`${APP_BASE}/app.css`, async (_req, reply) => serve(reply, "app.css"));
 
   // Every in-app route serves the same shell; the client resolves the

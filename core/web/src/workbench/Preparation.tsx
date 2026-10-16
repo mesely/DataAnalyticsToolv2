@@ -1,14 +1,8 @@
+import { RotateCcw, ArrowRight, Download, CheckCircle2 } from "./BrandIcons";
+import { Search, Upload } from "./BrandIcons";
 import preparationArt from "./assets/data-preparation.jpeg";
 import React, { useRef, useState } from "react";
-import {
-  Upload,
-  Search,
-  ArrowRight,
-  RotateCcw,
-  Loader2,
-  CheckCircle2,
-  Download,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { api } from "../api";
 import { useLocale } from "./Locale";
 import type { Dataset } from "./types";

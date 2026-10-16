@@ -1,49 +1,51 @@
+import {
+  RotateCcw,
+  ExternalLink,
+  ArrowUpRight,
+  X,
+  ChevronRight,
+  ChevronDown,
+  ArrowRight,
+  Download,
+  ArrowDownToLine,
+  Filter,
+  Settings2,
+  SlidersHorizontal,
+  Info,
+  LogOut,
+  CheckCircle2,
+  Table2,
+  FileText,
+  ShieldCheck,
+  Send,
+  MessageSquare,
+  Network,
+  Activity,
+  ZoomIn,
+  ZoomOut,
+} from "./BrandIcons";
+import {
+  Layers,
+  Globe2,
+  Database,
+  Search,
+  HelpCircle,
+  BookOpen,
+  Upload,
+  Code2,
+  Bookmark,
+} from "./BrandIcons";
 import modelArt from "./assets/model-studio.jpeg";
 import relationshipArt from "./assets/relationship-explorer.jpeg";
 import overviewIcon from "./assets/overview.svg";
 import analysisIcon from "./assets/analysis.svg";
 import networkIcon from "./assets/network.svg";
 import findingsIcon from "./assets/findings.svg";
-import prismArt from "./assets/context-prism.jpeg";
+import prismArt from "./assets/app-icon.jpeg";
+import { Sun, Moon } from "./BrandIcons";
 import libraryArt from "./assets/analysis-library.jpeg";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Activity,
-  ArrowDownToLine,
-  ArrowRight,
-  ArrowUpRight,
-  BookOpen,
-  Bookmark,
-  CheckCircle2,
-  ChevronDown,
-  ChevronRight,
-  Database,
-  Download,
-  FileText,
-  Filter,
-  Globe2,
-  HelpCircle,
-  LayoutDashboard,
-  Loader2,
-  LogOut,
-  MessageSquare,
-  Network,
-  Search,
-  Send,
-  Settings2,
-  ShieldCheck,
-  SlidersHorizontal,
-  Table2,
-  Upload,
-  X,
-  ZoomIn,
-  ZoomOut,
-  RotateCcw,
-  ExternalLink,
-  Info,
-  Layers,
-  Code2,
-} from "lucide-react";
+import { LayoutDashboard, Loader2 } from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -54,6 +56,7 @@ import {
   YAxis,
 } from "recharts";
 import { api, type ModuleMap, type Session } from "../api";
+import { DecisionStudio } from "./DecisionStudio";
 import { ModelStudio } from "./ModelStudio";
 import { Preparation } from "./Preparation";
 import { TemporalView } from "./TemporalView";
@@ -95,7 +98,9 @@ function Modal({
   title,
   onClose,
   children,
+  wide = false,
 }: {
+  wide?: boolean;
   title: string;
   onClose: () => void;
   children: React.ReactNode;
@@ -111,7 +116,7 @@ function Modal({
   useEffect(() => () => ref.current?.close(), []);
   return (
     <dialog
-      className="wb-dialog"
+      className={"wb-dialog" + (wide ? " wb-dialog-wide" : "")}
       ref={ref}
       onCancel={onClose}
       onClick={(e) => {
@@ -179,6 +184,11 @@ function Workspace({
   setLocale: (l: Locale) => void;
 }) {
   const { t } = useLocale();
+  const [theme, setTheme] = useState<"light" | "dark">(() =>
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light",
+  );
   const [section, setSection] = useState<Section>("overview"),
     [datasets, setDatasets] = useState<Dataset[]>([]),
     [dataset, setDataset] = useState("uci"),
@@ -201,6 +211,7 @@ function Workspace({
       | "source"
       | "import"
       | "model"
+      | "decisions"
       | "save"
       | "metrics"
       | null
@@ -408,7 +419,7 @@ function Workspace({
     { id: "findings" as const, icon: Bookmark },
   ];
   return (
-    <div className="wb">
+    <div className="wb" data-theme={theme}>
       <a className="wb-skip" href="#wb-main">
         {t("İçeriğe geç", "Skip to content")}
       </a>
@@ -519,6 +530,19 @@ function Workspace({
             <strong>{t(...titles[section])}</strong>
           </div>
           <div className="wb-top-actions">
+            <button
+              className="wb-icon wb-theme-toggle"
+              aria-label={
+                theme === "light"
+                  ? t("Koyu temaya geç", "Switch to dark theme")
+                  : t("Açık temaya geç", "Switch to light theme")
+              }
+              aria-pressed={theme === "dark"}
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              title={t("Görünüm", "Appearance")}
+            >
+              {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
             <button
               className="wb-command"
               aria-label={t("Bir işlem bul", "Find an action")}
@@ -635,13 +659,9 @@ function Workspace({
                   ))}
                 </select>
               </label>
-              <span
-                className={
-                  "wb-badge " + (source?.kind === "public" ? "green" : "blue")
-                }
-              >
+              <span className="wb-source-origin">
                 {source?.kind === "public"
-                  ? t("Açık veri", "Open data")
+                  ? t("Kaynak · Açık veri", "Source · Public data")
                   : source?.kind === "uploaded"
                     ? t("Yüklenen veri", "Uploaded data")
                     : t("Örnek veri", "Sample data")}
@@ -852,7 +872,10 @@ function Workspace({
                                 />
                               </linearGradient>
                             </defs>
-                            <CartesianGrid vertical={false} stroke="#edf0f5" />
+                            <CartesianGrid
+                              vertical={false}
+                              stroke="var(--border)"
+                            />
                             <XAxis
                               dataKey="period"
                               tickLine={false}
@@ -871,13 +894,21 @@ function Workspace({
                               fontSize={11}
                               width={60}
                             />
-                            <Tooltip formatter={(v) => money(Number(v))} />
+                            <Tooltip
+                              contentStyle={{
+                                background: "var(--surface)",
+                                borderColor: "var(--border)",
+                                color: "var(--ink)",
+                                borderRadius: 8,
+                              }}
+                              formatter={(v) => money(Number(v))}
+                            />
                             <Area
                               isAnimationActive={false}
                               type="monotone"
                               dataKey="sales"
                               name={t("Brüt satış", "Gross sales")}
-                              stroke="#5265e0"
+                              stroke="var(--accent)"
                               strokeWidth={3}
                               fill="url(#salesFill)"
                             />
@@ -1038,6 +1069,35 @@ function Workspace({
                 </section>
               </div>
             </>
+          )}
+          {(section === "overview" || section === "analysis") && (
+            <section className="wb-decision-entry">
+              <div>
+                <span className="wb-eyebrow">
+                  {t("KARAR ÇALIŞMASI", "DECISION WORKSPACE")}
+                </span>
+                <h2>
+                  {t(
+                    "Bulguları bir sonraki adıma dönüştürün",
+                    "Turn findings into a next step",
+                  )}
+                </h2>
+                <p>
+                  {t(
+                    "Haftalık projeksiyon, varsayımsal senaryo ve dayanaklarına bağlı öneriler.",
+                    "Weekly projections, hypothetical scenarios and evidence-linked recommendations.",
+                  )}
+                </p>
+              </div>
+              <button
+                className="wb-btn"
+                disabled={working}
+                onClick={() => setModal("decisions")}
+              >
+                {t("Karar stüdyosunu aç", "Open decision studio")}
+                <ArrowRight size={16} />
+              </button>
+            </section>
           )}
           {section === "analysis" && (
             <div className="wb-model-entry">
@@ -1488,6 +1548,7 @@ function Workspace({
       </div>
       {modal && (
         <Modal
+          wide={modal === "decisions"}
           title={
             modal === "source"
               ? t("Verinin kaynağı ve sınırları", "Data provenance and limits")
@@ -1497,16 +1558,18 @@ function Workspace({
                   ? t("Metrik sözlüğü", "Metric dictionary")
                   : modal === "save"
                     ? t("Bulguyu kaydet", "Save finding")
-                    : modal === "model"
-                      ? t("Model stüdyosu", "Model studio")
-                      : modal === "import"
-                        ? t("Veri hazırlama", "Prepare data")
-                        : modal === "search"
-                          ? t("Bir işlem bulun", "Find an action")
-                          : t(
-                              "İlk bulgunuza dört adım",
-                              "Four steps to your first finding",
-                            )
+                    : modal === "decisions"
+                      ? t("Karar stüdyosu", "Decision studio")
+                      : modal === "model"
+                        ? t("Model stüdyosu", "Model studio")
+                        : modal === "import"
+                          ? t("Veri hazırlama", "Prepare data")
+                          : modal === "search"
+                            ? t("Bir işlem bulun", "Find an action")
+                            : t(
+                                "İlk bulgunuza dört adım",
+                                "Four steps to your first finding",
+                              )
           }
           onClose={() => {
             setModal(null);
@@ -1626,6 +1689,15 @@ function Workspace({
                 {t("Kaydet", "Save")}
               </button>
             </form>
+          )}
+          {modal === "decisions" && (
+            <DecisionStudio
+              dataset={dataset}
+              filters={applied}
+              csrf={csrf}
+              busy={busy || childJobs > 0}
+              activity={activity}
+            />
           )}
           {modal === "model" && (
             <ModelStudio
@@ -1796,6 +1868,13 @@ function Workspace({
                       "Model studio and experiments",
                     ),
                     action: () => setModal("model"),
+                  },
+                  {
+                    label: t(
+                      "Karar stüdyosu, tahmin ve senaryolar",
+                      "Decision studio, forecasts and scenarios",
+                    ),
+                    action: () => setModal("decisions"),
                   },
                   {
                     label: t("Metrik sözlüğü", "Metric dictionary"),

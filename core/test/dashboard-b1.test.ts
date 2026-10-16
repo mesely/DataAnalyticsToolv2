@@ -51,6 +51,8 @@ const APP_SOURCES = [
   "workbench/Workbench.tsx",
   "workbench/Preparation.tsx",
   "workbench/ModelStudio.tsx",
+  "workbench/BrandIcons.tsx",
+  "workbench/DecisionStudio.tsx",
   "workbench/ExpertTools.tsx",
   "workbench/TemporalView.tsx",
   "workbench/UsageMeter.tsx",

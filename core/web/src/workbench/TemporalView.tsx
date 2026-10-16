@@ -181,7 +181,7 @@ export function TemporalView({
             "Compare a month with its surrounding periods. Current country and date filters apply.",
           )}
         </p>
-        {data.id === "uci" && (
+        {(data.id === "uci" || data.id === "uci2") && (
           <div className="wb-callout">
             {t(
               "UCI verisinde kargo, hizmet ve Manual gibi fatura kalemleri de korunur. Ürün/hizmet sınıflaması yapılmadan fiziksel ürün ilişkisi olarak yorumlamayın.",

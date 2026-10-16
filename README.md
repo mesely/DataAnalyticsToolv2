@@ -55,7 +55,10 @@ seasons exist, drift, trailing means, exponential smoothing, damped Holt) by
 one-step rolling error on development origins only; a final window of the
 last origins is evaluated afterwards for every method and never selects one.
 The UI shows MAE/MASE against the naive benchmark, including when the
-selected method performs worse. The residual band's scaling is chosen on
+selected method performs worse. On the one-year UCI data an 8-week mean is
+selected and lags the November ramp (naive is better that month). On the
+two-season Online Retail II data the same protocol selects seasonal naive,
+which is 28.8% below naive MAE on the untouched 12-week final window. The residual band's scaling is chosen on
 development origins with radii built from earlier residuals only (finite-sample
 conformal quantile); its development and final-window coverage and mean widths are shown and
 it remains labelled uncalibrated. At least 16 complete weeks are required.
@@ -161,6 +164,7 @@ To configure Llama, set `HF_TOKEN` and optionally `HF_MODEL=meta-llama/Llama-3.3
 
 - **Retail sample:** deterministic synthetic data, independent Decimal oracle, £21,405 gross sales / 180 invoices. Useful for checking filters and calculations.
 - **UCI Online Retail:** historical 2010–2011 public data by Daqing Chen, [DOI 10.24432/C5BW33](https://doi.org/10.24432/C5BW33), CC BY 4.0. Preparation downloads the official source; the full dataset is not committed. Of 541,909 source rows, 530,104 positive eligible invoice lines contribute **£10,666,684.54 / 19,960 invoices**.
+- **UCI Online Retail II (optional, two seasons):** 2009–2011 data from the same retailer, [DOI 10.24432/C5CG6D](https://doi.org/10.24432/C5CG6D), CC BY 4.0. Prepare it with `python -m analysis.prepare --online-retail-ii <downloaded zip>` (the zip is 45.6 MB; it is not committed and not needed in CI). The two yearly sheets repeat 2010-12-01..09 row for row; that window is taken once, and a non-identical overlap is refused. 1,044,848 source rows → 1,019,654 eligible lines, **£20,533,741.90 / 40,077 invoices**. It appears in the dataset menu only where it has been prepared.
 - **Private CSV/Parquet:** bounded flat-table profiling, explicit owner-scoped retail field mapping and import, up to 2 MB / 10,000 rows. CSV encoding choices are previewed locally; Parquet decoded text is additionally limited to 8 MB. Retail metrics require GBP and invoice-line grain; unit prices accept up to four decimal places.
 - **ML examples:** original measured records from UCI Wine (178 observations, 13 features, CC BY 4.0) and the scikit-learn Diabetes benchmark (442 observations, 10 features). Source notes and SHA-256 hashes are in [ML provenance](analysis/data/ML_PROVENANCE.json). Model experiments accept 100–3,000 observations and up to 30 selected features.
 

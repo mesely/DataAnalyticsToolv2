@@ -14,9 +14,10 @@ push edildi; tamamlanan her CI koşusu beş iş success). Uygulama 8123 + devIdP
 | 4 | TR teşhisler (`405c6ff`) | teşhis `params` + 12 TR şablon; koruyucu test | tarayıcı: 6 UCI teşhisi Türkçe |
 | 5 | Tablo klavye erişimi (`9ab6f56`) | `TableWrap.tsx`: taşarken `tabIndex/role=region/aria-label`; 15 kapsayıcı; APP_SOURCES | tarayıcı 1024/390 px; CI core yeşil |
 | 6 | Yerel yönlendirici + harness v2.1 (`87dde64`, `a3e3da6`) | adet/sipariş/en-düşük sıralama ve değişim soruları artık yanlış rakamla yanıtlanmaz; item/SKU/pazar/ay ifadeleri; eval yanıtlanan niyeti ölçer | davranış 13→15/19, niyet 11→15/17 (iyimser; 26 ayrı parafraz `test_local_router.py`) |
+| 8 | İki sezonluk veri (17 Ekim, kullanıcı onayıyla indirildi) | `uci2` = UCI Online Retail II (DOI 10.24432/C5CG6D); `python -m analysis.prepare --online-retail-ii <zip>`; 2010-12-01..09 sayfa çakışması doğrulanıp bir kez alınır; katalogda yalnız hazırlanmışsa | aynı protokol seasonal naive seçti: final 12 origin MAE £44.185 vs naif £62.055 (−%28,8), bant 9/12; `phase11-forecast-uci2.json` |
 | 7 | UI küçükleri (`5aa6123`, `111f415`) | TR yüzde "%84,6" (eski "84,611%"), TR kapsama "%85/%70", anlatı notları ölçü/dönem reddini adlandırır | tarayıcı receipt `phase11-browser-binding.json` 13/13 |
 
-**Testler (yerel, gerçek):** analytics **301 passed**; NUL/asset 48; web tsc+build; HTTP kabulü 21/21 (`verify_workspace`).
+**Testler (yerel, gerçek):** analytics **305 passed**; NUL/asset 48; web tsc+build; HTTP kabulü 21/21 (`verify_workspace`).
 Core TS suite yerelde Docker fixture'ı yüzünden koşmaz → CI'da koşar (son tamamlanan koşular yeşil).
 
 **Bilinçli olarak yapılmayan / olumsuz sonuçlar:** DuckDB 1.5.6 boş olmayan her Python parametre listesinde pandas
@@ -25,9 +26,8 @@ naiften kötü; final pencere üzerinde ayar yapılmadı. Bağ kontrolü kelime 
 LLM çağrılmadı (402; accuracy null). Disk: tur içinde 577 MB'a düştü; yalnız npm önbelleği silindi (459 MB) → ~1,1 GB.
 
 **Sonraki iş (beklenen etkiye göre):**
-1. **(Kullanıcı onayı gerekir)** ≥2 sezonluk gerçek tahmin benchmark'ı: UCI *Online Retail II* (dataset 502, CC BY 4.0,
-   2009–2011, ~45 MB zip) indirilip aynı protokolle (seasonal_naive kayıtlı, final pencere dokunulmaz) değerlendirilsin.
-   Disk ~1 GB; indirmeden önce kullanıcıya dosya/kaynak/boyut sorulmalı.
+1. **Yapıldı (17 Ekim):** iki sezonluk Online Retail II (yukarıda 8). Kalan tahmin işi: bant hâlâ final 9/12 eksik
+   kapsıyor; ≥3 sezonluk veya başka perakendeci verisiyle yeni dondurulmuş protokol (mevcut finaller üzerinde ayar yok).
 2. Canlı model değerlendirmesi — HF kredi kapısı açılınca `python -m analysis.llm_eval --providers hf` (dış bağımlılık).
 3. Kalıcı worker süreci (kalan ~0,6 s pandas/networkx/import başlangıcı) — izolasyon/iptal sözleşmesini etkileyen mimari karar; önce spec.
 4. Üretim kapıları (tenant RLS, retention, hard isolation) ve 5–8 gerçek kullanıcı pilotu — ürün/insan kararları.

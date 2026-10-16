@@ -1,0 +1,847 @@
+{
+ "candidates_development": {
+  "drift": {
+   "bias_gbp": -2432.815575907887,
+   "mae_gbp": 41744.59539697971,
+   "mase": 1.0058231808178082,
+   "n": 39,
+   "rmse_gbp": 54548.105071975355,
+   "smape": 0.3243963085477569,
+   "wape": 0.26781467682052595
+  },
+  "holt_damped_0.3_0.1": {
+   "bias_gbp": -8736.798108666115,
+   "mae_gbp": 41406.29098479597,
+   "mase": 0.9976718401062397,
+   "n": 39,
+   "rmse_gbp": 63845.9091310693,
+   "smape": 0.261847329680065,
+   "wape": 0.2656442668320151
+  },
+  "holt_damped_0.6_0.1": {
+   "bias_gbp": -3891.9201498957905,
+   "mae_gbp": 43416.698533452276,
+   "mase": 1.0461119913665373,
+   "n": 39,
+   "rmse_gbp": 58909.586397181156,
+   "smape": 0.3070876472673725,
+   "wape": 0.27854214361823715
+  },
+  "mean2": {
+   "bias_gbp": -5706.78217948718,
+   "mae_gbp": 46222.09012820513,
+   "mase": 1.1137070385921721,
+   "n": 39,
+   "rmse_gbp": 61988.66025104042,
+   "smape": 0.3204734498538306,
+   "wape": 0.2965402829260651
+  },
+  "mean4": {
+   "bias_gbp": -9739.964487179488,
+   "mae_gbp": 42284.25551282051,
+   "mase": 1.0188261252496225,
+   "n": 39,
+   "rmse_gbp": 66160.9311058269,
+   "smape": 0.2681780221866333,
+   "wape": 0.2712768950584176
+  },
+  "mean8": {
+   "bias_gbp": -16889.909903846154,
+   "mae_gbp": 42009.67426282051,
+   "mase": 1.0122101745225516,
+   "n": 39,
+   "rmse_gbp": 69218.22490149277,
+   "smape": 0.25444778271051194,
+   "wape": 0.26951530441343924
+  },
+  "naive": {
+   "bias_gbp": -3518.798461538461,
+   "mae_gbp": 41502.91641025641,
+   "mase": 1.0,
+   "n": 39,
+   "rmse_gbp": 54357.275438257195,
+   "smape": 0.3216362721154268,
+   "wape": 0.2662641723993405
+  },
+  "seasonal_naive": {
+   "bias_gbp": 976.2646153846154,
+   "mae_gbp": 27932.086666666666,
+   "mase": 0.6730150332221941,
+   "n": 39,
+   "rmse_gbp": 35592.265685741404,
+   "smape": 0.18361407112261735,
+   "wape": 0.1791997908332222
+  },
+  "ses_0.2": {
+   "bias_gbp": -17017.88793765411,
+   "mae_gbp": 39736.500780782735,
+   "mase": 0.9574387589534034,
+   "n": 39,
+   "rmse_gbp": 63133.99449114943,
+   "smape": 0.24963597814850658,
+   "wape": 0.2549316387757796
+  },
+  "ses_0.5": {
+   "bias_gbp": -7633.468328374292,
+   "mae_gbp": 41068.90969179993,
+   "mase": 0.989542741667445,
+   "n": 39,
+   "rmse_gbp": 58036.95010318544,
+   "smape": 0.27363993280205806,
+   "wape": 0.2634797791638567
+  },
+  "ses_0.8": {
+   "bias_gbp": -4582.816762385372,
+   "mae_gbp": 41875.79820534179,
+   "mase": 1.0089844721127412,
+   "n": 39,
+   "rmse_gbp": 55339.764949050004,
+   "smape": 0.30628802032774893,
+   "wape": 0.26865641543088453
+  }
+ },
+ "candidates_final": {
+  "drift": {
+   "bias_gbp": 10523.011463497567,
+   "mae_gbp": 62219.61260102489,
+   "mase": 1.4991624199606577,
+   "n": 12,
+   "rmse_gbp": 73320.838004938,
+   "smape": 0.220385769901583,
+   "wape": 0.20925684434574382
+  },
+  "holt_damped_0.3_0.1": {
+   "bias_gbp": 29950.609779666043,
+   "mae_gbp": 51083.01231168703,
+   "mase": 1.2308294628438001,
+   "n": 12,
+   "rmse_gbp": 63374.44916767485,
+   "smape": 0.18424926989647872,
+   "wape": 0.17180225830982318
+  },
+  "holt_damped_0.6_0.1": {
+   "bias_gbp": 12995.346727279433,
+   "mae_gbp": 56027.777115697594,
+   "mase": 1.349972049237767,
+   "n": 12,
+   "rmse_gbp": 64282.43609689764,
+   "smape": 0.1981641108334756,
+   "wape": 0.18843247884099548
+  },
+  "mean2": {
+   "bias_gbp": 17737.01,
+   "mae_gbp": 51210.33416666667,
+   "mase": 1.2338972437611955,
+   "n": 12,
+   "rmse_gbp": 61020.04300905141,
+   "smape": 0.18124504376819872,
+   "wape": 0.17223046685172025
+  },
+  "mean4": {
+   "bias_gbp": 34481.75875,
+   "mae_gbp": 50691.2725,
+   "mase": 1.2213906126238616,
+   "n": 12,
+   "rmse_gbp": 67580.53000651322,
+   "smape": 0.18347203286050773,
+   "wape": 0.1704847599620936
+  },
+  "mean8": {
+   "bias_gbp": 56589.84010416667,
+   "mae_gbp": 56589.84010416667,
+   "mase": 1.3635147839919486,
+   "n": 12,
+   "rmse_gbp": 73442.78087241497,
+   "smape": 0.20659929450547942,
+   "wape": 0.19032280766777188
+  },
+  "naive": {
+   "bias_gbp": 10972.263333333332,
+   "mae_gbp": 62054.57166666667,
+   "mase": 1.4951858094322121,
+   "n": 12,
+   "rmse_gbp": 72959.01435549071,
+   "smape": 0.21978386575708764,
+   "wape": 0.20870177909110887
+  },
+  "seasonal_naive": {
+   "bias_gbp": 5429.455,
+   "mae_gbp": 44185.31833333333,
+   "mase": 1.0646316489318817,
+   "n": 12,
+   "rmse_gbp": 57995.36068522191,
+   "smape": 0.16128832700983362,
+   "wape": 0.14860395129964488
+  },
+  "ses_0.2": {
+   "bias_gbp": 56190.868974706056,
+   "mae_gbp": 58059.68172523682,
+   "mase": 1.3989301655651558,
+   "n": 12,
+   "rmse_gbp": 75324.88037235844,
+   "smape": 0.21148860477260037,
+   "wape": 0.19526617530468493
+  },
+  "ses_0.5": {
+   "bias_gbp": 25458.145730987817,
+   "mae_gbp": 53854.47501381236,
+   "mase": 1.297607003841869,
+   "n": 12,
+   "rmse_gbp": 63695.62484994345,
+   "smape": 0.19367769881397215,
+   "wape": 0.18112323468728012
+  },
+  "ses_0.8": {
+   "bias_gbp": 14570.980436249862,
+   "mae_gbp": 57442.733303614434,
+   "mase": 1.3840649831879983,
+   "n": 12,
+   "rmse_gbp": 66821.52917423329,
+   "smape": 0.20394779173573893,
+   "wape": 0.19319125592740383
+  }
+ },
+ "complete_weeks": 104,
+ "cross_check_vs_uci": {
+  "difference": "one row in Online Retail II absent from Online Retail: invoice 581587, POST, qty 1, £18.00, France, 2011-12-09 (final partial day; outside every complete week)",
+  "uci2_rows_pence_orders": [
+   530105,
+   1066670254,
+   19960
+  ],
+  "uci_rows_pence_orders": [
+   530104,
+   1066668454,
+   19960
+  ],
+  "window": "order_date >= 2010-12-01"
+ },
+ "dataset": {
+  "end": "2011-12-09",
+  "id": "uci2",
+  "quality": {
+   "cancelled_rows": 19165,
+   "duplicate_rows": 11812,
+   "excluded_rows": 25194,
+   "invalid_date": 0,
+   "missing_customer": 235287,
+   "nonpositive_price": 6029,
+   "nonpositive_quantity": 22557,
+   "raw_rows": 1044848
+  },
+  "rows": 1019654,
+  "sha256": "0a913fb1eb10fa2302220e187506ae5ce552a8657cd6719c4be0e6bc7d827cbe",
+  "source": {
+   "archive_sha256": "572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb",
+   "description": "Aynı Birleşik Krallık merkezli perakendecinin 2009–2011 tarihsel işlem verisi (iki yıllık sayfa). 2010-12-01..09 her iki sayfada birebir tekrarlandığı için bir kez alınır. İki sezon, mevsimsel naif tahmini doğrulamayı mümkün kılar. Güncel veya temsili pazar verisi değildir.",
+   "doi": "10.24432/C5CG6D",
+   "download_url": "https://archive.ics.uci.edu/static/public/502/online+retail+ii.zip",
+   "kind": "public",
+   "license": "CC BY 4.0",
+   "merge": {
+    "overlap_invoices": 1088,
+    "overlap_rows_dropped": 22523,
+    "sheet_rows": {
+     "Year 2009-2010": 525461,
+     "Year 2010-2011": 541910
+    }
+   },
+   "publisher": "UCI Machine Learning Repository · Daqing Chen",
+   "url": "https://archive.ics.uci.edu/dataset/502/online+retail+ii"
+  },
+  "start": "2009-12-01"
+ },
+ "diagnostics": [
+  {
+   "code": "zero_weeks",
+   "message": "2 complete week(s) have no observed gross sales; they count as zero and may be collection gaps.",
+   "params": {
+    "count": 2
+   },
+   "severity": "warning"
+  },
+  {
+   "code": "outlier_weeks",
+   "message": "Weeks far from the typical level (robust 3-sigma): 2009-12-28, 2010-09-27, 2010-10-11, 2010-11-08, 2010-11-15 ….",
+   "params": {
+    "more": true,
+    "weeks": [
+     "2009-12-28",
+     "2010-09-27",
+     "2010-10-11",
+     "2010-11-08",
+     "2010-11-15"
+    ]
+   },
+   "severity": "warning"
+  },
+  {
+   "code": "possible_level_shift",
+   "message": "The mean of the last 8 weeks differs from the previous 8 by more than twice the typical weekly change; a structural change cannot be excluded.",
+   "params": {},
+   "severity": "warning"
+  },
+  {
+   "code": "band_undercovers_final",
+   "message": "The nominal 90% band covered only 75% of 12 final origins. This is observed undercoverage, not a calibrated 90% range; the final window is never used to tune it.",
+   "params": {
+    "coverage": 0.75,
+    "origins": 12
+   },
+   "severity": "warning"
+  }
+ ],
+ "holdout": {
+  "naive": {
+   "bias_gbp": 10972.263333333332,
+   "mae_gbp": 62054.57166666667,
+   "mase": 1.4951858094322121,
+   "n": 12,
+   "rmse_gbp": 72959.01435549071,
+   "smape": 0.21978386575708764,
+   "wape": 0.20870177909110887
+  },
+  "origins": 12,
+  "selected": {
+   "bias_gbp": 5429.455,
+   "mae_gbp": 44185.31833333333,
+   "mase": 1.0646316489318817,
+   "n": 12,
+   "rmse_gbp": 57995.36068522191,
+   "smape": 0.16128832700983362,
+   "wape": 0.14860395129964488
+  }
+ },
+ "holdout_records": [
+  {
+   "actual_pence": 23013726,
+   "origin": "2011-09-05",
+   "predicted_pence": 17957359,
+   "target": "2011-09-12",
+   "train_end_index": 91
+  },
+  {
+   "actual_pence": 33877179,
+   "origin": "2011-09-12",
+   "predicted_pence": 24622942,
+   "target": "2011-09-19",
+   "train_end_index": 92
+  },
+  {
+   "actual_pence": 21180022,
+   "origin": "2011-09-19",
+   "predicted_pence": 33340336,
+   "target": "2011-09-26",
+   "train_end_index": 93
+  },
+  {
+   "actual_pence": 31998739,
+   "origin": "2011-09-26",
+   "predicted_pence": 29319454,
+   "target": "2011-10-03",
+   "train_end_index": 94
+  },
+  {
+   "actual_pence": 22877618,
+   "origin": "2011-10-03",
+   "predicted_pence": 32727947,
+   "target": "2011-10-10",
+   "train_end_index": 95
+  },
+  {
+   "actual_pence": 27665642,
+   "origin": "2011-10-10",
+   "predicted_pence": 24680932,
+   "target": "2011-10-17",
+   "train_end_index": 96
+  },
+  {
+   "actual_pence": 26055563,
+   "origin": "2011-10-17",
+   "predicted_pence": 22068965,
+   "target": "2011-10-24",
+   "train_end_index": 97
+  },
+  {
+   "actual_pence": 30189783,
+   "origin": "2011-10-24",
+   "predicted_pence": 28887107,
+   "target": "2011-10-31",
+   "train_end_index": 98
+  },
+  {
+   "actual_pence": 37004497,
+   "origin": "2011-10-31",
+   "predicted_pence": 38212358,
+   "target": "2011-11-07",
+   "train_end_index": 99
+  },
+  {
+   "actual_pence": 38862244,
+   "origin": "2011-11-07",
+   "predicted_pence": 35555984,
+   "target": "2011-11-14",
+   "train_end_index": 100
+  },
+  {
+   "actual_pence": 31641216,
+   "origin": "2011-11-14",
+   "predicted_pence": 30442485,
+   "target": "2011-11-21",
+   "train_end_index": 101
+  },
+  {
+   "actual_pence": 32437083,
+   "origin": "2011-11-21",
+   "predicted_pence": 32472097,
+   "target": "2011-11-28",
+   "train_end_index": 102
+  }
+ ],
+ "leaderboard": [
+  {
+   "description": "same week one season (52 weeks) earlier",
+   "development_mae_gbp": 27932.086666666666,
+   "development_mase": 0.6730150332221941,
+   "final_improvement_vs_naive": 0.28796030418709695,
+   "final_mae_gbp": 44185.31833333333,
+   "final_mase": 1.0646316489318817,
+   "method": "seasonal_naive",
+   "selected": true
+  },
+  {
+   "description": "simple exponential smoothing, alpha 0.2",
+   "development_mae_gbp": 39736.500780782735,
+   "development_mase": 0.9574387589534034,
+   "final_improvement_vs_naive": 0.06437704481933848,
+   "final_mae_gbp": 58059.68172523682,
+   "final_mase": 1.3989301655651558,
+   "method": "ses_0.2",
+   "selected": false
+  },
+  {
+   "description": "simple exponential smoothing, alpha 0.5",
+   "development_mae_gbp": 41068.90969179993,
+   "development_mase": 0.989542741667445,
+   "final_improvement_vs_naive": 0.13214331245249866,
+   "final_mae_gbp": 53854.47501381236,
+   "final_mase": 1.297607003841869,
+   "method": "ses_0.5",
+   "selected": false
+  },
+  {
+   "description": "damped Holt linear trend (alpha 0.3, beta 0.1, phi 0.9)",
+   "development_mae_gbp": 41406.29098479597,
+   "development_mase": 0.9976718401062397,
+   "final_improvement_vs_naive": 0.17680501307646834,
+   "final_mae_gbp": 51083.01231168703,
+   "final_mase": 1.2308294628438001,
+   "method": "holt_damped_0.3_0.1",
+   "selected": false
+  },
+  {
+   "description": "last observed week",
+   "development_mae_gbp": 41502.91641025641,
+   "development_mase": 1.0,
+   "final_improvement_vs_naive": 0.0,
+   "final_mae_gbp": 62054.57166666667,
+   "final_mase": 1.4951858094322121,
+   "method": "naive",
+   "selected": false
+  },
+  {
+   "description": "last week plus the average historical weekly change",
+   "development_mae_gbp": 41744.59539697971,
+   "development_mase": 1.0058231808178082,
+   "final_improvement_vs_naive": -0.002659609597255086,
+   "final_mae_gbp": 62219.61260102489,
+   "final_mase": 1.4991624199606577,
+   "method": "drift",
+   "selected": false
+  },
+  {
+   "description": "simple exponential smoothing, alpha 0.8",
+   "development_mae_gbp": 41875.79820534179,
+   "development_mase": 1.0089844721127412,
+   "final_improvement_vs_naive": 0.07431907495591561,
+   "final_mae_gbp": 57442.733303614434,
+   "final_mase": 1.3840649831879983,
+   "method": "ses_0.8",
+   "selected": false
+  },
+  {
+   "description": "mean of the last 8 weeks",
+   "development_mae_gbp": 42009.67426282051,
+   "development_mase": 1.0122101745225516,
+   "final_improvement_vs_naive": 0.08806331936113321,
+   "final_mae_gbp": 56589.84010416667,
+   "final_mase": 1.3635147839919486,
+   "method": "mean8",
+   "selected": false
+  },
+  {
+   "description": "mean of the last 4 weeks",
+   "development_mae_gbp": 42284.25551282051,
+   "development_mase": 1.0188261252496225,
+   "final_improvement_vs_naive": 0.18311784065976555,
+   "final_mae_gbp": 50691.2725,
+   "final_mase": 1.2213906126238616,
+   "method": "mean4",
+   "selected": false
+  },
+  {
+   "description": "damped Holt linear trend (alpha 0.6, beta 0.1, phi 0.9)",
+   "development_mae_gbp": 43416.698533452276,
+   "development_mase": 1.0461119913665373,
+   "final_improvement_vs_naive": 0.0971208790762863,
+   "final_mae_gbp": 56027.777115697594,
+   "final_mase": 1.349972049237767,
+   "method": "holt_damped_0.6_0.1",
+   "selected": false
+  },
+  {
+   "description": "mean of the last 2 weeks",
+   "development_mae_gbp": 46222.09012820513,
+   "development_mase": 1.1137070385921721,
+   "final_improvement_vs_naive": 0.17475324071610843,
+   "final_mae_gbp": 51210.33416666667,
+   "final_mase": 1.2338972437611955,
+   "method": "mean2",
+   "selected": false
+  }
+ ],
+ "next": {
+  "lower_pence": 27035350,
+  "pence": 32993681,
+  "period": "2011-12-05",
+  "upper_pence": 38952012
+ },
+ "notes": [
+  "Positive invoice-line gross GBP; excludes returns/cancellations and is not net revenue or profit.",
+  "Only complete Monday–Sunday weeks; boundary fragments excluded. Dates without observed rows count as zero; collection completeness is not established.",
+  "One-step rolling origins use only earlier observations. The method is chosen on development origins; the final 12 origins are evaluated afterwards and never select the method. When the naive method is best, it is selected.",
+  "Residual envelope is empirical, not a guaranteed or calibrated prediction interval. Historical records may not represent future trading.",
+  "Country slices re-run the aggregate's selected method and naive on each leading country's own weeks over the same final origins; they are diagnostic and never change the selection."
+ ],
+ "output_sha256": "0f5fb37641f48d52876bab617be937e278d2e6f354165f5a2665c9e9bc2235ed",
+ "period_slices": [
+  {
+   "band_covered": 0,
+   "band_level": 0.9,
+   "band_mean_width_gbp": null,
+   "band_n": 0,
+   "month": "2010-12",
+   "n": 3,
+   "naive_mae_gbp": 109978.93666666666,
+   "phase": "development",
+   "selected_beats_naive": true,
+   "selected_bias_gbp": -2873.086666666667,
+   "selected_mae_gbp": 27611.04
+  },
+  {
+   "band_covered": 0,
+   "band_level": 0.9,
+   "band_mean_width_gbp": null,
+   "band_n": 0,
+   "month": "2011-01",
+   "n": 5,
+   "naive_mae_gbp": 61343.092000000004,
+   "phase": "development",
+   "selected_beats_naive": true,
+   "selected_bias_gbp": 3268.462,
+   "selected_mae_gbp": 33531.862
+  },
+  {
+   "band_covered": 4,
+   "band_level": 0.9,
+   "band_mean_width_gbp": 122623.76,
+   "band_n": 4,
+   "month": "2011-02",
+   "n": 4,
+   "naive_mae_gbp": 19133.3225,
+   "phase": "development",
+   "selected_beats_naive": false,
+   "selected_bias_gbp": -15714.325,
+   "selected_mae_gbp": 23699.37
+  },
+  {
+   "band_covered": 4,
+   "band_level": 0.9,
+   "band_mean_width_gbp": 122623.76,
+   "band_n": 4,
+   "month": "2011-03",
+   "n": 4,
+   "naive_mae_gbp": 21018.8075,
+   "phase": "development",
+   "selected_beats_naive": false,
+   "selected_bias_gbp": -14670.0125,
+   "selected_mae_gbp": 31476.6225
+  },
+  {
+   "band_covered": 3,
+   "band_level": 0.9,
+   "band_mean_width_gbp": 120332.2,
+   "band_n": 4,
+   "month": "2011-04",
+   "n": 4,
+   "naive_mae_gbp": 34107.75,
+   "phase": "development",
+   "selected_beats_naive": false,
+   "selected_bias_gbp": -37725.5125,
+   "selected_mae_gbp": 37725.5125
+  },
+  {
+   "band_covered": 4,
+   "band_level": 0.9,
+   "band_mean_width_gbp": 125444.952,
+   "band_n": 5,
+   "month": "2011-05",
+   "n": 5,
+   "naive_mae_gbp": 45303.376,
+   "phase": "development",
+   "selected_beats_naive": true,
+   "selected_bias_gbp": 20693.226000000002,
+   "selected_mae_gbp": 27693.482000000004
+  },
+  {
+   "band_covered": 4,
+   "band_level": 0.9,
+   "band_mean_width_gbp": 129676.74,
+   "band_n": 4,
+   "month": "2011-06",
+   "n": 4,
+   "naive_mae_gbp": 47221.425,
+   "phase": "development",
+   "selected_beats_naive": true,
+   "selected_bias_gbp": -3979.8325,
+   "selected_mae_gbp": 17315.0075
+  },
+  {
+   "band_covered": 4,
+   "band_level": 0.9,
+   "band_mean_width_gbp": 122623.76,
+   "band_n": 4,
+   "month": "2011-07",
+   "n": 4,
+   "naive_mae_gbp": 40796.3825,
+   "phase": "development",
+   "selected_beats_naive": true,
+   "selected_bias_gbp": 18944.5625,
+   "selected_mae_gbp": 30014.9675
+  },
+  {
+   "band_covered": 5,
+   "band_level": 0.9,
+   "band_mean_width_gbp": 122623.76,
+   "band_n": 5,
+   "month": "2011-08",
+   "n": 5,
+   "naive_mae_gbp": 13537.681999999999,
+   "phase": "development",
+   "selected_beats_naive": false,
+   "selected_bias_gbp": 15976.462,
+   "selected_mae_gbp": 15976.462
+  },
+  {
+   "band_covered": 1,
+   "band_level": 0.9,
+   "band_mean_width_gbp": 122623.76,
+   "band_n": 1,
+   "month": "2011-09",
+   "n": 1,
+   "naive_mae_gbp": 38645.43,
+   "phase": "development",
+   "selected_beats_naive": false,
+   "selected_bias_gbp": 59583.31,
+   "selected_mae_gbp": 59583.31
+  },
+  {
+   "band_covered": 1,
+   "band_level": 0.9,
+   "band_mean_width_gbp": 119166.62,
+   "band_n": 3,
+   "month": "2011-09",
+   "n": 3,
+   "naive_mae_gbp": 91013.23,
+   "phase": "final",
+   "selected_beats_naive": true,
+   "selected_bias_gbp": 7167.633333333334,
+   "selected_mae_gbp": 88236.39333333334
+  },
+  {
+   "band_covered": 4,
+   "band_level": 0.9,
+   "band_mean_width_gbp": 119166.62,
+   "band_n": 5,
+   "month": "2011-10",
+   "n": 5,
+   "naive_mae_gbp": 60944.322,
+   "phase": "final",
+   "selected_beats_naive": true,
+   "selected_bias_gbp": 2205.88,
+   "selected_mae_gbp": 41607.196
+  },
+  {
+   "band_covered": 4,
+   "band_level": 0.9,
+   "band_mean_width_gbp": 119166.62,
+   "band_n": 4,
+   "month": "2011-11",
+   "n": 4,
+   "naive_mae_gbp": 41723.39,
+   "phase": "final",
+   "selected_beats_naive": true,
+   "selected_bias_gbp": 8155.29,
+   "selected_mae_gbp": 14369.665
+  }
+ ],
+ "protocol_note": "Same weekly-gross-v3 protocol as UCI (no change): seasonal_naive registered because >= 104 complete weeks; first origin 53; selection on 39 development origins only; 12 final origins evaluated afterwards.",
+ "recipe_version": "weekly-gross-v3",
+ "scope": {
+  "dataset_sha256": "0a913fb1eb10fa2302220e187506ae5ce552a8657cd6719c4be0e6bc7d827cbe",
+  "filters": {},
+  "observed_end": "2011-12-09",
+  "observed_start": "2009-12-01"
+ },
+ "selected": "seasonal_naive",
+ "selected_description": "same week one season (52 weeks) earlier",
+ "slices": [
+  {
+   "country": "United Kingdom",
+   "final": {
+    "naive": {
+     "bias_gbp": 11507.130833333333,
+     "mae_gbp": 50566.1175,
+     "mase": 1.3784639227553022,
+     "n": 12,
+     "rmse_gbp": 59224.8341252217,
+     "smape": 0.21203489940921724,
+     "wape": 0.19892688989244608
+    },
+    "selected": {
+     "bias_gbp": 2037.0666666666666,
+     "mae_gbp": 39702.418333333335,
+     "mase": 1.0823127031383948,
+     "n": 12,
+     "rmse_gbp": 50316.87988069677,
+     "smape": 0.1704530284691079,
+     "wape": 0.1561891438522808
+    }
+   },
+   "gross_pence": 1675007334,
+   "selected_beats_naive_final": true,
+   "status": "ready",
+   "zero_weeks": 2
+  },
+  {
+   "country": "EIRE",
+   "final": {
+    "naive": {
+     "bias_gbp": -1078.6225,
+     "mae_gbp": 6423.675833333334,
+     "mase": 1.4807578970824402,
+     "n": 12,
+     "rmse_gbp": 7899.319829150377,
+     "smape": 0.9711334486515355,
+     "wape": 1.0080672465839289
+    },
+    "selected": {
+     "bias_gbp": -3297.5925,
+     "mae_gbp": 5300.050833333334,
+     "mase": 1.221744734638052,
+     "n": 12,
+     "rmse_gbp": 7279.702012080691,
+     "smape": 0.7057599276761025,
+     "wape": 0.8317368106573234
+    }
+   },
+   "gross_pence": 65125096,
+   "selected_beats_naive_final": true,
+   "status": "ready",
+   "zero_weeks": 4
+  },
+  {
+   "country": "Netherlands",
+   "final": {
+    "naive": {
+     "bias_gbp": -167.85333333333332,
+     "mae_gbp": 10296.32,
+     "mase": 1.2951149587476016,
+     "n": 12,
+     "rmse_gbp": 12941.781767294126,
+     "smape": 1.490817253782474,
+     "wape": 1.3520114747575904
+    },
+    "selected": {
+     "bias_gbp": 547.9216666666666,
+     "mae_gbp": 9073.906666666666,
+     "mase": 1.1413546061388522,
+     "n": 12,
+     "rmse_gbp": 11411.43421522758,
+     "smape": 1.3554148067362253,
+     "wape": 1.1914961786553577
+    }
+   },
+   "gross_pence": 53609242,
+   "selected_beats_naive_final": true,
+   "status": "ready",
+   "zero_weeks": 24
+  }
+ ],
+ "split": {
+  "development_origins": 39,
+  "final_window_rule": "last min(12, max(4, n // 5)) origins; evaluated after selection, never used for it",
+  "first_origin": 53,
+  "holdout_origins": 12,
+  "horizon_weeks": 1,
+  "mase_scale": "development naive one-step MAE",
+  "selection_end_index": 91,
+  "selection_rule": "lowest development MAE; ties resolve to the simpler (earlier registered) method"
+ },
+ "status": "ready",
+ "uncertainty": {
+  "calibrated": false,
+  "collapsed_relative_band": false,
+  "levels": {
+   "0.8": {
+    "development_mean_width_gbp": 90776.55548387096,
+    "development_rolling_coverage": 0.8387096774193549,
+    "development_rolling_n": 31,
+    "final_mean_width_gbp": 84651.3,
+    "final_window_coverage": 0.6666666666666666,
+    "quantile": 4232565,
+    "radius_pence": 4232565
+   },
+   "0.9": {
+    "development_mean_width_gbp": 123693.16774193548,
+    "development_rolling_coverage": 0.9354838709677419,
+    "development_rolling_n": 31,
+    "final_mean_width_gbp": 119166.62,
+    "final_window_coverage": 0.75,
+    "quantile": 5958331,
+    "radius_pence": 5958331
+   }
+  },
+  "method": "empirical envelope of development errors of the selected method (80% and 90% quantiles); the 90% radius is the displayed band",
+  "note": "Final-window coverage and width are descriptive checks on a handful of points, not calibration claims. Development rolling coverage tunes the scaling and is not independent calibration evidence.",
+  "quantile_rule": "finite-sample split-conformal index ceil((n+1)·level), truncated to the largest residual when it exceeds n",
+  "residual_count": 39,
+  "scaling": "absolute",
+  "scaling_rule": "absolute pence or relative to the forecast; chosen by rolling development coverage closest to nominal (radius from earlier development residuals only); ties resolve to absolute; the final window never informs the choice",
+  "scalings": {
+   "absolute": {
+    "0.8": {
+     "development_mean_width_gbp": 90776.55548387096,
+     "development_rolling_coverage": 0.8387096774193549,
+     "development_rolling_n": 31
+    },
+    "0.9": {
+     "development_mean_width_gbp": 123693.16774193548,
+     "development_rolling_coverage": 0.9354838709677419,
+     "development_rolling_n": 31
+    }
+   },
+   "relative": null
+  }
+ }
+}

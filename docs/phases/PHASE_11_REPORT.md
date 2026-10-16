@@ -149,6 +149,36 @@ gider. Harness v2.1 yerel yanıt niyetini ölçer: davranış 13/19 → 15/19, n
 kategoriler değerlendirme setinde görüldü, düzeltmeler ayrı 24 parafrazla geliştirildi). Tarayıcı: "En çok adet satan
 ürün hangisi?" sınır rozeti ve açıklama gösterir. 299 test.
 
+## 7h. İki sezonluk tahmin benchmark'ı — UCI Online Retail II (kullanıcı onayıyla indirildi) — MEASURED · BROWSER
+Kaynak: https://archive.ics.uci.edu/dataset/502/online+retail+ii, DOI 10.24432/C5CG6D, CC BY 4.0 (sayfadan doğrulandı);
+zip 45.622.418 bayt, SHA-256 `572e3627…7bfb`; repoya eklenmedi. `analysis/prepare.py --online-retail-ii`: iki yıllık sayfa
+birleştirilir; **2010-12-01..09 (22.523 satır, 1.088 fatura) iki sayfada birebir tekrar** — satır hash multiset'iyle
+doğrulanıp bir kez alınır, eşleşmezse birleştirme reddedilir. 1.044.848 ham → 1.019.654 dahil; 25.194 dışlanan; 11.812
+tekrar satır korunur/raporlanır. Çapraz kontrol: 2010-12-01 sonrası UCI (v1) ile satır/tutar/sipariş aynı, tek fark
+v1'de olmayan son gün POST satırı (581587, £18,00; tam hafta dışında). `uci2` isteğe bağlı genel veri setidir: yalnız
+hazırlanmışsa katalogda; CI 45 MB indirmez.
+
+Aynı weekly-gross-v3 protokolü, **değişiklik yok**: 104 tam hafta → seasonal_naive kayıtlı, ilk origin 53, 39 geliştirme,
+12 final (2011-09-12..2011-11-28). Kanıt `docs/evidence/verification/phase11-forecast-uci2.json`.
+
+| yöntem | geliştirme MASE | final MAE £ | final MASE | naife göre | final bias £ |
+|---|---:|---:|---:|---:|---:|
+| **seasonal_naive (seçildi)** | 0,673 | 44.185 | 1,065 | **−%28,8** | +5.429 |
+| mean4 | 1,019 | 50.691 | 1,221 | −%18,3 | +34.482 |
+| holt_damped_0.3_0.1 | 0,998 | 51.083 | 1,231 | −%17,7 | +29.951 |
+| mean2 | 1,114 | 51.210 | 1,234 | −%17,5 | +17.737 |
+| ses_0.5 | 0,990 | 53.854 | 1,298 | −%13,2 | +25.458 |
+| mean8 | 1,012 | 56.590 | 1,364 | −%8,8 | +56.590 |
+| naive | 1,000 | 62.055 | 1,495 | 0 | +10.972 |
+
+Okuma: seçilen yöntem final pencerede de tüm adayların en iyisi ve neredeyse yansız. Kasım 2011 final: £14.370 vs naif
+£41.723, bant 4/4 — tek yıllık veride mean8'in kaçırdığı tatil rampası. Eylül 2011 final zayıf (£88.236 vs naif £91.013,
+bant 1/3). %90 bant: geliştirme yuvarlanan 29/31, final 9/12 (%75) — hâlâ eksik kapsama, kalibre değil. Final MASE 1,065
+> 1: final dönem geliştirmeden zordur. Sınırlar: tek bir yıl-yıl karşılaştırması (2010→2011); 52 hafta = 364 gün olduğundan
+tatil günleri her yıl bir gün kayar; tek mağaza/perakendeci. Bu, "mevsimsel naif her zaman kazanır" iddiası değildir.
+Tarayıcı: menüde Online Retail II, KPI'lar DB toplamlarıyla aynı, Karar stüdyosu "Geçen sezonun aynı haftası", 12 dönem,
+naif uyarısı yok, ay tablosu ve anlatı tutarlı. 305 test.
+
 ## 8. Açık kalanlar
 Gerçek LLM erişimi (402), 5–8 kullanıcı pilotu, üretim RLS/retention/hard isolation, 5M+ ölçek, decisions yolunun
 decisions/run yolunda kalan ~0,7 s başlangıç (pandas/networkx; graph gerektirir), ≥2 sezon veriyle seasonal naive doğrulaması, dönem (ay) dilimleri ve anlatı için anlamsal iddia-dayanak doğrulaması (ölçü/dönem bağı kelime düzeyinde eklendi). Parquet core TS rotası önceki CI’da geçti; açık iş olarak tutulmaz.

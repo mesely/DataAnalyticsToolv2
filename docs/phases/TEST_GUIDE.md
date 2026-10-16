@@ -35,7 +35,7 @@ PATH=/Users/selmanyilmaz/.cache/codex-runtimes/codex-primary-runtime/dependencie
 
 ## Veri politikası
 
-UCI Online Retail, Daqing Chen, DOI 10.24432/C5BW33, CC BY 4.0: https://archive.ics.uci.edu/dataset/352/online+retail . Resmî zip hash'i metadata'da. Pozitif miktar/fiyat ve geçerli tarih/fatura/ürün; iptal/iade dışlanır. Satır seviyesinde GBP kuruşuna yuvarlanır. Brüt satış; net gelir/kâr/dönüşüm/nedensellik değildir. Ham müşteri id hashlenir, preview'da gösterilmez.
+UCI Online Retail, Daqing Chen, DOI 10.24432/C5BW33, CC BY 4.0: https://archive.ics.uci.edu/dataset/352/online+retail . İsteğe bağlı iki sezonluk UCI Online Retail II, DOI 10.24432/C5CG6D, CC BY 4.0: https://archive.ics.uci.edu/dataset/502/online+retail+ii — zip indirilip `.venv/bin/python -m analysis.prepare --online-retail-ii <zip>` ile hazırlanır (zip SHA-256 `572e36277c2390fbfde10664750731e0a86f55e33470d91919085f0408e67bfb`). Resmî zip hash'i metadata'da. Pozitif miktar/fiyat ve geçerli tarih/fatura/ürün; iptal/iade dışlanır. Satır seviyesinde GBP kuruşuna yuvarlanır. Brüt satış; net gelir/kâr/dönüşüm/nedensellik değildir. Ham müşteri id hashlenir, preview'da gösterilmez.
 
 ## Aşama 2 — uzman araçlarını test etme
 
@@ -174,7 +174,7 @@ HTTP/OIDC/DB/browser/LLM hariç. Gerçek model accuracy402çözülmeden ölçül
 7. Model stüdyosu → Wine → Modelleri karşılaştır: "Olasılık kalitesi" tablosu (log loss, Brier, ECE; ortalama
    kesinlik üç sınıfta —). Seçim ölçütü hâlâ macro F1'dir.
 
-Otomatik: `.venv/bin/python -m pytest analysis/tests -q` (301 test; ölçü/dönem bağı ve aylık dilimler dahil); `.venv/bin/python -m analysis.llm_eval
+Otomatik: `.venv/bin/python -m pytest analysis/tests -q` (305 test; ölçü/dönem bağı ve aylık dilimler dahil); `.venv/bin/python -m analysis.llm_eval
 --providers scripted-ideal,scripted-adversarial,local` (narrate sütunları); tahmin kanıtı
 `docs/evidence/phase10/forecast-v3-uci.json`.
 
@@ -200,3 +200,15 @@ Parquet kabulü: aynı eşleme ve dedup, tarih ISO ve ondalık virgül kapalı �
 Tahmin: nominal %90 ile gözlenen %84,615 geliştirme / %70 final ayrı görünmeli. Ortalama bant genişliği geliştirmede **£124.948,63**, finalde **£130.997,26**; son-10 tablosu + 3 ülke dilimi. Kalibrasyon iddiası yok. `test_nonnegative_domain_applies_before_evaluation_and_relative_radius` sıfıra çöken seride ters bant regresyonunu yakalar.
 
 Tarayıcı: 390×844 ve masaüstü; açık/koyu; Cmd-K → `karar` → Tab → Enter; Escape; kanıta geçiş; geçmişten yeniden aç ve JSON `output_sha256` karşılaştır; Markdown/XML indir. Kodlama seçici ve onay etiketi en az **44px**. Viewport override test sonunda sıfırlanmalı. Kanıt `phase11-browser-qa.json`; tam ekran okuyucu/WCAG ve gerçek kullanıcı pilotu hâlâ ölçülmedi.
+
+
+## Online Retail II — iki sezonla tahmin (isteğe bağlı veri)
+1. Veri seti menüsünde **UCI • Online Retail II** (yalnız hazırlanmışsa görünür). Genel bakış: 1.019.654 satır,
+   £20.533.741,90, 40.077 sipariş, 11.239.346 adet, AOV £512,36.
+2. **Karar stüdyosunu aç → Karar özeti oluştur.** 104 tam hafta; seçilen yöntem **Geçen sezonun aynı haftası**
+   (39 geliştirme dönemi, 11 kayıtlı yöntem). Test MAE · 12 dönem **£44.185,32**, naif **£62.054,57** — naifi geçemedi
+   uyarısı yok. Sonraki hafta 2011-12-05 £329.936,81 [£270.353,50 – £389.520,12]; bant kalibre değil (%75 final kapsama).
+3. Aylara göre tablo: 2011-11 son pencere £14.369,67 vs naif £41.723,39, 4/4 bant içinde. Aynı ay tek yıllık UCI'de
+   mean8 naiften kötüydü — iki sezonla mevsimsel aday kayda girer.
+4. 2010-12-01 sonrası kısım UCI ile aynıdır; tek fark 2011-12-09'daki bir POST satırı (£18,00), tam hafta dışında.
+Test: `analysis/tests/test_online_retail_ii.py` (son test yalnız uci2 hazırlanmış makinede koşar).

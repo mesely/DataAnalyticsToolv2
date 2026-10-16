@@ -14,7 +14,8 @@ const ROOT = path.resolve(
   "../..",
 );
 const BASE = "/v1/dashboard/workbench";
-const PUBLIC = ["demo", "uci"];
+// uci2 (Online Retail II) is optional; the worker lists it only where it has been prepared.
+const PUBLIC = ["demo", "uci", "uci2"];
 const UUID = /^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i;
 const workSignals = new AsyncLocalStorage<AbortSignal>();
 const active = new Map<string, number>();

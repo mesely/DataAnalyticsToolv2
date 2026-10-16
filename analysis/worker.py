@@ -23,6 +23,7 @@ _CHANGE = re.compile(r"(?<!\w)(drop|dropp|fall|fell|declin|decreas|increas|rise|
 _SUMMARY_EXTRA = re.compile(r"(?<!\w)(units?|quantit|sold|sell|market|where|nerede|pazar|miktar|items?|sku|rank|first|top|birinci|lider)", re.I)
 _PRODUCT = re.compile(r"(?<!\w)(product|items?|sku|ürün|urun)", re.I)
 
+OPTIONAL_PUBLIC = {"uci2"}
 VERSION = "retail-analysis-v4"
 METRICS = [
     {
@@ -57,7 +58,7 @@ METRICS = [
 
 
 def meta(dataset):
-    if not re.fullmatch(r"(demo|uci|usr_[a-f0-9]{12}_[a-f0-9]{12})", str(dataset)):
+    if not re.fullmatch(r"(demo|uci|uci2|usr_[a-f0-9]{12}_[a-f0-9]{12})", str(dataset)):
         raise ValueError("Geçersiz veri seti.")
     p = DATA / (dataset + ".json")
     if not p.exists():
@@ -65,7 +66,7 @@ def meta(dataset):
     value = json.loads(p.read_text())
     if dataset == "demo":
         value["title"] = "Perakende örneği"
-    if dataset == "uci":
+    if dataset in ("uci", "uci2"):
         value[
             "definition"
         ] += " Kargo, hizmet ve Manual gibi pozitif fatura kalemleri korunur; fiziksel ürün satışı olarak ayrıca sınıflandırılmamıştır."
@@ -611,7 +612,12 @@ def handle(request):
     action = request.get("action", "run")
     if action == "catalog":
         return {
-            "datasets": [meta(x) for x in request.get("ids", ["demo", "uci"])],
+            # uci2 (Online Retail II) is optional: listed only where it has been prepared locally.
+            "datasets": [
+                meta(x)
+                for x in request.get("ids", ["demo", "uci"])
+                if x not in OPTIONAL_PUBLIC or (DATA / (x + ".json")).exists()
+            ],
             "metrics": METRICS,
             "provider": __import__("analysis.llm", fromlist=["status"]).status(),
         }

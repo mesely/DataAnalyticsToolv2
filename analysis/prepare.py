@@ -253,5 +253,69 @@ def main():
         raise RuntimeError("UCI archive is required; download official source first.")
 
 
+ONLINE_RETAIL_II = {
+    "url": "https://archive.ics.uci.edu/dataset/502/online+retail+ii",
+    "download_url": "https://archive.ics.uci.edu/static/public/502/online+retail+ii.zip",
+    "doi": "10.24432/C5CG6D",
+    "license": "CC BY 4.0",
+    "member": "online_retail_II.xlsx",
+    "overlap_start": "2010-12-01",  # both sheets carry 2010-12-01..2010-12-09 identically
+}
+
+
+def online_retail_ii_frame(archive):
+    """Both yearly sheets as one raw frame in the shared column vocabulary. The 2010-12-01..12-09 window is
+    present, row for row, in BOTH sheets (verified as an exact multiset match when preparing); it is taken
+    from the 2010-2011 sheet only, so those nine days are not counted twice. Within-sheet duplicates are kept
+    and reported by the shared normalizer, as for every other dataset."""
+    import pandas as pd
+
+    with zipfile.ZipFile(archive) as z, z.open(ONLINE_RETAIL_II["member"]) as f:
+        sheets = pd.read_excel(f, sheet_name=None, engine="openpyxl", dtype={"Invoice": str, "StockCode": str})
+    if set(sheets) != {"Year 2009-2010", "Year 2010-2011"}:
+        raise ValueError("Unexpected Online Retail II sheets: " + ", ".join(sheets))
+    first, second = sheets["Year 2009-2010"], sheets["Year 2010-2011"]
+    cut = pd.Timestamp(ONLINE_RETAIL_II["overlap_start"])
+    cols = ["Invoice", "StockCode", "Description", "Quantity", "InvoiceDate", "Price", "Customer ID", "Country"]
+    overlap_a = first.loc[first.InvoiceDate >= cut, cols]
+    overlap_b = second.loc[second.InvoiceDate < cut + pd.Timedelta(days=9), cols]
+    key = lambda f: sorted(pd.util.hash_pandas_object(f, index=False).tolist())  # multiset of exact rows
+    if len(overlap_a) != len(overlap_b) or key(overlap_a) != key(overlap_b):
+        raise ValueError("Online Retail II sheet overlap is not an exact duplicate; refusing to merge silently.")
+    raw = pd.concat([first.loc[first.InvoiceDate < cut, cols], second[cols]], ignore_index=True)
+    raw = raw.rename(columns={"Invoice": "InvoiceNo", "Price": "UnitPrice", "Customer ID": "CustomerID"})
+    return raw, {"sheet_rows": {k: len(v) for k, v in sheets.items()}, "overlap_rows_dropped": len(overlap_a),
+                 "overlap_invoices": int(overlap_a.Invoice.nunique())}
+
+
+def prepare_online_retail_ii(archive):
+    archive = Path(archive)
+    raw, merge = online_retail_ii_frame(archive)
+    return store(
+        "uci2",
+        "UCI • Online Retail II",
+        raw,
+        {
+            "kind": "public",
+            "publisher": "UCI Machine Learning Repository · Daqing Chen",
+            "url": ONLINE_RETAIL_II["url"],
+            "download_url": ONLINE_RETAIL_II["download_url"],
+            "doi": ONLINE_RETAIL_II["doi"],
+            "license": ONLINE_RETAIL_II["license"],
+            "archive_sha256": hashlib.sha256(archive.read_bytes()).hexdigest(),
+            "merge": merge,
+            "description": "Aynı Birleşik Krallık merkezli perakendecinin 2009–2011 tarihsel işlem verisi (iki yıllık sayfa). "
+            "2010-12-01..09 her iki sayfada birebir tekrarlandığı için bir kez alınır. İki sezon, mevsimsel naif tahmini "
+            "doğrulamayı mümkün kılar. Güncel veya temsili pazar verisi değildir.",
+        },
+    )
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+
+    if len(sys.argv) == 3 and sys.argv[1] == "--online-retail-ii":
+        meta = prepare_online_retail_ii(sys.argv[2])
+        print("uci2", meta["rows"], meta["quality"], meta["source"]["merge"], flush=True)
+    else:
+        main()

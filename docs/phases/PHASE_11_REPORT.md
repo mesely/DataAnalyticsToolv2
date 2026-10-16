@@ -67,9 +67,17 @@ sonraki iş olarak NEXT_BACKLOG'a yazıldı — kullanıcı girdisini SQL'e kaç
 `source_unavailable` (Docker daemon kapalı; connector fixture `postgres:16` ister) → **CI'da koştu ve geçti**:
 https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38886787881 (e4f82af, 5 job success).
 
-## 7. Tarayıcı kabulü
-BEKLİYOR — bu turda tarayıcı aracı güvenlik sınıflandırıcısı geçici olarak erişilemezdi; gerçek ekran alınınca bu
-bölüm ve `docs/evidence/verification/phase11-browser-qa.json` doldurulur. Mock üretilmedi.
+## 7. Sunucu düzeyi HTTP kabulü (MEASURED, SERVER) ve tarayıcı kabulü (BEKLİYOR)
+Çalışan yerel fixture'a karşı gerçek OIDC dev IdP girişi, CSRF, PostgreSQL ve Python worker ile 21 kontrol, **21/21
+geçti** → `docs/evidence/verification/phase11-http-qa.json` (üretici betik scratchpad'de; yalnız public UCI/sentetik veri).
+Kapsanan: üç fixture kimliği; `/decisions` UCI (HTTP gidiş-dönüş 1.680 ms, warm değil) → v3 tahmin alanları, 3 ülke
+dilimi, etiket içermeyen teşhisler, altı tipli yerel anlatı (12 cümle), dayanak kimlikleri çözülür, `analysis_context`
+6.243 bayt ve sonu `output_contract`, Markdown raporunda anlatı; aynı kaydı yeniden açma aynı `output_sha256`; başka
+kimlik 404; viewer 403; CSRF'siz 401/403; Parquet profil → eşlemeli önizleme (receipt) → owner import; eşlemesiz Parquet
+import 400; CSV+Parquet birlikte 400; bozuk Parquet 400; profil teşhis alanları; Wine ML kartında olasılık metrikleri
+(log loss 0,1827 / Brier 0,0702 / ECE 0,1279 — küçük benchmark); servis edilen web bundle yeni UI metinlerini içeriyor.
+Tarayıcı render/klavye/390 px/tema kabulü **BEKLİYOR** — tarayıcı aracının güvenlik sınıflandırıcısı tur boyunca
+erişilemezdi; gerçek ekran alınınca `phase11-browser-qa.json` doldurulur. Mock üretilmedi.
 
 ## 8. Açık kalanlar
 Gerçek LLM erişimi (402), 5–8 kullanıcı pilotu, üretim RLS/retention/hard isolation, 5M+ ölçek, decisions yolunun

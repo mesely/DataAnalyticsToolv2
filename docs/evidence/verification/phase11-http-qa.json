@@ -1,0 +1,175 @@
+{
+ "generated_utc": "2026-10-16T10:31:04Z",
+ "base": "http://127.0.0.1:8123",
+ "checks": [
+  {
+   "name": "login three fixture identities",
+   "ok": true,
+   "detail": {
+    "alice_roles": [
+     "analyst",
+     "ops"
+    ],
+    "viewer_roles": []
+   }
+  },
+  {
+   "name": "POST /decisions UCI 200",
+   "ok": true,
+   "detail": {
+    "ms_http_roundtrip": 1680
+   }
+  },
+  {
+   "name": "forecast v3 fields",
+   "ok": true,
+   "detail": {
+    "selected": "mean8",
+    "scaling": "absolute",
+    "dev_cov_90": 0.846,
+    "final_cov_90": 0.7
+   }
+  },
+  {
+   "name": "country slices present and label-free diagnostics",
+   "ok": true,
+   "detail": [
+    [
+     "United Kingdom",
+     true
+    ],
+    [
+     "Netherlands",
+     true
+    ],
+    [
+     "EIRE",
+     true
+    ]
+   ]
+  },
+  {
+   "name": "typed local narrative with all six types, model none",
+   "ok": true,
+   "detail": {
+    "count": 12
+   }
+  },
+  {
+   "name": "narrative evidence ids resolve",
+   "ok": true
+  },
+  {
+   "name": "analysis_context xml bounded, label-free, contract last",
+   "ok": true,
+   "detail": {
+    "bytes": 6243
+   }
+  },
+  {
+   "name": "report markdown has typed narrative",
+   "ok": true
+  },
+  {
+   "name": "reopen same output_sha256 and narrative",
+   "ok": true
+  },
+  {
+   "name": "other identity 404 on decision",
+   "ok": true
+  },
+  {
+   "name": "viewer role 403 on decisions",
+   "ok": true
+  },
+  {
+   "name": "no CSRF 403",
+   "ok": true
+  },
+  {
+   "name": "POST /prepare parquet profile",
+   "ok": true,
+   "detail": {
+    "columns": [
+     "order",
+     "sku",
+     "title",
+     "qty",
+     "price",
+     "day",
+     "market"
+    ]
+   }
+  },
+  {
+   "name": "parquet mapped preview with receipt",
+   "ok": true,
+   "detail": {
+    "preview": {
+     "retained_rows": 2,
+     "removed_duplicates": 1,
+     "quality": {
+      "raw_rows": 2,
+      "cancelled_rows": 0,
+      "nonpositive_quantity": 0,
+      "nonpositive_price": 0,
+      "missing_customer": 2,
+      "invalid_date": 0,
+      "duplicate_rows": 0,
+      "excluded_rows": 0
+     },
+     "gross_pence": 1260,
+     "orders": 2,
+     "grain": "invoice_line",
+     "currency": "GBP"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "parquet import creates owner dataset",
+   "ok": true,
+   "detail": {
+    "rows": 2,
+    "orders": 2
+   }
+  },
+  {
+   "name": "parquet import without mapping refused",
+   "ok": true
+  },
+  {
+   "name": "both csv and parquet refused",
+   "ok": true
+  },
+  {
+   "name": "garbage parquet refused",
+   "ok": true
+  },
+  {
+   "name": "profile diagnostics fields",
+   "ok": true
+  },
+  {
+   "name": "ML card has probabilistic holdout metrics",
+   "ok": true,
+   "detail": {
+    "log_loss": 0.1827,
+    "brier_multiclass": 0.0702,
+    "expected_calibration_error": 0.1279
+   }
+  },
+  {
+   "name": "served web bundle includes narrative/slices/parquet UI",
+   "ok": true,
+   "detail": {
+    "bundle_bytes": 759841
+   }
+  }
+ ],
+ "summary": {
+  "passed": 21,
+  "failed": 0,
+  "scope": "HTTP against the running local fixture (OIDC dev IdP, CSRF, PostgreSQL, Python worker). Public UCI and synthetic data only; no browser rendering; not a load test."
+ }
+}

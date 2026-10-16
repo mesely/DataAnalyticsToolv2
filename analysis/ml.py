@@ -20,6 +20,8 @@ from sklearn.metrics import (
     mean_absolute_error,
     mean_squared_error,
     r2_score,
+    log_loss,
+    average_precision_score,
 )
 from sklearn.model_selection import (
     train_test_split,
@@ -214,6 +216,45 @@ def metrics(task, truth, prediction, labels=None):
     }
 
 
+def probabilistic_metrics(model, X, truth, labels):
+    """Holdout-only probability quality for a fitted classifier: log loss, multiclass Brier score, expected
+    calibration error (10 equal-width bins on the top probability) and average precision for binary targets.
+    Reported after selection; never used to choose a model. None when the model has no predict_proba."""
+    if not hasattr(model, "predict_proba"):
+        return None
+    classes = list(range(len(labels)))
+    proba = np.asarray(model.predict_proba(X), dtype=float)
+    seen = list(getattr(model, "classes_", classes))
+    full = np.zeros((len(truth), len(classes)))
+    for j, c in enumerate(seen):
+        full[:, int(c)] = proba[:, j]
+    full = np.clip(full, 1e-12, 1)
+    full = full / full.sum(axis=1, keepdims=True)
+    onehot = np.eye(len(classes))[np.asarray(truth, dtype=int)]
+    brier = float(np.mean(np.sum((full - onehot) ** 2, axis=1)))
+    top = full.max(axis=1)
+    hit = (full.argmax(axis=1) == np.asarray(truth)).astype(float)
+    bins = np.minimum((top * 10).astype(int), 9)
+    ece = 0.0
+    reliability = []
+    for b in range(10):
+        mask = bins == b
+        if mask.any():
+            conf, acc = float(top[mask].mean()), float(hit[mask].mean())
+            ece += mask.mean() * abs(acc - conf)
+            reliability.append({"bin": b, "count": int(mask.sum()), "mean_confidence": conf, "accuracy": acc})
+    return {
+        "log_loss": float(log_loss(truth, full, labels=classes)),
+        "brier_multiclass": brier,
+        "expected_calibration_error": float(ece),
+        "average_precision": (
+            float(average_precision_score(truth, full[:, 1])) if len(classes) == 2 else None
+        ),
+        "reliability_bins": reliability,
+        "note": "Holdout probability quality, reported after selection and never used for it. Brier is the multiclass sum-of-squares form (0 best, 2 worst); ECE uses 10 equal-width bins on the top probability.",
+    }
+
+
 def experiment(request):
     started = time.monotonic()
     frame, _ = read_csv(request.get("csv"))
@@ -366,8 +407,10 @@ def experiment(request):
         "selection_metric": "macro_f1" if task == "classification" else "negative_mae",
         "candidates": scores,
         "selected_model": selected,
-        "holdout": metrics(task, y[test], final_prediction, labels),
-        "baseline": metrics(task, y[test], base_prediction, labels),
+        "holdout": metrics(task, y[test], final_prediction, labels)
+        | ({"probabilistic": probabilistic_metrics(final, X.iloc[test], y[test], labels)} if task == "classification" else {}),
+        "baseline": metrics(task, y[test], base_prediction, labels)
+        | ({"probabilistic": probabilistic_metrics(baseline, X.iloc[test], y[test], labels)} if task == "classification" else {}),
         "schema": {
             "numeric": schema.numeric_,
             "categorical": schema.categorical_,

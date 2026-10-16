@@ -17,6 +17,12 @@ type Metrics = {
   rmsle?: number | null;
   confusion_matrix?: number[][];
   per_class?: { label: string; support: number; recall: number | null }[];
+  probabilistic?: null | {
+    log_loss: number;
+    brier_multiclass: number;
+    expected_calibration_error: number;
+    average_precision: number | null;
+  };
 };
 type ModelCard = {
   experiment_id: string;
@@ -259,6 +265,43 @@ export function ModelStudio({
               </tbody>
             </table>
           </div>
+          {card.holdout.probabilistic && card.baseline.probabilistic && (
+            <div className="wb-table-wrap">
+              <table>
+                <caption>
+                  {t(
+                    "Olasılık kalitesi · seçimden sonra raporlanır, seçimi etkilemez. Düşük daha iyidir; ortalama kesinlik için yüksek.",
+                    "Probability quality · reported after selection, never used for it. Lower is better; higher for average precision.",
+                  )}
+                </caption>
+                <thead>
+                  <tr>
+                    <th>{t("Ölçüm", "Metric")}</th>
+                    <th>{t("Başlangıç", "Baseline")}</th>
+                    <th>{t("Seçilen model", "Selected model")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(
+                    [
+                      ["log_loss", "Log loss"],
+                      ["brier_multiclass", t("Brier (çok sınıflı)", "Brier (multiclass)")],
+                      ["expected_calibration_error", t("Beklenen kalibrasyon hatası", "Expected calibration error")],
+                      ["average_precision", t("Ortalama kesinlik (ikili)", "Average precision (binary)")],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <tr key={key}>
+                      <th scope="row">{label}</th>
+                      <td>{fmt(card.baseline.probabilistic![key])}</td>
+                      <td>
+                        <strong>{fmt(card.holdout.probabilistic![key])}</strong>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
           <p className="wb-muted">
             {card.recipe.task === "classification"
               ? t(

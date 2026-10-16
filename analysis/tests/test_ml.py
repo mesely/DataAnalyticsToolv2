@@ -156,3 +156,29 @@ def test_skewed_wine_subset_keeps_natural_holdout_distribution():
     assert card["split"]["holdout_rows"] == 28
     assert sum(map(sum, card["holdout"]["confusion_matrix"])) == 28
     assert "smote_forest" in [c["model"] for c in card["candidates"]]
+
+
+def test_probabilistic_holdout_metrics_are_reported_not_selected_on():
+    from analysis.ml import probabilistic_metrics
+    card = experiment(request())
+    p = card["holdout"]["probabilistic"]
+    assert p is not None and p["log_loss"] > 0 and 0 <= p["brier_multiclass"] <= 2
+    assert 0 <= p["expected_calibration_error"] <= 1 and p["average_precision"] is None  # three classes
+    assert sum(b["count"] for b in p["reliability_bins"]) == card["split"]["holdout_rows"]
+    assert card["baseline"]["probabilistic"]["brier_multiclass"] >= p["brier_multiclass"]
+    assert card["selection_metric"] == "macro_f1"  # probability metrics never enter selection
+    assert "probabilistic" not in experiment(request("diabetes"))["holdout"]
+
+    class Perfect:
+        classes_ = [0, 1]
+
+        def predict_proba(self, X):
+            return np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 0.0]])
+
+    class NoProba:
+        pass
+
+    exact = probabilistic_metrics(Perfect(), None, np.array([0, 1, 0]), ["a", "b"])
+    assert exact["brier_multiclass"] == pytest.approx(0, abs=1e-9)
+    assert exact["expected_calibration_error"] == pytest.approx(0, abs=1e-9) and exact["average_precision"] == 1
+    assert probabilistic_metrics(NoProba(), None, np.array([0]), ["a", "b"]) is None

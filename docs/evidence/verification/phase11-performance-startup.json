@@ -1,0 +1,195 @@
+{
+ "title": "Worker cold-start: provider stack imported lazily (AW-14 continuation)",
+ "scope": "Full local subprocess, warm cache, public historical UCI records. Small sample; no HTTP/OIDC/PG/browser/HF overhead. Not an SLA, user pilot or LLM accuracy.",
+ "method": "Same script (analysis.evaluate_decisions --samples 9 --concurrency 1 --actions run run_filtered forecast decisions), same machine and session. 'before' = HEAD 5aa6123 with analysis/llm.py, decisions.py, narrative.py at their committed versions (temporarily stashed); 'after' = the lazy-import change. Subprocess per request: interpreter start + imports + computation + JSON. No HTTP/OIDC/PG/browser/HF.",
+ "finding": "Every dashboard 'run' and every 'decisions' request imported analysis.llm -> analysis.adapted.providers -> LangChain (~1.05 s cumulative import time measured with -X importtime) only to report provider status, even with the model off. Status now reads credentials without constructing provider settings; the provider is imported only when a model is built or called.",
+ "before": {
+  "build": {
+   "sha256": "7aaed628258f11f2da1c44cb3035b88c3effb5c3086628073bc5f362824fa200",
+   "scheme": "source-dependencies-v1",
+   "files": 46
+  },
+  "observations": [
+   {
+    "action": "run",
+    "concurrency": 1,
+    "samples": 9,
+    "p50_ms": 1482.78,
+    "sample_p95_ms": 2081.84,
+    "max_ms": 2081.84,
+    "failures": 0,
+    "raw_ms": [
+     2081.84,
+     1573.69,
+     1623.26,
+     1525.87,
+     1482.78,
+     1432.68,
+     1428.72,
+     1429.67,
+     1447.03
+    ]
+   },
+   {
+    "action": "run_filtered",
+    "concurrency": 1,
+    "samples": 9,
+    "p50_ms": 1428.96,
+    "sample_p95_ms": 1511.85,
+    "max_ms": 1511.85,
+    "failures": 0,
+    "raw_ms": [
+     1374.0,
+     1458.79,
+     1511.85,
+     1385.59,
+     1434.69,
+     1388.14,
+     1461.27,
+     1424.7,
+     1428.96
+    ]
+   },
+   {
+    "action": "forecast",
+    "concurrency": 1,
+    "samples": 9,
+    "p50_ms": 134.69,
+    "sample_p95_ms": 137.26,
+    "max_ms": 137.26,
+    "failures": 0,
+    "raw_ms": [
+     136.29,
+     135.52,
+     137.26,
+     134.61,
+     135.33,
+     134.69,
+     133.72,
+     134.12,
+     133.91
+    ]
+   },
+   {
+    "action": "decisions",
+    "concurrency": 1,
+    "samples": 9,
+    "p50_ms": 1496.79,
+    "sample_p95_ms": 2065.14,
+    "max_ms": 2065.14,
+    "failures": 0,
+    "raw_ms": [
+     2065.14,
+     1580.78,
+     1506.94,
+     1471.05,
+     1484.21,
+     1500.16,
+     1470.16,
+     1496.79,
+     1471.54
+    ]
+   }
+  ]
+ },
+ "after": {
+  "build": {
+   "sha256": "9d9c4cabbe8097ff5d69956bfc3695ed260723e0a56fa54624a08f36c0d8d5c3",
+   "scheme": "source-dependencies-v1",
+   "files": 46
+  },
+  "observations": [
+   {
+    "action": "run",
+    "concurrency": 1,
+    "samples": 9,
+    "p50_ms": 703.41,
+    "sample_p95_ms": 1176.96,
+    "max_ms": 1176.96,
+    "failures": 0,
+    "raw_ms": [
+     1176.96,
+     695.23,
+     705.1,
+     703.41,
+     708.27,
+     704.56,
+     697.99,
+     693.46,
+     687.1
+    ]
+   },
+   {
+    "action": "run_filtered",
+    "concurrency": 1,
+    "samples": 9,
+    "p50_ms": 664.54,
+    "sample_p95_ms": 755.1,
+    "max_ms": 755.1,
+    "failures": 0,
+    "raw_ms": [
+     658.03,
+     751.51,
+     755.1,
+     652.42,
+     664.54,
+     652.9,
+     664.29,
+     727.67,
+     679.76
+    ]
+   },
+   {
+    "action": "forecast",
+    "concurrency": 1,
+    "samples": 9,
+    "p50_ms": 135.71,
+    "sample_p95_ms": 146.05,
+    "max_ms": 146.05,
+    "failures": 0,
+    "raw_ms": [
+     139.82,
+     135.71,
+     133.68,
+     134.59,
+     134.21,
+     146.05,
+     143.06,
+     137.09,
+     135.15
+    ]
+   },
+   {
+    "action": "decisions",
+    "concurrency": 1,
+    "samples": 9,
+    "p50_ms": 733.26,
+    "sample_p95_ms": 840.46,
+    "max_ms": 840.46,
+    "failures": 0,
+    "raw_ms": [
+     777.75,
+     756.77,
+     722.02,
+     722.78,
+     840.46,
+     741.14,
+     729.86,
+     733.26,
+     725.06
+    ]
+   }
+  ]
+ },
+ "environment": {
+  "platform": "Darwin",
+  "machine": "arm64",
+  "python": "3.12.9",
+  "threads_per_worker": 1
+ },
+ "not_measured": [
+  "HTTP round trip for /run (worker is spawned per request; the saving applies inside it)",
+  "browser-visible latency",
+  "warm/long-lived worker designs"
+ ]
+}

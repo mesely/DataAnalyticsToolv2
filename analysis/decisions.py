@@ -10,7 +10,6 @@ import xml.etree.ElementTree as ET
 from analysis.adapted.lexical import _BM25
 from analysis.context import tokens
 from analysis.adapted.formatting import compact_summary
-from analysis.adapted.providers import build_chat_model, LLMProviderError
 from analysis.llm import configuration
 from analysis.forecast import scenario
 from analysis.narrative import local_statements, analysis_context_xml, narrate, VERSION as NARRATIVE_VERSION
@@ -138,6 +137,8 @@ def select_actions(brief, model=None):
     cfg = configuration() if model is None else None
     if model is None and cfg is None:
         return {"status": "unavailable", "error_code": "not_configured"}
+    from analysis.adapted.providers import build_chat_model, LLMProviderError  # lazy: model path only
+
     try:
         from langchain_core.messages import SystemMessage, HumanMessage
 

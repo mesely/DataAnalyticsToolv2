@@ -22,6 +22,7 @@ E2E = tıklamadan görünen sonuca. Kaynak dosyalar `docs/evidence/` altındadı
 | E. Uçtan uca performans | Worker subprocess decisions p50 / p95 (tarihsel A11 ilk tur, n=9) | 2.098 / 2.462 ms | MEASURED | SERVER | aynı |
 | E. Uçtan uca performans | HTTP `/decisions` UCI gidiş-dönüş (OIDC oturum + CSRF + PG + worker; tek gözlem, soğuk) | 1.680 ms | MEASURED (n=1) | SERVER | `phase11-http-qa.json` |
 | E. Uçtan uca performans | Devam worker forecast / decisions p50 (n=3; HTTP kabulüyle örtüşen sistem yükü) | 148 / 1.759 ms; 6/6 hatasız | MEASURED (hız karşılaştırması değil) | SERVER | `phase11-performance-continuation.json` |
+| E. Uçtan uca performans | Worker subprocess p50, n=9, eşzamanlılık 1 — önce → sonra (LangChain yalnız model çağrısında): run 1.483 → 703 ms; ülke filtreli run 1.429 → 665 ms; decisions 1.497 → 733 ms; forecast 135 → 136 ms | yarıya indi | MEASURED | SERVER | `phase11-performance-startup.json` |
 | E. Uçtan uca performans | Tarayıcı yükleme/LCP/CLS; tıklama→görünen sonuç | — | NOT MEASURED | E2E/BROWSER | — |
 | F. Güvenilirlik | HTTP kabulü: kimlik/CSRF/sahiplik/rota sınırları (21 kontrol) | 21/21 | MEASURED | SERVER | `phase11-http-qa-continuation.json` (üretici: analysis.verify_workspace) |
 | E. Uçtan uca performans | 0,53M satır tam graph (1/3 eşzamanlı, 12 gözlem) | hata 0 | MEASURED (tarihsel A4) | SERVER | PHASE_4_REPORT |

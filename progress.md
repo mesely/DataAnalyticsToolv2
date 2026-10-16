@@ -12,7 +12,10 @@ Kanıt: analytics **274 passed**; `phase11-llm-offline.json` narrate 16 (n15 tak
 HTTP `phase11-http-qa-binding.json` 21/21; tarayıcı `phase11-browser-binding.json` 6/6 (yerleşik tarayıcı bu turda
 çalıştı). Ek UI düzeltmesi: TR yüzde dayanak düğmesi "84,611%" → "%84,6". Canlı LLM çağrılmadı (402, null).
 Disk tur başında 1,8 GB boştu (99 %); bu turda temizlik yapılmadı — sonraki ajan büyük iş öncesi `df -h` bakmalı.
-**Sonraki iş:** aşağıdaki kartın tablosunda görev 3 (dönem/ay dilimleri + final kapsama × genişlik; mevcut 10 final
+**Ek iş (ölçüldü):** her `run`/`decisions` isteği model kapalıyken LangChain yüklüyordu (~1 s). Sağlayıcı artık yalnız
+model çağrısında import edilir: run p50 1.483 → 703 ms, decisions 1.497 → 733 ms (n=9, aynı betik;
+`phase11-performance-startup.json`); 274 test, HTTP 21/21. Eski "DuckDB parametresi ~1 s" notu ölçümle ~0,2 s'ye
+düzeltildi. **Sonraki iş:** aşağıdaki kartın tablosunda görev 3 (dönem/ay dilimleri + final kapsama × genişlik; mevcut 10 final
 üzerinde tuning yok) veya görev 4 (filtreli istekte DuckDB parametre → pandas soğuk başlangıcı). Görev 2 dış kredi
 kapısına bağlı. Commit/CI sonucu: `gh run list --repo mesely/DataAnalyticsToolv2 --limit 3`.
 

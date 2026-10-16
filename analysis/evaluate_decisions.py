@@ -44,19 +44,26 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--samples", type=int, default=9)
     parser.add_argument("--concurrency", type=int, nargs="+", default=[1, 3])
+    parser.add_argument("--actions", nargs="+", default=["forecast", "decisions"],
+                        choices=["forecast", "decisions", "run", "run_filtered"],
+                        help="run = dashboard overview+graph+answer; run_filtered = the same with a country filter")
     args = parser.parse_args()
     if not 1 <= args.samples <= 50 or any(n not in (1, 2, 3) for n in args.concurrency):
         parser.error("samples must be 1–50; concurrency must be 1, 2 or 3")
     stages = []
     last = None
-    for action in ["forecast", "decisions"]:
+    for action in args.actions:
         for concurrency in args.concurrency:
-            payload = {
-                "action": action,
-                "dataset": "uci",
-                "use_llm": False,
-                "scenario": {"volume_pct": 5, "price_pct": 0, "budget_gbp": 100},
-            }
+            if action in ("run", "run_filtered"):
+                payload = {"action": "run", "dataset": "uci", "use_llm": False,
+                           **({"filters": {"country": "France"}} if action == "run_filtered" else {})}
+            else:
+                payload = {
+                    "action": action,
+                    "dataset": "uci",
+                    "use_llm": False,
+                    "scenario": {"volume_pct": 5, "price_pct": 0, "budget_gbp": 100},
+                }
             with ThreadPoolExecutor(max_workers=concurrency) as pool:
                 observations = list(pool.map(one, [payload] * args.samples))
             values = sorted(row["ms"] for row in observations)
@@ -74,6 +81,9 @@ def main():
             )
             if action == "decisions":
                 last = observations[-1]["result"]
+    if last is None:  # decisions not requested: compute one brief for the oracle section
+        last = one({"action": "decisions", "dataset": "uci", "use_llm": False,
+                    "scenario": {"volume_pct": 5, "price_pct": 0, "budget_gbp": 100}})["result"]
     forecast = last["forecast"]
     print(
         json.dumps(

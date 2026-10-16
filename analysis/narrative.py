@@ -14,7 +14,6 @@ import json, re
 from dataclasses import replace
 from decimal import Decimal, ROUND_HALF_UP
 import xml.etree.ElementTree as ET
-from analysis.adapted.providers import build_chat_model, LLMProviderError
 from analysis.llm import configuration
 
 VERSION = "decision-narrative-v1"
@@ -387,6 +386,8 @@ def narrate(brief, model=None):
     if model is None and cfg is None:
         return {"status": "unavailable", "error_code": "not_configured", "attempts": 0}
     pk = packet(brief)
+    from analysis.adapted.providers import build_chat_model, LLMProviderError  # lazy: model path only
+
     try:
         from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 

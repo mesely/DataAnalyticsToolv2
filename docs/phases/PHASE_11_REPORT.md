@@ -92,6 +92,19 @@ XML öznitelikleri, 390 px taşma yok). Aynı turda bulunan küçük UI kusuru: 
 cümle "%84,6" — yerel yüzde biçimine ve tek ondalığa çevrildi. Sınır: kelime düzeyinde mekanik kontrol; sayıdan sonra
 yazılan tanımlar ve terim listesi dışındaki eş anlamlılar bağlanmaz; canlı model ölçümü BLOCKED (402), çağrılmadı.
 
+## 7c. Worker soğuk başlangıcı — LangChain yalnız model çağrısında (Opus devam turu) — MEASURED · SERVER
+Profil (`-X importtime`, cProfile): her `run` ve `decisions` isteği, model kapalıyken bile yalnız sağlayıcı durumunu
+bildirmek için `analysis.llm` → `analysis.adapted.providers` → LangChain yüklüyordu (~1,05 s kümülatif import).
+Yerel `hf-provider.json` bulunduğu için `status()` ProviderSettings kuruyordu. Düzeltme: `_credentials()` sağlayıcı
+importu olmadan (token, model) okur; `status()` aynı alanları döndürür; `configuration()`, `build_chat_model` ve
+`LLMProviderError` yalnız model kurulurken/çağrılırken import edilir (`llm.py`, `decisions.py`, `narrative.py`).
+Aynı betik/oturum/makine, n=9, eşzamanlılık 1 (`phase11-performance-startup.json`, önce = aynı HEAD'de üç dosya
+geçici stash): run p50 1.483 → 703 ms, ülke filtreli run 1.429 → 665 ms, decisions 1.497 → 733 ms, forecast 135 →
+136 ms (değişmedi; zaten LangChain yüklemiyordu); 72/72 istek hatasız. Önceki not "filtreli istekte DuckDB parametresi
+pandas'ı yükler (~1 s)" bu turda ölçülerek düzeltildi: filtreli forecast'ta ek maliyet ~0,2 s (pandas import, sıcak
+disk); asıl darboğaz LangChain'di. `evaluate_decisions.py` artık `--actions run run_filtered forecast decisions` alır.
+HTTP kabulü değişiklik sonrası 21/21. Ölçülmeyen: /run HTTP gidiş-dönüşü ve tarayıcıda görünür gecikme.
+
 ## 8. Açık kalanlar
 Gerçek LLM erişimi (402), 5–8 kullanıcı pilotu, üretim RLS/retention/hard isolation, 5M+ ölçek, decisions yolunun
-2 s başlangıcı, ≥2 sezon veriyle seasonal naive doğrulaması, dönem (ay) dilimleri ve anlatı için anlamsal iddia-dayanak doğrulaması (ölçü/dönem bağı kelime düzeyinde eklendi). Parquet core TS rotası önceki CI’da geçti; açık iş olarak tutulmaz.
+decisions/run yolunda kalan ~0,7 s başlangıç (pandas/networkx; graph gerektirir), ≥2 sezon veriyle seasonal naive doğrulaması, dönem (ay) dilimleri ve anlatı için anlamsal iddia-dayanak doğrulaması (ölçü/dönem bağı kelime düzeyinde eklendi). Parquet core TS rotası önceki CI’da geçti; açık iş olarak tutulmaz.

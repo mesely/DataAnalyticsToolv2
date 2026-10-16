@@ -2,8 +2,16 @@
 from __future__ import annotations
 import json, os, re
 from pathlib import Path
-from analysis.adapted.providers import ProviderSettings, build_chat_model, LLMProviderError
 from analysis.adapted.guardrails import assess_input
+
+# The provider transport pulls in LangChain (~1 s cold). It is imported only when a model is actually built or
+# called, so dashboard requests that merely report provider status never pay for it (measured AW-14 startup cut).
+
+
+def build_chat_model(cfg):
+    from analysis.adapted.providers import build_chat_model as _build
+
+    return _build(cfg)
 
 INTENTS = {
     "summary": "Summarize gross sales",
@@ -23,7 +31,8 @@ Use clarify for ambiguous references (it/that/this one), unrelated requests, a r
 Examples: "Give me a sales overview" => summary; "Which item brings in most revenue?" => products; "Where do we sell most?" => countries; "What gets bought together?" => network; "Month by month" => temporal; "Why did sales fall?" => unsupported; "Compare it with that" => clarify.
 Repeat: output only the exact two-key JSON object. The scope is always current_filters."""
 
-def configuration():
+def _credentials():
+    """(token, model) when a usable local configuration exists, else None. No provider import."""
     # Read at request time; local credentials never enter the browser or a result artifact.
     token = os.environ.get("HF_TOKEN", "")
     model = os.environ.get("HF_MODEL", "meta-llama/Llama-3.3-70B-Instruct")
@@ -40,14 +49,24 @@ def configuration():
                 return None
     if not token or not re.fullmatch(r"meta-llama/[A-Za-z0-9.\-]+", model):
         return None
+    return token, model
+
+
+def configuration():
+    creds = _credentials()
+    if creds is None:
+        return None
+    from analysis.adapted.providers import ProviderSettings
+
+    token, model = creds
     return ProviderSettings(provider="huggingface", hf_api_key=token, hf_model=model,
                             timeout_seconds=22, max_retries=1, max_tokens=100, temperature=0)
 
 def status():
-    cfg = configuration()
-    return {"connected": False, "configured": bool(cfg), "mode": "llama-planner" if cfg else "verified-local",
-            "model": cfg.hf_model if cfg else None,
-            "note": "Llama plans the analysis; metrics are calculated and verified locally." if cfg else "Local verified analysis"}
+    creds = _credentials()
+    return {"connected": False, "configured": bool(creds), "mode": "llama-planner" if creds else "verified-local",
+            "model": creds[1] if creds else None,
+            "note": "Llama plans the analysis; metrics are calculated and verified locally." if creds else "Local verified analysis"}
 
 def validate_plan(text):
     if not isinstance(text, str) or len(text) > 1000:
@@ -64,6 +83,8 @@ def plan_question(question, *, model=None):
     cfg = configuration() if model is None else None
     if model is None and cfg is None:
         return {"status": "unavailable", "error_code": "not_configured"}
+    from analysis.adapted.providers import LLMProviderError
+
     try:
         from langchain_core.messages import SystemMessage, HumanMessage
         chat = model or build_chat_model(cfg)

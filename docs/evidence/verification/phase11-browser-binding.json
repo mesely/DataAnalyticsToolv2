@@ -55,6 +55,10 @@
   {
    "name": "TableWrap: at 1024px the three visible Decision Studio tables fit and are not tab stops; at 390px the two overflowing ones (country slices, month table) become role=region with tabindex 0 and an aria-label (caption-derived or explicit), the fitting one stays out of the tab order; document scrollWidth 390",
    "ok": true
+  },
+  {
+   "name": "analysis assistant (TR, UCI): 'En çok adet satan ürün hangisi?' shows the limitation badge and the unsupported-ranking explanation instead of a sales-value ranking",
+   "ok": true
   }
  ],
  "not_checked": [
@@ -62,7 +66,7 @@
   "light theme and keyboard pass for this change (unchanged paths; covered by phase11-browser-qa.json)"
  ],
  "summary": {
-  "passed": 12,
+  "passed": 13,
   "failed": 0
  },
  "web_sha256_after_period_slices": {

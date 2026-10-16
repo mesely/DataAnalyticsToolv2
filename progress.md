@@ -1,26 +1,38 @@
 # Context Layer / Analytics — tek giriş ve devir rehberi
 
-## ŞİMDİ OKU — Opus 5.5 devam turu (16 Ekim 2026 akşam)
+## ŞİMDİ OKU — Opus 5.5 devam turu (16 Ekim 2026 akşam) — son durum
 
-**Görev 1 (aşağıdaki GPT handoff kartı) tamamlandı: anlatı sayıları için ölçü ve dönem bağı.** Spec
-`specs/analyst-workspace-phase11.md` → "AW-14 binding amendment". `analysis/narrative.py`: `MEASURES` (ölçü adı +
-ayırt edici EN/TR terimler), `periods()`; her sayının önündeki ≤4 kelime (aynı yan cümle, önceki sayıdan sonra) başka
-bir ölçüyü adlandırıp kendi ölçüsünü adlandırmıyorsa ret; her ISO tarih atıflı bir dayanağın döneminde olmalı; XML
-`measure`/`period` öznitelikleri. Yerel EN/TR anlatı metni değişmedi ve doğrulayıcıdan geçiyor. Kelime düzeyinde
-mekanik kontrol — anlamsal entailment değil; sayıdan sonra yazılan tanım ve eş anlamlı bağlanmaz.
-Kanıt: analytics **274 passed**; `phase11-llm-offline.json` narrate 16 (n15 takas, n16 dönem) — model başarısı değil;
-HTTP `phase11-http-qa-binding.json` 21/21; tarayıcı `phase11-browser-binding.json` 6/6 (yerleşik tarayıcı bu turda
-çalıştı). Ek UI düzeltmesi: TR yüzde dayanak düğmesi "84,611%" → "%84,6". Canlı LLM çağrılmadı (402, null).
-Disk tur başında 1,8 GB, ortasında 577 MB boştu; yalnız npm indirme önbelleği (`npm cache clean --force`, 459 MB) silindi → 1,1 GB.
-Claude/Chrome önbellekleri, fileproviderd temp (1 GB, sistem) ve proje verisi korunur. Büyük iş öncesi `df -h`.
-**Ek iş (ölçüldü):** her `run`/`decisions` isteği model kapalıyken LangChain yüklüyordu (~1 s). Sağlayıcı artık yalnız
-model çağrısında import edilir: run p50 1.483 → 703 ms, decisions 1.497 → 733 ms (n=9, aynı betik;
-`phase11-performance-startup.json`); 274 test, HTTP 21/21. Eski "DuckDB parametresi ~1 s" notu ölçümle ~0,2 s'ye
-düzeltildi. **Görev 3 yapıldı:** `forecast.period_slices` (ay × aşama: seçilen/naif MAE, bias, %90 bant k/n, genişlik) + teşhis
-`final_month_worse_than_naive`. UCI: Kasım 2011'in 4 final haftasında mean8 naiften kötü (£59.289 / £41.723), bant 2/4,
-hepsi eksik tahmin — yöntem değiştirilmedi (final üzerinde ayar yok). Karar stüdyosu katlanır ay tablosu, klavye ile
-kaydırılabilir bölge; 277 test; tarayıcı 10/10. **TR teşhis metinleri yapıldı** (params + 12 TR şablon + koruyucu test, 278 test). **Yerel yönlendirici** (adet/sipariş/en-düşük sıralama, değişim soruları, item/SKU, pazar; harness v2.1 niyet ölçer: davranış 13→15/19, niyet 11→15/17, iyimser), **sayı sonrası bağ** (≤2 kelime, bağlaçta durur; TR "£… naif referans hatası" takası red), **tablo klavye erişimi yapıldı** (`TableWrap`, yalnız taşarken etiketli bölge; 15 kapsayıcı). **Sonraki iş:** kalan ~0,6 s pandas/networkx başlangıcı; görev 2 dış kredi kapısında. Görev 2 dış kredi
-kapısına bağlı. Commit/CI sonucu: `gh run list --repo mesely/DataAnalyticsToolv2 --limit 3`.
+**Önce:** `git status --short` (temiz olmalı), `git log --oneline -12`, `gh run list --repo mesely/DataAnalyticsToolv2 --limit 3`
+(beş iş: core, nul-scan, tests, benchmark-integrity, analytics). Bu turun commitleri `5aa6123`→`a3e3da6` (hepsi aynı dala
+push edildi; tamamlanan her CI koşusu beş iş success). Uygulama 8123 + devIdP 8188 açık bırakıldı (`deploy/phase1/start.sh`).
+
+| # | Birim (commit) | Ne değişti | Kanıt |
+|---|---|---|---|
+| 1 | Ölçü/dönem bağı (`5aa6123`, `5b09c6e`, `a3e3da6`) | `analysis/narrative.py`: `MEASURES` + `periods()`; sayının önündeki ≤4 ve ardındaki ≤2 kelime (bağlaç/noktalamada durur) başka ölçüyü adlandırıp kendininkini adlandırmıyorsa ret; tarih atıflı dayanağın döneminde olmalı; XML `measure`/`period`. Yerel EN/TR anlatı değişmedi | spec AW-14 binding amendment; `test_narrative.py`; eval narrate 17 (n15–n17) |
+| 2 | Soğuk başlangıç (`e8d335f`) | LangChain yalnız model çağrısında import; `status()` sağlayıcısız | run p50 1.483→703 ms, decisions 1.497→733 ms, n=9 aynı betik (`phase11-performance-startup.json`) |
+| 3 | Aylık tahmin dilimleri (`111f415`) | `forecast.period_slices` + `final_month_worse_than_naive`; Karar stüdyosu katlanır ay tablosu; rapor tablosu | UCI Kasım 2011 final: mean8 £59.289 vs naif £41.723, bant 2/4 (yöntem değiştirilmedi) |
+| 4 | TR teşhisler (`405c6ff`) | teşhis `params` + 12 TR şablon; koruyucu test | tarayıcı: 6 UCI teşhisi Türkçe |
+| 5 | Tablo klavye erişimi (`9ab6f56`) | `TableWrap.tsx`: taşarken `tabIndex/role=region/aria-label`; 15 kapsayıcı; APP_SOURCES | tarayıcı 1024/390 px; CI core yeşil |
+| 6 | Yerel yönlendirici + harness v2.1 (`87dde64`, `a3e3da6`) | adet/sipariş/en-düşük sıralama ve değişim soruları artık yanlış rakamla yanıtlanmaz; item/SKU/pazar/ay ifadeleri; eval yanıtlanan niyeti ölçer | davranış 13→15/19, niyet 11→15/17 (iyimser; 26 ayrı parafraz `test_local_router.py`) |
+| 7 | UI küçükleri (`5aa6123`, `111f415`) | TR yüzde "%84,6" (eski "84,611%"), TR kapsama "%85/%70", anlatı notları ölçü/dönem reddini adlandırır | tarayıcı receipt `phase11-browser-binding.json` 13/13 |
+
+**Testler (yerel, gerçek):** analytics **301 passed**; NUL/asset 48; web tsc+build; HTTP kabulü 21/21 (`verify_workspace`).
+Core TS suite yerelde Docker fixture'ı yüzünden koşmaz → CI'da koşar (son tamamlanan koşular yeşil).
+
+**Bilinçli olarak yapılmayan / olumsuz sonuçlar:** DuckDB 1.5.6 boş olmayan her Python parametre listesinde pandas
+yükler (170–500 ms); değerleri SQL'e gömmek yerine bağlı parametre korundu. Kasım final penceresinde seçilen yöntem
+naiften kötü; final pencere üzerinde ayar yapılmadı. Bağ kontrolü kelime düzeyinde; anlamsal entailment değil. Canlı
+LLM çağrılmadı (402; accuracy null). Disk: tur içinde 577 MB'a düştü; yalnız npm önbelleği silindi (459 MB) → ~1,1 GB.
+
+**Sonraki iş (beklenen etkiye göre):**
+1. **(Kullanıcı onayı gerekir)** ≥2 sezonluk gerçek tahmin benchmark'ı: UCI *Online Retail II* (dataset 502, CC BY 4.0,
+   2009–2011, ~45 MB zip) indirilip aynı protokolle (seasonal_naive kayıtlı, final pencere dokunulmaz) değerlendirilsin.
+   Disk ~1 GB; indirmeden önce kullanıcıya dosya/kaynak/boyut sorulmalı.
+2. Canlı model değerlendirmesi — HF kredi kapısı açılınca `python -m analysis.llm_eval --providers hf` (dış bağımlılık).
+3. Kalıcı worker süreci (kalan ~0,6 s pandas/networkx/import başlangıcı) — izolasyon/iptal sözleşmesini etkileyen mimari karar; önce spec.
+4. Üretim kapıları (tenant RLS, retention, hard isolation) ve 5–8 gerçek kullanıcı pilotu — ürün/insan kararları.
+5. Yerel yönlendiricide kalan: p14 "Compare it with that" (zaman aracına gidiyor, beklenen netleştirme) ve p19 (kâr ifadesi
+   nedeniyle ihtiyatlı ret) — değerlendirme setine bakarak ayarlama yapma; önce yeni parafraz seti.
 
 ---
 

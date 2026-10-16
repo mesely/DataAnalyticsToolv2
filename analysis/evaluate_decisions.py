@@ -98,7 +98,12 @@ def main():
                     ],
                     "scenario": last["scenario"],
                 },
-                "live_llm": {"status":"not_executed_by_this_benchmark", "accuracy":None, "successful_answers":None},
+                "live_llm": {
+                    "status": "not_executed_by_this_benchmark",
+                    "accuracy": None,
+                    "successful_answers": None,
+                },
+            },
             indent=2,
         )
     )

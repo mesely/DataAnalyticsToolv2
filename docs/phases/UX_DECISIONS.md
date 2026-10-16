@@ -26,3 +26,13 @@ Profil geldikten sonra giriş illüstrasyonu kaybolur, eşleme alanına yer aç�
 Sonuç tablosunda gerçek sayılar baskındır; CTA'lar sabit ve okunur kalır. Her
 illüstrasyonda alt="", width/height; kaynak/provenance teknik dosyada tutulur.
 Tam WCAG veya görevli kullanıcı pilotu yapılmış olduğu anlamına gelmez.
+
+## 17 Ekim — AW-15: özgün glyph ailesi ve ölçülen tasarım sistemi
+
+Bu bölüm, yukarıdaki "tutarlı Lucide fonksiyon ikonları" kararının yerini alır. Kullanıcı isteği üzerine hiçbir
+simge hazır asset değil: lucide-react ve 36 eski SVG kaldırıldı; Gemini'de altı turda üretilen 51 glyph tek
+gramerle (açık sağ üst köşe + pirinç indeks noktası) kullanılıyor; tarayıcının yerel işaretleri de aynı aileden.
+Kapsam (veri seti + filtre) tek kartta, dışa aktarma tek menüde, tip/boşluk/yarıçap ölçekleri araçla sabitlendi.
+Puanlar, formüller ve sınırlar: `DESIGN_SCORECARD.md`; ham ölçüm `evidence/verification/phase12-design-audit.json`.
+Bunlar DOM sezgileridir, kullanıcı testi değildir.
+

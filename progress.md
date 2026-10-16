@@ -1,6 +1,24 @@
 # Context Layer / Analytics — tek giriş ve devir rehberi
 
-## ŞİMDİ OKU — Opus 5.5 devam turu (16 Ekim 2026 akşam) — son durum
+## ŞİMDİ OKU — AW-15 özgün simge ailesi + tasarım maksimizasyonu (17 Ekim 2026)
+
+İstek: hiçbir simge hazır asset olmayacak; hepsi Gemini üretimi ve ürüne özgü; tasarım/kural puanları 100'e.
+- **Simgeler:** lucide-react paketi ve 36 eski SVG kaldırıldı. Gemini konuşmasında 6 tur → 51 glyph
+  (`core/web/src/workbench/assets/glyphs/gemini-batch-1..6.json`, değiştirilmeden; hash'ler PROVENANCE +
+  ASSET_MANIFEST). `python -m tools.design.glyphs` doğrular ve `glyphs.generated.ts` + `glyphs.generated.css`
+  üretir. `Glyph.tsx` React.createElement ile çizer. Tarayıcı işaretleri (summary üçgeni, select oku, takvim,
+  checkbox tiki, sayı okları) de aynı aileden.
+- **Tasarım sistemi:** tip 12/14/16/20/24/32, kalınlık 400–700, 4px ritim, yarıçap 6/10/14, kontrol 44px,
+  açık tema metin tonları ≥4.6:1 (`tools/design/normalize_css.py`, `contrast_tones.py`). Kapsam tek kartta
+  (`wb-scope`), CSV/JSON "Dışa aktar" menüsünde, mobilde hero KPI.
+- **Puanlar** (`tools/design/audit.js`, 4 ekran × 2 tema × 1440/390): Fitts 78→100, metin kontrastı 98
+  (açık 72–74)→100, boşluk 29→100, tip 52→100, hizalama 34→100, Hick–Hyman 94→98–100, simge özgünlüğü 100.
+  Ayrıntı: `docs/phases/DESIGN_SCORECARD.md`, ham: `docs/evidence/verification/phase12-design-audit.json`.
+- **Testler:** `tests/test_design_system.py` (58: gramer, üretilmiş TS/CSS güncel, manifest, stok paket yok,
+  CSS ölçekleri sabit, rem/vw yok, kontrast bloğu güncel); APP_SOURCES'a `Glyph.tsx` + `glyphs.generated.ts`.
+- **Açık:** Hick 98 (Analiz, 17 komut: üç örnek soru bilinçli tutuldu). Kullanıcı testi/WCAG denetimi yok.
+
+## ÖNCEKİ — Opus 5.5 devam turu (16 Ekim 2026 akşam) — son durum
 
 **Önce:** `git status --short` (temiz olmalı), `git log --oneline -12`, `gh run list --repo mesely/DataAnalyticsToolv2 --limit 3`
 (beş iş: core, nul-scan, tests, benchmark-integrity, analytics). Bu turun commitleri `5aa6123`→`a3e3da6` (hepsi aynı dala

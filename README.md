@@ -25,7 +25,7 @@ Context Layer brings CSV preparation, dataset exploration, governed SQL, product
 | **Change over time** | Compare before/focus/after windows using a shared product universe, new/lost relationships, Jaccard overlap, concentration and descriptive intervals. |
 | **Findings** | Save, reopen, rerun, compare, archive and restore your analyses. Export query results to CSV/Excel and calculation evidence to JSON. |
 
-The interface supports Turkish and English, command search, keyboard navigation and responsive layouts. Light and navy/charcoal appearances follow the system preference, with a manual session toggle. Six Gemini raster assets and 37 geometry-only SVGs form the visual family, including the product icon and custom workspace, language, dataset and utility controls. Illustrations remain separate from analytic charts.
+The interface supports Turkish and English, command search, keyboard navigation and responsive layouts. Light and navy/charcoal appearances follow the system preference, with a manual session toggle. Six Gemini raster assets and a 51-glyph Gemini-generated icon family form the visual identity: one grammar (24×24, 1.75 stroke, open top-right corner, one brass index dot), no stock icon package, and even the browser's own widget markers (disclosure, select caret, date picker, checkbox tick) drawn from the same family. The design system (12–32 px type scale, 4 px rhythm, 6/10/14 radii, 44 px targets, WCAG-contrast light theme) is measured by `tools/design/audit.js` and guarded by `tests/test_design_system.py`; see `docs/phases/DESIGN_SCORECARD.md`. Illustrations remain separate from analytic charts.
 
 ### Analysis assistant
 

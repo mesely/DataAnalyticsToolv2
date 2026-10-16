@@ -54,7 +54,7 @@ def test_change_questions_about_markets_are_not_answered_with_a_static_ranking(r
     assert ask(result, q)["status"] == "cannot_verify"
 
 
-@pytest.mark.parametrize("q", ["Sales week over week?", "Satışlar aylara göre nasıl?"])
+@pytest.mark.parametrize("q", ["Sales week over week?", "Satışlar aylara göre nasıl?", "Hangi ayda en çok satış var?", "Which month sold best?"])
 def test_period_questions_point_to_the_time_tool(result, q):
     a = ask(result, q)
     assert a["status"] == "clarify" and a["reason"] == "open_temporal_tool"

@@ -390,7 +390,7 @@ def explain(request, result):
             "karsilastir",
             "compare",
         ]
-    ) or (re.search(r"(?<!\w)(month|week|aylara|haftalara|ay ay|hafta hafta)", t) and not _RANK_SUBJECT.search(t)):
+    ) or (re.search(r"(?<!\w)(month|week|aylara|haftalara|ay ay|hafta hafta|hangi ay|hangi hafta|ayda|haftada|aylık)", t) and not _RANK_SUBJECT.search(t)):
         return {
             "status": "clarify",
             "reason": "open_temporal_tool",

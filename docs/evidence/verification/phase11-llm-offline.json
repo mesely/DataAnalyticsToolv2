@@ -1,12 +1,12 @@
 {
  "version": "llm-eval-v2.1",
- "generated_utc": "2026-10-16T19:25:47Z",
+ "generated_utc": "2026-10-16T19:28:46Z",
  "dataset": "demo (synthetic, seed 47)",
  "case_counts": {
   "plan": 19,
   "decide": 6,
   "claims": 8,
-  "narrate": 16
+  "narrate": 17
  },
  "claims_verifier": {
   "accuracy": 1.0,
@@ -1047,6 +1047,38 @@
      "reply_mode": "ideal"
     },
     {
+     "id": "n17",
+     "category": "metric_binding",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "business_validation",
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "business_validation",
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "ideal"
+    },
+    {
      "id": "n16",
      "category": "period_binding",
      "expected": {
@@ -1769,6 +1801,23 @@
       "accepted": false,
       "ids": [],
       "rejection": "Unsupported numbers: 0 (measure binding: excluded), 2 (measure binding: duplicates)"
+     },
+     "acceptance_correct": true,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null,
+     "reply_mode": "adversarial"
+    },
+    {
+     "id": "n17",
+     "category": "metric_binding",
+     "expected": {
+      "accepted": false
+     },
+     "got": {
+      "accepted": false,
+      "ids": [],
+      "rejection": "Unsupported numbers: 2 (measure binding: duplicates)"
      },
      "acceptance_correct": true,
      "citation_precision": null,
@@ -2722,6 +2771,38 @@
     },
     {
      "id": "n15",
+     "category": "metric_binding",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "business_validation",
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "business_validation",
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "local"
+    },
+    {
+     "id": "n17",
      "category": "metric_binding",
      "expected": {
       "accepted": true,

@@ -140,6 +140,8 @@ def narrate_cases(brief):
         # AW-14 binding amendment: valid ids and packet values, attached to the wrong measure or period.
         ("n15", "metric_binding", json.dumps({"statements": [{"type": "fact", "evidence": ["excluded", "duplicates"], "text":
             f"Quality rules excluded {refs['duplicates']['value']:,} source rows; {refs['excluded']['value']:,} duplicate rows are retained."}]})),
+        ("n17", "metric_binding", json.dumps({"statements": [{"type": "fact", "evidence": ["excluded", "duplicates"], "text":
+            f"Kalite kontrolü: {refs['excluded']['value']:,} tekrar satır korunuyor.".replace(",", ".")}]})),  # value of excluded, noun of duplicates (TR noun-after-number)
         ("n16", "period_binding", json.dumps({"statements": [{"type": "fact", "evidence": ["duplicates"], "text":
             f"On {brief['forecast']['scope']['observed_end']}, {refs['duplicates']['value']:,} duplicate rows were retained."}]})),
     ]

@@ -1,4 +1,5 @@
 import { ArrowRight, Download } from "./BrandIcons";
+import { TableWrap } from "./TableWrap";
 import { Upload } from "./BrandIcons";
 import modelArt from "./assets/model-studio.jpeg";
 import React, { useEffect, useRef, useState } from "react";
@@ -214,7 +215,7 @@ export function ModelStudio({
               {t("test gözlemi", "holdout observations")}
             </p>
           </div>
-          <div className="wb-table-wrap">
+          <TableWrap>
             <table>
               <caption>
                 {t(
@@ -264,9 +265,9 @@ export function ModelStudio({
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableWrap>
           {card.holdout.probabilistic && card.baseline.probabilistic && (
-            <div className="wb-table-wrap">
+            <TableWrap>
               <table>
                 <caption>
                   {t(
@@ -300,7 +301,7 @@ export function ModelStudio({
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TableWrap>
           )}
           <p className="wb-muted">
             {card.recipe.task === "classification"
@@ -317,7 +318,7 @@ export function ModelStudio({
             <summary>
               {t("Adaylar ve hata dağılımı", "Candidates and error breakdown")}
             </summary>
-            <div className="wb-table-wrap">
+            <TableWrap>
               <table>
                 <thead>
                   <tr>
@@ -336,9 +337,9 @@ export function ModelStudio({
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TableWrap>
             {card.holdout.per_class && (
-              <div className="wb-table-wrap">
+              <TableWrap>
                 <table>
                   <caption>
                     {t("Sınıf bazında bağımsız test", "Holdout by class")}
@@ -360,7 +361,7 @@ export function ModelStudio({
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </TableWrap>
             )}
             {card.holdout.confusion_matrix && (
               <pre aria-label={t("Karışıklık matrisi", "Confusion matrix")}>

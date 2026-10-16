@@ -1,4 +1,5 @@
 import { RotateCcw, ArrowRight, Download, CheckCircle2 } from "./BrandIcons";
+import { TableWrap } from "./TableWrap";
 import { Search, Upload } from "./BrandIcons";
 import preparationArt from "./assets/data-preparation.jpeg";
 import React, { useRef, useState } from "react";
@@ -399,7 +400,7 @@ export function Preparation({
             <summary>
               {t("Sütun kalitesini incele", "Inspect column quality")}
             </summary>
-            <div className="wb-table-wrap">
+            <TableWrap>
               <table>
                 <caption>
                   {t(
@@ -481,7 +482,7 @@ export function Preparation({
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TableWrap>
           </details>
           <h3>{t("Satış alanlarını eşleyin", "Map the sales fields")}</h3>
           <p className="wb-muted">

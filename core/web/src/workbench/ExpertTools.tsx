@@ -1,4 +1,5 @@
 import { ChevronRight, Download, ShieldCheck } from "./BrandIcons";
+import { TableWrap } from "./TableWrap";
 import { Search, BookOpen, Code2 } from "./BrandIcons";
 import React, { useEffect, useRef, useState } from "react";
 import { Play, Loader2 } from "lucide-react";
@@ -368,7 +369,7 @@ export function ExpertTools({
                 </button>
               </div>
             </div>
-            <div className="wb-table-wrap wb-query-table" tabIndex={0}>
+            <TableWrap className="wb-query-table">
               <table>
                 <caption>
                   {t(
@@ -403,7 +404,7 @@ export function ExpertTools({
                   )}
                 </p>
               )}
-            </div>
+            </TableWrap>
             <details className="wb-query-evidence">
               <summary>
                 {t("Bu sorgunun kanıtı", "Evidence for this query")}
@@ -600,7 +601,7 @@ export function CompareRuns({
               <br />
               B: {scope(result.after_filters)}
             </div>
-            <div className="wb-table-wrap">
+            <TableWrap>
               <table>
                 <caption>
                   {t(
@@ -635,7 +636,7 @@ export function CompareRuns({
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TableWrap>
           </>
         )}
       </div>

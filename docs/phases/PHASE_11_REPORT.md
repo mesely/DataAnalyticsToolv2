@@ -127,6 +127,15 @@ korunur. Karar stüdyosu TR modunda 12 kodun her biri için TR şablonu kullanı
 `case` karşılığı vardır (yeni kod eklenip çevrilmezse test kırılır). Tarayıcı: UCI'nin 6 teşhisi TR'de tamamen Türkçe;
 EN'e geçince sunucu mesajları aynen. Analytics **278 passed**.
 
+## 7f. Kaydırılabilir tabloların klavye erişimi (Opus devam turu) — IMPLEMENTED · BROWSER
+Yeni `core/web/src/workbench/TableWrap.tsx`: tablo kapsayıcıdan genişse kapsayıcı `tabIndex=0`, `role=region` ve
+etiket (verilen metin veya tablonun caption'ı) alır; sığıyorsa sekme durağı eklemez. 15 kapsayıcı (Karar stüdyosu,
+Model stüdyosu, Hazırlama, SQL lab, dönem görünümü, genel bakış) bu bileşene geçti; önceden dördü koşulsuz odaklanabilir
+ama etiketsizdi, dokuzu hiç odaklanamıyordu. Odak halkası `:focus-visible` ile 2 px. Core kaynak envanteri testine
+(`dashboard-b1.test.ts` APP_SOURCES) yeni dosya eklendi; o test yerelde Docker fixture'ı nedeniyle koşmaz, envanter ve
+yasak dize kontrolleri betikle tekrarlandı, CI'da koşar. Tarayıcı: 1024 px'te sığan tablolar sekme durağı değil;
+390 px'te taşan iki tablo etiketli bölge; ok tuşu kaydırması önceki adımda doğrulandı.
+
 ## 8. Açık kalanlar
 Gerçek LLM erişimi (402), 5–8 kullanıcı pilotu, üretim RLS/retention/hard isolation, 5M+ ölçek, decisions yolunun
 decisions/run yolunda kalan ~0,7 s başlangıç (pandas/networkx; graph gerektirir), ≥2 sezon veriyle seasonal naive doğrulaması, dönem (ay) dilimleri ve anlatı için anlamsal iddia-dayanak doğrulaması (ölçü/dönem bağı kelime düzeyinde eklendi). Parquet core TS rotası önceki CI’da geçti; açık iş olarak tutulmaz.

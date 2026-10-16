@@ -18,8 +18,7 @@ model çağrısında import edilir: run p50 1.483 → 703 ms, decisions 1.497 �
 düzeltildi. **Görev 3 yapıldı:** `forecast.period_slices` (ay × aşama: seçilen/naif MAE, bias, %90 bant k/n, genişlik) + teşhis
 `final_month_worse_than_naive`. UCI: Kasım 2011'in 4 final haftasında mean8 naiften kötü (£59.289 / £41.723), bant 2/4,
 hepsi eksik tahmin — yöntem değiştirilmedi (final üzerinde ayar yok). Karar stüdyosu katlanır ay tablosu, klavye ile
-kaydırılabilir bölge; 277 test; tarayıcı 10/10. **TR teşhis metinleri yapıldı** (params + 12 TR şablon + koruyucu test, 278 test). **Sonraki iş:**
-diğer kaydırılabilir tabloların klavye erişimi, kalan ~0,6 s pandas/networkx başlangıcı; görev 2 dış kredi kapısında. Görev 2 dış kredi
+kaydırılabilir bölge; 277 test; tarayıcı 10/10. **TR teşhis metinleri yapıldı** (params + 12 TR şablon + koruyucu test, 278 test). **Tablo klavye erişimi yapıldı** (`TableWrap`, yalnız taşarken etiketli bölge; 15 kapsayıcı). **Sonraki iş:** kalan ~0,6 s pandas/networkx başlangıcı; görev 2 dış kredi kapısında. Görev 2 dış kredi
 kapısına bağlı. Commit/CI sonucu: `gh run list --repo mesely/DataAnalyticsToolv2 --limit 3`.
 
 ---

@@ -1,4 +1,5 @@
 import { ChevronRight, Download, Info } from "./BrandIcons";
+import { TableWrap } from "./TableWrap";
 import React, { useEffect, useRef, useState } from "react";
 import { Clock3, Loader2, Play } from "lucide-react";
 import { api } from "../api";
@@ -340,7 +341,7 @@ export function TemporalView({
                 {t("sabit seçilmiş ürün", "fixed selected products")}
               </span>
             </div>
-            <div className="wb-table-wrap" tabIndex={0}>
+            <TableWrap>
               <table>
                 <caption>
                   {t(
@@ -384,7 +385,7 @@ export function TemporalView({
                   )}
                 </p>
               )}
-            </div>
+            </TableWrap>
             <details className="wb-temporal-method">
               <summary>
                 {t(

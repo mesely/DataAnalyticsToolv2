@@ -1,4 +1,5 @@
 import { ChevronRight, ArrowRight } from "./BrandIcons";
+import { TableWrap } from "./TableWrap";
 import React, { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Bookmark, Database } from "./BrandIcons";
@@ -842,7 +843,7 @@ export function DecisionStudio({
               </p>
               <p>{brief.scope_note}</p>
               {ref.anchor === "country-ranking" && (
-                <div className="wb-table-wrap">
+                <TableWrap>
                   <table>
                     <thead>
                       <tr>
@@ -859,10 +860,10 @@ export function DecisionStudio({
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </TableWrap>
               )}
               {ref.anchor === "basket-network" && (
-                <div className="wb-table-wrap">
+                <TableWrap>
                   <table>
                     <thead>
                       <tr>
@@ -891,7 +892,7 @@ export function DecisionStudio({
                         ))}
                     </tbody>
                   </table>
-                </div>
+                </TableWrap>
               )}
               <small>SHA-256 · {brief.output_sha256.slice(0, 20)}</small>
             </section>
@@ -1022,7 +1023,7 @@ export function DecisionStudio({
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="wb-table-wrap">
+                <TableWrap>
                   <table>
                     <caption>
                       {t(
@@ -1047,10 +1048,10 @@ export function DecisionStudio({
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </TableWrap>
                 {forecast.slices &&
                   forecast.slices.some((s) => s.status === "ready") && (
-                    <div className="wb-table-wrap">
+                    <TableWrap>
                       <table>
                         <caption>
                           {t(
@@ -1084,7 +1085,7 @@ export function DecisionStudio({
                             ))}
                         </tbody>
                       </table>
-                    </div>
+                    </TableWrap>
                   )}
                 {forecast.period_slices && forecast.period_slices.length > 0 && (
                   <details className="wb-prep-details">
@@ -1094,11 +1095,8 @@ export function DecisionStudio({
                         "Error and 90% band coverage by month",
                       )}
                     </summary>
-                    <div
-                      className="wb-table-wrap"
-                      tabIndex={0}
-                      role="region"
-                      aria-label={t(
+                    <TableWrap
+                      label={t(
                         "Aylara göre hata tablosu, yatay kaydırılabilir",
                         "Error by month table, horizontally scrollable",
                       )}
@@ -1149,7 +1147,7 @@ export function DecisionStudio({
                           ))}
                         </tbody>
                       </table>
-                    </div>
+                    </TableWrap>
                   </details>
                 )}
                 <p>

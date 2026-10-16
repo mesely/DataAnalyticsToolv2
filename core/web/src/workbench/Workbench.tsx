@@ -1,3 +1,4 @@
+import { TableWrap } from "./TableWrap";
 import {
   RotateCcw,
   ExternalLink,
@@ -1950,7 +1951,7 @@ function Kpi({
 function DataTable({ result }: { result: AnalysisResult }) {
   const { t } = useLocale();
   return (
-    <div className="wb-table-wrap" tabIndex={0}>
+    <TableWrap>
       <table>
         <caption>
           {t(
@@ -1980,7 +1981,7 @@ function DataTable({ result }: { result: AnalysisResult }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </TableWrap>
   );
 }
 function Quality({ data, num }: { data: Dataset; num: (n: number) => string }) {
@@ -2163,7 +2164,7 @@ function NetworkView({
         {g.note}
       </div>
       {table ? (
-        <div className="wb-table-wrap" tabIndex={0}>
+        <TableWrap>
           <table>
             <caption>
               {t(
@@ -2224,7 +2225,7 @@ function NetworkView({
               ))}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       ) : (
         <div className="wb-network-layout">
           <div className="wb-network-canvas">

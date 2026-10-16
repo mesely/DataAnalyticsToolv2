@@ -51,6 +51,10 @@
   {
    "name": "forecast diagnostics: Turkish UI renders all six UCI diagnostics from code+params (no English left); switching to English shows the server messages unchanged",
    "ok": true
+  },
+  {
+   "name": "TableWrap: at 1024px the three visible Decision Studio tables fit and are not tab stops; at 390px the two overflowing ones (country slices, month table) become role=region with tabindex 0 and an aria-label (caption-derived or explicit), the fitting one stays out of the tab order; document scrollWidth 390",
+   "ok": true
   }
  ],
  "not_checked": [
@@ -58,7 +62,7 @@
   "light theme and keyboard pass for this change (unchanged paths; covered by phase11-browser-qa.json)"
  ],
  "summary": {
-  "passed": 11,
+  "passed": 12,
   "failed": 0
  },
  "web_sha256_after_period_slices": {

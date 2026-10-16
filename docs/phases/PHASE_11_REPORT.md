@@ -141,6 +141,14 @@ ama etiketsizdi, dokuzu hiç odaklanamıyordu. Odak halkası `:focus-visible` il
 yasak dize kontrolleri betikle tekrarlandı, CI'da koşar. Tarayıcı: 1024 px'te sığan tablolar sekme durağı değil;
 390 px'te taşan iki tablo etiketli bölge; ok tuşu kaydırması önceki adımda doğrulandı.
 
+## 7g. Yerel yönlendirici doğruluğu ve harness v2.1 (Opus devam turu) — IMPLEMENTED · TESTED · BROWSER
+Ayrıntı `LLM_EVALUATION.md`. Düzeltilen yanlış-yanıt kusurları: adet/sipariş ve "en düşük" sıralamaları satış-tutarı
+zirvesiyle; değişim soruları ("satış nerede düştü") statik toplamla; "item/SKU" soruları özetle yanıtlanıyordu. Pazar
+ifadeleri ("where", "pazar", "nerede") ülke sıralamasına, ay/hafta ifadeleri (sıralama sorusu değilse) zaman aracına
+gider. Harness v2.1 yerel yanıt niyetini ölçer: davranış 13/19 → 15/19, niyet 11/17 → 15/17 (aynı harness; iyimser —
+kategoriler değerlendirme setinde görüldü, düzeltmeler ayrı 24 parafrazla geliştirildi). Tarayıcı: "En çok adet satan
+ürün hangisi?" sınır rozeti ve açıklama gösterir. 299 test.
+
 ## 8. Açık kalanlar
 Gerçek LLM erişimi (402), 5–8 kullanıcı pilotu, üretim RLS/retention/hard isolation, 5M+ ölçek, decisions yolunun
 decisions/run yolunda kalan ~0,7 s başlangıç (pandas/networkx; graph gerektirir), ≥2 sezon veriyle seasonal naive doğrulaması, dönem (ay) dilimleri ve anlatı için anlamsal iddia-dayanak doğrulaması (ölçü/dönem bağı kelime düzeyinde eklendi). Parquet core TS rotası önceki CI’da geçti; açık iş olarak tutulmaz.

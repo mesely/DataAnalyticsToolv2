@@ -3,7 +3,7 @@ import datetime as dt, json
 from analysis.llm_eval.cases import plan_cases, decide_cases, claims_cases, narrate_cases, ideal_plan_reply, ADVERSARIAL_PLAN_REPLIES, ROUTABLE
 from analysis.llm_eval.providers import ScriptedModel
 
-VERSION = "llm-eval-v2"
+VERSION = "llm-eval-v2.1"
 PROVIDERS = ("scripted-ideal", "scripted-adversarial", "local", "hf")
 
 
@@ -14,6 +14,24 @@ def _plan_behavior(plan):
         return "none"
     i = plan.get("intent")
     return "answers" if i in ROUTABLE else ("unsupported" if i == "unsupported" else "clarify")
+
+
+def _local_intent(answer):
+    """Which question the deterministic router actually answered: derived from its claims and reason, so a
+    summary given for a ranking question counts as the wrong intent (llm-eval-v2.1)."""
+    status, reason = answer.get("status"), answer.get("reason")
+    if status == "verified":
+        scope = (answer.get("claims") or [{}])[0].get("scope") or {}
+        return "products" if "product_id" in scope else "countries" if "country" in scope else "summary"
+    if status == "cannot_verify":
+        return "unsupported"
+    if reason == "open_temporal_tool":
+        return "temporal"
+    if reason == "open_network_tool":
+        return "network"
+    if status == "clarify":
+        return "clarify"
+    return None
 
 
 def _local_behavior(answer):
@@ -36,7 +54,7 @@ def run_plan(provider, cases, probe=None):
         q = case["input"]["question"]
         if provider == "local":
             out = explain({**base, "question": q}, res)
-            got = {"behavior": _local_behavior(out), "intent": None, "accepted": None, "raw_status": out.get("status"), "reason": out.get("reason")}
+            got = {"behavior": _local_behavior(out), "intent": _local_intent(out), "accepted": None, "raw_status": out.get("status"), "reason": out.get("reason")}
         elif provider.startswith("scripted"):
             mode = "ideal" if provider == "scripted-ideal" else "adversarial"
             model = ScriptedModel(lambda c, m: ideal_plan_reply(c) if m == "ideal" else ADVERSARIAL_PLAN_REPLIES.get(c["id"], ideal_plan_reply(c))).bind(case, mode)

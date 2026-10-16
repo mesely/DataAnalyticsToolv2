@@ -12,6 +12,17 @@ from analysis.adapted.confidence import ConfidenceSignals, assess
 from analysis.adapted.language import detect_language
 from analysis.adapted.lexical import _BM25
 
+# Local router vocabulary (word-start matches, so short Turkish stems do not hit unrelated words).
+_RANK_SUBJECT = re.compile(r"(?<!\w)(product|item|ürün|urun|country|countries|ülke|ulke|market|pazar|where|nerede)", re.I)
+_MARKET = re.compile(r"(?<!\w)(country|countries|ülke|ulke|market|pazar|where|nerede)", re.I)
+# Rankings the local engine cannot compute: by units/orders, or toward the minimum.
+_OTHER_RANK_METRIC = re.compile(r"(?<!\w)(units?|quantit|volume|adet|miktar|orders?|sipariş|siparis|invoices?|fatura)", re.I)
+_MIN_DIRECTION = re.compile(r"(?<!\w)(lowest|least|smallest|worst|bottom|en düşük|en az|en kötü)", re.I)
+# Questions about change over time; a static total or ranking does not answer them.
+_CHANGE = re.compile(r"(?<!\w)(drop|dropp|fall|fell|declin|decreas|increas|rise|rising|rose|grow|düş|azal|art[ıt])", re.I)
+_SUMMARY_EXTRA = re.compile(r"(?<!\w)(units?|quantit|sold|sell|market|where|nerede|pazar|miktar|items?|sku|rank|first|top|birinci|lider)", re.I)
+_PRODUCT = re.compile(r"(?<!\w)(product|items?|sku|ürün|urun)", re.I)
+
 VERSION = "retail-analysis-v4"
 METRICS = [
     {
@@ -325,6 +336,28 @@ def explain(request, result):
             "text": "Bu veri ve yerel açıklama bu hesabı doğrulayamıyor. Brüt satış, sipariş, ürün/ülke kırılımı ve birlikte alım incelenebilir. Kâr, dönüşüm, tahmin veya nedensellik için ek veri/yöntem gerekir.",
             "mode": "deterministic",
         }
+    if _CHANGE.search(t):
+        return {
+            "status": "cannot_verify",
+            "reason": "unsupported_metric_or_causality",
+            "text": (
+                "A change over time needs explicit periods; a static total or ranking does not answer it. Use Change over time or compare two saved analyses."
+                if en
+                else "Zaman içindeki değişim açık dönemler ister; tek bir toplam veya sıralama bunu yanıtlamaz. Zaman içindeki değişim aracını veya iki analizi karşılaştırmayı kullanın."
+            ),
+            "mode": "deterministic",
+        }
+    if _RANK_SUBJECT.search(t) and (_OTHER_RANK_METRIC.search(t) or _MIN_DIRECTION.search(t)):
+        return {
+            "status": "cannot_verify",
+            "reason": "unsupported_ranking_metric",
+            "text": (
+                "Only the top product or country by gross sales value is computed here. Rankings by units, orders or toward the lowest value are not; use the SQL lab or the ranking tables."
+                if en
+                else "Burada yalnız brüt satış tutarına göre en üstteki ürün veya ülke hesaplanır. Adet, sipariş veya en düşük değere göre sıralama hesaplanmaz; SQL laboratuvarını veya sıralama tablolarını kullanın."
+            ),
+            "mode": "deterministic",
+        }
     if any(
         x in t
         for x in [
@@ -357,7 +390,7 @@ def explain(request, result):
             "karsilastir",
             "compare",
         ]
-    ):
+    ) or (re.search(r"(?<!\w)(month|week|aylara|haftalara|ay ay|hafta hafta)", t) and not _RANK_SUBJECT.search(t)):
         return {
             "status": "clarify",
             "reason": "open_temporal_tool",
@@ -368,7 +401,7 @@ def explain(request, result):
             ),
             "mode": "deterministic",
         }
-    if not any(
+    if not _SUMMARY_EXTRA.search(t) and not any(
         x in t
         for x in [
             "satış",
@@ -430,7 +463,7 @@ def explain(request, result):
         }
         for key in ["gross_sales", "orders", "units", "aov"]
     ]
-    if any(x in t for x in ["ürün", "urun", "product"]) and result["products"]:
+    if _PRODUCT.search(t) and result["products"]:
         first = max(result["products"], key=lambda x: x["pence"])
         claims = [
             {
@@ -442,7 +475,7 @@ def explain(request, result):
             }
         ]
         text = f"{first['label']}, seçili veride {amount(first['pence']/100)} brüt satışla ilk sırada. Sıralama satış tutarına göredir; miktar ve kâr sıralaması farklı olabilir."
-    elif any(x in t for x in ["ülke", "ulke", "country"]) and result["countries"]:
+    elif _MARKET.search(t) and result["countries"]:
         first = result["countries"][0]
         claims = [
             {

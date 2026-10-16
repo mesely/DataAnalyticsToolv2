@@ -75,3 +75,24 @@ vakası içerir (n15 aynı birimli değer takası, n16 dönemsiz dayanağa tarih
 renderer öz-tutarlılığı 1,00 — model başarısı değildir. Sayıdan sonraki en çok iki kelime de bağlanır (noktalama, rakam veya against/of/and/ve/ile/üzerinden gibi bir bağlaçta
 durur): Türkçede isim sayıdan sonra gelir ("£47.206,66 naif referans hatası" takası reddedilir). Bu kelime düzeyinde mekanik
 bir kontroldür: pencerelerin dışındaki tanımlar ve terim listesi dışındaki eş anlamlılar bağlanmaz; anlamsal entailment yoktur.
+
+
+## Yerel yönlendirici düzeltmesi ve harness v2.1 (Opus devam turu)
+Harness `local` için yalnız davranış sınıfını ölçüyordu; hangi sorunun yanıtlandığını ölçmüyordu. v2.1, yönlendiricinin
+yanıtladığı niyeti iddialarından/nedeninden türetir (ürün kapsamı → products, ülke → countries, kapsamsız → summary,
+cannot_verify → unsupported, araç yönlendirmesi → temporal/network). Bu kör noktayı gösterdi: "Which item brings in most
+revenue?" (p04) ürün sıralaması yerine **özet toplamlarla** yanıtlanıyordu. Düzeltilen yerel yönlendirici kusurları:
+adet/sipariş sıralaması satış-tutarı sıralamasıyla yanıtlanıyordu (p13); "en düşük" sorusuna en yüksek veriliyordu;
+"Where did sales drop?" statik toplamla yanıtlanıyordu; "Where do we sell most?" / "item" / "SKU" tanınmıyordu.
+Protokol: hata kategorileri değerlendirme setinde görüldü; düzeltmeler ayrı geliştirme paraflarıyla
+(`analysis/tests/test_local_router.py`, 24 vaka) geliştirildi; bir genişletme (ay/hafta yönlendirmesi) p18'i bozunca
+sıralama sorularını hariç tutacak şekilde daraltıldı ve bu da geliştirme setine eklendi. Aynı harness (v2.1) ile:
+
+| local yönlendirici (19 vaka) | önce | sonra |
+|---|---:|---:|
+| Davranış sınıfı | 13/19 (0,68) | 15/19 (0,79) |
+| Yanıtlanan niyet (17 niyetli vaka) | 11/17 (0,65) | 15/17 (0,88) |
+
+Değerlendirme seti hata kategorilerini gösterdiği için "sonra" sayısı iyimserdir. Kalan: p07/p08/p09 tasarım gereği araca
+yönlendirilir (beklenen "answers"); p14 "Compare it with that" zaman aracına gider; p19 kâr ifadesi nedeniyle ihtiyatla
+reddedilir. Gerçek model satırı BLOCKED/null (402).

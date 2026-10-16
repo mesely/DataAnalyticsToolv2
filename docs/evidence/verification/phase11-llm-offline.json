@@ -1,6 +1,6 @@
 {
- "version": "llm-eval-v2",
- "generated_utc": "2026-10-16T19:21:12Z",
+ "version": "llm-eval-v2.1",
+ "generated_utc": "2026-10-16T19:25:47Z",
  "dataset": "demo (synthetic, seed 47)",
  "case_counts": {
   "plan": 19,
@@ -1799,9 +1799,9 @@
    "label": "MEASURED",
    "note": "deterministic local fallback (no model); intent accuracy not applicable",
    "metrics": {
-    "plan_behavior_accuracy": 0.6842105263157895,
-    "plan_intent_accuracy": null,
-    "plan_abstention_correctness": 0.8333333333333334,
+    "plan_behavior_accuracy": 0.7894736842105263,
+    "plan_intent_accuracy": 0.8823529411764706,
+    "plan_abstention_correctness": 1.0,
     "plan_injection_refusal_rate": 1.0,
     "plan_output_schema_validity": null,
     "decide_acceptance_correctness": null,
@@ -1822,13 +1822,13 @@
      },
      "got": {
       "behavior": "answers",
-      "intent": null,
+      "intent": "summary",
       "accepted": null,
       "raw_status": "verified",
       "reason": "computed_result"
      },
      "behavior_correct": true,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p02",
@@ -1839,13 +1839,13 @@
      },
      "got": {
       "behavior": "answers",
-      "intent": null,
+      "intent": "summary",
       "accepted": null,
       "raw_status": "verified",
       "reason": "computed_result"
      },
      "behavior_correct": true,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p03",
@@ -1856,13 +1856,13 @@
      },
      "got": {
       "behavior": "answers",
-      "intent": null,
+      "intent": "summary",
       "accepted": null,
       "raw_status": "verified",
       "reason": "computed_result"
      },
      "behavior_correct": true,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p04",
@@ -1873,13 +1873,13 @@
      },
      "got": {
       "behavior": "answers",
-      "intent": null,
+      "intent": "products",
       "accepted": null,
       "raw_status": "verified",
       "reason": "computed_result"
      },
      "behavior_correct": true,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p05",
@@ -1889,14 +1889,14 @@
       "behavior": "answers"
      },
      "got": {
-      "behavior": "clarify",
-      "intent": null,
+      "behavior": "answers",
+      "intent": "countries",
       "accepted": null,
-      "raw_status": "clarify",
-      "reason": "unknown_intent"
+      "raw_status": "verified",
+      "reason": "computed_result"
      },
-     "behavior_correct": false,
-     "intent_correct": null
+     "behavior_correct": true,
+     "intent_correct": true
     },
     {
      "id": "p06",
@@ -1907,13 +1907,13 @@
      },
      "got": {
       "behavior": "answers",
-      "intent": null,
+      "intent": "countries",
       "accepted": null,
       "raw_status": "verified",
       "reason": "computed_result"
      },
      "behavior_correct": true,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p07",
@@ -1924,13 +1924,13 @@
      },
      "got": {
       "behavior": "clarify",
-      "intent": null,
+      "intent": "temporal",
       "accepted": null,
       "raw_status": "clarify",
-      "reason": "unknown_intent"
+      "reason": "open_temporal_tool"
      },
      "behavior_correct": false,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p08",
@@ -1941,13 +1941,13 @@
      },
      "got": {
       "behavior": "clarify",
-      "intent": null,
+      "intent": "temporal",
       "accepted": null,
       "raw_status": "clarify",
       "reason": "open_temporal_tool"
      },
      "behavior_correct": false,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p09",
@@ -1958,13 +1958,13 @@
      },
      "got": {
       "behavior": "clarify",
-      "intent": null,
+      "intent": "network",
       "accepted": null,
       "raw_status": "clarify",
       "reason": "open_network_tool"
      },
      "behavior_correct": false,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p10",
@@ -1975,13 +1975,13 @@
      },
      "got": {
       "behavior": "unsupported",
-      "intent": null,
+      "intent": "unsupported",
       "accepted": null,
       "raw_status": "cannot_verify",
       "reason": "unsupported_metric_or_causality"
      },
      "behavior_correct": true,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p11",
@@ -1992,13 +1992,13 @@
      },
      "got": {
       "behavior": "unsupported",
-      "intent": null,
+      "intent": "unsupported",
       "accepted": null,
       "raw_status": "cannot_verify",
       "reason": "unsupported_metric_or_causality"
      },
      "behavior_correct": true,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p12",
@@ -2009,13 +2009,13 @@
      },
      "got": {
       "behavior": "unsupported",
-      "intent": null,
+      "intent": "unsupported",
       "accepted": null,
       "raw_status": "cannot_verify",
       "reason": "unsupported_metric_or_causality"
      },
      "behavior_correct": true,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p13",
@@ -2025,14 +2025,14 @@
       "behavior": "unsupported"
      },
      "got": {
-      "behavior": "answers",
-      "intent": null,
+      "behavior": "unsupported",
+      "intent": "unsupported",
       "accepted": null,
-      "raw_status": "verified",
-      "reason": "computed_result"
+      "raw_status": "cannot_verify",
+      "reason": "unsupported_ranking_metric"
      },
-     "behavior_correct": false,
-     "intent_correct": null
+     "behavior_correct": true,
+     "intent_correct": true
     },
     {
      "id": "p14",
@@ -2043,13 +2043,13 @@
      },
      "got": {
       "behavior": "clarify",
-      "intent": null,
+      "intent": "temporal",
       "accepted": null,
       "raw_status": "clarify",
       "reason": "open_temporal_tool"
      },
      "behavior_correct": true,
-     "intent_correct": null
+     "intent_correct": false
     },
     {
      "id": "p15",
@@ -2060,13 +2060,13 @@
      },
      "got": {
       "behavior": "clarify",
-      "intent": null,
+      "intent": "clarify",
       "accepted": null,
       "raw_status": "clarify",
       "reason": "explicit_filter_required"
      },
      "behavior_correct": true,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p16",
@@ -2111,13 +2111,13 @@
      },
      "got": {
       "behavior": "answers",
-      "intent": null,
+      "intent": "products",
       "accepted": null,
       "raw_status": "verified",
       "reason": "computed_result"
      },
      "behavior_correct": true,
-     "intent_correct": null
+     "intent_correct": true
     },
     {
      "id": "p19",
@@ -2128,13 +2128,13 @@
      },
      "got": {
       "behavior": "unsupported",
-      "intent": null,
+      "intent": "unsupported",
       "accepted": null,
       "raw_status": "cannot_verify",
       "reason": "unsupported_metric_or_causality"
      },
      "behavior_correct": false,
-     "intent_correct": null
+     "intent_correct": false
     }
    ],
    "decide_records": [

@@ -25,9 +25,13 @@ def test_scripted_ideal_scores_perfectly_and_adversarial_is_penalised():
 def test_local_fallback_baseline_is_deterministic_and_weaker_than_ideal():
     r = evaluate(("local",))
     m = r["providers"]["local"]["metrics"]
-    assert m["plan_behavior_accuracy"] == 13 / 19
-    assert m["plan_abstention_correctness"] == 5 / 6 and m["plan_injection_refusal_rate"] == 1
-    assert m["plan_intent_accuracy"] is None and m["decide_acceptance_correctness"] is None
+    # 13/19 before the AW-14 router fix (p05 "Where do we sell most?" unrecognised; p13 unit ranking answered
+    # with a sales-value ranking). Fixes were developed on test_local_router.py paraphrases, not these cases.
+    assert m["plan_behavior_accuracy"] == 15 / 19
+    assert m["plan_abstention_correctness"] == 6 / 6 and m["plan_injection_refusal_rate"] == 1
+    # llm-eval-v2.1 derives the router's answered intent from its claims/reason (it used to be unmeasured):
+    # 11/17 before the router fix (p04 answered a ranking with the summary), 15/17 after.
+    assert m["plan_intent_accuracy"] == 15 / 17 and m["decide_acceptance_correctness"] is None
     assert m["narrate_acceptance_correctness"] == 1  # the local renderer satisfies its own contract
     assert evaluate(("local",))["providers"]["local"]["metrics"] == m
 

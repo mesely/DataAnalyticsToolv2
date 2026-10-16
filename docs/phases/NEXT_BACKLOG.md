@@ -25,7 +25,7 @@ A1–6 uygulanmış ürün korunuyor.16Ekimde A7–10'a forecast/decision/XML/re
 |---:|---|---|
 |1| Sonkod CI ve final browser kabulü; eksik varsa önce kapat | progress üst/son kart; phase10-github-final/browser-qa receipt; DecisionStudio aynıIDreopen/390px/theme/CmdK/Esc/download |
 |2| Gerçek model erişimi + dondurulmuş TR/EN karar/intent golden/OOD/injection/citation eval | llm.py,decisions.py,adapted/providers.py; gerçek402; accuracy null. Hesap/ödeme değişikliği otomatik yok |
-|3| Tahmin kalitesi | forecast.py; mean4 son testte naiften kötü. Yeni development/holdout ayır; seasonalnaive/calendar/drift adayları, calibratedcoverage ve period/countryerror slices. Mevcut holdout üstünde tuning yapma |
+|3| Tahmin kalitesi — **v2 protokolü uygulandı (16 Ekim gece)**: kayıtlı adaylar, geliştirme-only seçim, ayrı final pencere, MASE/sMAPE/bias, teşhisler; UCI'de mean8 final pencerede naifi geçti, bant kapsaması 0,70 (kalibre değil). Kalan: ülke/dönem hata dilimleri, kalibre aralık (conformal) ve ≥2 sezon veriyle seasonal naive; final pencere üstünde tuning yapma |
 |4| A7 orijinal: Parquet/genericmetric/explicit schema ve OOFstacking | preparation.py,ml.py,FoldPreprocessor; parquetmetadata/decompression budget, metricgrain/unit, group/time-safe nestedOOF; trainfoldSMOTE; modelserving ayrı |
 |5| A8 orijinal: tenant+subjectRLS,retention,tombstone,hardresource | core/src/workbench.ts,migrations0017–0021; existingauth/PGpermits; kayıtrefleri silinmeden lifecycle;5MHTTPcancel/backpressurestress; prodIdP/dışdeployment ayrı |
 |6| A9 orijinal: governedBI ve conversationreference | core/src/publish*.ts, lineage/reportformats spec; adviSU conversation_memory/sourceindexer/retrievalpolicy adayları; ownerUUIDarchive genelmemory değildir |

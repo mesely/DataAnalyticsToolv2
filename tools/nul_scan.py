@@ -75,6 +75,10 @@ BINARY_PATHS: tuple[str, ...] = (
     'docs/evidence/phase6/06-model-art.jpeg',
     'docs/evidence/phase6/07-overview-art.jpeg',
     'docs/evidence/phase6/08-mobile-art.jpeg',
+    'docs/evidence/phase10/01-dark-overview.jpeg',
+    'docs/evidence/phase10/02-light-overview.jpeg',
+    'docs/evidence/phase10/03-decisions-light.jpeg',
+    'docs/evidence/phase10/04-evidence-reference.jpeg',
     'docs/evidence/workspace-overview.jpeg',
 )
 

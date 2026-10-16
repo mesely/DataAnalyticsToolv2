@@ -26,7 +26,8 @@ Servis kapalıysa `/Users/selmanyilmaz/Projects/context-layer/deploy/phase1/star
 Repo `/Users/selmanyilmaz/Projects/context-layer`:
 
 ```
-.venv/bin/python -m pytest analysis/tests -q   # 216 test; analysis/tests/test_forecast.py tahmin protokolü v2
+.venv/bin/python -m pytest analysis/tests -q   # 228 test; test_forecast.py (tahmin v2), test_llm_eval.py (LLM harness)
+.venv/bin/python -m analysis.llm_eval --providers scripted-ideal,scripted-adversarial,local   # LLM değerlendirme (hf = BLOCKED/402)
 PATH=/Users/selmanyilmaz/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH CORE_TEST_DATABASE_URL=postgres://postgres:phase1-local-only@127.0.0.1:5549/postgres npm --prefix core test -- test/workbench.test.ts
 PATH=/Users/selmanyilmaz/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH npm --prefix core run build
 PATH=/Users/selmanyilmaz/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH ./core/node_modules/.bin/tsc -p core/web/tsconfig.json --noEmit

@@ -119,10 +119,12 @@ _INSTRUCTION_OVERRIDE = re.compile(
 )
 _SECRET_EXTRACTION = re.compile(
     r"(?:(?:\b(?:show|print|reveal|return|dump|give|display|goster|yazdir|dok|ver)\b)"
-    r".{0,75}(?:\bapi\s*key\b|\bsecret\b|\bcredentials?\b|\bsystem prompt\b|"
+    r".{0,75}(?:\bapi\s*key\b|\bapi\s*token\b|\baccess token\b|\bbearer token\b|\bsecret\b|\bcredentials?\b|\bsystem prompt\b|"
+    r"\bhidden (?:rules?|instructions?|prompt)\b|\bgizli (?:kural|talimat)\w*\b|"
     r"\bdeveloper (?:prompt|message|instructions?)\b|\bsistem prompt\w*\b|"
     r"\bgelistirici talimat\w*\b|\bauthorization header\b|\byetkilendirme\b|"
-    r"\bgizli anahtar\b)|(?:\bapi\s*key\b|\bsecret\b|\bcredentials?\b|"
+    r"\bgizli anahtar\b)|(?:\bapi\s*key\b|\bapi\s*token\b|\baccess token\b|\bbearer token\b|\bsecret\b|\bcredentials?\b|"
+    r"\bhidden (?:rules?|instructions?|prompt)\b|\bgizli (?:kural|talimat)\w*\b|"
     r"\bsystem prompt\b|\bdeveloper (?:prompt|message)\b|\bauthorization header\b|"
     r"\bsistem prompt\w*\b|\bgelistirici talimat\w*\b|\byetkilendirme\b|"
     r"\bgizli anahtar\b).{0,75}"
@@ -226,6 +228,7 @@ _COUNTERSPEECH = re.compile(
 
 _DENSE_SECRET_SIGNATURES = (
     "revealtheapikey", "revealapikey", "printtheapikey", "showtheapikey",
+    "revealtheapitoken", "printtheapitoken", "showtheapitoken", "revealthehiddenrules",
     "gizlianahtarigoster", "apikeyigoster", "sistempromptunugoster",
 )
 _DENSE_PROMPT_SIGNATURES = (

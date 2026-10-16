@@ -77,3 +77,6 @@ checklist, forecast ve scenario yeni hedef kodudur; kopya kaynak diye sayılmaz.
 Strict ID/reason JSON serbest LLM prose entailment doğrulaması değildir.
 Conversation_memory genel referans çözümü hâlâ açık; explicit owner UUID ile
 arşiv açma, bu modülün adapte edildiği anlamına gelmez.
+
+## Yerel değişiklik — 16 Ekim gece: `analysis/adapted/guardrails.py` `_SECRET_EXTRACTION`
+adviSU kaynağından adapte edilen gizli-bilgi çıkarma deseni "api token / access token / bearer token / hidden rules|instructions|prompt / gizli kural|talimat" ifadelerini kapsamıyordu; LLM değerlendirme harness'i (p17) bunu yakaladı. Desen ve dense imzalar genişletildi; regresyon testi `analysis/tests/test_phase4.py`. Pinned upstream dosya hash'i değişmedi (adapted kopya yerel sürümdür).

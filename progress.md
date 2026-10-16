@@ -22,6 +22,12 @@ geliştirmede **mean8** seçildi; final (10 origin) MAE £47.207 / naif £59.859
 UI: yöntem etiketleri, dinamik "N dönem", teşhis listesi (DecisionStudio). Testler: `analysis/tests/test_forecast.py` (9) +
 güncellenen test_decisions → 216 analitik test. Eski mean4/naif son-4 sayıları tarihsel; iki protokol farklı pencere ölçer.
 
+**LLM değerlendirme harness'i (P1):** `analysis/llm_eval` — 19 plan / 6 decide / 8 claims vakası, scripted
+self-check + deterministik `local` baseline + gerçek `hf` probu (402 → **BLOCKED**, metrik yok). Rapor
+`docs/phases/LLM_EVALUATION.md`, kanıt `docs/evidence/phase10/llm-eval.json`. Harness bir koruyucu açığı buldu ve
+kapattı (API token / hidden rules çıkarma ifadeleri planner'a ulaşıyordu; `guardrails.py` + regresyon testi).
+Yerel baseline davranış doğruluğu 13/19; gerçek model doğruluğu hâlâ **null**.
+
 **Açık kalan (bu tur):** DecisionStudio tarayıcı kabulü (reopen/390px/tema/CmdK/Esc/indirme) tarayıcı araçlarının geçici
 kesintisi nedeniyle henüz yapılmadı — mock üretme, gerçek ekranla kapat. LLM değerlendirme harness'i (golden set +
 evaluator + rapor) sonraki P1 iş; HF 402 sürüyor, canlı accuracy **null**.

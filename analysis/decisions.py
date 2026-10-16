@@ -13,6 +13,7 @@ from analysis.adapted.formatting import compact_summary
 from analysis.adapted.providers import build_chat_model, LLMProviderError
 from analysis.llm import configuration
 from analysis.forecast import scenario
+from analysis.narrative import local_statements, analysis_context_xml, narrate, VERSION as NARRATIVE_VERSION
 
 VERSION = "decision-brief-v1"
 CORPUS = Path(__file__).parent / "knowledge/business-methods.json"
@@ -334,9 +335,11 @@ def decision_brief(request, overview, prediction, model=None):
                 ),
             ],
         )
+    ref("complete_weeks", "forecast.complete_weeks", prediction["complete_weeks"], "weeks", "forecast")
     if prediction["status"] == "ready":
         h = prediction["holdout"]
         improved = h["selected"]["mae_gbp"] < h["naive"]["mae_gbp"]
+        ref("next_point", "forecast.next.pence", prediction["next"]["pence"], "pence", "forecast")
         ref(
             "forecast_mae",
             "forecast.holdout.selected.mae_gbp",
@@ -404,6 +407,8 @@ def decision_brief(request, overview, prediction, model=None):
             "pence",
             "scenario",
         )
+        ref("scenario_volume", "scenario.assumptions.volume_pct", scenario_result["assumptions"]["volume_pct"], "percent", "scenario")
+        ref("scenario_price", "scenario.assumptions.price_pct", scenario_result["assumptions"]["price_pct"], "percent", "scenario")
         candidate(
             "scenario",
             text("Senaryo varsayımlarını doğrulayın", "Validate scenario assumptions"),
@@ -491,10 +496,28 @@ def decision_brief(request, overview, prediction, model=None):
         language="en" if en else "tr",
     )
     brief["context_xml"] = context_xml(brief)
+    # Typed narrative: the local renderer is always present; a validated model narrative is additive and
+    # never replaces local numbers (decision-narrative-v1).
+    brief["analysis_context_xml"] = analysis_context_xml(brief)
+    brief["narrative"] = {
+        "version": NARRATIVE_VERSION,
+        "local": local_statements(brief, en),
+        "model": None,
+        "provider": {"status": "not_requested"},
+    }
+    if request.get("use_llm") is True:
+        outcome = narrate(brief, model)
+        brief["narrative"]["provider"] = {k: v for k, v in outcome.items() if k != "statements"}
+        if outcome["status"] == "accepted":
+            brief["narrative"]["model"] = outcome["statements"]
     brief["report_markdown"] = render_report(brief)
-    hashed = {k: v for k, v in brief.items() if k != "provider"}
+    hashed = {k: v for k, v in brief.items() if k not in ("provider", "narrative")}
     hashed["provider"] = {
         k: v for k, v in brief["provider"].items() if k != "telemetry"
+    }
+    hashed["narrative"] = {
+        **brief["narrative"],
+        "provider": {k: v for k, v in brief["narrative"]["provider"].items() if k != "telemetry"},
     }
     brief["output_sha256"] = digest(hashed)
     return brief
@@ -534,7 +557,15 @@ def render_report(brief):
             + [f"{j}. {step}" for j, step in enumerate(c["steps"], 1)]
             + [""]
         )
+    lines += ["## Analyst narrative (typed, local)", ""]
+    for st in brief["narrative"]["local"]:
+        lines.append(f"- [{st['type']}] {st['text']}" + (f" (evidence: {', '.join(st['evidence'])})" if st["evidence"] else ""))
+    if brief["narrative"]["model"]:
+        lines += ["", "## Analyst narrative (typed, model, validated)", ""]
+        for st in brief["narrative"]["model"]:
+            lines.append(f"- [{st['type']}] {st['text']}" + (f" (evidence: {', '.join(st['evidence'])})" if st["evidence"] else ""))
     lines += [
+        "",
         "## Score interpretation",
         "",
         brief["score_policy"]["note"],

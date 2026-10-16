@@ -196,9 +196,11 @@ class FakeModel:
     def __init__(self, content):
         self.content = content
         self.messages = []
+        self.batches = []
 
     def invoke(self, messages):
         self.messages = messages
+        self.batches.append(messages)
         return SimpleNamespace(content=self.content)
 
     def get_last_telemetry(self):
@@ -220,8 +222,11 @@ def test_valid_model_only_annotates_focus_and_minimized_context(brief):
     assert len(result["recommendations"]) >= 2
     assert all(c["support_score"] == 60 for c in result["recommendations"])
     assert "must-not-persist" not in json.dumps(result)
-    assert len(model.messages) == 2
-    assert "customer_id" not in model.messages[1].content
+    # First call: the two-message selection prompt. Later calls belong to the typed narrative (same opt-in),
+    # whose actions-JSON reply is rejected by the narrative validator and never replaces local statements.
+    assert len(model.batches[0]) == 2
+    assert all("customer_id" not in m.content for batch in model.batches for m in batch)
+    assert result["narrative"]["provider"]["status"] == "rejected" and result["narrative"]["model"] is None
 
 
 def test_rejected_model_keeps_verified_local_brief(brief):

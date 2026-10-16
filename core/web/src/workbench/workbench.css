@@ -3939,3 +3939,62 @@
 }
 .wb-forecast-diagnostics li + li { margin-top: 0.25rem; }
 .wb-forecast-diagnostics li[data-severity="warning"] { color: inherit; }
+
+/* Typed analyst narrative (AW-14): a quiet two-column list; the type label is text, not a badge. */
+.wb-narrative-section {
+  padding: 20px 0 8px;
+  border-bottom: 1px solid var(--border);
+}
+.wb-narrative-section .wb-panel-head {
+  padding: 0 0 6px;
+}
+.wb-narrative {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.wb-narrative > li {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 6px 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+.wb-narrative > li:first-child {
+  border-top: 0;
+}
+.wb-narrative-type {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-top: 4px;
+  font-weight: 650;
+}
+.wb-narrative > li[data-type="recommendation"] .wb-narrative-type,
+.wb-narrative > li[data-type="fact"] .wb-narrative-type {
+  color: var(--ink);
+}
+.wb-narrative > li > div > p {
+  margin: 0 0 8px;
+  max-width: 72ch;
+  line-height: 1.6;
+}
+.wb-narrative > li[data-type="inference"] > div > p,
+.wb-narrative > li[data-type="assumption"] > div > p,
+.wb-narrative > li[data-type="limitation"] > div > p {
+  color: var(--muted);
+}
+.wb-narrative .wb-evidence-links button {
+  min-height: 36px;
+}
+.wb-narrative-model {
+  margin-top: 12px;
+  font-size: 13px;
+}
+@media (max-width: 640px) {
+  .wb-narrative > li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+}

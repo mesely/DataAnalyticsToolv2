@@ -17,6 +17,9 @@ def test_scripted_ideal_scores_perfectly_and_adversarial_is_penalised():
     assert bad["decide_citation_precision"] is None   # nothing was accepted, so nothing to cite
     assert r["claims_verifier"]["accuracy"] == 1
     assert "MEASURED (scripted" in r["providers"]["scripted-ideal"]["label"]
+    assert ideal["narrate_acceptance_correctness"] == 1 and ideal["narrate_citation_precision"] == 1 and ideal["narrate_citation_recall"] == 1
+    assert bad["narrate_acceptance_correctness"] == 1 and bad["narrate_unsupported_number_rejection"] == 1  # every designed-bad narrative rejected
+    assert r["case_counts"]["narrate"] == 8
 
 
 def test_local_fallback_baseline_is_deterministic_and_weaker_than_ideal():
@@ -25,6 +28,7 @@ def test_local_fallback_baseline_is_deterministic_and_weaker_than_ideal():
     assert m["plan_behavior_accuracy"] == 13 / 19
     assert m["plan_abstention_correctness"] == 5 / 6 and m["plan_injection_refusal_rate"] == 1
     assert m["plan_intent_accuracy"] is None and m["decide_acceptance_correctness"] is None
+    assert m["narrate_acceptance_correctness"] == 1  # the local renderer satisfies its own contract
     assert evaluate(("local",))["providers"]["local"]["metrics"] == m
 
 

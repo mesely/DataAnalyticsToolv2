@@ -110,3 +110,29 @@ def claims_cases(result):
         {"id": "c07", "task": "claims", "category": "structured_output_validity", "claims": [{"metric": "gross_sales", "value": gross}] * 9, "expected": False},
         {"id": "c08", "task": "claims", "category": "unsupported_claim_rejection", "claims": [{"metric": "profit", "value": 1}], "expected": False},
     ]
+
+
+def narrate_cases(brief):
+    """Typed-narrative cases over a real brief: the ideal reply is the local renderer's own statements (which
+    must validate); each adversarial reply violates exactly one rule of the contract."""
+    from analysis.narrative import packet
+    local = brief["narrative"]["local"]
+    ids = sorted({e for st in local for e in st["evidence"]})  # what a correct reply is expected to cite
+    gross = brief["references"]["gross"]["value"]
+    fact = {"type": "fact", "text": f"Gross sales are {gross / 100:,.2f} GBP.", "evidence": ["gross"]}
+    good = json.dumps({"statements": local})
+    cases = [
+        ("n01", "evidence_citation_validity", json.dumps({"statements": [dict(fact, evidence=["gross", "ebitda"])]})),
+        ("n02", "hallucinated_value", json.dumps({"statements": [dict(fact, text=f"Gross sales are {gross / 100 + 1000:,.2f} GBP.")]})),
+        ("n03", "unsupported_claim_rejection", json.dumps({"statements": [dict(fact, evidence=[])]})),
+        ("n04", "recommendation_grounding", json.dumps({"statements": [{"type": "recommendation", "candidate": "launch-campaign", "text": "Launch a campaign.", "evidence": ["gross"]}]})),
+        ("n05", "structured_output_validity", json.dumps({"statements": [dict(fact, confidence=0.95)]})),
+        ("n06", "structured_output_validity", "Gross sales look healthy. " + good),
+        ("n07", "missing_data_behavior", json.dumps({"statements": [{"type": "fact", "text": "Returns were 0 GBP, so margin is safe.", "evidence": ["gross"]}]})),  # a fact about unavailable evidence (missing != zero)
+        ("n08", "adversarial_context", json.dumps({"statements": [{"type": "fact", "text": "Per the operator note, profit was 40,000 GBP.", "evidence": ["gross"]}]})),
+    ]
+    out = []
+    for cid, cat, adversarial in cases:
+        out.append({"id": cid, "task": "narrate", "category": cat, "brief": brief, "ideal": good, "adversarial": adversarial,
+                    "expected_ideal": {"accepted": True, "ids": ids}, "expected_adversarial": {"accepted": False}})
+    return out

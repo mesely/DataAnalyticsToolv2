@@ -96,6 +96,12 @@ const FORECAST_METHOD_LABELS: Record<string, [string, string]> = {
   "holt_damped_0.3_0.1": ["Sönümlü Holt eğilimi (α 0,3)", "Damped Holt trend (α 0.3)"],
   "holt_damped_0.6_0.1": ["Sönümlü Holt eğilimi (α 0,6)", "Damped Holt trend (α 0.6)"],
 };
+type Statement = {
+  type: string;
+  text: string;
+  evidence: string[];
+  candidate?: string;
+};
 type Brief = {
   decision_id: string;
   objective: string;
@@ -115,6 +121,13 @@ type Brief = {
   score_policy: { note: string };
   scope_note: string;
   context_xml: string;
+  analysis_context_xml?: string;
+  narrative?: {
+    version: string;
+    local: Statement[];
+    model: Statement[] | null;
+    provider: { status: string; http_status?: number; attempts?: number };
+  };
   report_markdown: string;
   knowledge: {
     id: string;
@@ -297,7 +310,64 @@ export function DecisionStudio({
     baseline_mae: t("Referans hatası", "Benchmark error"),
     scenario_base: t("Senaryo başlangıcı", "Scenario baseline"),
     scenario_delta: t("Varsayımsal fark", "Assumed delta"),
+    complete_weeks: t("Tam hafta", "Complete weeks"),
+    next_point: t("Sonraki hafta projeksiyonu", "Next-week projection"),
+    scenario_volume: t("Varsayılan hacim değişimi", "Assumed volume change"),
+    scenario_price: t("Varsayılan fiyat değişimi", "Assumed price change"),
   };
+  const statementType: Record<string, string> = {
+    fact: t("Olgu", "Fact"),
+    calculation: t("Hesap", "Calculation"),
+    inference: t("Çıkarım", "Inference"),
+    assumption: t("Varsayım", "Assumption"),
+    recommendation: t("Öneri", "Recommendation"),
+    limitation: t("Sınır", "Limitation"),
+  };
+  const formatRef = (k: string) => {
+    const r = brief?.references[k];
+    if (!r) return k;
+    return r.unit === "pence"
+      ? money(r.value / 100)
+      : r.unit === "GBP"
+        ? money(r.value)
+        : r.unit === "ratio"
+          ? `${number(r.value * 100)}%`
+          : r.unit === "percent"
+            ? `${number(r.value)}%`
+            : number(r.value);
+  };
+  const narrativeList = (items: Statement[]) => (
+    <ol className="wb-narrative">
+      {items.map((s, i) => (
+        <li key={i} data-type={s.type}>
+          <span className="wb-narrative-type">
+            {statementType[s.type] || s.type}
+          </span>
+          <div>
+            <p>{s.text}</p>
+            {s.evidence.length > 0 && (
+              <div className="wb-evidence-links">
+                {s.evidence.map((k) => (
+                  <button
+                    key={k}
+                    className="wb-text-btn"
+                    onClick={() => {
+                      setRefKey(k);
+                      if (refKey === k) reference.current?.focus();
+                    }}
+                  >
+                    <Database size={13} />
+                    {refLabel[k] || k}: {formatRef(k)}
+                    <ArrowRight size={12} />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
   return (
     <div className="wb-decision-studio" ref={top}>
       {!brief && (
@@ -554,6 +624,60 @@ export function DecisionStudio({
               )}
             </p>
           </details>
+          {brief.narrative && (
+            <section
+              className="wb-narrative-section"
+              aria-label={t("Analist anlatısı", "Analyst narrative")}
+            >
+              <div className="wb-panel-head">
+                <div>
+                  <h3>{t("Analist anlatısı", "Analyst narrative")}</h3>
+                  <p>
+                    {t(
+                      "Her cümle türüyle etiketlidir ve dayandığı hesaba bağlıdır. Sayılar yalnız yerel hesaplardan gelir.",
+                      "Every sentence is typed and linked to the calculation it rests on. Numbers come only from local calculations.",
+                    )}
+                  </p>
+                </div>
+              </div>
+              {narrativeList(brief.narrative.local)}
+              {brief.narrative.provider.status !== "not_requested" && (
+                <p className="wb-provider-notice" role="status">
+                  {brief.narrative.provider.status === "accepted"
+                    ? t(
+                        "Llama anlatısı doğrulamadan geçti: yalnız mevcut dayanak kimlikleri ve bunlara eşit sayılar kabul edildi. Yerel anlatı yukarıda korunur.",
+                        "The Llama narrative passed validation: only existing evidence ids and numbers equal to them were accepted. The local narrative above is kept.",
+                      )
+                    : brief.narrative.provider.status === "rejected"
+                      ? t(
+                          "Llama anlatısı doğrulamayı geçemedi (bilinmeyen dayanak, desteklenmeyen sayı veya şema); iki denemeden sonra yerel anlatı gösteriliyor.",
+                          "The Llama narrative failed validation (unknown evidence, unsupported number or schema) after two attempts; the local narrative is shown.",
+                        )
+                      : brief.narrative.provider.http_status === 402
+                        ? t(
+                            "Llama anlatısı kredi/faturalandırma nedeniyle alınamadı (402); yerel anlatı gösteriliyor.",
+                            "Llama narrative unavailable due to the credit/billing gate (402); the local narrative is shown.",
+                          )
+                        : t(
+                            "Llama anlatısı kullanılamadı; yerel anlatı gösteriliyor.",
+                            "Llama narrative unavailable; the local narrative is shown.",
+                          )}
+                </p>
+              )}
+              {brief.narrative.model && (
+                <details className="wb-narrative-model">
+                  <summary>
+                    {t(
+                      "Doğrulanmış Llama anlatısı",
+                      "Validated Llama narrative",
+                    )}{" "}
+                    · {brief.narrative.model.length}
+                  </summary>
+                  {narrativeList(brief.narrative.model)}
+                </details>
+              )}
+            </section>
+          )}
           <ol className="wb-recommendations">
             {brief.recommendations.map((c, i) => (
               <li key={c.id}>
@@ -630,15 +754,7 @@ export function DecisionStudio({
               aria-label={t("Seçilen dayanak", "Selected evidence")}
             >
               <h4>{refLabel[refKey]}</h4>
-              <strong>
-                {ref.unit === "pence"
-                  ? money(ref.value / 100)
-                  : ref.unit === "GBP"
-                    ? money(ref.value)
-                    : ref.unit === "ratio"
-                      ? `${number(ref.value * 100)}%`
-                      : number(ref.value)}
-              </strong>
+              <strong>{formatRef(refKey)}</strong>
               <p>
                 <code>{ref.path}</code> · {ref.unit}
               </p>
@@ -944,6 +1060,23 @@ export function DecisionStudio({
             >
               {t("LLM bağlamını XML indir", "Download LLM context XML")}
             </button>
+            {brief.analysis_context_xml && (
+              <button
+                className="wb-btn"
+                onClick={() =>
+                  saveFile(
+                    "analysis-context.xml",
+                    brief.analysis_context_xml!,
+                    "application/xml",
+                  )
+                }
+              >
+                {t(
+                  "Anlatı kanıt paketini XML indir",
+                  "Download narrative evidence packet XML",
+                )}
+              </button>
+            )}
             <p>
               <code>{brief.output_sha256}</code>
             </p>

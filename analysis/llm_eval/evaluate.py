@@ -1,9 +1,9 @@
 from __future__ import annotations
 import datetime as dt, json
-from analysis.llm_eval.cases import plan_cases, decide_cases, claims_cases, ideal_plan_reply, ADVERSARIAL_PLAN_REPLIES, ROUTABLE
+from analysis.llm_eval.cases import plan_cases, decide_cases, claims_cases, narrate_cases, ideal_plan_reply, ADVERSARIAL_PLAN_REPLIES, ROUTABLE
 from analysis.llm_eval.providers import ScriptedModel
 
-VERSION = "llm-eval-v1"
+VERSION = "llm-eval-v2"
 PROVIDERS = ("scripted-ideal", "scripted-adversarial", "local", "hf")
 
 
@@ -89,6 +89,39 @@ def run_decide(provider, cases):
     return records
 
 
+def run_narrate(provider, cases):
+    """Typed narrative contract. `local` runs the deterministic renderer through the validator (a
+    self-consistency check); scripted replies exercise the validator; the live provider is BLOCKED/MEASURED."""
+    from analysis.narrative import validate_statements, packet, local_statements
+    records = []
+    for case in cases:
+        pk = packet(case["brief"])
+        if provider == "local":
+            text = json.dumps({"statements": local_statements(case["brief"], en=True)})
+        elif provider.startswith("scripted"):
+            text = case["ideal"] if provider == "scripted-ideal" else case["adversarial"]
+        else:
+            records.append({"id": case["id"], "category": case["category"], "got": {"accepted": None, "raw_status": "BLOCKED"},
+                            "acceptance_correct": None, "citation_precision": None, "citation_recall": None, "unsupported_number_rejected": None})
+            continue
+        try:
+            statements = validate_statements(text, pk)
+            got = {"accepted": True, "ids": sorted({e for s in statements for e in s["evidence"]}), "statements": len(statements)}
+        except (ValueError, TypeError, KeyError) as e:
+            got = {"accepted": False, "ids": [], "rejection": str(e)[:120]}
+        exp = case["expected_adversarial"] if provider == "scripted-adversarial" else case["expected_ideal"]
+        ids = got["ids"]
+        prec = (len([i for i in ids if i in pk["evidence"]]) / len(ids)) if ids else None
+        rec_ = (len([i for i in exp.get("ids", []) if i in ids]) / len(exp["ids"])) if exp.get("ids") and got["accepted"] else None
+        number_case = case["category"] in {"hallucinated_value", "adversarial_context"}
+        records.append({"id": case["id"], "category": case["category"], "expected": exp, "got": got,
+                        "acceptance_correct": got["accepted"] == exp["accepted"],
+                        "citation_precision": prec, "citation_recall": rec_,
+                        "unsupported_number_rejected": (not got["accepted"]) if (number_case and provider == "scripted-adversarial") else None,
+                        "reply_mode": "adversarial" if provider == "scripted-adversarial" else ("local" if provider == "local" else "ideal")})
+    return records
+
+
 def run_claims(cases, result):
     from analysis.claims import verify_numeric_claims
     return [{"id": c["id"], "category": c["category"], "expected": c["expected"], "got": verify_numeric_claims(c["claims"], result),
@@ -99,14 +132,15 @@ def evaluate(providers=PROVIDERS, probe=None):
     from analysis.worker import handle, overview
     result = overview({"dataset": "demo", "include_graph": False, "locale": "en"})
     brief = handle({"action": "decisions", "dataset": "demo", "objective": "balanced"})
-    pc, dc, cc = plan_cases(), decide_cases(brief), claims_cases(result)
+    pc, dc, cc, nc = plan_cases(), decide_cases(brief), claims_cases(result), narrate_cases(brief)
     out = {"version": VERSION, "generated_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-           "dataset": "demo (synthetic, seed 47)", "case_counts": {"plan": len(pc), "decide": len(dc), "claims": len(cc)},
+           "dataset": "demo (synthetic, seed 47)", "case_counts": {"plan": len(pc), "decide": len(dc), "claims": len(cc), "narrate": len(nc)},
            "claims_verifier": {"accuracy": _mean([r["correct"] for r in run_claims(cc, result)]), "label": "MEASURED", "records": run_claims(cc, result)},
            "providers": {}}
     for p in providers:
         plan_records, blocked = run_plan(p, pc, probe=probe if p == "hf" else None)
         decide_records = run_decide(p, dc)
+        narrate_records = run_narrate(p, nc)
         if p == "hf" and blocked is not None:
             label, note = "BLOCKED", f"no successful live answer: {blocked}"
         elif p == "hf":
@@ -119,6 +153,8 @@ def evaluate(providers=PROVIDERS, probe=None):
         abst = [r for r in plan_records if r["expected"]["behavior"] in {"unsupported", "clarify"}]
         intents = [r["intent_correct"] for r in plan_records if r["intent_correct"] is not None]
         accepted = [r for r in decide_records if r["got"]["accepted"] is not None]
+        narrated = [r for r in narrate_records if r["acceptance_correct"] is not None]
+        number_checks = [r["unsupported_number_rejected"] for r in narrate_records if r["unsupported_number_rejected"] is not None]
         out["providers"][p] = {
             "label": label, "note": note,
             "metrics": {
@@ -130,17 +166,21 @@ def evaluate(providers=PROVIDERS, probe=None):
                 "decide_acceptance_correctness": _mean([r["acceptance_correct"] for r in accepted]) if accepted else None,
                 "decide_citation_precision": _mean([r["citation_precision"] for r in decide_records if r["citation_precision"] is not None]) or None,
                 "decide_citation_recall": _mean([r["citation_recall"] for r in decide_records if r["citation_recall"] is not None]) or None,
+                "narrate_acceptance_correctness": _mean([r["acceptance_correct"] for r in narrated]) if narrated else None,
+                "narrate_citation_precision": _mean([r["citation_precision"] for r in narrate_records if r["citation_precision"] is not None]) or None,
+                "narrate_citation_recall": _mean([r["citation_recall"] for r in narrate_records if r["citation_recall"] is not None]) or None,
+                "narrate_unsupported_number_rejection": _mean(number_checks) if number_checks else None,
             },
-            "plan_records": plan_records, "decide_records": decide_records,
+            "plan_records": plan_records, "decide_records": decide_records, "narrate_records": narrate_records,
         }
     return out
 
 
 def markdown(report):
-    rows = ["| provider | label | behaviour acc. | intent acc. | abstention | injection refusal | output schema validity | decide acceptance | citation P / R |", "|---|---|---|---|---|---|---|---|---|"]
+    rows = ["| provider | label | behaviour acc. | intent acc. | abstention | injection refusal | output schema validity | decide acceptance | citation P / R | narrative acceptance | narrative citation P / R | unsupported-number rejection |", "|---|---|---|---|---|---|---|---|---|---|---|---|"]
     f = lambda v: "—" if v is None else f"{v:.2f}"
     for p, r in report["providers"].items():
         m = r["metrics"]
-        rows.append(f"| {p} | {r['label']} | {f(m['plan_behavior_accuracy'])} | {f(m['plan_intent_accuracy'])} | {f(m['plan_abstention_correctness'])} | {f(m['plan_injection_refusal_rate'])} | {f(m['plan_output_schema_validity'])} | {f(m['decide_acceptance_correctness'])} | {f(m['decide_citation_precision'])} / {f(m['decide_citation_recall'])} |")
+        rows.append(f"| {p} | {r['label']} | {f(m['plan_behavior_accuracy'])} | {f(m['plan_intent_accuracy'])} | {f(m['plan_abstention_correctness'])} | {f(m['plan_injection_refusal_rate'])} | {f(m['plan_output_schema_validity'])} | {f(m['decide_acceptance_correctness'])} | {f(m['decide_citation_precision'])} / {f(m['decide_citation_recall'])} | {f(m.get('narrate_acceptance_correctness'))} | {f(m.get('narrate_citation_precision'))} / {f(m.get('narrate_citation_recall'))} | {f(m.get('narrate_unsupported_number_rejection'))} |")
     rows.append(f"\nClaims verifier accuracy (deterministic, {len(report['claims_verifier']['records'])} cases): {f(report['claims_verifier']['accuracy'])} — MEASURED")
     return "\n".join(rows)

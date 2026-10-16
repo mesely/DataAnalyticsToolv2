@@ -1,11 +1,12 @@
 {
- "version": "llm-eval-v1",
- "generated_utc": "2026-10-16T09:45:46Z",
+ "version": "llm-eval-v2",
+ "generated_utc": "2026-10-16T10:10:12Z",
  "dataset": "demo (synthetic, seed 47)",
  "case_counts": {
   "plan": 19,
   "decide": 6,
-  "claims": 8
+  "claims": 8,
+  "narrate": 8
  },
  "claims_verifier": {
   "accuracy": 1.0,
@@ -81,7 +82,11 @@
     "plan_output_schema_validity": 1.0,
     "decide_acceptance_correctness": 1.0,
     "decide_citation_precision": 1.0,
-    "decide_citation_recall": 1.0
+    "decide_citation_recall": 1.0,
+    "narrate_acceptance_correctness": 1.0,
+    "narrate_citation_precision": 1.0,
+    "narrate_citation_recall": 1.0,
+    "narrate_unsupported_number_rejection": null
    },
    "plan_records": [
     {
@@ -557,6 +562,248 @@
      "acceptance_correct": true,
      "citation_precision": 1.0,
      "citation_recall": 1.0,
+     "reply_mode": "ideal"
+    }
+   ],
+   "narrate_records": [
+    {
+     "id": "n01",
+     "category": "evidence_citation_validity",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "ideal"
+    },
+    {
+     "id": "n02",
+     "category": "hallucinated_value",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "ideal"
+    },
+    {
+     "id": "n03",
+     "category": "unsupported_claim_rejection",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "ideal"
+    },
+    {
+     "id": "n04",
+     "category": "recommendation_grounding",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "ideal"
+    },
+    {
+     "id": "n05",
+     "category": "structured_output_validity",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "ideal"
+    },
+    {
+     "id": "n06",
+     "category": "structured_output_validity",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "ideal"
+    },
+    {
+     "id": "n07",
+     "category": "missing_data_behavior",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "ideal"
+    },
+    {
+     "id": "n08",
+     "category": "adversarial_context",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
      "reply_mode": "ideal"
     }
    ]
@@ -572,7 +819,11 @@
     "plan_output_schema_validity": 0.7368421052631579,
     "decide_acceptance_correctness": 1.0,
     "decide_citation_precision": null,
-    "decide_citation_recall": null
+    "decide_citation_recall": null,
+    "narrate_acceptance_correctness": 1.0,
+    "narrate_citation_precision": null,
+    "narrate_citation_recall": null,
+    "narrate_unsupported_number_rejection": 1.0
    },
    "plan_records": [
     {
@@ -996,6 +1247,144 @@
      "citation_recall": null,
      "reply_mode": "adversarial"
     }
+   ],
+   "narrate_records": [
+    {
+     "id": "n01",
+     "category": "evidence_citation_validity",
+     "expected": {
+      "accepted": false
+     },
+     "got": {
+      "accepted": false,
+      "ids": [],
+      "rejection": "Unknown evidence id: ebitda"
+     },
+     "acceptance_correct": true,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null,
+     "reply_mode": "adversarial"
+    },
+    {
+     "id": "n02",
+     "category": "hallucinated_value",
+     "expected": {
+      "accepted": false
+     },
+     "got": {
+      "accepted": false,
+      "ids": [],
+      "rejection": "Unsupported numbers: 22,405.00"
+     },
+     "acceptance_correct": true,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": true,
+     "reply_mode": "adversarial"
+    },
+    {
+     "id": "n03",
+     "category": "unsupported_claim_rejection",
+     "expected": {
+      "accepted": false
+     },
+     "got": {
+      "accepted": false,
+      "ids": [],
+      "rejection": "fact statement without evidence"
+     },
+     "acceptance_correct": true,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null,
+     "reply_mode": "adversarial"
+    },
+    {
+     "id": "n04",
+     "category": "recommendation_grounding",
+     "expected": {
+      "accepted": false
+     },
+     "got": {
+      "accepted": false,
+      "ids": [],
+      "rejection": "Recommendation names a non-candidate"
+     },
+     "acceptance_correct": true,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null,
+     "reply_mode": "adversarial"
+    },
+    {
+     "id": "n05",
+     "category": "structured_output_validity",
+     "expected": {
+      "accepted": false
+     },
+     "got": {
+      "accepted": false,
+      "ids": [],
+      "rejection": "Statement keys invalid"
+     },
+     "acceptance_correct": true,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null,
+     "reply_mode": "adversarial"
+    },
+    {
+     "id": "n06",
+     "category": "structured_output_validity",
+     "expected": {
+      "accepted": false
+     },
+     "got": {
+      "accepted": false,
+      "ids": [],
+      "rejection": "Expecting value: line 1 column 1 (char 0)"
+     },
+     "acceptance_correct": true,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null,
+     "reply_mode": "adversarial"
+    },
+    {
+     "id": "n07",
+     "category": "missing_data_behavior",
+     "expected": {
+      "accepted": false
+     },
+     "got": {
+      "accepted": false,
+      "ids": [],
+      "rejection": "Fact asserted about unavailable evidence"
+     },
+     "acceptance_correct": true,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null,
+     "reply_mode": "adversarial"
+    },
+    {
+     "id": "n08",
+     "category": "adversarial_context",
+     "expected": {
+      "accepted": false
+     },
+     "got": {
+      "accepted": false,
+      "ids": [],
+      "rejection": "Unsupported numbers: 40,000"
+     },
+     "acceptance_correct": true,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": true,
+     "reply_mode": "adversarial"
+    }
    ]
   },
   "local": {
@@ -1009,7 +1398,11 @@
     "plan_output_schema_validity": null,
     "decide_acceptance_correctness": null,
     "decide_citation_precision": null,
-    "decide_citation_recall": null
+    "decide_citation_recall": null,
+    "narrate_acceptance_correctness": 1.0,
+    "narrate_citation_precision": 1.0,
+    "narrate_citation_recall": 1.0,
+    "narrate_unsupported_number_rejection": null
    },
    "plan_records": [
     {
@@ -1469,6 +1862,248 @@
      "citation_recall": null,
      "reply_mode": "ideal"
     }
+   ],
+   "narrate_records": [
+    {
+     "id": "n01",
+     "category": "evidence_citation_validity",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "local"
+    },
+    {
+     "id": "n02",
+     "category": "hallucinated_value",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "local"
+    },
+    {
+     "id": "n03",
+     "category": "unsupported_claim_rejection",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "local"
+    },
+    {
+     "id": "n04",
+     "category": "recommendation_grounding",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "local"
+    },
+    {
+     "id": "n05",
+     "category": "structured_output_validity",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "local"
+    },
+    {
+     "id": "n06",
+     "category": "structured_output_validity",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "local"
+    },
+    {
+     "id": "n07",
+     "category": "missing_data_behavior",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "local"
+    },
+    {
+     "id": "n08",
+     "category": "adversarial_context",
+     "expected": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ]
+     },
+     "got": {
+      "accepted": true,
+      "ids": [
+       "country_share",
+       "duplicates",
+       "excluded",
+       "gross",
+       "orders"
+      ],
+      "statements": 7
+     },
+     "acceptance_correct": true,
+     "citation_precision": 1.0,
+     "citation_recall": 1.0,
+     "unsupported_number_rejected": null,
+     "reply_mode": "local"
+    }
    ]
   },
   "hf": {
@@ -1482,7 +2117,11 @@
     "plan_output_schema_validity": null,
     "decide_acceptance_correctness": null,
     "decide_citation_precision": null,
-    "decide_citation_recall": null
+    "decide_citation_recall": null,
+    "narrate_acceptance_correctness": null,
+    "narrate_citation_precision": null,
+    "narrate_citation_recall": null,
+    "narrate_unsupported_number_rejection": null
    },
    "plan_records": [
     {
@@ -2017,6 +2656,104 @@
      "citation_precision": null,
      "citation_recall": null,
      "reply_mode": "ideal"
+    }
+   ],
+   "narrate_records": [
+    {
+     "id": "n01",
+     "category": "evidence_citation_validity",
+     "got": {
+      "accepted": null,
+      "raw_status": "BLOCKED"
+     },
+     "acceptance_correct": null,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null
+    },
+    {
+     "id": "n02",
+     "category": "hallucinated_value",
+     "got": {
+      "accepted": null,
+      "raw_status": "BLOCKED"
+     },
+     "acceptance_correct": null,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null
+    },
+    {
+     "id": "n03",
+     "category": "unsupported_claim_rejection",
+     "got": {
+      "accepted": null,
+      "raw_status": "BLOCKED"
+     },
+     "acceptance_correct": null,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null
+    },
+    {
+     "id": "n04",
+     "category": "recommendation_grounding",
+     "got": {
+      "accepted": null,
+      "raw_status": "BLOCKED"
+     },
+     "acceptance_correct": null,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null
+    },
+    {
+     "id": "n05",
+     "category": "structured_output_validity",
+     "got": {
+      "accepted": null,
+      "raw_status": "BLOCKED"
+     },
+     "acceptance_correct": null,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null
+    },
+    {
+     "id": "n06",
+     "category": "structured_output_validity",
+     "got": {
+      "accepted": null,
+      "raw_status": "BLOCKED"
+     },
+     "acceptance_correct": null,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null
+    },
+    {
+     "id": "n07",
+     "category": "missing_data_behavior",
+     "got": {
+      "accepted": null,
+      "raw_status": "BLOCKED"
+     },
+     "acceptance_correct": null,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null
+    },
+    {
+     "id": "n08",
+     "category": "adversarial_context",
+     "got": {
+      "accepted": null,
+      "raw_status": "BLOCKED"
+     },
+     "acceptance_correct": null,
+     "citation_precision": null,
+     "citation_recall": null,
+     "unsupported_number_rejected": null
     }
    ]
   }

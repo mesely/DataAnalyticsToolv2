@@ -1,0 +1,453 @@
+{
+ "candidates_development": {
+  "drift": {
+   "bias_gbp": 15907.497318017664,
+   "mae_gbp": 35721.97380654842,
+   "mase": 1.0759159045922104,
+   "n": 34,
+   "rmse_gbp": 45578.334246615574,
+   "smape": 0.22873711926034052,
+   "wape": 0.2141386066799003
+  },
+  "holt_damped_0.3_0.1": {
+   "bias_gbp": 29540.187139960748,
+   "mae_gbp": 46803.368878715664,
+   "mase": 1.4096782344058238,
+   "n": 34,
+   "rmse_gbp": 59716.764685130016,
+   "smape": 0.38819054200646796,
+   "wape": 0.2805670328826093
+  },
+  "holt_damped_0.6_0.1": {
+   "bias_gbp": 13829.379657804973,
+   "mae_gbp": 35165.493823135075,
+   "mase": 1.0591551940003485,
+   "n": 34,
+   "rmse_gbp": 44366.16532775413,
+   "smape": 0.221532290207461,
+   "wape": 0.21080273702894772
+  },
+  "mean2": {
+   "bias_gbp": 6497.148235294118,
+   "mae_gbp": 35157.35676470588,
+   "mase": 1.0589101126219238,
+   "n": 34,
+   "rmse_gbp": 44676.27062695673,
+   "smape": 0.2100987997782439,
+   "wape": 0.21075395869536692
+  },
+  "mean4": {
+   "bias_gbp": 6744.849632352941,
+   "mae_gbp": 31643.125808823526,
+   "mase": 0.9530644222824108,
+   "n": 34,
+   "rmse_gbp": 44222.109978073175,
+   "smape": 0.18774273155840243,
+   "wape": 0.18968758300965188
+  },
+  "mean8": {
+   "bias_gbp": 9591.892463235294,
+   "mae_gbp": 30444.82783088235,
+   "mase": 0.9169726917445185,
+   "n": 34,
+   "rmse_gbp": 42177.62783880614,
+   "smape": 0.18067137770117692,
+   "wape": 0.18250427727259247
+  },
+  "naive": {
+   "bias_gbp": 6282.382352941176,
+   "mae_gbp": 33201.45529411765,
+   "mase": 1.0,
+   "n": 34,
+   "rmse_gbp": 42548.27832194527,
+   "smape": 0.20233885461860593,
+   "wape": 0.19902913021911534
+  },
+  "ses_0.2": {
+   "bias_gbp": 4598.459164417561,
+   "mae_gbp": 31555.560356198777,
+   "mase": 0.9504270242572627,
+   "n": 34,
+   "rmse_gbp": 43715.65149185258,
+   "smape": 0.18620868976238225,
+   "wape": 0.18916266397466502
+  },
+  "ses_0.5": {
+   "bias_gbp": 6864.398405913163,
+   "mae_gbp": 31516.82864201754,
+   "mase": 0.9492604574957118,
+   "n": 34,
+   "rmse_gbp": 41675.265519026245,
+   "smape": 0.18822253718868606,
+   "wape": 0.188930483206771
+  },
+  "ses_0.8": {
+   "bias_gbp": 6380.7411107285825,
+   "mae_gbp": 32442.649122018363,
+   "mase": 0.9771453942190984,
+   "n": 34,
+   "rmse_gbp": 41842.950591438144,
+   "smape": 0.19623198711105633,
+   "wape": 0.19448039790904173
+  }
+ },
+ "candidates_final": {
+  "drift": {
+   "bias_gbp": -774.7074631029368,
+   "mae_gbp": 60523.61507855882,
+   "mase": 1.8229205479821808,
+   "n": 10,
+   "rmse_gbp": 72005.84991433249,
+   "smape": 0.21062363033419818,
+   "wape": 0.20180430574370609
+  },
+  "holt_damped_0.3_0.1": {
+   "bias_gbp": 16117.444231451811,
+   "mae_gbp": 41484.39846143272,
+   "mase": 1.2494753044389162,
+   "n": 10,
+   "rmse_gbp": 49440.80248566187,
+   "smape": 0.1404859820569104,
+   "wape": 0.1383217149180251
+  },
+  "holt_damped_0.6_0.1": {
+   "bias_gbp": -1903.9699435667917,
+   "mae_gbp": 49727.4413413596,
+   "mase": 1.4977488456709271,
+   "n": 10,
+   "rmse_gbp": 56058.25522617294,
+   "smape": 0.16816803419276935,
+   "wape": 0.16580654944815137
+  },
+  "mean2": {
+   "bias_gbp": 2873.6490000000003,
+   "mae_gbp": 43041.638,
+   "mase": 1.2963780538748177,
+   "n": 10,
+   "rmse_gbp": 50241.12822121847,
+   "smape": 0.14306993422947012,
+   "wape": 0.14351402941459504
+  },
+  "mean4": {
+   "bias_gbp": 20226.128249999998,
+   "mae_gbp": 39677.54475,
+   "mase": 1.195054385372973,
+   "n": 10,
+   "rmse_gbp": 52832.55611659764,
+   "smape": 0.1327219573823582,
+   "wape": 0.13229711016923684
+  },
+  "mean8": {
+   "bias_gbp": 47206.660625,
+   "mae_gbp": 47206.660625,
+   "mase": 1.4218250437161915,
+   "n": 10,
+   "rmse_gbp": 61456.97213201105,
+   "smape": 0.16317274705444038,
+   "wape": 0.1574014929799153
+  },
+  "naive": {
+   "bias_gbp": -1440.096,
+   "mae_gbp": 59858.674000000006,
+   "mase": 1.802893080129691,
+   "n": 10,
+   "rmse_gbp": 71185.3064473894,
+   "smape": 0.20784441019333552,
+   "wape": 0.19958718813523443
+  },
+  "ses_0.2": {
+   "bias_gbp": 46420.0191113512,
+   "mae_gbp": 48663.41121163262,
+   "mase": 1.4657011501617638,
+   "n": 10,
+   "rmse_gbp": 64248.55620911514,
+   "smape": 0.16718745817354744,
+   "wape": 0.16225874647337488
+  },
+  "ses_0.5": {
+   "bias_gbp": 11851.117914373488,
+   "mae_gbp": 45926.71305376331,
+   "mase": 1.3832740958767618,
+   "n": 10,
+   "rmse_gbp": 52724.81399378223,
+   "smape": 0.15715908258731442,
+   "wape": 0.15313375499588222
+  },
+  "ses_0.8": {
+   "bias_gbp": 1267.1503167766296,
+   "mae_gbp": 52713.253757614104,
+   "mase": 1.587679012580915,
+   "n": 10,
+   "rmse_gbp": 61457.50733239047,
+   "smape": 0.1812803928002083,
+   "wape": 0.17576216430957492
+  }
+ },
+ "complete_weeks": 52,
+ "diagnostics": [
+  {
+   "code": "seasonal_naive_unavailable",
+   "message": "Seasonal naive (52-week) needs at least 104 complete weeks; 52 available. Yearly seasonality cannot be validated from this history.",
+   "severity": "info"
+  },
+  {
+   "code": "zero_weeks",
+   "message": "1 complete week(s) have no observed gross sales; they count as zero and may be collection gaps.",
+   "severity": "warning"
+  },
+  {
+   "code": "outlier_weeks",
+   "message": "Weeks far from the typical level (robust 3-sigma): 2010-12-27, 2011-11-07, 2011-11-14.",
+   "severity": "warning"
+  },
+  {
+   "code": "possible_level_shift",
+   "message": "The mean of the last 8 weeks differs from the previous 8 by more than twice the typical weekly change; a structural change cannot be excluded.",
+   "severity": "warning"
+  }
+ ],
+ "holdout": {
+  "naive": {
+   "bias_gbp": -1440.096,
+   "mae_gbp": 59858.674000000006,
+   "mase": 1.802893080129691,
+   "n": 10,
+   "rmse_gbp": 71185.3064473894,
+   "smape": 0.20784441019333552,
+   "wape": 0.19958718813523443
+  },
+  "origins": 10,
+  "records": [
+   {
+    "actual_pence": 21180022,
+    "origin": "2011-09-19",
+    "predicted_pence": 20219535.75,
+    "target": "2011-09-26",
+    "train_end_index": 41
+   },
+   {
+    "actual_pence": 31998739,
+    "origin": "2011-09-26",
+    "predicted_pence": 20733259.0,
+    "target": "2011-10-03",
+    "train_end_index": 42
+   },
+   {
+    "actual_pence": 22877618,
+    "origin": "2011-10-03",
+    "predicted_pence": 22355187.125,
+    "target": "2011-10-10",
+    "train_end_index": 43
+   },
+   {
+    "actual_pence": 27665642,
+    "origin": "2011-10-10",
+    "predicted_pence": 23014677.25,
+    "target": "2011-10-17",
+    "train_end_index": 44
+   },
+   {
+    "actual_pence": 26055563,
+    "origin": "2011-10-17",
+    "predicted_pence": 24411139.625,
+    "target": "2011-10-24",
+    "train_end_index": 45
+   },
+   {
+    "actual_pence": 30189783,
+    "origin": "2011-10-24",
+    "predicted_pence": 25742357.0,
+    "target": "2011-10-31",
+    "train_end_index": 46
+   },
+   {
+    "actual_pence": 37004497,
+    "origin": "2011-10-31",
+    "predicted_pence": 27107284.0,
+    "target": "2011-11-07",
+    "train_end_index": 47
+   },
+   {
+    "actual_pence": 38862244,
+    "origin": "2011-11-07",
+    "predicted_pence": 28856130.375,
+    "target": "2011-11-14",
+    "train_end_index": 48
+   },
+   {
+    "actual_pence": 31641216,
+    "origin": "2011-11-14",
+    "predicted_pence": 29479263.5,
+    "target": "2011-11-21",
+    "train_end_index": 49
+   },
+   {
+    "actual_pence": 32437083,
+    "origin": "2011-11-21",
+    "predicted_pence": 30786912.75,
+    "target": "2011-11-28",
+    "train_end_index": 50
+   }
+  ],
+  "selected": {
+   "bias_gbp": 47206.660625,
+   "mae_gbp": 47206.660625,
+   "mase": 1.4218250437161915,
+   "n": 10,
+   "rmse_gbp": 61456.97213201105,
+   "smape": 0.16317274705444038,
+   "wape": 0.1574014929799153
+  }
+ },
+ "leaderboard": [
+  {
+   "description": "mean of the last 8 weeks",
+   "development_mae_gbp": 30444.82783088235,
+   "development_mase": 0.9169726917445185,
+   "final_improvement_vs_naive": 0.21136474514955017,
+   "final_mae_gbp": 47206.660625,
+   "final_mase": 1.4218250437161915,
+   "method": "mean8",
+   "selected": true
+  },
+  {
+   "description": "simple exponential smoothing, alpha 0.5",
+   "development_mae_gbp": 31516.82864201754,
+   "development_mase": 0.9492604574957118,
+   "final_improvement_vs_naive": 0.23274757048972872,
+   "final_mae_gbp": 45926.71305376331,
+   "final_mase": 1.3832740958767618,
+   "method": "ses_0.5",
+   "selected": false
+  },
+  {
+   "description": "simple exponential smoothing, alpha 0.2",
+   "development_mae_gbp": 31555.560356198777,
+   "development_mase": 0.9504270242572627,
+   "final_improvement_vs_naive": 0.1870282457036616,
+   "final_mae_gbp": 48663.41121163262,
+   "final_mase": 1.4657011501617638,
+   "method": "ses_0.2",
+   "selected": false
+  },
+  {
+   "description": "mean of the last 4 weeks",
+   "development_mae_gbp": 31643.125808823526,
+   "development_mase": 0.9530644222824108,
+   "final_improvement_vs_naive": 0.33714627975220435,
+   "final_mae_gbp": 39677.54475,
+   "final_mase": 1.195054385372973,
+   "method": "mean4",
+   "selected": false
+  },
+  {
+   "description": "simple exponential smoothing, alpha 0.8",
+   "development_mae_gbp": 32442.649122018363,
+   "development_mase": 0.9771453942190984,
+   "final_improvement_vs_naive": 0.11937150900445781,
+   "final_mae_gbp": 52713.253757614104,
+   "final_mase": 1.587679012580915,
+   "method": "ses_0.8",
+   "selected": false
+  },
+  {
+   "description": "last observed week",
+   "development_mae_gbp": 33201.45529411765,
+   "development_mase": 1.0,
+   "final_improvement_vs_naive": 0.0,
+   "final_mae_gbp": 59858.674000000006,
+   "final_mase": 1.802893080129691,
+   "method": "naive",
+   "selected": false
+  },
+  {
+   "description": "mean of the last 2 weeks",
+   "development_mae_gbp": 35157.35676470588,
+   "development_mase": 1.0589101126219238,
+   "final_improvement_vs_naive": 0.28094568215794435,
+   "final_mae_gbp": 43041.638,
+   "final_mase": 1.2963780538748177,
+   "method": "mean2",
+   "selected": false
+  },
+  {
+   "description": "damped Holt linear trend (alpha 0.6, beta 0.1, phi 0.9)",
+   "development_mae_gbp": 35165.493823135075,
+   "development_mase": 1.0591551940003485,
+   "final_improvement_vs_naive": 0.16925254072017049,
+   "final_mae_gbp": 49727.4413413596,
+   "final_mase": 1.4977488456709271,
+   "method": "holt_damped_0.6_0.1",
+   "selected": false
+  },
+  {
+   "description": "last week plus the average historical weekly change",
+   "development_mae_gbp": 35721.97380654842,
+   "development_mase": 1.0759159045922104,
+   "final_improvement_vs_naive": -0.011108516679785074,
+   "final_mae_gbp": 60523.61507855882,
+   "final_mase": 1.8229205479821808,
+   "method": "drift",
+   "selected": false
+  },
+  {
+   "description": "damped Holt linear trend (alpha 0.3, beta 0.1, phi 0.9)",
+   "development_mae_gbp": 46803.368878715664,
+   "development_mase": 1.4096782344058238,
+   "final_improvement_vs_naive": 0.306960951700455,
+   "final_mae_gbp": 41484.39846143272,
+   "final_mase": 1.2494753044389162,
+   "method": "holt_damped_0.3_0.1",
+   "selected": false
+  }
+ ],
+ "next": {
+  "lower_pence": 24426591.625,
+  "pence": 30841705.75,
+  "period": "2011-12-05",
+  "upper_pence": 37256819.875
+ },
+ "notes": [
+  "Positive invoice-line gross GBP; excludes returns/cancellations and is not net revenue or profit.",
+  "Only complete Monday\u2013Sunday weeks; boundary fragments excluded. Dates without observed rows count as zero; collection completeness is not established.",
+  "One-step rolling origins use only earlier observations. The method is chosen on development origins; the final 10 origins are evaluated afterwards and never select the method. When the naive method is best, it is selected.",
+  "Residual envelope is empirical, not a guaranteed or calibrated prediction interval. Historical records may not represent future trading."
+ ],
+ "output_sha256": "976459fef80f8639137ed61e3c6b83749a690a2bfa4f1ac43b25edc543399e4a",
+ "recipe_version": "weekly-gross-v2",
+ "scope": {
+  "dataset_sha256": "f6003ea90b31435e94afdb17facc703aedeb4f85a3a992ab7cb1586e21c3c636",
+  "filters": {},
+  "observed_end": "2011-12-09",
+  "observed_start": "2010-12-01"
+ },
+ "selected": "mean8",
+ "selected_description": "mean of the last 8 weeks",
+ "split": {
+  "development_origins": 34,
+  "final_window_rule": "last min(12, max(4, n // 5)) origins; evaluated after selection, never used for it",
+  "first_origin": 8,
+  "holdout_origins": 10,
+  "horizon_weeks": 1,
+  "mase_scale": "development naive one-step MAE",
+  "selection_end_index": 41,
+  "selection_rule": "lowest development MAE; ties resolve to the simpler (earlier registered) method"
+ },
+ "status": "ready",
+ "uncertainty": {
+  "calibrated": false,
+  "levels": {
+   "0.8": {
+    "final_window_coverage": 0.7,
+    "radius_pence": 5092420.5
+   },
+   "0.9": {
+    "final_window_coverage": 0.7,
+    "radius_pence": 6415114.125
+   }
+  },
+  "method": "empirical envelope of development absolute errors of the selected method (80% and 90% quantiles); the 90% radius is the displayed band",
+  "note": "Final-window coverage is a descriptive check on a handful of points, not a calibration claim.",
+  "residual_count": 34
+ }
+}

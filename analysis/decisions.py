@@ -358,8 +358,8 @@ def decision_brief(request, overview, prediction, model=None):
                 "Review weekly forecast before planning",
             ),
             text(
-                "Son dört geçmiş test noktasındaki hatayı referans yöntemle karşılaştırın. Tahmin, mevcut geçmişin devamına ilişkin sınırlı bir projeksiyondur.",
-                "Compare errors at the last four historical test origins with the benchmark. This is a limited projection of the available history.",
+                f"Son {h['origins']} geçmiş test noktasındaki hatayı referans yöntemle karşılaştırın; yöntem yalnız geliştirme dönemlerinde seçildi. Tahmin, mevcut geçmişin devamına ilişkin sınırlı bir projeksiyondur.",
+                f"Compare errors at the last {h['origins']} historical test origins with the benchmark; the method was chosen on development origins only. This is a limited projection of the available history.",
             ),
             ["forecast_mae", "baseline_mae"],
             [
@@ -545,7 +545,7 @@ def render_report(brief):
     ]
     if brief["forecast"]["status"] == "ready":
         lines += [
-            "Untouched four-origin holdout: "
+            f"Untouched final window ({brief['forecast']['holdout']['origins']} origins), selected method {brief['forecast']['selected']}: "
             + json.dumps(brief["forecast"]["holdout"]["selected"], sort_keys=True),
             "Naive benchmark: "
             + json.dumps(brief["forecast"]["holdout"]["naive"], sort_keys=True),

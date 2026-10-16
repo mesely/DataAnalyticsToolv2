@@ -27,17 +27,18 @@ def weeks(n=24):
 
 
 def test_rolling_forecast_matches_independent_linear_oracle():
+    # Linear series: drift reproduces it exactly, naive is one step (£1) behind; selection is development-only.
     r = backtest(weeks())
-    assert r["selected"] == "naive"
-    assert r["holdout"]["selected"]["mae_gbp"] == 1
-    assert r["holdout"]["selected"]["rmse_gbp"] == 1
-    assert r["holdout"]["selected"]["wape"] == pytest.approx(
+    assert r["selected"] == "drift"
+    assert r["holdout"]["selected"]["mae_gbp"] == 0 and r["holdout"]["selected"]["rmse_gbp"] == 0
+    assert r["holdout"]["naive"]["mae_gbp"] == 1
+    assert r["holdout"]["naive"]["wape"] == pytest.approx(
         400 / sum(10000 + 100 * i for i in range(20, 24))
     )
-    assert r["next"]["pence"] == 12300
-    assert r["next"]["lower_pence"] == 12200 and r["next"]["upper_pence"] == 12400
+    assert r["next"]["pence"] == 12400
+    assert r["next"]["lower_pence"] == 12400 and r["next"]["upper_pence"] == 12400
     for c in r["candidates"].values():
-        assert len(c["records"]) == 16
+        assert len(c["records"]) == 12
         for row in c["records"]:
             assert row["origin"] < row["target"]
             assert row["target"] < r["holdout"]["records"][0]["target"]
@@ -51,7 +52,9 @@ def test_holdout_changes_cannot_select_method_or_change_development_errors():
         w["pence"] *= 100
     a, b = backtest(original), backtest(changed)
     assert a["selected"] == b["selected"]
-    assert a["candidates"] == b["candidates"]
+    for cid in a["candidates"]:  # development numbers and records are identical; only final-window metrics may differ
+        assert a["candidates"][cid]["development"] == b["candidates"][cid]["development"]
+        assert a["candidates"][cid]["records"] == b["candidates"][cid]["records"]
     assert a["holdout"] != b["holdout"]
     assert all(
         r["train_end_index"] < len(original) - 4
@@ -90,7 +93,7 @@ def test_forecast_boundaries_zero_observations_and_digest(tmp_path):
 
 def test_forecast_minimum_and_limit():
     assert backtest(weeks(15))["status"] == "insufficient_data"
-    assert backtest(weeks(16))["uncertainty"]["residual_count"] == 8
+    assert backtest(weeks(16))["uncertainty"]["residual_count"] == 4  # origins 8..11; final 12..15
     with pytest.raises(ValueError):
         backtest(weeks(261))
 

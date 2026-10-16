@@ -1,6 +1,34 @@
 # Context Layer / Analytics — tek giriş ve devir rehberi
 
-## ŞİMDİ OKU — 16 Ekim 2026
+## ŞİMDİ OKU — 16 Ekim 2026, gece turu (yeni ajan)
+
+**Güncel kod: bu kartın altındaki commit (forecast v2).** Önceki turun A7–10 devir dokümanları commit edilmemişti; 86e3a7f ile
+commit/push edildi (PR #1, CI tetiklendi). Gerçek başlangıç durumu: HEAD fddc4f1 = son yeşil CI (5 job). 207 analitik test
+yerelde geçti; 48 asset/NUL testi geçti; 12 pinned kaynak doğrulandı; web tsc/build geçti. **Core Node testleri yerelde
+Docker olmadan 3 suite'te `source_unavailable` ile düşer (connector fixture `postgres:16` konteyneri ister); bu ortam
+sınırıdır, CI'da koşar.** Uygulama `./deploy/phase1/start.sh` ile ayağa kalktı; PostgreSQL locale'siz kabuktan
+"postmaster became multithreaded" ile başlayamıyordu → start.sh artık `LC_ALL/LANG=C` varsayar (gerçek düzeltme).
+
+**Disk:** tur başında kap 290 MB boş (swap 5,6 GB kullanımda). Silinen yalnız yeniden üretilebilir önbellekler:
+Codex Sparkle güncelleme önbelleği 1,6 GB, Xcode DerivedData 886 MB, SwiftPM 534 MB, pip 32 MB → ~2,3 GB; sonra 3,2 GB boş.
+Kullanıcı verisi, simülatör cihazları, Chrome profili, iCloud, Gradle/pub önbellekleri silinmedi.
+
+**Tahmin v2 (`weekly-gross-v2`, P1 düzeltmesi):** eski sürüm yalnız naive/mean4 ve son-4 holdout'tu; mean4 o pencerede
+naiften kötüydü. Yeni protokol: kayıtlı adaylar (naive, seasonal_naive ≥104 hafta, drift, mean2/4/8, SES ×3, sönümlü
+Holt ×2), seçim **yalnız geliştirme origin'lerinde**, final pencere son min(12,max(4,n//5)) origin seçimden sonra her aday
+için hesaplanır; MAE/RMSE/WAPE/sMAPE/MASE/bias; teşhisler; %80/%90 ampirik bant + betimsel final kapsaması. UCI 52 hafta:
+geliştirmede **mean8** seçildi; final (10 origin) MAE £47.207 / naif £59.859 (MASE 1,42 / 1,80, +%21); bant kapsaması 0,70
+→ kalibre değil. Tablo PHASE_7_REPORT güncelleme bölümünde; kanıt `docs/evidence/phase10/forecast-v2-uci.json`.
+UI: yöntem etiketleri, dinamik "N dönem", teşhis listesi (DecisionStudio). Testler: `analysis/tests/test_forecast.py` (9) +
+güncellenen test_decisions → 216 analitik test. Eski mean4/naif son-4 sayıları tarihsel; iki protokol farklı pencere ölçer.
+
+**Açık kalan (bu tur):** DecisionStudio tarayıcı kabulü (reopen/390px/tema/CmdK/Esc/indirme) tarayıcı araçlarının geçici
+kesintisi nedeniyle henüz yapılmadı — mock üretme, gerçek ekranla kapat. LLM değerlendirme harness'i (golden set +
+evaluator + rapor) sonraki P1 iş; HF 402 sürüyor, canlı accuracy **null**.
+
+---
+
+## ÖNCEKİ KART — 16 Ekim 2026 (A7–10 teslimi)
 
 **Güncel kod: fddc4f1 (A7–10 tahmin/karar/tema ek paketleri).** A1–6 uygulanmış ürünün üzerine one-week forecast, kanıta bağlı karar stüdyosu, XML yöntem bağlamı, owner karar arşivi, gerçek adviSU özetleyici ve Gemini ikon/appearance sistemi eklendi. **Bu, eski geniş A7–10 backlog'un tamamının kapandığı anlamına gelmez.** Parquet/OOF/tenantRLS/retention/hard-isolation/5MHTTP/liveBI/genel conversation-reference/gerçek kullanıcı pilotu açık. Ayrıntı PHASE_7..10_REPORT ve NEXT_BACKLOG. 207 analytics test,48asset/NULtest, webbuild/tsc ve12 upstreamSHA yerelde geçti. Son GitHub CI ve final browser receipt aşağıdaki güncel kartta tutulur; önceki041982c durumunu güncel kod sonucu diye aktarma.
 
@@ -27,7 +55,7 @@
 | Test/ölçüm | `analysis/tests/test_decisions.py`33yeni; tüm analytics207; `analysis/evaluate_decisions.py`; worker36/36başarı, HTTP/OIDC/PG/browser/HFhariç; actual JSON `docs/evidence/verification/phase10-performance.json` |
 | Rapor/rehber | `docs/phases/PHASE_7_REPORT.md`..`PHASE_10_REPORT.md`, `TEST_GUIDE.md`; UCI actual JSON/MD/XML `docs/evidence/phase10/` |
 
-**Değişmez sayılar:** UCI52tamhafta; mean4holdoutMAE£55,787.19, naive£41,723.39. Seçilen model **daha kötü**; test görülünce seçim değiştirilmez, UI uyarır/temporal puan0. Band kalibre değil. Son tam hafta£324,370.83; varsayımsal5%volume/0%price →£340,589.37, fark£16,218.54. Grossdelta kâr/ROI/causal uplift değildir. Dayanak60/100, %60doğruluk değildir.
+**Değişmez sayılar (v1 protokolü, tarihsel):** UCI52tamhafta; mean4holdoutMAE£55,787.19, naive£41,723.39. Seçilen model **daha kötü**; test görülünce seçim değiştirilmez, UI uyarır/temporal puan0. Band kalibre değil. Son tam hafta£324,370.83; varsayımsal5%volume/0%price →£340,589.37, fark£16,218.54. Grossdelta kâr/ROI/causal uplift değildir. Dayanak60/100, %60doğruluk değildir.
 
 **Yeni prompt sınırı:** model sadece odak seçer; serbest strateji metni/SQL/metric/score üretemez. Açıklama/adımlar/hesap/atıflar yereldir. “LLM tüm iş kararlarını doğruladı” deme. Arbitrary businessdocupload veya generalfreeproseentailment henüz yok. Sonraki genişleme source/privacy/owner/eval sözleşmesi ister.
 

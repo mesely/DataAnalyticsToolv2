@@ -53,7 +53,35 @@ type Forecast = {
     lower_pence: number;
     upper_pence: number;
   };
+  split?: { holdout_origins: number; development_origins: number };
+  diagnostics?: { code: string; severity: string; message: string }[];
+  leaderboard?: {
+    method: string;
+    development_mae_gbp: number;
+    final_mae_gbp: number;
+    final_improvement_vs_naive: number | null;
+    selected: boolean;
+  }[];
   notes: string[];
+};
+
+function forecastMethodLabel(id: string | undefined): [string, string] {
+  const label = id ? FORECAST_METHOD_LABELS[id] : undefined;
+  return label ?? [id ?? "—", id ?? "—"];
+}
+
+const FORECAST_METHOD_LABELS: Record<string, [string, string]> = {
+  naive: ["Son hafta", "Last week"],
+  seasonal_naive: ["Geçen sezonun aynı haftası", "Same week last season"],
+  drift: ["Son hafta + ortalama haftalık değişim", "Last week plus average weekly change"],
+  mean2: ["Son 2 hafta ortalaması", "Last 2-week mean"],
+  mean4: ["Son 4 hafta ortalaması", "Last 4-week mean"],
+  mean8: ["Son 8 hafta ortalaması", "Last 8-week mean"],
+  "ses_0.2": ["Üstel düzleştirme (α 0,2)", "Exponential smoothing (α 0.2)"],
+  "ses_0.5": ["Üstel düzleştirme (α 0,5)", "Exponential smoothing (α 0.5)"],
+  "ses_0.8": ["Üstel düzleştirme (α 0,8)", "Exponential smoothing (α 0.8)"],
+  "holt_damped_0.3_0.1": ["Sönümlü Holt eğilimi (α 0,3)", "Damped Holt trend (α 0.3)"],
+  "holt_damped_0.6_0.1": ["Sönümlü Holt eğilimi (α 0,6)", "Damped Holt trend (α 0.6)"],
 };
 type Brief = {
   decision_id: string;
@@ -689,7 +717,10 @@ export function DecisionStudio({
                   </div>
                   <div>
                     <span>
-                      {t("Test MAE · 4 dönem", "Test MAE · 4 origins")}
+                      {t(
+                        `Test MAE · ${forecast.split?.holdout_origins ?? forecast.holdout.records.length} dönem`,
+                        `Test MAE · ${forecast.split?.holdout_origins ?? forecast.holdout.records.length} origins`,
+                      )}
                     </span>
                     <strong>{money(forecast.holdout.selected.mae_gbp)}</strong>
                     <small>
@@ -700,14 +731,12 @@ export function DecisionStudio({
                   <div>
                     <span>{t("Seçilen yöntem", "Selected method")}</span>
                     <strong>
-                      {forecast.selected === "naive"
-                        ? t("Son hafta", "Last week")
-                        : t("Son 4 hafta ortalaması", "Last 4-week mean")}
+                      {t(...forecastMethodLabel(forecast.selected))}
                     </strong>
                     <small>
                       {t(
-                        "Yalnız geliştirme dönemiyle seçildi",
-                        "Selected using development origins only",
+                        `${forecast.split?.development_origins ?? "—"} geliştirme dönemiyle, ${forecast.leaderboard?.length ?? "—"} kayıtlı yöntem arasından seçildi`,
+                        `Chosen among ${forecast.leaderboard?.length ?? "—"} registered methods on ${forecast.split?.development_origins ?? "—"} development origins only`,
                       )}
                     </small>
                   </div>
@@ -720,6 +749,15 @@ export function DecisionStudio({
                       "The selected method did not beat naive on the final test. This projection alone is insufficient for an operating decision.",
                     )}
                   </p>
+                )}
+                {forecast.diagnostics && forecast.diagnostics.length > 0 && (
+                  <ul className="wb-forecast-diagnostics">
+                    {forecast.diagnostics.map((d) => (
+                      <li key={d.code} data-severity={d.severity}>
+                        {d.message}
+                      </li>
+                    ))}
+                  </ul>
                 )}
                 <div
                   className="wb-decision-chart"

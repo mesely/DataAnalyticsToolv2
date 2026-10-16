@@ -3929,3 +3929,13 @@
   min-height: 44px;
   min-width: 44px;
 }
+
+.wb-forecast-diagnostics {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--wb-text-muted, inherit);
+}
+.wb-forecast-diagnostics li + li { margin-top: 0.25rem; }
+.wb-forecast-diagnostics li[data-severity="warning"] { color: inherit; }

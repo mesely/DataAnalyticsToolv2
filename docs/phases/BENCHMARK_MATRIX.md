@@ -26,7 +26,8 @@ E2E = tıklamadan görünen sonuca. Kaynak dosyalar `docs/evidence/` altındadı
 | F. Güvenilirlik | Worker admission/cancel/timeout 45 s/5 MB; 36/36 benchmark isteği hatasız | 0 hata | MEASURED | SERVER | phase10/11 performance |
 | F. Güvenilirlik | HTTP yük/cancel/dead-client stres, 5M/50M satır | — | NOT MEASURED | — | NEXT_BACKLOG 6 |
 | G. UX keşfedilebilirlik | Görevli kullanıcı ölçümü (5–8 kişi) | — | NOT MEASURED | — | NEXT_BACKLOG 2 |
-| H. Erişilebilirlik | Ölçülen kontrast, 44 px üst kontroller, klavye/Esc/focus (A7–10 kabulü) | geçti | MEASURED (tarihsel) | BROWSER | phase10-browser-qa |
+| H. Erişilebilirlik | Klavye/Esc/focus, 390 px mobil, bozuk görsel 0 (A6 tarayıcı kabulü) | geçti | MEASURED (tarihsel, A6) | BROWSER | `phase6-browser-qa.json` |
+| H. Erişilebilirlik | A7–11 ekranlarının tarayıcı kabulü (Karar stüdyosu anlatı/dilim/tema/mobil, hazırlama seçenekleri) | — | NOT MEASURED (phase10-browser-qa.json hiç yazılmadı; bu turda tarayıcı aracı erişilemezdi) | BROWSER | — |
 | H. Erişilebilirlik | Tam WCAG denetimi / ekran okuyucu | — | NOT MEASURED | — | — |
 | I. Görsel kalite | 6 raster / 37 SVG özgün aile; manifest hash | doğrulandı | MEASURED | — | `ASSET_MANIFEST.json`, 48 test |
 | J. Sürdürülebilirlik | Analytics pytest / NUL-asset / web tsc+build | 254 / 48 / geçti | MEASURED | MICRO | bu tur logu |

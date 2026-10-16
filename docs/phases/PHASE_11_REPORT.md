@@ -76,7 +76,7 @@ dilimi, etiket içermeyen teşhisler, altı tipli yerel anlatı (12 cümle), day
 kimlik 404; viewer 403; CSRF'siz 401/403; Parquet profil → eşlemeli önizleme (receipt) → owner import; eşlemesiz Parquet
 import 400; CSV+Parquet birlikte 400; bozuk Parquet 400; profil teşhis alanları; Wine ML kartında olasılık metrikleri
 (log loss 0,1827 / Brier 0,0702 / ECE 0,1279 — küçük benchmark); servis edilen web bundle yeni UI metinlerini içeriyor.
-Tarayıcı render/klavye/390 px/tema kabulü **BEKLİYOR** — tarayıcı aracının güvenlik sınıflandırıcısı tur boyunca
+Tarayıcı render/klavye/390 px/tema kabulü **BEKLİYOR** (not: önceki turun `phase10-browser-qa.json` dosyası da hiç yazılmamış; A7–10 ekranlarının tarayıcı kabulü de açıktır) — tarayıcı aracının güvenlik sınıflandırıcısı tur boyunca
 erişilemezdi; gerçek ekran alınınca `phase11-browser-qa.json` doldurulur. Mock üretilmedi.
 
 ## 8. Açık kalanlar

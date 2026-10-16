@@ -3,9 +3,10 @@
 from pathlib import Path
 import csv, hashlib, json, random, zipfile
 from decimal import Decimal, ROUND_HALF_UP
-import pandas as pd
-import numpy as np
 import duckdb
+
+# pandas/numpy are imported inside the functions that need them: the worker imports this module for DATA and
+# store on every request, and the forecast/decision/graph actions never touch a DataFrame (AW-14 startup cut).
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / ".local"
@@ -23,6 +24,9 @@ COLUMNS = [
 
 
 def normalize(raw):
+    import numpy as np
+    import pandas as pd
+
     df = raw.copy()
     df.columns = [str(x).strip() for x in df.columns]
     aliases = {
@@ -145,6 +149,8 @@ def store(dataset_id, title, raw, source):
 
 
 def main():
+    import pandas as pd
+
     rnd = random.Random(47)
     rows = []
     products = [

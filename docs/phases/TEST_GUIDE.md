@@ -153,3 +153,27 @@ pass (skew fixture sonrasında174 yerelde). Son publish için güncelCI loguna b
 
 Ölçüm `.venv/bin/python -m analysis.evaluate_decisions`: yalnız worker,
 HTTP/OIDC/DB/browser/LLM hariç. Gerçek model accuracy402çözülmeden ölçülemez.
+
+
+## Aşama 11 — bant geçerliliği, tipli anlatı, Parquet/ondalık virgül, olasılık metrikleri
+
+1. UCI → **Karar stüdyosunu aç** → Karar özeti oluştur. Haftalık projeksiyonda tablo başlığı "Yöntem seçimine
+   katılmayan son **10** geçmiş test" olmalı (sabit "dört" değil). Bant açıklaması geliştirme/final kapsama
+   yüzdelerini vermeli (UCI: %90 bandı 26 geliştirme döneminin %85'i, son pencerenin %70'i). Bant kalibre değildir.
+2. **Analist anlatısı** bölümü: Olgu / Hesap / Çıkarım / Varsayım / Öneri / Sınır etiketli cümleler; her dayanak
+   düğmesi kanıt inceleyiciyi açar. Sayılar yalnız yerel hesaplardandır. Llama kapalıyken sağlayıcı notu görünmez.
+3. Llama opt-in ile mevcut hesapta 402 beklenir: hem odak seçimi hem anlatı için "yerel ... gösteriliyor" notu;
+   yerel anlatı değişmez. Doğrulanmış model anlatısı ancak her sayı atıf yapılan dayanağa eşitse kabul edilir.
+4. **Yöntem notları → Anlatı kanıt paketini XML indir**: `analysis_context` kökü, en sonda `output_contract`,
+   ürün/ülke adı yok, `unavailable_evidence rule="unknown, never zero"`.
+5. Veri ekle → `.parquet` dosyası seç → Sütunları incele: aynı profil alanları; kaynak biçimi parquet. CSV için
+   UTF-8 olmayan dosyada "Windows-1252 olarak okundu" notu görünür; sessiz dönüşüm yok.
+6. Ondalık virgüllü (`5,25`) ve `GG/AA/YYYY` tarihli noktalı-virgül CSV: Biçim notu sütununda "3 ondalık virgüllü
+   değer" ve "3 GG/AA/YYYY veya AA/GG/YYYY tarih"; seçenekler işaretlenmeden önizleme açık hata verir; **Ondalık
+   virgül** + **DD/MM/YYYY** seçilince önizleme £14.70 / 2 sipariş; MM/DD/YYYY farklı receipt üretir.
+7. Model stüdyosu → Wine → Modelleri karşılaştır: "Olasılık kalitesi" tablosu (log loss, Brier, ECE; ortalama
+   kesinlik üç sınıfta —). Seçim ölçütü hâlâ macro F1'dir.
+
+Otomatik: `.venv/bin/python -m pytest analysis/tests -q` (253 test); `.venv/bin/python -m analysis.llm_eval
+--providers scripted-ideal,scripted-adversarial,local` (narrate sütunları); tahmin kanıtı
+`docs/evidence/phase10/forecast-v3-uci.json`.

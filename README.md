@@ -16,8 +16,8 @@ Context Layer brings CSV preparation, dataset exploration, governed SQL, product
 
 | Workspace | What you can do |
 |---|---|
-| **Prepare data** | Profile any bounded CSV schema, preserve leading-zero identifiers, map retail fields, preview quality and totals, and explicitly remove duplicates before import. |
-| **Model studio** | Choose a target and features, use random/group/time splits, compare baseline/forest/linear candidates with training CV, inspect held-out metrics, and save/export an owner-scoped model card. |
+| **Prepare data** | Profile any bounded CSV or Parquet schema, preserve leading-zero identifiers, see decimal-comma and date-pattern diagnostics, map retail fields, choose decimal/date conversions explicitly, preview quality and totals, and remove duplicates before import. |
+| **Model studio** | Choose a target and features, use random/group/time splits, compare baseline/forest/linear candidates with training CV, inspect held-out metrics (including log loss, Brier and calibration error for classifiers), and save/export an owner-scoped model card. |
 | **Decision studio** | Inspect ranked investigations and their evidence, compare weekly forecasts with a naive benchmark, declare price/volume/budget scenarios, and reopen or export saved decision briefs. |
 | **Overview** | Inspect gross sales, orders, units and average order value. Filter dates/countries, inspect monthly trends, review schema and data quality. |
 | **Analysis** | Ask bounded analytics questions, inspect formulas and calculation evidence, search metric/schema context, and use the read-only SQL lab. |
@@ -50,12 +50,24 @@ checklist, not a probability of correctness or an expected return.
 
 ![Decision brief with ranked investigations and evidence references](docs/evidence/phase10/03-decisions-light.jpeg)
 
-Forecasts compare last-week and trailing four-week methods using development
-origins, followed by four separate rolling test origins. The UI shows errors
-and the naive benchmark, including when the selected method performs worse.
-The empirical residual band is uncalibrated. At least 16 complete weeks are
-required. Price and volume scenarios use declared assumptions; gross-sales
-delta is separate from budget, profit and causal impact.
+Forecasts compare registered baselines (last week, seasonal naive when two
+seasons exist, drift, trailing means, exponential smoothing, damped Holt) by
+one-step rolling error on development origins only; a final window of the
+last origins is evaluated afterwards for every method and never selects one.
+The UI shows MAE/MASE against the naive benchmark, including when the
+selected method performs worse. The residual band's scaling is chosen on
+development origins with radii built from earlier residuals only (finite-sample
+conformal quantile); its development and final-window coverage are shown and
+it remains labelled uncalibrated. At least 16 complete weeks are required.
+Price and volume scenarios use declared assumptions; gross-sales delta is
+separate from budget, profit and causal impact.
+
+Every brief carries a typed analyst narrative — fact, calculation, inference,
+assumption, recommendation, limitation — in which each sentence links to the
+calculation it rests on. The local renderer always produces it; an optional
+Llama narrative must return the same typed JSON over an evidence packet and is
+accepted only when every evidence id exists and every number equals a cited
+value. Missing evidence is reported as unknown, never as zero.
 
 An optional Llama step receives a bounded XML evidence bundle and methodology
 notes retrieved with the adapted adviSU BM25 kernel. Strict validation permits

@@ -1,0 +1,56 @@
+{
+ "databaseId": 38897028637,
+ "headSha": "4107eb733115abafb0c5100e81a50458afe79c2f",
+ "status": "completed",
+ "conclusion": "success",
+ "url": "https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38897028637",
+ "updatedAt": "2026-10-16T12:01:29Z",
+ "jobs": [
+  {
+   "name": "nul-scan",
+   "status": "completed",
+   "conclusion": "success",
+   "url": "https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38897028637/job/116959834731"
+  },
+  {
+   "name": "benchmark-integrity",
+   "status": "completed",
+   "conclusion": "success",
+   "url": "https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38897028637/job/116959834985"
+  },
+  {
+   "name": "tests",
+   "status": "completed",
+   "conclusion": "success",
+   "url": "https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38897028637/job/116959835078"
+  },
+  {
+   "name": "analytics",
+   "status": "completed",
+   "conclusion": "success",
+   "url": "https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38897028637/job/116959835191"
+  },
+  {
+   "name": "core",
+   "status": "completed",
+   "conclusion": "success",
+   "url": "https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38897028637/job/116959835219"
+  }
+ ],
+ "test_counts": {
+  "core": {
+   "passed": 474,
+   "skipped": 4
+  },
+  "root_python": {
+   "passed": 874,
+   "skipped": 17
+  },
+  "analytics": {
+   "passed": 270,
+   "skipped": 0
+  }
+ },
+ "scope": "Actual GitHub workflow on delivery commit4107eb7; subsequent receipt/cache-note documentation commit leaves application code unchanged. Latest branch checks and exact final HEAD are linked from PR#1.",
+ "recorded_utc": "2026-10-16T12:03:14.084099+00:00"
+}

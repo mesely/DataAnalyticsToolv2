@@ -1,4 +1,4 @@
-"""Forecast protocol tests (weekly-gross-v2): registered baselines, development-only selection,
+"""Forecast protocol tests (weekly-gross-v3): registered baselines, development-only selection,
 final window isolation, metrics oracles, seasonal availability and diagnostics."""
 
 from copy import deepcopy
@@ -112,3 +112,58 @@ def test_predict_registry_and_seasonal_guard():
             assert math.isfinite(predict(hist, cid))
     with pytest.raises(ValueError):
         predict(hist, "lstm")
+
+
+def test_interval_quantile_is_finite_sample_conformal_index():
+    from analysis.forecast import _quantile_radius
+    values = sorted([5, 1, 4, 2, 3, 9, 7, 8, 6, 10])
+    # ceil((10+1)*0.8) = 9 -> 9th smallest = 9 ; ceil(11*0.9) = 10 -> 10th smallest = 10
+    assert _quantile_radius(values, 0.8) == 9 and _quantile_radius(values, 0.9) == 10
+    assert _quantile_radius([3], 0.9) == 3  # index beyond n truncates to the largest residual
+
+
+def test_rolling_coverage_uses_only_earlier_residuals_oracle():
+    from analysis.forecast import _rolling_coverage, _scaled_errors, MIN_INTERVAL_RESIDUALS
+    # errors grow one unit per origin: 1,2,...; a band from earlier residuals can never cover the next one
+    rec = [{"actual_pence": 1000 + i, "predicted_pence": 1000} for i in range(1, 15)]
+    cov, n = _rolling_coverage(rec, _scaled_errors(rec, "absolute"), "absolute", 0.9)
+    assert n == len(rec) - MIN_INTERVAL_RESIDUALS and cov == 0
+    # constant errors are always covered once eight residuals exist
+    rec = [{"actual_pence": 1050, "predicted_pence": 1000} for _ in range(14)]
+    cov, n = _rolling_coverage(rec, _scaled_errors(rec, "absolute"), "absolute", 0.8)
+    assert cov == 1 and n == 6
+    # relative scaling is undefined for a non-positive forecast
+    assert _scaled_errors([{"actual_pence": 5, "predicted_pence": 0}], "relative") is None
+
+
+def test_relative_scaling_is_chosen_on_development_when_errors_grow_with_level():
+    # Level grows 4% a week while the noise stays a fixed share of the level: relative errors are
+    # stationary, absolute errors are not, so rolling development coverage favours the relative band.
+    rng = random.Random(5)
+    vals = [10000 * (1.04 ** i) * (1 + rng.uniform(-0.2, 0.2)) for i in range(60)]
+    r = backtest(series(vals))
+    u = r["uncertainty"]
+    assert u["scaling"] == "relative" and u["calibrated"] is False
+    assert set(u["scalings"]) == {"absolute", "relative"}
+    assert u["levels"]["0.9"]["development_rolling_n"] == r["split"]["development_origins"] - 8
+    assert r["next"]["upper_pence"] - r["next"]["pence"] == u["levels"]["0.9"]["radius_pence"]
+
+
+def test_final_window_cannot_change_the_band_scaling_or_development_coverage():
+    original = series(20000 + (i % 7) * 500 for i in range(40))
+    changed = deepcopy(original)
+    for w in changed[-8:]:  # 40 // 5 = 8 final origins
+        w["pence"] = w["pence"] * 3
+    a, b = backtest(original)["uncertainty"], backtest(changed)["uncertainty"]
+    assert a["scaling"] == b["scaling"] and a["scalings"] == b["scalings"]
+    for level in a["levels"]:
+        assert a["levels"][level]["development_rolling_coverage"] == b["levels"][level]["development_rolling_coverage"]
+        assert a["levels"][level]["radius_pence"] == b["levels"][level]["radius_pence"]
+    assert any(a["levels"][l]["final_window_coverage"] != b["levels"][l]["final_window_coverage"] for l in a["levels"])
+
+
+def test_band_undercoverage_diagnostic_fires_on_growing_errors():
+    rng = random.Random(3)
+    vals = [20000 + rng.randint(-200, 200) + (0 if i < 24 else rng.choice([-9000, 9000])) for i in range(40)]
+    codes = {d["code"] for d in backtest(series(vals))["diagnostics"]}
+    assert "band_undercovers_development" in codes

@@ -1,9 +1,13 @@
-"""One-week gross-sales benchmark (weekly-gross-v2).
+"""One-week gross-sales benchmark (weekly-gross-v3).
 
 Registered baselines (naive, seasonal naive, drift, moving means, exponential smoothing, damped Holt) are
 compared by one-step rolling-origin error on DEVELOPMENT origins only; the method is selected there.
 A FINAL window (the last origins) is evaluated for every candidate afterwards and never influences the
 selection. If the naive method wins, it is selected and the product says so.
+
+The residual band (v3) registers two scalings — absolute pence and relative-to-forecast — and picks the one
+whose ROLLING development coverage is closest to nominal; each rolling radius uses only earlier development
+residuals. The final window never informs that choice; its coverage is reported descriptively only.
 """
 
 from __future__ import annotations
@@ -13,12 +17,14 @@ import hashlib, json, math, statistics
 import duckdb
 from analysis.fingerprint import fingerprint
 
-VERSION = "weekly-gross-v2"
+VERSION = "weekly-gross-v3"
 MIN_WEEKS, MAX_WEEKS = 16, 260
 FIRST_ORIGIN = 8  # every registered candidate needs at most 8 prior observations
 SEASON_WEEKS = 52
 MAX_FINAL_ORIGINS = 12
 INTERVAL_LEVELS = (0.8, 0.9)
+MIN_INTERVAL_RESIDUALS = 8  # rolling coverage is evaluated only once this many earlier residuals exist
+INTERVAL_SCALINGS = ("absolute", "relative")
 
 
 def _ses(history, alpha):
@@ -106,7 +112,7 @@ def _records(weeks, values, fn, origins):
     ]
 
 
-def _diagnostics(weeks, values, seasonal_available, scale, selected, candidates, holdout):
+def _diagnostics(weeks, values, seasonal_available, scale, selected, candidates, holdout, uncertainty=None):
     out = []
     n = len(values)
     if not seasonal_available:
@@ -145,10 +151,94 @@ def _diagnostics(weeks, values, seasonal_available, scale, selected, candidates,
     if selected != "naive" and naive_dev > 0 and (naive_dev - best_dev) / naive_dev < 0.05:
         out.append({"code": "small_selection_margin", "severity": "info",
                     "message": "The selected method beats naive by less than 5% on development origins; the naive method is nearly as good."})
+    cov = (uncertainty or {}).get("levels", {}).get("0.9", {}).get("development_rolling_coverage")
+    if cov is not None and cov < 0.8:
+        out.append({"code": "band_undercovers_development", "severity": "warning",
+                    "message": f"The 90% band covered only {cov:.0%} of evaluated development origins when built from earlier residuals; treat the displayed range as optimistic."})
     if holdout["selected"]["mae_gbp"] >= holdout["naive"]["mae_gbp"]:
         out.append({"code": "final_window_worse_than_naive", "severity": "warning",
                     "message": "On the final window the selected method did not beat the naive benchmark; treat the projection as weak."})
     return out
+
+
+def _quantile_radius(sorted_values, level):
+    """Split-conformal finite-sample quantile: the ceil((n+1)·level)-th smallest residual. When that index
+    exceeds n the largest residual is used, which is a truncation that may still under-cover."""
+    n = len(sorted_values)
+    return sorted_values[min(n - 1, math.ceil(level * (n + 1)) - 1)]
+
+
+def _scaled_errors(records, scaling):
+    """Absolute error per record, optionally divided by the forecast. Returns None when a relative scaling is
+    undefined (a non-positive forecast), so that scaling is reported as unavailable instead of silently used."""
+    out = []
+    for r in records:
+        e = abs(r["actual_pence"] - r["predicted_pence"])
+        if scaling == "absolute":
+            out.append(e)
+        elif r["predicted_pence"] > 0:
+            out.append(e / r["predicted_pence"])
+        else:
+            return None
+    return out
+
+
+def _rolling_coverage(records, scaled, scaling, level):
+    """Share of development origins whose actual lies inside a band whose radius was computed from EARLIER
+    development residuals only. Mirrors how the displayed band will be used one step ahead."""
+    covered = evaluated = 0
+    for k in range(MIN_INTERVAL_RESIDUALS, len(records)):
+        q = _quantile_radius(sorted(scaled[:k]), level)
+        radius = q if scaling == "absolute" else q * records[k]["predicted_pence"]
+        if abs(records[k]["actual_pence"] - records[k]["predicted_pence"]) <= radius:
+            covered += 1
+        evaluated += 1
+    return (covered / evaluated if evaluated else None), evaluated
+
+
+def interval(dev_records, final_records, point):
+    """Band construction with a development-only scaling choice. Final-window coverage is descriptive."""
+    scalings = {}
+    for scaling in INTERVAL_SCALINGS:
+        scaled = _scaled_errors(dev_records, scaling)
+        if scaled is None:
+            scalings[scaling] = None
+            continue
+        per_level = {}
+        for level in INTERVAL_LEVELS:
+            coverage, evaluated = _rolling_coverage(dev_records, scaled, scaling, level)
+            per_level[str(level)] = {"development_rolling_coverage": coverage, "development_rolling_n": evaluated}
+        scalings[scaling] = per_level
+    def distance(scaling):
+        rows = scalings[scaling]
+        if rows is None or any(r["development_rolling_coverage"] is None for r in rows.values()):
+            return math.inf
+        return sum(abs(r["development_rolling_coverage"] - float(level)) for level, r in rows.items())
+    # Lowest total distance to nominal on development; ties (and no evaluable origins) resolve to absolute.
+    chosen = min(INTERVAL_SCALINGS, key=lambda s: (distance(s), INTERVAL_SCALINGS.index(s)))
+    scaled_all = sorted(_scaled_errors(dev_records, chosen))
+    levels = {}
+    for level in INTERVAL_LEVELS:
+        q = _quantile_radius(scaled_all, level)
+        radius_for = (lambda p: q) if chosen == "absolute" else (lambda p: q * p)
+        covered = sum(1 for r in final_records if abs(r["actual_pence"] - r["predicted_pence"]) <= radius_for(r["predicted_pence"]))
+        levels[str(level)] = {
+            "radius_pence": int(round(radius_for(point))),
+            "quantile": q,
+            "final_window_coverage": covered / len(final_records) if final_records else None,
+            **scalings[chosen][str(level)],
+        }
+    return {
+        "method": "empirical envelope of development errors of the selected method (80% and 90% quantiles); the 90% radius is the displayed band",
+        "scaling": chosen,
+        "scaling_rule": "absolute pence or relative to the forecast; chosen by rolling development coverage closest to nominal (radius from earlier development residuals only); ties resolve to absolute; the final window never informs the choice",
+        "quantile_rule": "finite-sample split-conformal index ceil((n+1)·level), truncated to the largest residual when it exceeds n",
+        "residual_count": len(dev_records),
+        "levels": levels,
+        "scalings": scalings,
+        "calibrated": False,
+        "note": "Final-window coverage is a descriptive check on a handful of points, not a calibration claim. Development rolling coverage is the honest in-sample check of the band's construction.",
+    }
 
 
 def backtest(weeks):
@@ -187,13 +277,9 @@ def backtest(weeks):
         "records": final_records,
         "origins": final_count,
     }
-    residuals = sorted(abs(r["actual_pence"] - r["predicted_pence"]) for r in candidates[selected]["records"])
-    radii = {}
-    for level in INTERVAL_LEVELS:
-        radius = residuals[min(len(residuals) - 1, math.ceil(level * len(residuals)) - 1)]
-        covered = sum(1 for r in final_records if abs(r["actual_pence"] - r["predicted_pence"]) <= radius)
-        radii[str(level)] = {"radius_pence": radius, "final_window_coverage": covered / len(final_records)}
     point = _BY_ID[selected](values)
+    uncertainty = interval(candidates[selected]["records"], final_records, point)
+    radii = uncertainty["levels"]
     next_week = (date.fromisoformat(weeks[-1]["period"]) + timedelta(days=7)).isoformat()
     naive_final = candidates["naive"]["final"]["mae_gbp"]
     leaderboard = sorted(
@@ -227,13 +313,7 @@ def backtest(weeks):
             "lower_pence": max(0, point - radii["0.9"]["radius_pence"]),
             "upper_pence": point + radii["0.9"]["radius_pence"],
         },
-        "uncertainty": {
-            "method": "empirical envelope of development absolute errors of the selected method (80% and 90% quantiles); the 90% radius is the displayed band",
-            "residual_count": len(residuals),
-            "levels": radii,
-            "calibrated": False,
-            "note": "Final-window coverage is a descriptive check on a handful of points, not a calibration claim.",
-        },
+        "uncertainty": uncertainty,
         "split": {
             "first_origin": first_origin,
             "development_origins": len(dev_origins),
@@ -245,7 +325,7 @@ def backtest(weeks):
             "mase_scale": "development naive one-step MAE",
         },
     }
-    result["diagnostics"] = _diagnostics(weeks, values, seasonal_available, scale, selected, candidates, holdout)
+    result["diagnostics"] = _diagnostics(weeks, values, seasonal_available, scale, selected, candidates, holdout, uncertainty)
     return result
 
 

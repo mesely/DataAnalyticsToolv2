@@ -59,3 +59,27 @@ için değiştirilmedi. %80/%90 bantların final kapsaması 0,70 → bant kalibr
 Teşhisler: seasonal naive yok (52 hafta), 1 sıfır hafta, aykırı haftalar 2010-12-27 / 2011-11-07 / 2011-11-14,
 son 8 haftada olası seviye kayması. Eski son-4 holdout sonucu tarihsel olarak PHASE_10_REPORT'ta durur; iki
 sonuç farklı pencereleri ölçer, biri diğerini geçersiz kılmaz.
+
+## Güncelleme 16 Ekim öğleden sonra — bant geçerliliği v3 (`weekly-gross-v3`, AW-14)
+
+Seçim protokolü değişmedi (aynı adaylar, aynı geliştirme-only seçim, aynı final pencere; UCI'de yine **mean8**). Değişen
+yalnız belirsizlik bandı: iki ölçek kayıtlı (**absolute** pence, **relative** = |hata|/tahmin × nokta tahmin); hangisinin
+kullanılacağı **yalnız geliştirme origin'lerinde yuvarlanan kapsama** ile seçilir — her origin'in yarıçapı yalnız daha
+önceki geliştirme artıklarından hesaplanır (8 artık birikince başlar). Eşitlik absolute'a döner. Kuantil, sonlu-örneklem
+split-conformal indeksi ⌈(n+1)·düzey⌉'dir; indeks n'i aşarsa en büyük artık kullanılır (bu hâlâ eksik kapsayabilir).
+Final pencere ölçek seçimine girmez; kapsaması betimseldir. `calibrated` false kalır. Yeni teşhis
+`band_undercovers_development` (%90 bandı geliştirmede <%80 kapsarsa). Kanıt `docs/evidence/phase10/forecast-v3-uci.json`.
+
+| UCI 52 hafta, mean8 | %80 | %90 |
+|---|---:|---:|
+| Geliştirme yuvarlanan kapsama · absolute (26 değerlendirilen origin) | 0,731 | 0,846 |
+| Geliştirme yuvarlanan kapsama · relative | 0,731 | 0,846 |
+| Seçilen ölçek | absolute (eşitlik) | |
+| Yarıçap (tüm geliştirme artıkları) | £50.924 | £65.499 |
+| Final pencere kapsaması (10 origin, betimsel) | 0,70 | 0,70 |
+
+Okuma: conformal indeks %90 bandının geliştirme kapsamasını eski düz kuantile göre 0,77 → 0,85'e çıkardı; nominalin
+hâlâ altında. Final penceredeki 0,70 değişmedi (tatil rampası dağılım kaymasıdır). Bant **kalibre değildir** ve UI bunu
+geliştirme/final kapsama sayılarıyla birlikte söyler. 2011-12-05 noktası £308.417,06; bant £242.918,43–£373.915,69.
+Bu 2026 ticaret tahmini değildir. Testler: `analysis/tests/test_forecast.py` (+5: conformal indeks oracle, yalnız-geçmiş
+artık kapsama oracle, heteroskedastik seride relative seçimi, final pencerenin ölçek seçimini değiştiremediği, teşhis).

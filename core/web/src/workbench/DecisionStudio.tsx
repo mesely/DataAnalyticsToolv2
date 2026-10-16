@@ -54,6 +54,19 @@ type Forecast = {
     upper_pence: number;
   };
   split?: { holdout_origins: number; development_origins: number };
+  uncertainty?: {
+    scaling: string;
+    calibrated: boolean;
+    levels: Record<
+      string,
+      {
+        radius_pence: number;
+        final_window_coverage: number | null;
+        development_rolling_coverage: number | null;
+        development_rolling_n: number;
+      }
+    >;
+  };
   diagnostics?: { code: string; severity: string; message: string }[];
   leaderboard?: {
     method: string;
@@ -815,8 +828,8 @@ export function DecisionStudio({
                   <table>
                     <caption>
                       {t(
-                        "Yöntem seçimine katılmayan son dört geçmiş test",
-                        "Final four origins excluded from method selection",
+                        `Yöntem seçimine katılmayan son ${forecast.split?.holdout_origins ?? forecast.holdout.records.length} geçmiş test`,
+                        `Final ${forecast.split?.holdout_origins ?? forecast.holdout.records.length} origins excluded from method selection`,
                       )}
                     </caption>
                     <thead>
@@ -842,6 +855,17 @@ export function DecisionStudio({
                     "Aralık, geliştirme hatalarından ampirik bir banttır; kalibre edilmiş güven düzeyi içermez. Veri tarihîdir, bugünün ticaretini temsil etmeyebilir.",
                     "The band is empirical development error, without a calibrated confidence level. Historical data may not represent current trading.",
                   )}
+                  {forecast.uncertainty?.levels["0.9"] &&
+                    forecast.uncertainty.levels["0.9"]
+                      .development_rolling_coverage !== null && (
+                      <>
+                        {" "}
+                        {t(
+                          `%90 bandı, yalnız önceki geliştirme hatalarından kurulduğunda ${forecast.uncertainty.levels["0.9"].development_rolling_n} geliştirme döneminin ${Math.round(forecast.uncertainty.levels["0.9"].development_rolling_coverage * 100)}%'ini kapsadı; son pencerede ${Math.round((forecast.uncertainty.levels["0.9"].final_window_coverage ?? 0) * 100)}%.`,
+                          `Built only from earlier development errors, the 90% band covered ${Math.round(forecast.uncertainty.levels["0.9"].development_rolling_coverage * 100)}% of ${forecast.uncertainty.levels["0.9"].development_rolling_n} development origins; ${Math.round((forecast.uncertainty.levels["0.9"].final_window_coverage ?? 0) * 100)}% of the final window.`,
+                        )}
+                      </>
+                    )}
                 </p>
               </>
             ) : (

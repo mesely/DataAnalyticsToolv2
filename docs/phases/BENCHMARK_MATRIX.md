@@ -19,7 +19,9 @@ E2E = tıklamadan görünen sonuca. Kaynak dosyalar `docs/evidence/` altındadı
 | D. Öneri kullanışlılığı | Dayanak skoru; iş doğrulaması bileşeni | 0/20 — kullanıcı/iş ölçümü yok | NOT MEASURED | — | PHASE_8/10 raporu |
 | E. Uçtan uca performans | Worker subprocess forecast p50 / p95 (1 eşzamanlı, n=9) | 130 / 411 ms | MEASURED | SERVER | `phase11-performance.json` |
 | E. Uçtan uca performans | Worker subprocess decisions p50 / p95 (1 eşzamanlı, n=9) | 2.098 / 2.462 ms | MEASURED | SERVER | aynı |
-| E. Uçtan uca performans | HTTP/OIDC/PG dahil istek gecikmesi; tarayıcı yükleme/LCP/CLS; tıklama→sonuç | — | NOT MEASURED | E2E/BROWSER | — |
+| E. Uçtan uca performans | HTTP `/decisions` UCI gidiş-dönüş (OIDC oturum + CSRF + PG + worker; tek gözlem, soğuk) | 1.680 ms | MEASURED (n=1) | SERVER | `phase11-http-qa.json` |
+| E. Uçtan uca performans | Tarayıcı yükleme/LCP/CLS; tıklama→görünen sonuç | — | NOT MEASURED | E2E/BROWSER | — |
+| F. Güvenilirlik | HTTP kabulü: kimlik/CSRF/sahiplik/rota sınırları (21 kontrol) | 21/21 | MEASURED | SERVER | `phase11-http-qa.json` |
 | E. Uçtan uca performans | 0,53M satır tam graph (1/3 eşzamanlı, 12 gözlem) | hata 0 | MEASURED (tarihsel A4) | SERVER | PHASE_4_REPORT |
 | F. Güvenilirlik | Worker admission/cancel/timeout 45 s/5 MB; 36/36 benchmark isteği hatasız | 0 hata | MEASURED | SERVER | phase10/11 performance |
 | F. Güvenilirlik | HTTP yük/cancel/dead-client stres, 5M/50M satır | — | NOT MEASURED | — | NEXT_BACKLOG 6 |

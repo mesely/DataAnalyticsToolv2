@@ -1,0 +1,145 @@
+{
+ "generated_utc": "2026-10-16T11:48:44.990667+00:00",
+ "producer": "CUA interactive browser, actual app; replay steps in docs/phases/TEST_GUIDE.md",
+ "git_head": "2b3f9570ddd141d3945de17eb14abd4d498cfd82",
+ "build": {
+  "sha256": "a6f2dff3e356c9ee73f3a7ef5f34ea9f89fe05d9205114e3ea0b6ab9401fa83f",
+  "scheme": "source-dependencies-v1",
+  "files": 46
+ },
+ "web_sha256": {
+  "app.js": "efb6c060b05a9e5a80de1b56e2d39ef4438d44fa21565ae854763f3cc0d6bc67",
+  "app.css": "28dc73f48745ecd33cbed69c5f29000993ca7387b5557f96b31580d792ebccb2"
+ },
+ "scope": "BROWSER functional acceptance; public UCI and synthetic fixtures; not full WCAG, real-device/mobile usability study, browser performance or model accuracy",
+ "checks": [
+  {
+   "name": "login / landing",
+   "status": "PASS",
+   "observed": "OIDC fixture login; authenticated UCI workspace; gross 10666684.54 GBP, 19960 orders"
+  },
+  {
+   "name": "dataset selection",
+   "status": "PASS",
+   "observed": "Demo 180 orders / 21405 GBP and UCI selectable; after imports UCI remains selectable"
+  },
+  {
+   "name": "decision / scenario",
+   "status": "PASS",
+   "observed": "Desktop scenario +5% volume, 0% price: 12 local statements, all six types, model not requested"
+  },
+  {
+   "name": "evidence navigation",
+   "status": "PASS",
+   "observed": "Final-origin reference focuses Selected evidence and resolves forecast.holdout.origins=10"
+  },
+  {
+   "name": "forecast / slices",
+   "status": "PASS",
+   "observed": "mean8, 52 complete weeks, 34 dev origins, 10 final rows, UK/NL/EIRE slices; undercoverage warning and widths visible"
+  },
+  {
+   "name": "save / reopen",
+   "status": "PASS",
+   "observed": "Actual UI history reopen; before/after JSON output_sha256 equal"
+  },
+  {
+   "name": "downloads",
+   "status": "PASS",
+   "observed": "JSON parses, Markdown contains typed narrative and forecast, XML parses and output_contract is last"
+  },
+  {
+   "name": "CSV locale import",
+   "status": "PASS",
+   "observed": "cp1254 file; explicit mapping, decimal comma + dmy, dedup: 2 rows / 2 orders / 1260 pence; dates 2025-02-01..02"
+  },
+  {
+   "name": "encoding boundary",
+   "status": "PASS",
+   "observed": "cp1252 showed Çýðlýk, cp1254 showed Çığlık; inspect disabled before confirmation, import disabled when confirmation withdrawn"
+  },
+  {
+   "name": "leading zeros / Unicode",
+   "status": "PASS",
+   "observed": "Browser-downloaded result retains product_id 007 and label Çığlık"
+  },
+  {
+   "name": "Parquet mobile import",
+   "status": "PASS",
+   "observed": "Filechooser upload, profile 3 rows / 7 cols / 1 duplicate, mapping + dedup preview, confirmed import: 2 rows / 2 orders / 1260 pence"
+  },
+  {
+   "name": "light theme",
+   "status": "PASS",
+   "observed": "DOM theme=light, workspace rgb(246,247,250); decision dialog shown with light surface"
+  },
+  {
+   "name": "dark theme",
+   "status": "PASS",
+   "observed": "DOM theme=dark, workspace rgb(19,30,48), dialog rgb(29,42,62); navy not pure black"
+  },
+  {
+   "name": "390px layout",
+   "status": "PASS",
+   "observed": "Viewport 390x844; document width375<=390; dialog client/scroll width326/326; country table scrolls internally; 0 broken images"
+  },
+  {
+   "name": "keyboard",
+   "status": "PASS",
+   "observed": "Cmd-K focuses command search; search karar; Tab focuses decision action; Enter opens studio; Escape closes dialogs"
+  },
+  {
+   "name": "touch controls after fix",
+   "status": "PASS",
+   "observed": "Encoding select 44x290px; confirmation label 44x290px; no page horizontal overflow"
+  }
+ ],
+ "summary": {
+  "passed": 16,
+  "failed": 0,
+  "blocked": 0
+ },
+ "not_run": [
+  "real HF inference (historical HTTP402; no provider call in this session)",
+  "screen reader / full WCAG / zoom-contrast matrix",
+  "real user pilot / real phone",
+  "LCP/CLS or click-to-visible latency instrumentation",
+  "new ML probability-metric browser run (unchanged path; inherited HTTP + current CI evidence)"
+ ],
+ "screenshots": [
+  {
+   "path": "docs/evidence/phase11/01-forecast-dark.jpeg",
+   "sha256": "2238b4b762a025d4d36c0070a3951f09de92a470611b051a41a062e79566408f",
+   "stage": "verified session view"
+  },
+  {
+   "path": "docs/evidence/phase11/02-encoding-light-before.jpeg",
+   "sha256": "c2753626f32f18315a18c088e2e4226695ad020a85677fc7ed89c48ef020842b",
+   "stage": "before touch-target correction"
+  },
+  {
+   "path": "docs/evidence/phase11/03-parquet-mobile-before.jpeg",
+   "sha256": "08054c6c2e3e6dce492a66591588e3f1c6c263baf40dd3dc20dfa79f2426800d",
+   "stage": "before touch-target correction"
+  },
+  {
+   "path": "docs/evidence/phase11/04-narrative-mobile-dark.jpeg",
+   "sha256": "b1441eb3e20988cc1bcc3c3aef4ba23df2ecc6d82927ff18bb6073dafe5de2b3",
+   "stage": "verified session view"
+  },
+  {
+   "path": "docs/evidence/phase11/05-encoding-mobile-final.jpeg",
+   "sha256": "36a9fcb0004e49a5f7482a4a54a2978df03ad7bdeeeaf6d7d191fe7100afab57",
+   "stage": "verified session view"
+  },
+  {
+   "path": "docs/evidence/phase11/06-decision-light-final.jpeg",
+   "sha256": "71e6e5e38e81cd721183da898eedf7e6d3933f2a43a74e1e269daf05f9165314",
+   "stage": "verified session view"
+  }
+ ],
+ "notes": [
+  "Some early acceptance actions preceded the final touch-target CSS correction; final mobile encoding and desktop decision screenshots follow it. All analytics source fingerprints in final UCI download and server receipt match.",
+  "Viewport override reset; app tab left authenticated on UCI overview; other user tabs preserved."
+ ]
+}

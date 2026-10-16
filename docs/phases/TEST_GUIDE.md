@@ -163,17 +163,40 @@ HTTP/OIDC/DB/browser/LLM hariç. Gerçek model accuracy402çözülmeden ölçül
 2. **Analist anlatısı** bölümü: Olgu / Hesap / Çıkarım / Varsayım / Öneri / Sınır etiketli cümleler; her dayanak
    düğmesi kanıt inceleyiciyi açar. Sayılar yalnız yerel hesaplardandır. Llama kapalıyken sağlayıcı notu görünmez.
 3. Llama opt-in ile mevcut hesapta 402 beklenir: hem odak seçimi hem anlatı için "yerel ... gösteriliyor" notu;
-   yerel anlatı değişmez. Doğrulanmış model anlatısı ancak her sayı atıf yapılan dayanağa eşitse kabul edilir.
+   yerel anlatı değişmez. Model yorumu yalnız biçim/atıf/sayı kontrolünden geçer; bu anlamsal doğruluk kanıtı değildir.
 4. **Yöntem notları → Anlatı kanıt paketini XML indir**: `analysis_context` kökü, en sonda `output_contract`,
    ürün/ülke adı yok, `unavailable_evidence rule="unknown, never zero"`.
 5. Veri ekle → `.parquet` dosyası seç → Sütunları incele: aynı profil alanları; kaynak biçimi parquet. CSV için
-   UTF-8 olmayan dosyada "Windows-1252 olarak okundu" notu görünür; sessiz dönüşüm yok.
+   UTF-8 olmayan dosyada kodlama önerisi + metin önizlemesi + zorunlu onay görünür. Windows-1254 seçince Türkçe karakterler düzelmelidir; onaysız profil/içe aktar engellenir.
 6. Ondalık virgüllü (`5,25`) ve `GG/AA/YYYY` tarihli noktalı-virgül CSV: Biçim notu sütununda "3 ondalık virgüllü
    değer" ve "3 GG/AA/YYYY veya AA/GG/YYYY tarih"; seçenekler işaretlenmeden önizleme açık hata verir; **Ondalık
    virgül** + **DD/MM/YYYY** seçilince önizleme £14.70 / 2 sipariş; MM/DD/YYYY farklı receipt üretir.
 7. Model stüdyosu → Wine → Modelleri karşılaştır: "Olasılık kalitesi" tablosu (log loss, Brier, ECE; ortalama
    kesinlik üç sınıfta —). Seçim ölçütü hâlâ macro F1'dir.
 
-Otomatik: `.venv/bin/python -m pytest analysis/tests -q` (254 test); `.venv/bin/python -m analysis.llm_eval
+Otomatik: `.venv/bin/python -m pytest analysis/tests -q` (270 test; devam turu); `.venv/bin/python -m analysis.llm_eval
 --providers scripted-ideal,scripted-adversarial,local` (narrate sütunları); tahmin kanıtı
 `docs/evidence/phase10/forecast-v3-uci.json`.
+
+
+### A11 devam turunu yeniden üretme
+
+Repo: `/Users/selmanyilmaz/Projects/context-layer`. App zaten ayaktaysa yeni sunucu başlatmayın. Mevcut yerel fixture parolasını `CONTEXTLAYER_FIXTURE_PASSWORD` ortam değişkenine verin (kaynağı `deploy/phase1/start.mjs`; gerçek servis anahtarı kullanılmaz). Sonra:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m analysis.verify_workspace --out docs/evidence/verification/phase11-http-qa-continuation.json
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m analysis.llm_eval --providers scripted-ideal,scripted-adversarial,local --out docs/evidence/verification/phase11-llm-offline.json
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m analysis.evaluate_decisions --samples 3 --concurrency 1 > docs/evidence/verification/phase11-performance-continuation.json
+```
+
+Benchmark ölçülürken HTTP kabulünü aynı anda çalıştırmayın. Devam turunun son örneği sistem yükü/HTTP kabulüyle örtüşmüştür; bu yüzden önceki tura göre hız kazanımı iddiası yoktur. n=3 örnek p95, maksimum gözlemdir; SLA değildir.
+
+HTTP betiği mevcut localhost OIDC/PG fixture'ı dışında çalışmaz; 21 kontrol yapar, küçük sentetik owner veri seti ve public UCI karar kaydı oluşturur. Canlı HF çağrısı yapmaz. `analysis/.local/phase11-qa/` altında tarayıcı için `retail.csv`, `retail.parquet`, `retail-tr.csv` üretir; kaynak `analysis/data/preparation-example.csv`dir.
+
+CSV kabulü: `retail-tr.csv` → önerilen Latin metinde `Çýðlýk` görünür → **Windows-1254** seç → `Çığlık` → kodlama onayı → sütunları incele. Eşleme: `invoice=order`, `product_id=sku`, `product=title`, `quantity=qty`, `unit_price=price`, `order_date=day`, `country=market`; customer isteğe bağlı boş. Ondalık virgül + DD/MM/YYYY + aynı satırları çıkar → **2 satır, 2 sipariş, £12,60**, tarihler 1–2 Şubat 2025. Onayı geri çekince içe aktarma düğmesi kapanmalı. Sonuç JSON'unda ürün `007 / Çığlık` korunmalı.
+
+Parquet kabulü: aynı eşleme ve dedup, tarih ISO ve ondalık virgül kapalı → **2 satır, 2 sipariş, £12,60**, tarihler 1–2 Ocak 2025. CSV kodlama alanı Parquet'te görünmez. Profil, önizleme ve onaydan sonra workspace yeni owner veri setine geçer.
+
+Tahmin: nominal %90 ile gözlenen %84,615 geliştirme / %70 final ayrı görünmeli. Ortalama bant genişliği geliştirmede **£124.948,63**, finalde **£130.997,26**; son-10 tablosu + 3 ülke dilimi. Kalibrasyon iddiası yok. `test_nonnegative_domain_applies_before_evaluation_and_relative_radius` sıfıra çöken seride ters bant regresyonunu yakalar.
+
+Tarayıcı: 390×844 ve masaüstü; açık/koyu; Cmd-K → `karar` → Tab → Enter; Escape; kanıta geçiş; geçmişten yeniden aç ve JSON `output_sha256` karşılaştır; Markdown/XML indir. Kodlama seçici ve onay etiketi en az **44px**. Viewport override test sonunda sıfırlanmalı. Kanıt `phase11-browser-qa.json`; tam ekran okuyucu/WCAG ve gerçek kullanıcı pilotu hâlâ ölçülmedi.

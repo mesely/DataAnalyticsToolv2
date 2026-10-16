@@ -16,7 +16,7 @@ Context Layer brings CSV preparation, dataset exploration, governed SQL, product
 
 | Workspace | What you can do |
 |---|---|
-| **Prepare data** | Profile any bounded CSV or Parquet schema, preserve leading-zero identifiers, see decimal-comma and date-pattern diagnostics, map retail fields, choose decimal/date conversions explicitly, preview quality and totals, and remove duplicates before import. |
+| **Prepare data** | Profile bounded flat CSV or Parquet tables, preserve leading-zero identifiers, see decimal-comma and date-pattern diagnostics, map retail fields, choose decimal/date conversions explicitly, preview quality and totals, and remove duplicates before import. |
 | **Model studio** | Choose a target and features, use random/group/time splits, compare baseline/forest/linear candidates with training CV, inspect held-out metrics (including log loss, Brier and calibration error for classifiers), and save/export an owner-scoped model card. |
 | **Decision studio** | Inspect ranked investigations and their evidence, compare weekly forecasts with a naive benchmark, declare price/volume/budget scenarios, and reopen or export saved decision briefs. |
 | **Overview** | Inspect gross sales, orders, units and average order value. Filter dates/countries, inspect monthly trends, review schema and data quality. |
@@ -48,7 +48,7 @@ an explanation, explicit missing evidence, a three-step decision sequence and
 links to the actual calculation or chart. Its support score is a published
 checklist, not a probability of correctness or an expected return.
 
-![Decision brief with ranked investigations and evidence references](docs/evidence/phase10/03-decisions-light.jpeg)
+![Current decision brief with typed narrative and evidence references](docs/evidence/phase11/06-decision-light-final.jpeg)
 
 Forecasts compare registered baselines (last week, seasonal naive when two
 seasons exist, drift, trailing means, exponential smoothing, damped Holt) by
@@ -57,7 +57,7 @@ last origins is evaluated afterwards for every method and never selects one.
 The UI shows MAE/MASE against the naive benchmark, including when the
 selected method performs worse. The residual band's scaling is chosen on
 development origins with radii built from earlier residuals only (finite-sample
-conformal quantile); its development and final-window coverage are shown and
+conformal quantile); its development and final-window coverage and mean widths are shown and
 it remains labelled uncalibrated. At least 16 complete weeks are required.
 Price and volume scenarios use declared assumptions; gross-sales delta is
 separate from budget, profit and causal impact.
@@ -66,8 +66,9 @@ Every brief carries a typed analyst narrative — fact, calculation, inference,
 assumption, recommendation, limitation — in which each sentence links to the
 calculation it rests on. The local renderer always produces it; an optional
 Llama narrative must return the same typed JSON over an evidence packet and is
-accepted only when every evidence id exists and every number equals a cited
-value. Missing evidence is reported as unknown, never as zero.
+accepted only under schema, citation and signed numeric/unit checks. These mechanical
+checks do not establish semantic entailment or model accuracy. Missing evidence is
+reported as unknown, never as zero. Country filter labels stay local.
 
 An optional Llama step receives a bounded XML evidence bundle and methodology
 notes retrieved with the adapted adviSU BM25 kernel. Strict validation permits
@@ -106,7 +107,10 @@ Co-purchase edges represent products on the same invoice. Similarity edges compa
 
 Explicit mappings and a source/recipe receipt connect the import preview to the
 actual calculation. Draft transformations can be reset; changing a field or
-option invalidates the previous preview.
+option invalidates the previous preview. UTF-8, Windows-1252 and Windows-1254 decoding
+include a local text preview; non-UTF-8 files require confirmation before profiling.
+Parquet is limited to primitive columns, 2 MB of compressed bytes and 8 MB of
+decoded text, with no external file access beyond the temporary upload.
 
 ![CSV preparation with a custom brand illustration](docs/evidence/phase6/05-preparation-art.jpeg)
 
@@ -133,6 +137,12 @@ own clear visual language. [Asset provenance](core/web/src/workbench/assets/PROV
 
 </details>
 
+<details><summary>Current mobile preparation and encoding checks</summary>
+
+<img src="docs/evidence/phase11/05-encoding-mobile-final.jpeg" width="280" alt="Mobile encoding preview with correctly decoded Turkish characters and confirmed import controls">
+
+</details>
+
 ## Try it locally
 
 Requirements: **Python 3.12**, **Node.js 22+** (tested with 24), and **PostgreSQL 16**. On macOS, the launcher uses the Homebrew PostgreSQL installation, creates an isolated loopback database, prepares datasets, builds the UI and starts the app. It does not require Docker or change other projects' containers.
@@ -149,7 +159,7 @@ To configure Llama, set `HF_TOKEN` and optionally `HF_MODEL=meta-llama/Llama-3.3
 
 - **Retail sample:** deterministic synthetic data, independent Decimal oracle, £21,405 gross sales / 180 invoices. Useful for checking filters and calculations.
 - **UCI Online Retail:** historical 2010–2011 public data by Daqing Chen, [DOI 10.24432/C5BW33](https://doi.org/10.24432/C5BW33), CC BY 4.0. Preparation downloads the official source; the full dataset is not committed. Of 541,909 source rows, 530,104 positive eligible invoice lines contribute **£10,666,684.54 / 19,960 invoices**.
-- **Private CSV:** bounded generic profiling, explicit owner-scoped retail field mapping and import, UTF-8, up to 2 MB / 10,000 rows. Retail metrics require GBP and invoice-line grain; unit prices accept up to four decimal places.
+- **Private CSV/Parquet:** bounded flat-table profiling, explicit owner-scoped retail field mapping and import, up to 2 MB / 10,000 rows. CSV encoding choices are previewed locally; Parquet decoded text is additionally limited to 8 MB. Retail metrics require GBP and invoice-line grain; unit prices accept up to four decimal places.
 - **ML examples:** original measured records from UCI Wine (178 observations, 13 features, CC BY 4.0) and the scikit-learn Diabetes benchmark (442 observations, 10 features). Source notes and SHA-256 hashes are in [ML provenance](analysis/data/ML_PROVENANCE.json). Model experiments accept 100–3,000 observations and up to 30 selected features.
 
 Sales exclude returns/cancellations and are rounded to pence per invoice line. They are **gross sales**, not net revenue or profit. Duplicate lines and postage/service/manual invoice lines are retained and disclosed. Boundary months may be partial. Source definitions and quality counts stay available inside the app.
@@ -165,6 +175,7 @@ This is a **locally verified development release**. Production identity/tenant R
 ## Verification and project map
 
 - [Test walkthrough](docs/phases/TEST_GUIDE.md) — expected values and UI scenarios.
+- [AW-14 correctness and browser acceptance](docs/phases/PHASE_11_CONTINUATION.md) — current scope, measured results and remaining gates.
 - [Preparation release](docs/phases/PHASE_5_REPORT.md), [model experiment release](docs/phases/PHASE_6_REPORT.md).
 - [Phase 4 release report](docs/phases/PHASE_4_REPORT.md) — actual checks, observations and remaining gates.
 - [Source reuse ledger](docs/phases/REUSE_LEDGER.md) — exact adaptations, runtime status and attribution.
@@ -176,7 +187,7 @@ This is a **locally verified development release**. Production identity/tenant R
 npm --prefix core run build
 ```
 
-Core integration tests use Docker-backed connector fixtures. Local tests, browser checks, source attribution and measured worker timings are under `docs/evidence/verification/phase10-*`. The latest CI receipt and acceptance limits are in [progress.md](progress.md) and the [phase 10 report](docs/phases/PHASE_10_REPORT.md). Offline schema tests do not measure live-model accuracy.
+Core integration tests use Docker-backed connector fixtures. Local tests, browser checks, source attribution and measured worker timings are under `docs/evidence/verification/phase11-*`. The latest CI receipt and acceptance limits are in [progress.md](progress.md) and the [current continuation report](docs/phases/PHASE_11_CONTINUATION.md). Offline schema tests do not measure live-model accuracy.
 
 ## Source projects
 

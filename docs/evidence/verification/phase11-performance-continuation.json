@@ -1,0 +1,280 @@
+{
+  "scope": "Full local subprocess, warm cache, public historical UCI records. Small sample; no HTTP/OIDC/PG/browser/HF overhead. Not an SLA, user pilot or LLM accuracy.",
+  "generated_utc": "2026-10-16T11:39:04.025975+00:00",
+  "producer": "analysis.evaluate_decisions",
+  "git_head": "1b9d66c51883f2a2f2b551b4af5c8f00b975bdad",
+  "environment": {
+    "platform": "Darwin",
+    "machine": "arm64",
+    "python": "3.12.9",
+    "threads_per_worker": 1
+  },
+  "source_rows": 530104,
+  "build": {
+    "sha256": "a6f2dff3e356c9ee73f3a7ef5f34ea9f89fe05d9205114e3ea0b6ab9401fa83f",
+    "scheme": "source-dependencies-v1",
+    "files": 46
+  },
+  "observations": [
+    {
+      "action": "forecast",
+      "concurrency": 1,
+      "samples": 3,
+      "p50_ms": 148.1,
+      "sample_p95_ms": 413.63,
+      "max_ms": 413.63,
+      "failures": 0,
+      "raw_ms": [
+        413.63,
+        148.1,
+        146.23
+      ]
+    },
+    {
+      "action": "decisions",
+      "concurrency": 1,
+      "samples": 3,
+      "p50_ms": 1759.09,
+      "sample_p95_ms": 1841.67,
+      "max_ms": 1841.67,
+      "failures": 0,
+      "raw_ms": [
+        1759.09,
+        1841.67,
+        1752.05
+      ]
+    }
+  ],
+  "forecast": {
+    "weeks": 52,
+    "selected": "mean8",
+    "holdout": {
+      "selected": {
+        "mae_gbp": 47206.660625,
+        "rmse_gbp": 61456.97213201105,
+        "wape": 0.1574014929799153,
+        "smape": 0.16317274705444038,
+        "mase": 1.4218250437161915,
+        "bias_gbp": 47206.660625,
+        "n": 10
+      },
+      "naive": {
+        "mae_gbp": 59858.674000000006,
+        "rmse_gbp": 71185.3064473894,
+        "wape": 0.19958718813523443,
+        "smape": 0.20784441019333552,
+        "mase": 1.802893080129691,
+        "bias_gbp": -1440.096,
+        "n": 10
+      },
+      "records": [
+        {
+          "origin": "2011-09-19",
+          "target": "2011-09-26",
+          "train_end_index": 41,
+          "actual_pence": 21180022,
+          "predicted_pence": 20219535.75
+        },
+        {
+          "origin": "2011-09-26",
+          "target": "2011-10-03",
+          "train_end_index": 42,
+          "actual_pence": 31998739,
+          "predicted_pence": 20733259.0
+        },
+        {
+          "origin": "2011-10-03",
+          "target": "2011-10-10",
+          "train_end_index": 43,
+          "actual_pence": 22877618,
+          "predicted_pence": 22355187.125
+        },
+        {
+          "origin": "2011-10-10",
+          "target": "2011-10-17",
+          "train_end_index": 44,
+          "actual_pence": 27665642,
+          "predicted_pence": 23014677.25
+        },
+        {
+          "origin": "2011-10-17",
+          "target": "2011-10-24",
+          "train_end_index": 45,
+          "actual_pence": 26055563,
+          "predicted_pence": 24411139.625
+        },
+        {
+          "origin": "2011-10-24",
+          "target": "2011-10-31",
+          "train_end_index": 46,
+          "actual_pence": 30189783,
+          "predicted_pence": 25742357.0
+        },
+        {
+          "origin": "2011-10-31",
+          "target": "2011-11-07",
+          "train_end_index": 47,
+          "actual_pence": 37004497,
+          "predicted_pence": 27107284.0
+        },
+        {
+          "origin": "2011-11-07",
+          "target": "2011-11-14",
+          "train_end_index": 48,
+          "actual_pence": 38862244,
+          "predicted_pence": 28856130.375
+        },
+        {
+          "origin": "2011-11-14",
+          "target": "2011-11-21",
+          "train_end_index": 49,
+          "actual_pence": 31641216,
+          "predicted_pence": 29479263.5
+        },
+        {
+          "origin": "2011-11-21",
+          "target": "2011-11-28",
+          "train_end_index": 50,
+          "actual_pence": 32437083,
+          "predicted_pence": 30786912.75
+        }
+      ],
+      "origins": 10
+    },
+    "next": {
+      "period": "2011-12-05",
+      "pence": 30841705.75,
+      "lower_pence": 24291842.75,
+      "upper_pence": 37391568.75
+    },
+    "uncertainty": {
+      "method": "empirical envelope of development errors of the selected method (80% and 90% quantiles); the 90% radius is the displayed band",
+      "scaling": "absolute",
+      "scaling_rule": "absolute pence or relative to the forecast; chosen by rolling development coverage closest to nominal (radius from earlier development residuals only); ties resolve to absolute; the final window never informs the choice",
+      "quantile_rule": "finite-sample split-conformal index ceil((n+1)\u00b7level), truncated to the largest residual when it exceeds n",
+      "residual_count": 34,
+      "levels": {
+        "0.8": {
+          "radius_pence": 5092420,
+          "quantile": 5092420.5,
+          "final_window_coverage": 0.7,
+          "final_mean_width_gbp": 101848.41,
+          "development_rolling_coverage": 0.7307692307692307,
+          "development_rolling_n": 26,
+          "development_mean_width_gbp": 102303.97624999999
+        },
+        "0.9": {
+          "radius_pence": 6549863,
+          "quantile": 6549863.0,
+          "final_window_coverage": 0.7,
+          "final_mean_width_gbp": 130997.26,
+          "development_rolling_coverage": 0.8461538461538461,
+          "development_rolling_n": 26,
+          "development_mean_width_gbp": 124948.63057692308
+        }
+      },
+      "scalings": {
+        "absolute": {
+          "0.8": {
+            "development_rolling_coverage": 0.7307692307692307,
+            "development_rolling_n": 26,
+            "development_mean_width_gbp": 102303.97624999999
+          },
+          "0.9": {
+            "development_rolling_coverage": 0.8461538461538461,
+            "development_rolling_n": 26,
+            "development_mean_width_gbp": 124948.63057692308
+          }
+        },
+        "relative": {
+          "0.8": {
+            "development_rolling_coverage": 0.7307692307692307,
+            "development_rolling_n": 26,
+            "development_mean_width_gbp": 110819.7167799998
+          },
+          "0.9": {
+            "development_rolling_coverage": 0.8461538461538461,
+            "development_rolling_n": 26,
+            "development_mean_width_gbp": 135542.66577860448
+          }
+        }
+      },
+      "calibrated": false,
+      "collapsed_relative_band": false,
+      "note": "Final-window coverage and width are descriptive checks on a handful of points, not calibration claims. Development rolling coverage tunes the scaling and is not independent calibration evidence."
+    }
+  },
+  "decision_oracle": {
+    "gross_pence": 1066668454,
+    "orders": 19960,
+    "recommendations": [
+      {
+        "id": "forecast",
+        "support_score": 80,
+        "score_components": {
+          "traceability": 40,
+          "descriptive_sufficiency": 20,
+          "temporal_validation": 20,
+          "business_validation": 0
+        }
+      },
+      {
+        "id": "quality",
+        "support_score": 60,
+        "score_components": {
+          "traceability": 40,
+          "descriptive_sufficiency": 20,
+          "temporal_validation": 0,
+          "business_validation": 0
+        }
+      },
+      {
+        "id": "country",
+        "support_score": 60,
+        "score_components": {
+          "traceability": 40,
+          "descriptive_sufficiency": 20,
+          "temporal_validation": 0,
+          "business_validation": 0
+        }
+      },
+      {
+        "id": "basket",
+        "support_score": 60,
+        "score_components": {
+          "traceability": 40,
+          "descriptive_sufficiency": 20,
+          "temporal_validation": 0,
+          "business_validation": 0
+        }
+      },
+      {
+        "id": "scenario",
+        "support_score": 60,
+        "score_components": {
+          "traceability": 40,
+          "descriptive_sufficiency": 20,
+          "temporal_validation": 0,
+          "business_validation": 0
+        }
+      }
+    ],
+    "scenario": {
+      "assumptions": {
+        "volume_pct": 5.0,
+        "price_pct": 0.0,
+        "budget_gbp": 100.0
+      },
+      "baseline_pence": 32437083,
+      "assumed_gross_pence": 34058937,
+      "gross_delta_pence": 1621854,
+      "budget_pence": 10000,
+      "note": "User assumptions, not predicted causal effects. Price and volume vary independently; demand elasticity, margin, capacity, returns and campaign effectiveness are unknown. Budget is shown separately; gross delta is not profit or ROI."
+    }
+  },
+  "live_llm": {
+    "status": "not_executed_by_this_benchmark",
+    "accuracy": null,
+    "successful_answers": null
+  }
+}

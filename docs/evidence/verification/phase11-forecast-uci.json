@@ -1,0 +1,289 @@
+{
+ "complete_weeks": 52,
+ "selected": "mean8",
+ "selected_description": "mean of the last 8 weeks",
+ "split": {
+  "first_origin": 8,
+  "development_origins": 34,
+  "holdout_origins": 10,
+  "selection_end_index": 41,
+  "horizon_weeks": 1,
+  "selection_rule": "lowest development MAE; ties resolve to the simpler (earlier registered) method",
+  "final_window_rule": "last min(12, max(4, n // 5)) origins; evaluated after selection, never used for it",
+  "mase_scale": "development naive one-step MAE"
+ },
+ "holdout": {
+  "selected": {
+   "mae_gbp": 47206.660625,
+   "rmse_gbp": 61456.97213201105,
+   "wape": 0.1574014929799153,
+   "smape": 0.16317274705444038,
+   "mase": 1.4218250437161915,
+   "bias_gbp": 47206.660625,
+   "n": 10
+  },
+  "naive": {
+   "mae_gbp": 59858.674000000006,
+   "rmse_gbp": 71185.3064473894,
+   "wape": 0.19958718813523443,
+   "smape": 0.20784441019333552,
+   "mase": 1.802893080129691,
+   "bias_gbp": -1440.096,
+   "n": 10
+  },
+  "records": [
+   {
+    "origin": "2011-09-19",
+    "target": "2011-09-26",
+    "train_end_index": 41,
+    "actual_pence": 21180022,
+    "predicted_pence": 20219535.75
+   },
+   {
+    "origin": "2011-09-26",
+    "target": "2011-10-03",
+    "train_end_index": 42,
+    "actual_pence": 31998739,
+    "predicted_pence": 20733259
+   },
+   {
+    "origin": "2011-10-03",
+    "target": "2011-10-10",
+    "train_end_index": 43,
+    "actual_pence": 22877618,
+    "predicted_pence": 22355187.125
+   },
+   {
+    "origin": "2011-10-10",
+    "target": "2011-10-17",
+    "train_end_index": 44,
+    "actual_pence": 27665642,
+    "predicted_pence": 23014677.25
+   },
+   {
+    "origin": "2011-10-17",
+    "target": "2011-10-24",
+    "train_end_index": 45,
+    "actual_pence": 26055563,
+    "predicted_pence": 24411139.625
+   },
+   {
+    "origin": "2011-10-24",
+    "target": "2011-10-31",
+    "train_end_index": 46,
+    "actual_pence": 30189783,
+    "predicted_pence": 25742357
+   },
+   {
+    "origin": "2011-10-31",
+    "target": "2011-11-07",
+    "train_end_index": 47,
+    "actual_pence": 37004497,
+    "predicted_pence": 27107284
+   },
+   {
+    "origin": "2011-11-07",
+    "target": "2011-11-14",
+    "train_end_index": 48,
+    "actual_pence": 38862244,
+    "predicted_pence": 28856130.375
+   },
+   {
+    "origin": "2011-11-14",
+    "target": "2011-11-21",
+    "train_end_index": 49,
+    "actual_pence": 31641216,
+    "predicted_pence": 29479263.5
+   },
+   {
+    "origin": "2011-11-21",
+    "target": "2011-11-28",
+    "train_end_index": 50,
+    "actual_pence": 32437083,
+    "predicted_pence": 30786912.75
+   }
+  ],
+  "origins": 10
+ },
+ "next": {
+  "period": "2011-12-05",
+  "pence": 30841705.75,
+  "lower_pence": 24291842.75,
+  "upper_pence": 37391568.75
+ },
+ "uncertainty": {
+  "method": "empirical envelope of development errors of the selected method (80% and 90% quantiles); the 90% radius is the displayed band",
+  "scaling": "absolute",
+  "scaling_rule": "absolute pence or relative to the forecast; chosen by rolling development coverage closest to nominal (radius from earlier development residuals only); ties resolve to absolute; the final window never informs the choice",
+  "quantile_rule": "finite-sample split-conformal index ceil((n+1)\u00b7level), truncated to the largest residual when it exceeds n",
+  "residual_count": 34,
+  "levels": {
+   "0.8": {
+    "radius_pence": 5092420,
+    "quantile": 5092420.5,
+    "final_window_coverage": 0.7,
+    "final_mean_width_gbp": 101848.41,
+    "development_rolling_coverage": 0.7307692307692307,
+    "development_rolling_n": 26,
+    "development_mean_width_gbp": 102303.97624999999
+   },
+   "0.9": {
+    "radius_pence": 6549863,
+    "quantile": 6549863,
+    "final_window_coverage": 0.7,
+    "final_mean_width_gbp": 130997.26,
+    "development_rolling_coverage": 0.8461538461538461,
+    "development_rolling_n": 26,
+    "development_mean_width_gbp": 124948.63057692308
+   }
+  },
+  "scalings": {
+   "absolute": {
+    "0.8": {
+     "development_rolling_coverage": 0.7307692307692307,
+     "development_rolling_n": 26,
+     "development_mean_width_gbp": 102303.97624999999
+    },
+    "0.9": {
+     "development_rolling_coverage": 0.8461538461538461,
+     "development_rolling_n": 26,
+     "development_mean_width_gbp": 124948.63057692308
+    }
+   },
+   "relative": {
+    "0.8": {
+     "development_rolling_coverage": 0.7307692307692307,
+     "development_rolling_n": 26,
+     "development_mean_width_gbp": 110819.7167799998
+    },
+    "0.9": {
+     "development_rolling_coverage": 0.8461538461538461,
+     "development_rolling_n": 26,
+     "development_mean_width_gbp": 135542.66577860448
+    }
+   }
+  },
+  "calibrated": false,
+  "collapsed_relative_band": false,
+  "note": "Final-window coverage and width are descriptive checks on a handful of points, not calibration claims. Development rolling coverage tunes the scaling and is not independent calibration evidence."
+ },
+ "slices": [
+  {
+   "country": "United Kingdom",
+   "status": "ready",
+   "gross_pence": 838698454,
+   "final": {
+    "selected": {
+     "mae_gbp": 45522.515999999996,
+     "rmse_gbp": 59869.21253484022,
+     "wape": 0.17745367435513296,
+     "smape": 0.1822835651355358,
+     "mase": 1.5745727393620024,
+     "bias_gbp": 45144.873,
+     "n": 10
+    },
+    "naive": {
+     "mae_gbp": 48503.079000000005,
+     "rmse_gbp": 58819.93916116532,
+     "wape": 0.18907236116051424,
+     "smape": 0.19669138927654237,
+     "mase": 1.677667068501258,
+     "bias_gbp": 1632.295,
+     "n": 10
+    }
+   },
+   "selected_beats_naive_final": true,
+   "zero_weeks": 1
+  },
+  {
+   "country": "Netherlands",
+   "status": "ready",
+   "gross_pence": 27352572,
+   "final": {
+    "selected": {
+     "mae_gbp": 7366.615,
+     "rmse_gbp": 9761.310650379752,
+     "wape": 1.106386407512106,
+     "smape": 1.2213024999385411,
+     "mase": 0.9104988720592038,
+     "bias_gbp": -781.707,
+     "n": 10
+    },
+    "naive": {
+     "mae_gbp": 10916.618,
+     "rmse_gbp": 13799.105832206666,
+     "wape": 1.63955870792786,
+     "smape": 1.6044600685587391,
+     "mase": 1.3492721386554343,
+     "bias_gbp": -1640.39,
+     "n": 10
+    }
+   },
+   "selected_beats_naive_final": true,
+   "zero_weeks": 18
+  },
+  {
+   "country": "EIRE",
+   "status": "ready",
+   "gross_pence": 27477080,
+   "final": {
+    "selected": {
+     "mae_gbp": 4213.136375,
+     "rmse_gbp": 4671.239466504129,
+     "wape": 0.6250278345719255,
+     "smape": 0.6835009514723339,
+     "mase": 0.9131728887552726,
+     "bias_gbp": -112.75112499999999,
+     "n": 10
+    },
+    "naive": {
+     "mae_gbp": 5421.858,
+     "rmse_gbp": 6562.983715567181,
+     "wape": 0.8043442849856647,
+     "smape": 0.8604010876633652,
+     "mase": 1.1751562948827843,
+     "bias_gbp": -229.94799999999998,
+     "n": 10
+    }
+   },
+   "selected_beats_naive_final": true,
+   "zero_weeks": 3
+  }
+ ],
+ "diagnostics": [
+  {
+   "code": "seasonal_naive_unavailable",
+   "severity": "info",
+   "message": "Seasonal naive (52-week) needs at least 104 complete weeks; 52 available. Yearly seasonality cannot be validated from this history."
+  },
+  {
+   "code": "zero_weeks",
+   "severity": "warning",
+   "message": "1 complete week(s) have no observed gross sales; they count as zero and may be collection gaps."
+  },
+  {
+   "code": "outlier_weeks",
+   "severity": "warning",
+   "message": "Weeks far from the typical level (robust 3-sigma): 2010-12-27, 2011-11-07, 2011-11-14."
+  },
+  {
+   "code": "possible_level_shift",
+   "severity": "warning",
+   "message": "The mean of the last 8 weeks differs from the previous 8 by more than twice the typical weekly change; a structural change cannot be excluded."
+  },
+  {
+   "code": "band_undercovers_final",
+   "severity": "warning",
+   "message": "The nominal 90% band covered only 70% of 10 final origins. This is observed undercoverage, not a calibrated 90% range; the final window is never used to tune it."
+  }
+ ],
+ "build": {
+  "sha256": "a6f2dff3e356c9ee73f3a7ef5f34ea9f89fe05d9205114e3ea0b6ab9401fa83f",
+  "scheme": "source-dependencies-v1",
+  "files": 46
+ },
+ "output_sha256": "3292a8e75e714b895252bd4123d07186b660cce761a9b8b9c47def76746c58ee",
+ "producer": "Actual browser-downloaded UCI decision JSON; subset of forecast fields, no owner/session identifiers",
+ "generated_utc": "2026-10-16T11:48:44.970625+00:00",
+ "git_head": "2b3f9570ddd141d3945de17eb14abd4d498cfd82"
+}

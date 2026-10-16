@@ -358,5 +358,35 @@
   "path": "docs/evidence/phase10/04-evidence-reference.jpeg",
   "sha256": "51ceafbeeff0b93b94011b12df293e70647120f4c375874f082bd88e635656c3",
   "kind": "actual-local-application-screenshot"
+ },
+ {
+  "path": "docs/evidence/phase11/01-forecast-dark.jpeg",
+  "sha256": "2238b4b762a025d4d36c0070a3951f09de92a470611b051a41a062e79566408f",
+  "kind": "actual-local-application-screenshot"
+ },
+ {
+  "path": "docs/evidence/phase11/02-encoding-light-before.jpeg",
+  "sha256": "c2753626f32f18315a18c088e2e4226695ad020a85677fc7ed89c48ef020842b",
+  "kind": "actual-local-application-screenshot"
+ },
+ {
+  "path": "docs/evidence/phase11/03-parquet-mobile-before.jpeg",
+  "sha256": "08054c6c2e3e6dce492a66591588e3f1c6c263baf40dd3dc20dfa79f2426800d",
+  "kind": "actual-local-application-screenshot"
+ },
+ {
+  "path": "docs/evidence/phase11/04-narrative-mobile-dark.jpeg",
+  "sha256": "b1441eb3e20988cc1bcc3c3aef4ba23df2ecc6d82927ff18bb6073dafe5de2b3",
+  "kind": "actual-local-application-screenshot"
+ },
+ {
+  "path": "docs/evidence/phase11/05-encoding-mobile-final.jpeg",
+  "sha256": "36a9fcb0004e49a5f7482a4a54a2978df03ad7bdeeeaf6d7d191fe7100afab57",
+  "kind": "actual-local-application-screenshot"
+ },
+ {
+  "path": "docs/evidence/phase11/06-decision-light-final.jpeg",
+  "sha256": "71e6e5e38e81cd721183da898eedf7e6d3933f2a43a74e1e269daf05f9165314",
+  "kind": "actual-local-application-screenshot"
  }
 ]

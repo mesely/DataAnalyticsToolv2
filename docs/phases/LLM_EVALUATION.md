@@ -59,3 +59,8 @@ gösterimine eşit olmalı (bir–iki basamaklı tam sayılar denetlenmez — bi
 (iade, marj, kâr, stok, esneklik, kampanya…) ileri süremez. Politika: ret → red gerekçesiyle bir onarım denemesi → yerel
 anlatı, `provider.status = rejected`. Model metni yerel sayıların yerine geçmez. Harness'teki narrate satırları bu
 doğrulayıcının öz-denetimidir; gerçek model anlatı doğruluğu HTTP 402 nedeniyle **BLOCKED**.
+
+
+## 16 Ekim devam turu — sayı/birim sınırı
+
+`phase11-llm-offline.json` yeni **14 narrate** vakasını içerir: önceki 8 + küçük sayı, yüz kat ölçek hatası, ters işaret, yabancı para birimi, yüzde/count karışması ve olgu yerine hesap etiketiyle eksik kâr iddiası. Scripted ideal/adversarial kabul doğruluğu 1,00; yerel renderer öz-tutarlılığı 1,00. Bu bir model başarısı değildir. Sayı doğrulayıcısı Decimal büyüklüğü/işareti ve desteklenen açık birimleri kontrol eder; keyfi doğal dilin anlamsal dayanakla örtüştüğünü kanıtlamaz. UI ve rapor bu ayrımı açıklar. Canlı sağlayıcı bu devam oturumunda **NOT RUN**; son gerçek probun HTTP402 kanıtı eski `phase10/llm-eval.json` içinde korunur. Canlı accuracy hâlâ null/BLOCKED.

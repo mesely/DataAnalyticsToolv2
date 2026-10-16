@@ -1,5 +1,92 @@
 # Context Layer / Analytics — tek giriş ve devir rehberi
 
+## GPT-6.1 Sol → Opus 5.5 Handoff
+
+**ÖNCE BU KARTI OKU (16 Ekim 2026 devam turu).** A11 düzeltmeleri ve gerçek tarayıcı kabulü kapandı. Eski aşağıdaki kartlar tarihsel kayıttır; orijinal A1/T01 listesinden yeniden başlama. Önce `git status`, sonra bu kartın CI kapısı; sonra aşağıdaki ilk görev. Bu konuşmaya veya eski ajan hafızasına ihtiyaç yok.
+
+### Mevcut repo / HEAD / CI
+
+- Repo `/Users/selmanyilmaz/Projects/context-layer`; çalışma kopyası burasıdır. Kullanıcı cwd'si `/Users/selmanyilmaz/Desktop/guncel_cvler` **repo değildir**. Bu dosyanın aynası orada `progress.md`.
+- Dal `feat/analytics-workspace-phase4`. Son uygulama commit'i **`2b3f9570ddd141d3945de17eb14abd4d498cfd82`**. Bu kartı/kanıtları içeren doküman commit'i bundan sonra gelir: kesin güncel HEAD için `git rev-parse HEAD` (kendi commit hash'ini aynı dosyaya gömmek mümkün değildir). Uygulama fingerprint'i **`a6f2dff3e356c9ee73f3a7ef5f34ea9f89fe05d9205114e3ea0b6ab9401fa83f`**, source-dependencies-v1,46 dosya.
+- Publish: `https://github.com/mesely/DataAnalyticsToolv2.git`; `origin` Alper'in `https://github.com/AlperCamli/DataAnalyticsTool.git` deposudur, oraya push yapılmaz. Aynı açık PR: [#1](https://github.com/mesely/DataAnalyticsToolv2/pull/1). Force push/merge/history rewrite yapılmadı.
+- **CI teslim kaydı: PENDING — son doküman/kanıt commit'i gönderilince güncel koşu kontrol edilecek.** Devralırken bu satır güncel değilse `gh run list --repo mesely/DataAnalyticsToolv2 --branch feat/analytics-workspace-phase4 --limit 3`, ardından `gh run view <id> --repo mesely/DataAnalyticsToolv2 --json headSha,status,conclusion,jobs`. Beş iş: `core`, `nul-scan`, `tests`, `benchmark-integrity`, `analytics`. Eski doğrulanmış koşu38887656628/c96a294 hepsinde success; bunu yeni HEAD yeşili diye sunma.
+- Çalışma ağacı bu kart yazılırken yalnız teslim doküman/kanıtlarını içeriyor; final kapısı **clean tree**. Kalan değişiklikleri `git status --short` ile doğrula; başka ajanın/user'ın değişikliğini silme.
+
+### Bu oturumda yapılan / dosya / doğrulama
+
+| Birim | Gerçek değişiklik ve dosyalar | Doğrulama |
+|---|---|---|
+| Tahmin alanı ve bant | `analysis/forecast.py`: bütün adayların dev/final/dilim/next tahmini nonnegative; relative-zero tanısı; final undercoverage uyarısı; coverage ile mean width. `test_forecast.py` regresyonları | 60 haftalık seed5 son12=0 ters bant kapandı; bağımsız forecast+decisions51 passed; UCI seçim/sonuçları korunur |
+| Tipli anlatı | `analysis/narrative.py`, `decisions.py`: signed Decimal, unit-aware/EN-TR number syntax, küçük sayılar dahil; final_origins/business_validation kaynakları; unavailable fact+calculation ret; XML ülke filtresi boole. `DecisionStudio.tsx`: mekanik kontrol ≠ anlamsal doğruluk | Yerel TR/EN/negatif senaryo; yanlış tutar/işaret/birim/0/99; filtered XML; gerçek UCI download validator'dan geçti |
+| Alım sınırları | `analysis/preparation.py`: Parquet quoted identifiers, single-file access, extensions off,64MB DuckDB/1 thread/no spill, decoded8MB/field4096 sınırı materialization öncesi; nested/blob ret | Meşru tırnaklı sütun, compressed expansion, locale/date/ID testleri ve gerçek HTTP import |
+| Kodlama ve mobil | `Preparation.tsx`: UTF8/1252/1254, local text preview, nonUTF8 confirmation, stale file async read guard. `workbench.css`: hazırlama select/label44px | Browser Çýðlýk→Çığlık; onaysız profil/import engeli; 007 korunur;44×290px;390px sayfa taşması yok |
+| Tekrarlanabilir kabul | `analysis/verify_workspace.py`; `evaluate_decisions.py --samples/--concurrency` | Gerçek loopback HTTP21/21, kaynak/HEAD/web hash receipt; bounded subprocess6/6 hatasız |
+| Kanıt/doküman | `docs/evidence/verification/phase11-*`, `docs/evidence/phase11/*.jpeg`, asset manifest/NUL named allowlist; README/TEST_GUIDE/BENCHMARK_MATRIX/NEXT_BACKLOG/LLM_EVALUATION/spec-index/DECISIONS | Browser16/16; analytics270; son metin sonrası ilgili31; asset/NUL48; web build/tsc geçti |
+
+Kod commit'leri: `0cc3904` (doğruluk + ingestion + encoding), `1b9d66c` (repeatable HTTP/benchmark), `2b3f957` (44px/readability). Devralınan üç gönderilmemiş doküman commit'i `67abaeb`, `084577e`, `98f0600` korunur ve aynı dalda gönderilir. Her şeyin ayrıntısı `docs/phases/PHASE_11_CONTINUATION.md`.
+
+### Claude çalışması — doğrulanan / düzeltilen
+
+AW-14/Phase11 zaten uygulanmıştı: v3 finite-sample quantile, development-only scaling, heteroscedastic fixture, typed narrative, Parquet/decimal/date diagnostics, post-selection ML probability metrics ve lazy pandas import. Bunları sıfırdan yazmadık. Başlangıç temiz98f0600, remote c96a294, eski5-job CI green, HTTP21/21 ve servisler gerçekti. Heteroscedastic mevcut14 forecast testi geçiyordu; fakat final çöküşünde negatif radius kusuru ayrıca vardı.
+
+Eski “her sayı kontrol edilir / ülke adları dışarı gitmez” iddiaları iki gerçek açıkla çelişiyordu; düzeltildi. Son analytics sayısı228 değil254'tü; şimdi270. Eski browser receipt yoktu; şimdi gerçek16/16 var. Country slices zaten UK/NL/EIRE idi; kalan iş **ay/dönem** dilimleri. Parquet core TS testi eski CI'da geçti; açık işler listesinden çıkarıldı. Eski performance36/36 ve eski HF402 kanıtı korunur, yeniden ölçülmüş gibi yazılmaz.
+
+### Ölçüm durumu — bu sayıları karıştırma
+
+**Forecast (MEASURED):** UCI52 tam hafta,34 dev/10 final,mean8,absolute. Dev MAE£30.445 vs naive£33.201. Final MAE **£47.206,66** vs **£59.858,67** (~%21,14 daha düşük), RMSE£61.456,97, MASE1,4218, bias+£47.206,66. Nominal90 coverage dev **22/26=%84,615**, final **7/10=%70**. Mean width dev£124.948,63/final£130.997,26. Next2011-12-05 £308.417,06, [£242.918,43,£373.915,69]. **Kalibre değil.** Dev coverage tuning diagnostic, bağımsız calibration değil. Final üzerinde tuning yok. Kanıt `phase11-forecast-uci.json`.
+
+**Ingestion (VERIFIED):** CSVtext UTF8server source hash; raw nonUTF8 encoding byte receipt iddiası yok. Explicit quantity/price decimalcomma ve date ISO/dmy/mdy/dot; leadingzero IDs değişmez; profile→mapping→preview→receipt-bound owner import. Parquet2MB decoded bytes,10krow,60cols,4096char/field,8MB expanded text,primitive only. CSVfixture dedup2row/2orders/£12,60; dmycp1254 dates2025-02-01..02; ParquetISO2025-01-01..02. Dosyalar `analysis/.local/phase11-qa` ignored, üretici `verify_workspace.fixtures`.
+
+**LLM (BLOCKED/NOT RUN):** Yerel narrative her zaman hazır; model additive/opt-in; repair once sonra local. Validator ID existence+syntax+numbers, **semantic entailment sağlamaz**. `phase11-llm-offline.json`14 narrative adversarial vaka (model değil), acceptance1.00; claims8; plan19,decide6. Son gerçek HF probu16Ekim10:10UTC HTTP402; bu oturumda yeni inference yapılmadı, accuracy/success null kalır. Token yalnız ignored0600 `analysis/.local/hf-provider.json` veya server env; okumaya/yazdırmaya/commitlemeye gerek yok. Tarihsel chat tokenları compromised say; yineleme.
+
+**Browser (MEASURED):** `phase11-browser-qa.json`16 named checks PASS: login/landing/dataset/UCI/default+scenario/6type/evidence/forecast+country slices/reopen+samehash/JSON-MD-XML/CSVlocale/encodingguard/UnicodeID/Parquet/light/dark/390px/keyboard/44px. Native IAB CUA bu tur çalıştı. Viewport reset; localhost app tab deliverable bırakıldı; Gemini user tabı korundu. Bazı ilk ekranlar44px düzeltmesinden öncedir ve dosya adında `before` yazar;04/05/06 finaldir. **NOT MEASURED:** full WCAG/screenreader/zoom/contrast, real-phone,5–8-userpilot,LCP/CLS/click-visible latency. ML probability UI tekrar koşulmadı (değişmeyen yol; önceki HTTP/CI kanıtı ayrı).
+
+**Performance (MEASURED / SERVER):** source1b9d66c, n3/action, concurrency1,6/6 worker success. Forecast p50/p95max148,10/413,63ms; decisions1759,09/1841,67ms. HTTP kabulüyle örtüşen yük vardı; öncesi/sonrası iyileşme veya SLA çıkarma. HTTP/OIDC/PG/browser/HF hariç. Eski9/hücre ve3concurrent benchmark ayrı dosyada tutulur.
+
+### Servisler / disk / güvenli çalışma
+
+- App8123 + devIdP8188 aynı NodePID67076; PG16 localhost5549 PID60336, DBcontextlayer_phase1. Docker kapalı/kullanılamıyor; Docker-only core rig'i tekrar zorlayarak zaman harcama. Mevcut CI'ı kullan.
+- `/Users/selmanyilmaz/Projects/context-layer/.venv/bin/python`3.12. Node24 `/Users/selmanyilmaz/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin`; gerekirse PATH'in başına koy.
+- Statik web değişikliği `npm --prefix core run build` + reload yeterli. TS backend değişince8123 dinleyen doğru PID'yi SIGTERM ile durdur, `./deploy/phase1/start.sh`; devIdP anahtarı yenilenirse yeniden login. Sağlıklı servis varken duplicate başlatma. Kullanıcı hesapları/fixture detayları launcher ve README'de; gerçek provider secret ayrı.
+- Disk başlangıç~2GiB → son~0,4GiB. Bu oturumda **silme yok / reclaimed0**. İncelenen büyük alanlar runtime, DB, aktif session, CoreDevice ve unique downloads; korunur. Yeni büyük model/dataset/npm reinstall yapma. Sadece adı/amacı doğrulanmış yeniden üretilebilir cache temizlenebilir; `.git`/veri/model/DB/secret/session/kanıt/asset silinmez.
+- `port_sources.py` çalıştırma: adapte edilmiş kaynakları overwrite eder. Secret/NUL kontrolü tracked/staged dosyalarda, credential değerlerini çıktıya dökmeden yapılır.
+
+### Açık riskler / başarısız deneyler
+
+**P0:** bulunan açık kritik kusur kalmadı; bu güvenlik/production sertifikası değildir. **P1:** canlı model ölçümü dış kredi kapısı; free-prose semantic claim/metric binding eksik; production tenant+subjectRLS/retention/hard isolation açık. **P2:** nominalin altında final coverage, ≥2sezon gerçek benchmark, ay dilimleri, filtered DuckDB→pandas başlangıcı, TR ekranda İngilizce diagnostic text, full a11y/userpilot. **P3:** OOF stacking, conversation ref, governedBI, retrieval lifecycle, SNIPS baseline ihtiyacı — önceki backlog korunur.
+
+Olumsuz sonuçlar: final coverage%70 kaldı; gerçek model accuracy ölçülmedi. İlk final-warning testindeki tek sıçrama naive sonraki haftalarda uyduğu için <%80 yaratmadı; çoklu sıçrama oracle'ı ile değiştirildi. DuckDB allowed_paths connect config'de çalışmadı; connection sonrası bound SET→external off→lock yolu test edildi. `.jpg` named-image testinden geçmedi; gerçek JPEG'ler `.jpeg` yapıldı, geniş binary exemption eklenmedi. Formatter offline cache yoktu, resmi küçük npm paketi kullanıldı. Ingestion reviewer otomatik araç engeliyle tamamlanamadı; ana ajan meşru quoted-name/expansion testleriyle bulguyu doğrulayıp kapattı; forecast/narrative review ve düzeltme review'ları tamamlandı.
+
+### Sonraki beş görev — beklenen etkiye göre
+
+| Sıra | Neden / iş | Dosyalar | Komut/test ve kabul kapısı |
+|---:|---|---|---|
+|1| **Model fact/calculation için metric/period/unit binding**. Geçerli sayı yanlış ölçüme bağlanabiliyor; semantic entailment henüz yok | Önce AW14'e additive spec; `analysis/narrative.py`, `decisions.py`, `llm_eval/cases.py`, `test_narrative.py`, `DecisionStudio.tsx` | `pytest analysis/tests/test_narrative.py analysis/tests/test_llm_eval.py analysis/tests/test_decisions.py -q`; valid-id/wrong-metric ve wrong-period örnekleri reddedilmeli veya model olgu/hesap metni kanonik yerel render'a çevrilmeli; mevcut yerel anlatı değişmemeli; live accuracy null kalmalı |
+|2| Gerçek provider erişimi gelince dondurulmuş TR/EN plan/decide/narrate eval. Scripted1.00 model başarısı değildir | `analysis/llm.py`, `analysis/narrative.py`, `llm_eval/{cases,providers,evaluate}.py`, LLM_EVALUATION | `python -m analysis.llm_eval --providers hf` yalnız mevcut izinli erişimle; kredi/hesap/ödeme/endpoint değişikliği otomatik yok. Her görevin gerçek yanıt/latency/tokens, unsupportednumeric/citation/refusal raporu; blocked görev null; ≥50 TR/EN golden ayrık geliştirme/eval |
+|3| Forecast final undercoverage ve dönem dilimleri; kapsam×genişlik birlikte | `analysis/forecast.py`, `test_forecast.py`, `test_decisions.py`, DecisionStudio; AW14 | Mevcut `pytest ...test_forecast.py ...test_decisions.py -q`; ay/level dilimleri aynı final origins, dev-only seçim ve coverage/width/n. Yeni yöntem için yeni dondurulmuş değerlendirme veri/protokolü; mevcut10final üzerinden tuning yok |
+|4| Filtered request başlangıcı/HTTP performansı | `analysis/worker.py filters_for`, `forecast.py`, `evaluate_decisions.py`, core workbench admission | `python -m analysis.evaluate_decisions --samples 9 --concurrency 1 3`; filtered/unfiltered ayrı kontrollü worker+HTTP receipts, noSQLinterpolation/securityregression; p50/p95+hata/timeout/cancel. Düşük disk koşulunda büyük stress başlatma |
+|5| Gerçek erişilebilirlik/kullanılabilirlik ve üretim kapıları | TEST_GUIDE, `core/web/src/workbench`, `core/src/workbench.ts`, migration0017–0021, NEXT_BACKLOG | Screenreader/zoom/contrast +5–8 gerçek kullanıcı görev zamanı/hata; synthetic katılımcı yok. TR diagnostic localization ve table keyboard scroll; production için tenant/retention/OSlimits ayrı spec/test ve yetkili deployment |
+
+### Opus'un TAM İLK GÖREVİ
+
+Repo kökünde `git status --short`, `git log -6 --oneline` ve PR'nin en güncel CI'ını kontrol et; yeni user değişikliğini koru. Sonra **görev1**: mevcut narrative typed contract'ı okuyup metric/period/unit bağlamını doğrulayan küçük additive sözleşmeyi önce spec'e yaz. Geçerli ID ve aynı sayıyı yanlış ölçüme bağlayan karşı örnekleri testte göster; model fact/calculation'larını yalnız gerçek ölçüme bağlayarak veya yerel kanonik render kullanarak kapat. Büyük yeniden yazım ve gerçek provider çağrısı gerektirme. Yerel TR/EN narrative/owner/hash/fallback, mevcut forecast split ve270 analytics regresyonu korunmalı. Rapor/README/progress/mirror güncelle, ilgili browser+CI kapısı, coherent commit/publish; sonra sıradaki işi sürdür.
+
+### Kaynak projeler ve kanıt girişleri
+
+Gerçek adaptasyon ledger'ı `docs/phases/REUSE_LEDGER.md`, kaynak hash'leri/commitleri orada. Beş orijinal kaynak korunur:
+
+- [AlperCamli/DataAnalyticsTool](https://github.com/AlperCamli/DataAnalyticsTool.git) — platform/auth/governance; originalremote readonly.
+- [mesely/adviSU](https://github.com/mesely/adviSU.git) — gerçek BM25/provider/guardrail/confidence/language/formatter/export/hash adaptasyonları; yalnız esin değil.
+- [mesely/PoliEcoTRNetSci](https://github.com/mesely/PoliEcoTRNetSci.git) — network ve temporal yöntem adaptasyonları.
+- [mesely/Influencer-Category-and-Like-Prediction-Stacking-SMOTE-RF](https://github.com/mesely/Influencer-Category-and-Like-Prediction-Stacking-SMOTE-RF.git) — fold-local preprocess/RMSLE; notebook skorları taşınmadı, eğitim burada ölçülür.
+- [mesely/NLP-Intent-Detection-with-SNIPS-Dataset](https://github.com/mesely/NLP-Intent-Detection-with-SNIPS-Dataset.git) — araştırılmış, runtime LSTM ertelendi; uygun analytics intent corpus ve TFIDF baseline faydası olmadan zorlanmaz.
+
+Okuma sırası: `CLAUDE.md` → `specs/spec-index.md` → `specs/analyst-workspace-phase11.md` → `docs/phases/PHASE_11_CONTINUATION.md` → `docs/phases/TEST_GUIDE.md` → NEXT_BACKLOG. Benchmark/LLM etiketlerini koru; *not measured* alanlarına puan/başarı uydurma. Bu kartın sonundaki “TAM İLK GÖREV” uzun tarihçeden daha güncel talimattır.
+
+---
+
+## Tarihsel kartlar — aşağıdaki durumlar kendi commit/tarihlerine aittir
+
 ## ŞİMDİ OKU — 16 Ekim 2026, öğleden sonra turu (AW-14, yeni ajan)
 
 **Güncel kod: bu kartın altındaki commitler. e4f82af publish dalına push edildi → GitHub CI

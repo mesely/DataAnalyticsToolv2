@@ -1,5 +1,7 @@
 # Aşama 11 — AW-14 ölçülmüş kalite döngüsü raporu
 
+**Güncel devam raporu:** [PHASE_11_CONTINUATION.md](PHASE_11_CONTINUATION.md). Aşağıdaki ilk tur ölçümleri tarihsel kanıttır; devam turunda doğruluk açıkları kapatıldı ve gerçek tarayıcı kabulü tamamlandı.
+
 16 Ekim 2026 (öğleden sonra turu). Spec: `specs/analyst-workspace-phase11.md`. Önceki 7–10 ek paketleri korunur; bu rapor
 yalnız bu turda ölçülen değişiklikleri anlatır. Gerçek kullanıcı pilotu, üretim RLS/retention/hard isolation ve başarılı
 canlı LLM değerlendirmesi **açık** kalır.
@@ -17,10 +19,9 @@ Kanıt: `docs/evidence/phase10/forecast-v3-uci.json`. Testler: `test_forecast.py
 ## 2. Tipli analist anlatısı (decision-narrative-v1) — IMPLEMENTED · TESTED · UI
 `analysis/narrative.py`: yerel deterministik renderer (olgu/hesap/çıkarım/varsayım/öneri/sınır; her sayı atıf
 yapılan dayanağa eşit) her zaman mevcut; model anlatısı `analysis_context` XML paketi üzerinden, mekanik doğrulayıcı
-(bilinmeyen tip/kimlik, atıfsız olgu/hesap/öneri, aday olmayan öneri, atıflı dayanağa eşit olmayan ≥3 basamaklı/ayraçlı
-sayı, eksik kanıt hakkında olgu reddedilir); bir onarım denemesi, sonra yerel. Model metni yerel sayıların yerine
+(bilinmeyen tip/kimlik, atıfsız olgu/hesap/öneri, aday olmayan öneri, atıflı dayanağa eşit olmayan sayı reddedilir; devam turunda işaret/birim/ondalık büyüklük ve küçük tam sayılar da kapsandı); bir onarım denemesi, sonra yerel. Model metni yerel sayıların yerine
 geçmez. Karar özeti/rapor/XML'e eklendi; DecisionStudio "Analist anlatısı" bölümü ve kanıt paketi indirme.
-Bilinen sınır: bir–iki basamaklı tam sayılar denetlenmez; doğrulayıcı anlamsal doğruluk değil mekanik tutarlılık ölçer.
+Devam turunda küçük tam sayı istisnası kaldırıldı. Kalan sınır: doğrulayıcı anlamsal doğruluk değil mekanik tutarlılık ölçer.
 Testler: `test_narrative.py` (9) + güncellenen `test_decisions.py`. Harness v2 (`llm_eval`): 8 narrate vakası; yerel
 renderer kendi sözleşmesini 1,00 geçer, tasarlanmış-kötü yanıtların tamamı reddedilir (1,00); **gerçek model satırı
 BLOCKED (HTTP 402, 16 Ekim 10:10 UTC probu)**. Kanıt `docs/evidence/phase10/llm-eval.json`, rapor `LLM_EVALUATION.md`.
@@ -29,7 +30,7 @@ BLOCKED (HTTP 402, 16 Ekim 10:10 UTC probu)**. Kanıt `docs/evidence/phase10/llm
 Parquet (DuckDB `read_parquet`, tüm sütunlar metin, aynı 2 MB/10.000 satır/60 sütun/4.096 karakter sınırı, yeni
 bağımlılık yok); `decimal_comma` ve `date_format` (iso/dmy_slash/mdy_slash/dmy_dot) açık seçenekler, receipt'e bağlı;
 profil her sütun için `decimal_comma_candidates` ve `date_patterns` sayar (önizlemeden önce ne olacağı görünür);
-tarayıcı UTF-8 başarısızsa Windows-1252 ile okur ve bunu söyler. Kimlikler ve para sessizce dönüştürülmez: `5,25`
+tarayıcı UTF-8 başarısızsa Windows-1252 önerir; devam turunda Windows-1254 seçimi, yerel metin önizlemesi ve açık onay eklendi. Kimlikler ve para sessizce dönüştürülmez: `5,25`
 seçenek olmadan açık hata; `31/01/2025` ile MM/DD seçilirse "1 tarih değeri uymuyor". Rotalar `/prepare` ve `/import`
 `parquet_base64` kabul eder (Parquet import eşleme ister). Testler: `test_preparation.py` +4 (18). Core TS rota testi
 yerelde koşmadı (Docker fixture); CI sonucu progress kartında.
@@ -67,7 +68,7 @@ sonraki iş olarak NEXT_BACKLOG'a yazıldı — kullanıcı girdisini SQL'e kaç
 `source_unavailable` (Docker daemon kapalı; connector fixture `postgres:16` ister) → **CI'da koştu ve geçti**:
 https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38886787881 (e4f82af, 5 job success).
 
-## 7. Sunucu düzeyi HTTP kabulü (MEASURED, SERVER) ve tarayıcı kabulü (BEKLİYOR)
+## 7. İlk tur HTTP kabulü (tarihsel SERVER) ve devam turu kabulü
 Çalışan yerel fixture'a karşı gerçek OIDC dev IdP girişi, CSRF, PostgreSQL ve Python worker ile 21 kontrol, **21/21
 geçti** → `docs/evidence/verification/phase11-http-qa.json` (üretici betik scratchpad'de; yalnız public UCI/sentetik veri).
 Kapsanan: üç fixture kimliği; `/decisions` UCI (HTTP gidiş-dönüş 1.680 ms, warm değil) → v3 tahmin alanları, 3 ülke
@@ -76,9 +77,8 @@ dilimi, etiket içermeyen teşhisler, altı tipli yerel anlatı (12 cümle), day
 kimlik 404; viewer 403; CSRF'siz 401/403; Parquet profil → eşlemeli önizleme (receipt) → owner import; eşlemesiz Parquet
 import 400; CSV+Parquet birlikte 400; bozuk Parquet 400; profil teşhis alanları; Wine ML kartında olasılık metrikleri
 (log loss 0,1827 / Brier 0,0702 / ECE 0,1279 — küçük benchmark); servis edilen web bundle yeni UI metinlerini içeriyor.
-Tarayıcı render/klavye/390 px/tema kabulü **BEKLİYOR** (not: önceki turun `phase10-browser-qa.json` dosyası da hiç yazılmamış; A7–10 ekranlarının tarayıcı kabulü de açıktır) — tarayıcı aracının güvenlik sınıflandırıcısı tur boyunca
-erişilemezdi; gerçek ekran alınınca `phase11-browser-qa.json` doldurulur. Mock üretilmedi.
+Devam turunda CUA üzerinden gerçek tarayıcı kabulü **16/16 PASS**: `docs/evidence/verification/phase11-browser-qa.json`. Güncel sunucu kontrolü yeniden üretilebilir `analysis.verify_workspace` ile **21/21**: `phase11-http-qa-continuation.json`. İlk turun tarayıcı engeli ve eksik `phase10-browser-qa.json` kaydı tarihsel olarak korunur; yeni sonuç tam WCAG, kullanıcı pilotu veya E2E performans ölçümü değildir.
 
 ## 8. Açık kalanlar
 Gerçek LLM erişimi (402), 5–8 kullanıcı pilotu, üretim RLS/retention/hard isolation, 5M+ ölçek, decisions yolunun
-2 s başlangıcı, ≥2 sezon veriyle seasonal naive doğrulaması, dönem (ay) dilimleri, Parquet için core TS rota testi.
+2 s başlangıcı, ≥2 sezon veriyle seasonal naive doğrulaması, dönem (ay) dilimleri ve anlatı için anlamsal iddia-dayanak doğrulaması. Parquet core TS rotası önceki CI’da geçti; açık iş olarak tutulmaz.

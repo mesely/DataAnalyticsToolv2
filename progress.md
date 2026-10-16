@@ -11,14 +11,15 @@ mekanik kontrol — anlamsal entailment değil; sayıdan sonra yazılan tanım v
 Kanıt: analytics **274 passed**; `phase11-llm-offline.json` narrate 16 (n15 takas, n16 dönem) — model başarısı değil;
 HTTP `phase11-http-qa-binding.json` 21/21; tarayıcı `phase11-browser-binding.json` 6/6 (yerleşik tarayıcı bu turda
 çalıştı). Ek UI düzeltmesi: TR yüzde dayanak düğmesi "84,611%" → "%84,6". Canlı LLM çağrılmadı (402, null).
-Disk tur başında 1,8 GB boştu (99 %); bu turda temizlik yapılmadı — sonraki ajan büyük iş öncesi `df -h` bakmalı.
+Disk tur başında 1,8 GB, ortasında 577 MB boştu; yalnız npm indirme önbelleği (`npm cache clean --force`, 459 MB) silindi → 1,1 GB.
+Claude/Chrome önbellekleri, fileproviderd temp (1 GB, sistem) ve proje verisi korunur. Büyük iş öncesi `df -h`.
 **Ek iş (ölçüldü):** her `run`/`decisions` isteği model kapalıyken LangChain yüklüyordu (~1 s). Sağlayıcı artık yalnız
 model çağrısında import edilir: run p50 1.483 → 703 ms, decisions 1.497 → 733 ms (n=9, aynı betik;
 `phase11-performance-startup.json`); 274 test, HTTP 21/21. Eski "DuckDB parametresi ~1 s" notu ölçümle ~0,2 s'ye
 düzeltildi. **Görev 3 yapıldı:** `forecast.period_slices` (ay × aşama: seçilen/naif MAE, bias, %90 bant k/n, genişlik) + teşhis
 `final_month_worse_than_naive`. UCI: Kasım 2011'in 4 final haftasında mean8 naiften kötü (£59.289 / £41.723), bant 2/4,
 hepsi eksik tahmin — yöntem değiştirilmedi (final üzerinde ayar yok). Karar stüdyosu katlanır ay tablosu, klavye ile
-kaydırılabilir bölge; 277 test; tarayıcı 10/10. **TR teşhis metinleri yapıldı** (params + 12 TR şablon + koruyucu test, 278 test). **Tablo klavye erişimi yapıldı** (`TableWrap`, yalnız taşarken etiketli bölge; 15 kapsayıcı). **Sonraki iş:** kalan ~0,6 s pandas/networkx başlangıcı; görev 2 dış kredi kapısında. Görev 2 dış kredi
+kaydırılabilir bölge; 277 test; tarayıcı 10/10. **TR teşhis metinleri yapıldı** (params + 12 TR şablon + koruyucu test, 278 test). **Sayı sonrası bağ** (≤2 kelime, bağlaçta durur; TR "£… naif referans hatası" takası red), **tablo klavye erişimi yapıldı** (`TableWrap`, yalnız taşarken etiketli bölge; 15 kapsayıcı). **Sonraki iş:** kalan ~0,6 s pandas/networkx başlangıcı; görev 2 dış kredi kapısında. Görev 2 dış kredi
 kapısına bağlı. Commit/CI sonucu: `gh run list --repo mesely/DataAnalyticsToolv2 --limit 3`.
 
 ---

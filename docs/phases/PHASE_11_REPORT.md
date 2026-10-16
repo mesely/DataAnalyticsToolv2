@@ -89,8 +89,9 @@ satış diye sunmak, son pencere tarihini sonraki hafta projeksiyonunun yanına 
 Testler: `test_narrative.py` +4 → analytics **274 passed**; `llm_eval` narrate 16 (n15/n16). HTTP kabulü 21/21
 (`phase11-http-qa-binding.json`, çalışma ağacı); tarayıcı 6/6 (`phase11-browser-binding.json`: TR anlatı değişmedi,
 XML öznitelikleri, 390 px taşma yok). Aynı turda bulunan küçük UI kusuru: TR yüzde düğmesi "84,611%" gösteriyordu,
-cümle "%84,6" — yerel yüzde biçimine ve tek ondalığa çevrildi. Sınır: kelime düzeyinde mekanik kontrol; sayıdan sonra
-yazılan tanımlar ve terim listesi dışındaki eş anlamlılar bağlanmaz; canlı model ölçümü BLOCKED (402), çağrılmadı.
+cümle "%84,6" — yerel yüzde biçimine ve tek ondalığa çevrildi. Ardından sayıdan sonraki ≤2 kelime de bağlandı (bağlaç/noktalamada durur; Türkçe isim-sonra düzeni için):
+"£47.206,66 naif referans hatası" takası reddedilir; 279 test. Sınır: kelime düzeyinde mekanik kontrol; pencerelerin
+dışındaki tanımlar ve eş anlamlılar bağlanmaz; canlı model ölçümü BLOCKED (402), çağrılmadı.
 
 ## 7c. Worker soğuk başlangıcı — LangChain yalnız model çağrısında (Opus devam turu) — MEASURED · SERVER
 Profil (`-X importtime`, cProfile): her `run` ve `decisions` isteği, model kapalıyken bile yalnız sağlayıcı durumunu
@@ -104,6 +105,10 @@ geçici stash): run p50 1.483 → 703 ms, ülke filtreli run 1.429 → 665 ms, d
 pandas'ı yükler (~1 s)" bu turda ölçülerek düzeltildi: filtreli forecast'ta ek maliyet ~0,2 s (pandas import, sıcak
 disk); asıl darboğaz LangChain'di. `evaluate_decisions.py` artık `--actions run run_filtered forecast decisions` alır.
 HTTP kabulü değişiklik sonrası 21/21. Ölçülmeyen: /run HTTP gidiş-dönüşü ve tarayıcıda görünür gecikme.
+**Bilinçli olarak yapılmayan:** DuckDB 1.5.6 Python istemcisi boş olmayan her parametre listesinde (int/float/str/date)
+pandas'ı yükler (ölçüldü: 170–500 ms soğuk; parametresiz sorgu 13 ms). Kalan ~0,2 s yalnız değerleri SQL metnine
+gömerek kazanılabilir; güvenli SQL ürününde bağlı parametreden vazgeçilmedi. Doğru çözüm kalıcı worker süreci
+(importları amorti eder) — süreç izolasyonu/iptal sözleşmesini etkileyen ayrı mimari karar.
 
 ## 7d. Aylık dönem dilimleri (Opus devam turu) — IMPLEMENTED · TESTED · BROWSER
 `forecast.period_slices`: hedef haftanın ayına göre, aşama ayrımıyla seçilen/naif MAE, bias, %90 bant içinde k/n ve

@@ -38,10 +38,12 @@ Contract (additive; decision-narrative-v1 statement schema unchanged, local narr
    checklist); complete weeks = first..last complete week; final-window errors and origin count = first..last final
    target week; next-week projection = that week; scenario values = the last complete week.
 2. **Measure binding.** For each numeric token, the validator takes up to four words immediately before it in the same
-   clause (clauses end at `;`, `:` or sentence end) and after the previous number. If those words contain a descriptor term of some evidence item and
+   clause (clauses end at `;`, `:` or sentence end) and after the previous number, plus up to two words right after
+   it (stopping at punctuation, a digit or a connective such as against/of/and/is/ve/ile/üzerinden — Turkish puts the
+   noun after the number). If those words contain a descriptor term of some evidence item and
    none of the descriptor terms of the item(s) whose value the number matched, the statement is rejected
-   ("measure binding"). Descriptors written after a number are not bound, and an evidence id without registered
-   descriptors is not bound (skipped, never guessed) — documented limitations.
+   ("measure binding"). Descriptors further away than these windows are not bound, and an evidence id without
+   registered descriptors is not bound (skipped, never guessed) — documented limitations.
 3. **Period binding.** Every ISO date in a statement must lie within the period of at least one cited evidence item;
    a date with no period-bearing citation is rejected ("period binding").
 4. The `<analysis_context>` evidence items expose `measure` and `period` attributes; the instructions ask the model to

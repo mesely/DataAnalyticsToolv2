@@ -263,3 +263,20 @@ def test_context_xml_exposes_measure_and_period_for_every_item(uci):
     assert items["next_point"].get("period").startswith(uci["forecast"]["next"]["period"] + "..")
     assert items["duplicates"].get("period") == "none" and "naive" in items["baseline_mae"].get("measure")
     assert "Name the measure immediately before each number" in root.find("output_contract").text
+
+
+def test_descriptors_after_a_number_are_bound_until_a_connective(uci):
+    """Turkish puts the noun after the number ("19.960 sipariş"); a swap written that way must not pass."""
+    pk = packet(uci)
+    sel = uci["references"]["forecast_mae"]["value"]
+    naive = uci["references"]["baseline_mae"]["value"]
+    both = ["forecast_mae", "baseline_mae"]
+    tr = lambda v: f"£{v:,.2f}".replace(",", "_").replace(".", ",").replace("_", ".")
+    assert unsupported_numbers(f"{tr(naive)} naif referans hatasıdır.", both, pk) == []
+    assert any("measure binding" in b for b in unsupported_numbers(f"{tr(sel)} naif referans hatasıdır.", both, pk))
+    orders = uci["references"]["orders"]["value"]
+    assert unsupported_numbers(f"Toplam {orders:,} sipariş.".replace(",", "."), ["orders"], pk) == []
+    # connectives end the post-number window: the comparison target is not the number's descriptor
+    assert unsupported_numbers(f"The selected method's MAE is £{sel:,.2f} against a naive benchmark of £{naive:,.2f}.", both, pk) == []
+    share = uci["references"]["country_share"]["value"] * 100
+    assert unsupported_numbers(f"The leading country holds {share:.1f}% of gross sales.", ["country_share", "gross"], pk) == []

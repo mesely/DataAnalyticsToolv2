@@ -1,6 +1,6 @@
 {
  "version": "llm-eval-v2",
- "generated_utc": "2026-10-16T19:00:04Z",
+ "generated_utc": "2026-10-16T19:21:12Z",
  "dataset": "demo (synthetic, seed 47)",
  "case_counts": {
   "plan": 19,
@@ -1768,7 +1768,7 @@
      "got": {
       "accepted": false,
       "ids": [],
-      "rejection": "Unsupported numbers: 0 (measure binding: excluded)"
+      "rejection": "Unsupported numbers: 0 (measure binding: excluded), 2 (measure binding: duplicates)"
      },
      "acceptance_correct": true,
      "citation_precision": null,

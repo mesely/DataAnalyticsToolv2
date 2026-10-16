@@ -72,5 +72,6 @@ paket ve XML'de `measure` ve `period` taşır; her sayının hemen önündeki (a
 dört kelime) ayırt edici terimler başka bir ölçüyü adlandırıp sayının kendi ölçüsünü adlandırmıyorsa yanıt reddedilir;
 her ISO tarih atıf yapılan bir dayanağın dönemi içinde olmalıdır. `phase11-llm-offline.json` artık **16 narrate**
 vakası içerir (n15 aynı birimli değer takası, n16 dönemsiz dayanağa tarih); scripted ideal/adversarial 1,00, yerel
-renderer öz-tutarlılığı 1,00 — model başarısı değildir. Bu kelime düzeyinde mekanik bir kontroldür: sayıdan sonra
-yazılan tanımlar ve terim listesi dışındaki eş anlamlılar bağlanmaz; anlamsal entailment hâlâ yoktur.
+renderer öz-tutarlılığı 1,00 — model başarısı değildir. Sayıdan sonraki en çok iki kelime de bağlanır (noktalama, rakam veya against/of/and/ve/ile/üzerinden gibi bir bağlaçta
+durur): Türkçede isim sayıdan sonra gelir ("£47.206,66 naif referans hatası" takası reddedilir). Bu kelime düzeyinde mekanik
+bir kontroldür: pencerelerin dışındaki tanımlar ve terim listesi dışındaki eş anlamlılar bağlanmaz; anlamsal entailment yoktur.

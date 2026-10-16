@@ -83,6 +83,34 @@ def _context_words(text, start, limit=4, floor=0):
     return [w.lower() for w in _WORD.findall(head)][-limit:]
 
 
+# Words that end a post-number descriptor: comparisons and connectives ("£47,206.66 against a naive …",
+# "84.6% of gross sales", "%5,0 ve fiyat", "£324.370,83 üzerinden hacmin"). Punctuation and numbers also end it.
+_CONNECTIVES = {
+    "against", "versus", "vs", "compared", "than", "of", "in", "on", "at", "for", "and", "or", "but", "while",
+    "whereas", "with", "from", "to", "under", "over", "is", "was", "were", "are",
+    "ve", "veya", "ile", "karşı", "karşılık", "oysa", "ama", "fakat", "üzerinden", "göre", "için", "iken",
+}
+
+
+def _following_words(text, end, limit=2):
+    """Up to `limit` words right after position `end`, stopping at punctuation, a digit or a connective."""
+    out = []
+    for token in re.finditer(r"\S+", text[end:]):
+        raw = token.group()
+        if re.match(r"[\d(\[]", raw):
+            break
+        word = _WORD.match(raw)
+        if not word:
+            break
+        w = word.group().lower()
+        if w in _CONNECTIVES:
+            break
+        out.append(w)
+        if len(out) >= limit or raw[word.end():] or word.end() < len(raw) or re.search(r"[,;:.!?)]$", raw):
+            break
+    return out
+
+
 def _week(start):
     from datetime import date, timedelta
     return (start, (date.fromisoformat(start) + timedelta(days=6)).isoformat())
@@ -221,7 +249,7 @@ def unsupported_numbers(text, cited, pk):
             continue
         # Measure binding: the cited items this number can belong to, versus the measures named just before it.
         owners = {k for k in cited if any((unit is None or u == unit) and v in values for u, v in pk["evidence"][k]["renderings"])}
-        named = _terms_in(_context_words(stripped, match.start(), floor=floor))
+        named = _terms_in(_context_words(stripped, match.start(), floor=floor)) | _terms_in(_following_words(stripped, match.end()))
         # An owner without registered descriptors cannot be bound; binding is skipped rather than guessed.
         if named and owners <= set(MEASURES) and not (named & owners):
             bad.append(token + " (measure binding: " + "/".join(sorted(named)) + ")")

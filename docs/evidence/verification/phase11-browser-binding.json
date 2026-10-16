@@ -1,0 +1,44 @@
+{
+ "generated_utc": "2026-10-16T19:03:08Z",
+ "scope": "BROWSER — built-in Claude browser pane against the loopback fixture (dev IdP, PostgreSQL, Python worker); UCI public data; TR locale, dark theme. No live model call.",
+ "git_base": "a96d520ccaf1c94c9b326d09f364b15bff7059e8",
+ "working_tree": "AW-14 binding amendment uncommitted at capture time; the commit that adds this receipt contains the measured code",
+ "web_sha256": {
+  "app.css": "28dc73f48745ecd33cbed69c5f29000993ca7387b5557f96b31580d792ebccb2",
+  "app.js": "3b94348ef984a4c253d54e7578a9ba9d018e81bb42c1940f5868d02155238880"
+ },
+ "checks": [
+  {
+   "name": "sign-in through loopback dev IdP (fixture account from deploy/phase1/start.mjs)",
+   "ok": true
+  },
+  {
+   "name": "decision brief built for UCI from the Turkish UI; narrative renders 10 typed statements (fact×2, calculation×3, inference×2, recommendation×2, limitation×1)",
+   "ok": true
+  },
+  {
+   "name": "local Turkish narrative text unchanged by the binding amendment (same sentences as before)",
+   "ok": true
+  },
+  {
+   "name": "saved brief analysis_context_xml: evidence items carry measure and period (next_point 2011-12-05..2011-12-11; forecast_mae/baseline_mae 2011-09-26..2011-12-04; duplicates none); output_contract last and names the binding rule",
+   "ok": true
+  },
+  {
+   "name": "390x844: narrative section single column (320px), document scrollWidth 390, 0 overflowing buttons, evidence buttons ≥40px",
+   "ok": true
+  },
+  {
+   "name": "TR percent evidence button reads %84,6 (was 84,611%) after reopening the saved brief from the archive",
+   "ok": true
+  }
+ ],
+ "not_checked": [
+  "Llama opt-in notice texts (would send aggregates to the provider; live provider remains BLOCKED/402 and was not called)",
+  "light theme and keyboard pass for this change (unchanged paths; covered by phase11-browser-qa.json)"
+ ],
+ "summary": {
+  "passed": 6,
+  "failed": 0
+ }
+}

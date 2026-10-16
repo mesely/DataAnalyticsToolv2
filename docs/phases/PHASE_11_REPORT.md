@@ -79,6 +79,19 @@ import 400; CSV+Parquet birlikte 400; bozuk Parquet 400; profil teşhis alanlar�
 (log loss 0,1827 / Brier 0,0702 / ECE 0,1279 — küçük benchmark); servis edilen web bundle yeni UI metinlerini içeriyor.
 Devam turunda CUA üzerinden gerçek tarayıcı kabulü **16/16 PASS**: `docs/evidence/verification/phase11-browser-qa.json`. Güncel sunucu kontrolü yeniden üretilebilir `analysis.verify_workspace` ile **21/21**: `phase11-http-qa-continuation.json`. İlk turun tarayıcı engeli ve eksik `phase10-browser-qa.json` kaydı tarihsel olarak korunur; yeni sonuç tam WCAG, kullanıcı pilotu veya E2E performans ölçümü değildir.
 
+## 7b. Ölçü ve dönem bağı (Opus devam turu) — IMPLEMENTED · TESTED · SERVER · BROWSER
+Spec: `specs/analyst-workspace-phase11.md` "AW-14 binding amendment". `analysis/narrative.py`: `MEASURES` (ölçü adı +
+ayırt edici EN/TR terimler), `periods()` (her dayanağın ISO dönemi), sayı başına önceki dört kelimelik pencere (aynı yan
+cümle, önceki sayıdan sonra) ve tarih başına dönem kontrolü; paket/XML `measure` ve `period` taşır; çıktı sözleşmesi
+kuralı sonda tekrarlar. Yerel EN/TR anlatı metni **değişmedi** ve yeni doğrulayıcıdan geçer (negatif senaryo dahil).
+Karşı örnekler (geçerli kimlik + paketteki değer): MAE takası EN/TR, hata değerini "gross sales" diye sunmak, payı brüt
+satış diye sunmak, son pencere tarihini sonraki hafta projeksiyonunun yanına koymak, tarihli kalite sayısı — hepsi red.
+Testler: `test_narrative.py` +4 → analytics **274 passed**; `llm_eval` narrate 16 (n15/n16). HTTP kabulü 21/21
+(`phase11-http-qa-binding.json`, çalışma ağacı); tarayıcı 6/6 (`phase11-browser-binding.json`: TR anlatı değişmedi,
+XML öznitelikleri, 390 px taşma yok). Aynı turda bulunan küçük UI kusuru: TR yüzde düğmesi "84,611%" gösteriyordu,
+cümle "%84,6" — yerel yüzde biçimine ve tek ondalığa çevrildi. Sınır: kelime düzeyinde mekanik kontrol; sayıdan sonra
+yazılan tanımlar ve terim listesi dışındaki eş anlamlılar bağlanmaz; canlı model ölçümü BLOCKED (402), çağrılmadı.
+
 ## 8. Açık kalanlar
 Gerçek LLM erişimi (402), 5–8 kullanıcı pilotu, üretim RLS/retention/hard isolation, 5M+ ölçek, decisions yolunun
-2 s başlangıcı, ≥2 sezon veriyle seasonal naive doğrulaması, dönem (ay) dilimleri ve anlatı için anlamsal iddia-dayanak doğrulaması. Parquet core TS rotası önceki CI’da geçti; açık iş olarak tutulmaz.
+2 s başlangıcı, ≥2 sezon veriyle seasonal naive doğrulaması, dönem (ay) dilimleri ve anlatı için anlamsal iddia-dayanak doğrulaması (ölçü/dönem bağı kelime düzeyinde eklendi). Parquet core TS rotası önceki CI’da geçti; açık iş olarak tutulmaz.

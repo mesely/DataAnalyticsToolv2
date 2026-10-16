@@ -174,7 +174,7 @@ HTTP/OIDC/DB/browser/LLM hariç. Gerçek model accuracy402çözülmeden ölçül
 7. Model stüdyosu → Wine → Modelleri karşılaştır: "Olasılık kalitesi" tablosu (log loss, Brier, ECE; ortalama
    kesinlik üç sınıfta —). Seçim ölçütü hâlâ macro F1'dir.
 
-Otomatik: `.venv/bin/python -m pytest analysis/tests -q` (270 test; devam turu); `.venv/bin/python -m analysis.llm_eval
+Otomatik: `.venv/bin/python -m pytest analysis/tests -q` (274 test; ölçü/dönem bağı dahil); `.venv/bin/python -m analysis.llm_eval
 --providers scripted-ideal,scripted-adversarial,local` (narrate sütunları); tahmin kanıtı
 `docs/evidence/phase10/forecast-v3-uci.json`.
 

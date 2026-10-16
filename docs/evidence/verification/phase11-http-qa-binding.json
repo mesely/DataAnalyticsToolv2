@@ -1,0 +1,129 @@
+{
+ "generated_utc": "2026-10-16T19:01:05.199065+00:00",
+ "base": "http://127.0.0.1:8123",
+ "git_head": "a96d520ccaf1c94c9b326d09f364b15bff7059e8",
+ "build": {
+  "sha256": "a7fc25eb1a7fc76ece2bf093e22ad7a28613b659b5c5478a6521b30e7c41fb64",
+  "scheme": "source-dependencies-v1",
+  "files": 46
+ },
+ "web_sha256": {
+  "app.js": "2b4d916f59f6841b057db5e505025f8c285fc98f935a350ac7df1cd166b5f228",
+  "app.css": "28dc73f48745ecd33cbed69c5f29000993ca7387b5557f96b31580d792ebccb2"
+ },
+ "producer": "analysis.verify_workspace",
+ "checks": [
+  {
+   "name": "login three local fixture identities",
+   "ok": true
+  },
+  {
+   "name": "UCI decision HTTP 200",
+   "ok": true,
+   "detail": {
+    "http_ms": 2084
+   }
+  },
+  {
+   "name": "nonnegative ordered forecast interval",
+   "ok": true
+  },
+  {
+   "name": "nominal is not empirical calibration",
+   "ok": true
+  },
+  {
+   "name": "coverage with sharpness",
+   "ok": true,
+   "detail": {
+    "0.8": {
+     "radius_pence": 5092420,
+     "quantile": 5092420.5,
+     "final_window_coverage": 0.7,
+     "final_mean_width_gbp": 101848.41,
+     "development_rolling_coverage": 0.7307692307692307,
+     "development_rolling_n": 26,
+     "development_mean_width_gbp": 102303.97624999999
+    },
+    "0.9": {
+     "radius_pence": 6549863,
+     "quantile": 6549863,
+     "final_window_coverage": 0.7,
+     "final_mean_width_gbp": 130997.26,
+     "development_rolling_coverage": 0.8461538461538461,
+     "development_rolling_n": 26,
+     "development_mean_width_gbp": 124948.63057692308
+    }
+   }
+  },
+  {
+   "name": "all six local narrative types validate",
+   "ok": true
+  },
+  {
+   "name": "bounded XML ends with output contract",
+   "ok": true
+  },
+  {
+   "name": "three country slices",
+   "ok": true
+  },
+  {
+   "name": "owner reopens identical decision",
+   "ok": true
+  },
+  {
+   "name": "other owner cannot read decision",
+   "ok": true
+  },
+  {
+   "name": "viewer cannot create decision",
+   "ok": true
+  },
+  {
+   "name": "missing CSRF refused",
+   "ok": true
+  },
+  {
+   "name": "literal country omitted from both model packets",
+   "ok": true
+  },
+  {
+   "name": "Parquet profiles without raw values",
+   "ok": true
+  },
+  {
+   "name": "mapped Parquet exact monetary preview",
+   "ok": true
+  },
+  {
+   "name": "preview-bound owner import",
+   "ok": true
+  },
+  {
+   "name": "other owner cannot read imported dataset",
+   "ok": true
+  },
+  {
+   "name": "stale receipt refused",
+   "ok": true
+  },
+  {
+   "name": "both sources refused",
+   "ok": true
+  },
+  {
+   "name": "malformed Parquet refused",
+   "ok": true
+  },
+  {
+   "name": "CSV/Parquet arithmetic parity",
+   "ok": true
+  }
+ ],
+ "summary": {
+  "passed": 21,
+  "failed": 0,
+  "scope": "SERVER HTTP, actual loopback OIDC/CSRF/Postgres/Python. Public UCI and synthetic fixtures. Not browser/load/LLM accuracy."
+ }
+}

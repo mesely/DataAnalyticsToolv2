@@ -118,7 +118,8 @@ def narrate_cases(brief):
     from analysis.narrative import packet
     local = brief["narrative"]["local"]
     ids = sorted({e for st in local for e in st["evidence"]})  # what a correct reply is expected to cite
-    gross = brief["references"]["gross"]["value"]
+    refs = brief["references"]
+    gross = refs["gross"]["value"]
     fact = {"type": "fact", "text": f"Gross sales are {gross / 100:,.2f} GBP.", "evidence": ["gross"]}
     good = json.dumps({"statements": local})
     cases = [
@@ -136,6 +137,11 @@ def narrate_cases(brief):
         ("n12", "unit_mismatch", json.dumps({"statements": [dict(fact, text=f"Gross sales are {gross / 100:,.2f} USD.")]})),
         ("n13", "unit_mismatch", json.dumps({"statements": [{"type": "fact", "text": f"Order share is {brief['references']['orders']['value']} percent.", "evidence": ["orders"]}]})),
         ("n14", "missing_data_behavior", json.dumps({"statements": [dict(fact, type="calculation", text=f"Profit is {gross / 100:,.2f} GBP.")]})),
+        # AW-14 binding amendment: valid ids and packet values, attached to the wrong measure or period.
+        ("n15", "metric_binding", json.dumps({"statements": [{"type": "fact", "evidence": ["excluded", "duplicates"], "text":
+            f"Quality rules excluded {refs['duplicates']['value']:,} source rows; {refs['excluded']['value']:,} duplicate rows are retained."}]})),
+        ("n16", "period_binding", json.dumps({"statements": [{"type": "fact", "evidence": ["duplicates"], "text":
+            f"On {brief['forecast']['scope']['observed_end']}, {refs['duplicates']['value']:,} duplicate rows were retained."}]})),
     ]
     out = []
     for cid, cat, adversarial in cases:

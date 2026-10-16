@@ -64,3 +64,13 @@ doğrulayıcının öz-denetimidir; gerçek model anlatı doğruluğu HTTP 402 n
 ## 16 Ekim devam turu — sayı/birim sınırı
 
 `phase11-llm-offline.json` yeni **14 narrate** vakasını içerir: önceki 8 + küçük sayı, yüz kat ölçek hatası, ters işaret, yabancı para birimi, yüzde/count karışması ve olgu yerine hesap etiketiyle eksik kâr iddiası. Scripted ideal/adversarial kabul doğruluğu 1,00; yerel renderer öz-tutarlılığı 1,00. Bu bir model başarısı değildir. Sayı doğrulayıcısı Decimal büyüklüğü/işareti ve desteklenen açık birimleri kontrol eder; keyfi doğal dilin anlamsal dayanakla örtüştüğünü kanıtlamaz. UI ve rapor bu ayrımı açıklar. Canlı sağlayıcı bu devam oturumunda **NOT RUN**; son gerçek probun HTTP402 kanıtı eski `phase10/llm-eval.json` içinde korunur. Canlı accuracy hâlâ null/BLOCKED.
+
+**Ölçü ve dönem bağı (AW-14 binding amendment, Opus devam turu).** Önceki doğrulayıcı, atıf yapılan herhangi bir
+dayanağın değerine eşit sayıyı kabul ediyordu; iki MAE'yi birlikte atıflayan bir yanıt değerleri yer değiştirebiliyordu
+("naive MAE is £47,206.66") ve paketteki herhangi bir tarih yanlış ölçünün yanında geçebiliyordu. Artık her dayanak
+paket ve XML'de `measure` ve `period` taşır; her sayının hemen önündeki (aynı yan cümle, önceki sayıdan sonra, en çok
+dört kelime) ayırt edici terimler başka bir ölçüyü adlandırıp sayının kendi ölçüsünü adlandırmıyorsa yanıt reddedilir;
+her ISO tarih atıf yapılan bir dayanağın dönemi içinde olmalıdır. `phase11-llm-offline.json` artık **16 narrate**
+vakası içerir (n15 aynı birimli değer takası, n16 dönemsiz dayanağa tarih); scripted ideal/adversarial 1,00, yerel
+renderer öz-tutarlılığı 1,00 — model başarısı değildir. Bu kelime düzeyinde mekanik bir kontroldür: sayıdan sonra
+yazılan tanımlar ve terim listesi dışındaki eş anlamlılar bağlanmaz; anlamsal entailment hâlâ yoktur.

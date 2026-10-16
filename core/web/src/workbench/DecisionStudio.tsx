@@ -343,6 +343,13 @@ export function DecisionStudio({
     recommendation: t("Öneri", "Recommendation"),
     limitation: t("Sınır", "Limitation"),
   };
+  // Locale percent style ("%84,6" in Turkish, "84.6%" in English), one decimal like the narrative text.
+  const percent = (ratio: number) =>
+    new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-GB", {
+      style: "percent",
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }).format(ratio);
   const formatRef = (k: string) => {
     const r = brief?.references[k];
     if (!r) return k;
@@ -351,9 +358,9 @@ export function DecisionStudio({
       : r.unit === "GBP"
         ? money(r.value)
         : r.unit === "ratio"
-          ? `${number(r.value * 100)}%`
+          ? percent(r.value)
           : r.unit === "percent"
-            ? `${number(r.value)}%`
+            ? percent(r.value / 100)
             : number(r.value);
   };
   const narrativeList = (items: Statement[]) => (
@@ -665,13 +672,13 @@ export function DecisionStudio({
                 <p className="wb-provider-notice" role="status">
                   {brief.narrative.provider.status === "accepted"
                     ? t(
-                        "Llama anlatısının biçimi, atıfları ve sayıları kontrol edildi. Bu kontrol, yorumların anlamca doğru olduğunu kanıtlamaz; dayanakları inceleyin. Yerel anlatı yukarıda korunur.",
-                        "The Llama narrative's schema, citations and numbers were checked. This does not prove its interpretations are correct; inspect the evidence. The local narrative above is kept.",
+                        "Llama anlatısının biçimi, atıfları, sayıları ve her sayının ölçü ile dönem bağı kontrol edildi. Bu kelime düzeyinde bir kontroldür; yorumların anlamca doğru olduğunu kanıtlamaz, dayanakları inceleyin. Yerel anlatı yukarıda korunur.",
+                        "The Llama narrative's schema, citations, numbers and each number's measure and period were checked. This is a word-level check and does not prove its interpretations are correct; inspect the evidence. The local narrative above is kept.",
                       )
                     : brief.narrative.provider.status === "rejected"
                       ? t(
-                          "Llama anlatısı doğrulamayı geçemedi (bilinmeyen dayanak, desteklenmeyen sayı veya şema); iki denemeden sonra yerel anlatı gösteriliyor.",
-                          "The Llama narrative failed validation (unknown evidence, unsupported number or schema) after two attempts; the local narrative is shown.",
+                          "Llama anlatısı doğrulamayı geçemedi (bilinmeyen dayanak, desteklenmeyen sayı, yanlış ölçüye ya da döneme bağlanmış değer veya şema); iki denemeden sonra yerel anlatı gösteriliyor.",
+                          "The Llama narrative failed validation (unknown evidence, unsupported number, a value attached to the wrong measure or period, or schema) after two attempts; the local narrative is shown.",
                         )
                       : brief.narrative.provider.http_status === 402
                         ? t(
@@ -728,14 +735,7 @@ export function DecisionStudio({
                       }}
                     >
                       <Database size={14} />
-                      {refLabel[k] || k}:{" "}
-                      {brief.references[k]!.unit === "pence"
-                        ? money(brief.references[k]!.value / 100)
-                        : brief.references[k]!.unit === "GBP"
-                          ? money(brief.references[k]!.value)
-                          : brief.references[k]!.unit === "ratio"
-                            ? `${number(brief.references[k]!.value * 100)}%`
-                            : number(brief.references[k]!.value)}
+                      {refLabel[k] || k}: {formatRef(k)}
                       <ArrowRight size={13} />
                     </button>
                   ))}

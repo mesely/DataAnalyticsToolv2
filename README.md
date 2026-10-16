@@ -66,8 +66,10 @@ Every brief carries a typed analyst narrative — fact, calculation, inference,
 assumption, recommendation, limitation — in which each sentence links to the
 calculation it rests on. The local renderer always produces it; an optional
 Llama narrative must return the same typed JSON over an evidence packet and is
-accepted only under schema, citation and signed numeric/unit checks. These mechanical
-checks do not establish semantic entailment or model accuracy. Missing evidence is
+accepted only under schema, citation and signed numeric/unit checks, and only when
+each number sits next to the name of its own measure and each date inside that
+measure's period. These word-level checks do not establish semantic entailment or
+model accuracy. Missing evidence is
 reported as unknown, never as zero. Country filter labels stay local.
 
 An optional Llama step receives a bounded XML evidence bundle and methodology

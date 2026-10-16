@@ -1,5 +1,23 @@
 # Context Layer / Analytics — tek giriş ve devir rehberi
 
+## ŞİMDİ OKU — Opus 5.5 devam turu (16 Ekim 2026 akşam)
+
+**Görev 1 (aşağıdaki GPT handoff kartı) tamamlandı: anlatı sayıları için ölçü ve dönem bağı.** Spec
+`specs/analyst-workspace-phase11.md` → "AW-14 binding amendment". `analysis/narrative.py`: `MEASURES` (ölçü adı +
+ayırt edici EN/TR terimler), `periods()`; her sayının önündeki ≤4 kelime (aynı yan cümle, önceki sayıdan sonra) başka
+bir ölçüyü adlandırıp kendi ölçüsünü adlandırmıyorsa ret; her ISO tarih atıflı bir dayanağın döneminde olmalı; XML
+`measure`/`period` öznitelikleri. Yerel EN/TR anlatı metni değişmedi ve doğrulayıcıdan geçiyor. Kelime düzeyinde
+mekanik kontrol — anlamsal entailment değil; sayıdan sonra yazılan tanım ve eş anlamlı bağlanmaz.
+Kanıt: analytics **274 passed**; `phase11-llm-offline.json` narrate 16 (n15 takas, n16 dönem) — model başarısı değil;
+HTTP `phase11-http-qa-binding.json` 21/21; tarayıcı `phase11-browser-binding.json` 6/6 (yerleşik tarayıcı bu turda
+çalıştı). Ek UI düzeltmesi: TR yüzde dayanak düğmesi "84,611%" → "%84,6". Canlı LLM çağrılmadı (402, null).
+Disk tur başında 1,8 GB boştu (99 %); bu turda temizlik yapılmadı — sonraki ajan büyük iş öncesi `df -h` bakmalı.
+**Sonraki iş:** aşağıdaki kartın tablosunda görev 3 (dönem/ay dilimleri + final kapsama × genişlik; mevcut 10 final
+üzerinde tuning yok) veya görev 4 (filtreli istekte DuckDB parametre → pandas soğuk başlangıcı). Görev 2 dış kredi
+kapısına bağlı. Commit/CI sonucu: `gh run list --repo mesely/DataAnalyticsToolv2 --limit 3`.
+
+---
+
 ## GPT-6.1 Sol → Opus 5.5 Handoff
 
 **ÖNCE BU KARTI OKU (16 Ekim 2026 devam turu).** A11 düzeltmeleri ve gerçek tarayıcı kabulü kapandı. Eski aşağıdaki kartlar tarihsel kayıttır; orijinal A1/T01 listesinden yeniden başlama. Önce `git status`, sonra bu kartın CI kapısı; sonra aşağıdaki ilk görev. Bu konuşmaya veya eski ajan hafızasına ihtiyaç yok.

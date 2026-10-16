@@ -25,3 +25,31 @@ Narrative numeric checks preserve signed magnitude, decimal scale and explicit u
 Parquet source limit means 2 MB **decoded bytes** (base64 transport is larger). File-controlled identifiers are quoted as SQL identifiers, never SQL expressions. DuckDB is restricted to the single temporary upload, with extension installation/loading disabled, memory/thread limits and a decoded row-data budget. Field and aggregate text-byte limits are checked inside DuckDB before values are materialized in Python. Nested/binary types are rejected explicitly; this bounded retail importer does not flatten them.
 
 Browser CSV decoding exposes UTF-8, Windows-1252 and Windows-1254 with a local text preview. A failed strict UTF-8 decode suggests Windows-1252 but requires explicit confirmation before sending the decoded table for profiling/import. Changing encoding invalidates mapping/preview/receipt. The normalized UTF-8 text remains the server source hash; original CSV byte encoding is a local decoding decision, not an asserted byte-for-byte upload receipt. Async reads from superseded file selections cannot overwrite the active selection.
+
+## AW-14 binding amendment — measure and period binding for narrative numbers (2026-10-16, Opus continuation)
+Problem: the narrative validator accepted any number equal to *some* cited evidence value, so a reply citing both
+`forecast_mae` and `baseline_mae` could swap them ("naive MAE is £47,206.66"), and any packet date (for example a
+final-window target) was accepted next to a measurement it does not belong to.
+
+Contract (additive; decision-narrative-v1 statement schema unchanged, local narrative text unchanged):
+1. Every evidence item in the packet carries a `measure` (plain-language name), a fixed list of **distinctive** EN/TR
+   descriptor terms, and a `period` (`start..end`, ISO) or none. Periods: sales measures (gross, orders, leading-country
+   share, basket support) = observed scope; quality counts and business validation = none (whole source dataset /
+   checklist); complete weeks = first..last complete week; final-window errors and origin count = first..last final
+   target week; next-week projection = that week; scenario values = the last complete week.
+2. **Measure binding.** For each numeric token, the validator takes up to four words immediately before it in the same
+   clause (clauses end at `;`, `:` or sentence end) and after the previous number. If those words contain a descriptor term of some evidence item and
+   none of the descriptor terms of the item(s) whose value the number matched, the statement is rejected
+   ("measure binding"). Descriptors written after a number are not bound, and an evidence id without registered
+   descriptors is not bound (skipped, never guessed) — documented limitations.
+3. **Period binding.** Every ISO date in a statement must lie within the period of at least one cited evidence item;
+   a date with no period-bearing citation is rejected ("period binding").
+4. The `<analysis_context>` evidence items expose `measure` and `period` attributes; the instructions ask the model to
+   name the measure immediately before each number.
+5. Labels: this is a mechanical lexical check, **not semantic entailment**. It closes value swaps and wrong-measure /
+   wrong-period attachments that use the packet's own vocabulary; paraphrases outside the term lists are not detected.
+   Live model accuracy stays BLOCKED (HTTP 402) and null.
+
+Acceptance: the local EN and TR narratives (including negative scenarios) validate unchanged; swapped-MAE,
+wrong-measure and wrong-period counter-examples with valid IDs are rejected in unit tests and in two new
+`llm_eval` narrate cases; existing narrative, decision, forecast and LLM-eval tests stay green.

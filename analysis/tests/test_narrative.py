@@ -49,7 +49,7 @@ def test_unsupported_numbers_rule(brief):
     assert unsupported_numbers("Gross sales are £21,406.00.", ["gross"], pk) == ["21,406.00"]
     assert unsupported_numbers("Three steps over 12 weeks.", [], pk) == ["12"]
     assert unsupported_numbers("Sales were 999 last week.", ["gross"], pk) == ["999"]
-    assert unsupported_numbers("Peak on 2031-01-01.", [], pk) == ["2031-01-01"]  # dates outside the packet periods are rejected
+    assert unsupported_numbers("Peak on 2031-01-01.", [], pk) == ["2031-01-01 (period binding)"]  # dates outside every cited period are rejected
 
 
 @pytest.mark.parametrize("mutate,message", [
@@ -195,3 +195,71 @@ def test_narrative_is_deterministic_and_in_the_hash(brief):
                     "scenario": {"volume_pct": 5, "price_pct": 0, "budget_gbp": 100}})
     assert again["narrative"] == brief["narrative"] and again["output_sha256"] == brief["output_sha256"]
     assert set(TYPES) == {"fact", "calculation", "inference", "assumption", "recommendation", "limitation"}
+
+
+@pytest.fixture(scope="module")
+def uci():
+    return handle({"action": "decisions", "dataset": "uci", "locale": "en",
+                   "scenario": {"volume_pct": 5, "price_pct": 0, "budget_gbp": 100}})
+
+
+def _money_en(value_gbp):
+    return f"£{value_gbp:,.2f}"
+
+
+def test_swapped_values_with_valid_ids_are_rejected_by_measure_binding(uci):
+    """Valid ids and values that exist in the packet, attached to the wrong measure (AW-14 binding amendment)."""
+    pk = packet(uci)
+    sel = uci["references"]["forecast_mae"]["value"]
+    naive = uci["references"]["baseline_mae"]["value"]
+    both = ["forecast_mae", "baseline_mae"]
+    right = f"The selected method's MAE is {_money_en(sel)} and the naive benchmark is {_money_en(naive)}."
+    assert unsupported_numbers(right, both, pk) == []
+    swapped = f"The selected method's MAE is {_money_en(naive)} and the naive benchmark is {_money_en(sel)}."
+    bad = unsupported_numbers(swapped, both, pk)
+    assert len(bad) == 2 and all("measure binding" in b for b in bad)
+    tr = lambda v: f"£{v:,.2f}".replace(",", "_").replace(".", ",").replace("_", ".")
+    assert unsupported_numbers(f"Naif referansın MAE'si {tr(naive)}.", both, pk) == []
+    assert any("measure binding" in b for b in unsupported_numbers(f"Naif referansın MAE'si {tr(sel)}.", both, pk))
+    # an error value presented as gross sales, a share presented as gross, an order count presented as weeks
+    gross_label = f"Gross sales are {_money_en(sel)}."
+    assert any("measure binding" in b for b in unsupported_numbers(gross_label, ["forecast_mae", "gross"], pk))
+    share = uci["references"]["country_share"]["value"] * 100
+    assert any("measure binding" in b for b in unsupported_numbers(f"Gross sales are {share:.1f}%.", ["country_share", "gross"], pk))
+    with pytest.raises(ValueError, match="measure binding"):
+        validate_statements(json.dumps({"statements": [{"type": "calculation", "text": swapped, "evidence": both}]}), pk)
+
+
+def test_dates_must_belong_to_a_cited_measure_period(uci):
+    pk = packet(uci)
+    nxt = uci["forecast"]["next"]["period"]
+    holdout_target = uci["forecast"]["holdout"]["records"][-1]["target"]
+    point = _money_en(uci["references"]["next_point"]["value"] / 100)
+    assert unsupported_numbers(f"The point projection for the week of {nxt} is {point}.", ["next_point"], pk) == []
+    wrong = f"The point projection for the week of {holdout_target} is {point}."
+    assert unsupported_numbers(wrong, ["next_point"], pk) == [holdout_target + " (period binding)"]
+    # the same final-window date is legitimate next to a final-window error
+    mae = _money_en(uci["references"]["forecast_mae"]["value"])
+    assert unsupported_numbers(f"Up to {holdout_target} the selected method's MAE was {mae}.", ["forecast_mae"], pk) == []
+    # a date cited only with whole-dataset quality counts has no period to belong to
+    assert unsupported_numbers(f"On {holdout_target} duplicates were retained.", ["duplicates"], pk)
+
+
+def test_local_narratives_validate_unchanged_under_binding(uci, brief):
+    for b in (uci, brief):
+        pk = packet(b)
+        for en in (True, False):
+            local = local_statements(b, en=en)
+            assert validate_statements(json.dumps({"statements": local}), pk) == local
+    negative = handle({"action": "decisions", "dataset": "uci", "locale": "tr",
+                       "scenario": {"volume_pct": -12.5, "price_pct": -3, "budget_gbp": 0}})
+    assert validate_statements(json.dumps({"statements": negative["narrative"]["local"]}), packet(negative))
+
+
+def test_context_xml_exposes_measure_and_period_for_every_item(uci):
+    root = ET.fromstring(uci["analysis_context_xml"])
+    items = {i.get("id"): i for i in root.find("evidence")}
+    assert set(items) == set(uci["references"])
+    assert items["next_point"].get("period").startswith(uci["forecast"]["next"]["period"] + "..")
+    assert items["duplicates"].get("period") == "none" and "naive" in items["baseline_mae"].get("measure")
+    assert "Name the measure immediately before each number" in root.find("output_contract").text

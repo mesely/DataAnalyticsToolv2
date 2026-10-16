@@ -36,3 +36,39 @@ https://gemini.google.com/app/4d72a457fda047a0 .
 Prompt explicitly requested generous negative space, 1.6px geometry, a small indexing dot/open-corner motif, no stock symbol, scripts, external references or fonts. Gemini source retained unchanged; provenance is development documentation, not a badge in the product. Artwork is decorative, never quantitative evidence.
 
 - Turn `b5f9739aad87714f`: 21 additional `utility-*.svg` controls (refresh, external, close, chevrons, arrow, download, filter, settings, info, logout, check, table, file, shield, send, message, network, activity and zoom). Visible Gemini JSON output saved without geometry edits. Navigation `network.svg` remains separate. Universally familiar functions retain recognizable silhouettes. These are Gemini-produced source outputs, not proof of exclusive geometry or trademark clearance. The loading spinner remains an animated runtime utility.
+
+## AW-15 glyph family — 17 October 2026 (replaces every icon in the workspace)
+
+User request: every icon must be original to this product and Gemini-generated; no ready-made icon library.
+Signed-in, user-authorized Gemini web conversation (model "Pro"):
+https://gemini.google.com/app/37d7000c896aba2b — six turns, raw outputs saved unchanged as
+`assets/glyphs/gemini-batch-1.json` … `gemini-batch-6.json`. Each file's canonical JSON SHA-256 was computed in the
+browser from Gemini's code block and matched against the saved file (batch 1 `789103da…`, 2 `2078bbe3…`,
+3 `8432a66d…`, 4 `f4638787…`, 5 `07cd9a7c…`, 6 `cc38be18…`).
+
+Grammar given to Gemini (derived from the app icon: open cobalt planes + one brass index sphere): 24×24 grid,
+1.75 stroke, round caps/joins; every closed contour leaves an open top-right corner; exactly one solid
+`circle.idx` "index dot" on the semantically important point; containers as offset planes; ≤ 6 primitives;
+no text, transforms, styles, references or scripts; explicitly not traced from Lucide, Material, Feather,
+Heroicons, Tabler or Phosphor.
+
+Review loop: contact sheets at 16/20/24/48 px in light and dark were inspected after each batch; glyphs that
+read wrongly were sent back with the reason and replaced by a later batch (help, language, theme_light,
+theme_dark, admin; reset, gross_sales, average_order; gross_sales, markets). Earlier outputs stay in their batch
+files as provenance; `tools/design/glyphs.py` takes the latest batch per name, validates tags/attributes/grid/
+index dot, and writes `glyphs.generated.ts`. `Glyph.tsx` renders them with React.createElement (no innerHTML);
+strokes use currentColor, the index dot uses `--glyph-dot` (brass, tuned per theme).
+
+51 glyphs, one meaning each: overview, assistant, network, findings, admin, guide, workspace, logout, search,
+help, language, theme_light, theme_dark, menu, close, narrow_view, dataset, about_data, upload, download,
+external, open, forward, chevron_right, chevron_down, reset, apply, confirmed, run, spinner, info, save,
+gross_sales, orders, units, average_order, markets, trend, table_view, report, verified, query, send,
+experiment, saved_experiments, period_change, decision, zoom_in, zoom_out, calendar, tick.
+
+Browser widgets cannot host a React element, so batch 6 (calendar, tick) and the two chevrons are also emitted
+as CSS data URIs (`glyphs.generated.css`): the disclosure marker of every `<summary>`, the `<select>` caret, the
+date/month picker button and the checkbox mark. Native number spinners are hidden (arrow keys still step).
+
+Removed: the 36 earlier mask SVGs (navigation, AW-10 functional family and the 21 utility controls) and every
+lucide-react usage (Loader2, LayoutDashboard, FlaskConical, FolderOpen, Clock3, Play). `brand.svg` remains as
+the favicon. These are Gemini-produced outputs under the user's direction; this is not a trademark clearance.

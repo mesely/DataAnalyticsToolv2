@@ -1,94 +1,83 @@
-import util0 from "./assets/utility-refresh.svg";
-import util1 from "./assets/utility-external.svg";
-import util2 from "./assets/utility-external.svg";
-import util3 from "./assets/utility-close.svg";
-import util4 from "./assets/utility-chevron-right.svg";
-import util5 from "./assets/utility-chevron-down.svg";
-import util6 from "./assets/utility-arrow-right.svg";
-import util7 from "./assets/utility-download.svg";
-import util8 from "./assets/utility-download.svg";
-import util9 from "./assets/utility-filter.svg";
-import util10 from "./assets/utility-settings.svg";
-import util11 from "./assets/utility-settings.svg";
-import util12 from "./assets/utility-info.svg";
-import util13 from "./assets/utility-logout.svg";
-import util14 from "./assets/utility-check.svg";
-import util15 from "./assets/utility-table.svg";
-import util16 from "./assets/utility-file.svg";
-import util17 from "./assets/utility-shield.svg";
-import util18 from "./assets/utility-send.svg";
-import util19 from "./assets/utility-message.svg";
-import util20 from "./assets/utility-network.svg";
-import util21 from "./assets/utility-activity.svg";
-import util22 from "./assets/utility-zoom-in.svg";
-import util23 from "./assets/utility-zoom-out.svg";
-import React from "react";
-import workspace from "./assets/workspace.svg";
-import globe from "./assets/globe.svg";
-import database from "./assets/database.svg";
-import search from "./assets/search.svg";
-import help from "./assets/help.svg";
-import book from "./assets/book.svg";
-import upload from "./assets/upload.svg";
-import compare from "./assets/compare.svg";
-import bookmark from "./assets/bookmark.svg";
-import sun from "./assets/sun.svg";
-import moon from "./assets/moon.svg";
-function icon(asset: string) {
-  return function BrandIcon({
-    size = 20,
-    className = "",
-  }: {
-    size?: number;
-    className?: string;
-  }) {
-    return (
-      <span
-        aria-hidden="true"
-        className={`wb-custom-icon ${className}`}
-        style={{
-          width: size,
-          height: size,
-          maskImage: `url(${asset})`,
-          WebkitMaskImage: `url(${asset})`,
-        }}
-      />
-    );
-  };
-}
-export const Layers = icon(workspace),
-  Globe2 = icon(globe),
-  Database = icon(database),
-  Search = icon(search),
-  HelpCircle = icon(help),
-  BookOpen = icon(book),
-  Upload = icon(upload),
-  Code2 = icon(compare),
-  Bookmark = icon(bookmark),
-  Sun = icon(sun),
-  Moon = icon(moon);
+/**
+ * Context Layer icon vocabulary — every icon is a glyph from the original Gemini-generated family
+ * (assets/glyphs/gemini-batch-*.json → tools/design/glyphs.py → glyphs.generated.ts). One meaning per glyph:
+ * the exported names below are semantic, and legacy names used by older screens map onto them.
+ * No stock icon library is used anywhere in the workspace.
+ */
+import { glyph } from "./Glyph";
 
-export const RotateCcw = icon(util0);
-export const ExternalLink = icon(util1);
-export const ArrowUpRight = icon(util2);
-export const X = icon(util3);
-export const ChevronRight = icon(util4);
-export const ChevronDown = icon(util5);
-export const ArrowRight = icon(util6);
-export const Download = icon(util7);
-export const ArrowDownToLine = icon(util8);
-export const Filter = icon(util9);
-export const Settings2 = icon(util10);
-export const SlidersHorizontal = icon(util11);
-export const Info = icon(util12);
-export const LogOut = icon(util13);
-export const CheckCircle2 = icon(util14);
-export const Table2 = icon(util15);
-export const FileText = icon(util16);
-export const ShieldCheck = icon(util17);
-export const Send = icon(util18);
-export const MessageSquare = icon(util19);
-export const Network = icon(util20);
-export const Activity = icon(util21);
-export const ZoomIn = icon(util22);
-export const ZoomOut = icon(util23);
+// Shell and navigation
+export const Overview = glyph("overview"),
+  Assistant = glyph("assistant"),
+  NetworkGlyph = glyph("network"),
+  Findings = glyph("findings"),
+  Admin = glyph("admin"),
+  Guide = glyph("guide"),
+  Workspace = glyph("workspace"),
+  LogOut = glyph("logout"),
+  Search = glyph("search"),
+  HelpCircle = glyph("help"),
+  Language = glyph("language"),
+  Sun = glyph("theme_light"),
+  Moon = glyph("theme_dark"),
+  Menu = glyph("menu"),
+  X = glyph("close"),
+  NarrowView = glyph("narrow_view");
+
+// Data and actions
+export const Dataset = glyph("dataset"),
+  AboutData = glyph("about_data"),
+  Upload = glyph("upload"),
+  Download = glyph("download"),
+  ExternalLink = glyph("external"),
+  Open = glyph("open"),
+  ArrowRight = glyph("forward"),
+  ChevronRight = glyph("chevron_right"),
+  ChevronDown = glyph("chevron_down"),
+  Reset = glyph("reset"),
+  Apply = glyph("apply"),
+  Confirmed = glyph("confirmed"),
+  Run = glyph("run"),
+  Spinner = glyph("spinner"),
+  Info = glyph("info"),
+  Save = glyph("save");
+
+// Metrics and analytical tools
+export const GrossSales = glyph("gross_sales"),
+  Orders = glyph("orders"),
+  Units = glyph("units"),
+  AverageOrder = glyph("average_order"),
+  Markets = glyph("markets"),
+  Trend = glyph("trend"),
+  TableView = glyph("table_view"),
+  Report = glyph("report"),
+  Verified = glyph("verified"),
+  Query = glyph("query"),
+  Send = glyph("send"),
+  Experiment = glyph("experiment"),
+  SavedExperiments = glyph("saved_experiments"),
+  PeriodChange = glyph("period_change"),
+  Decision = glyph("decision"),
+  ZoomIn = glyph("zoom_in"),
+  ZoomOut = glyph("zoom_out");
+
+// Legacy names kept so screens read naturally; each maps to exactly one meaning above.
+export const Database = Dataset,
+  Globe2 = Language,
+  BookOpen = AboutData,
+  Code2 = Query,
+  Bookmark = Save,
+  Layers = Workspace,
+  RotateCcw = Reset,
+  ArrowUpRight = Open,
+  ArrowDownToLine = Download,
+  Filter = NarrowView,
+  Settings2 = Admin,
+  SlidersHorizontal = Apply,
+  CheckCircle2 = Confirmed,
+  Table2 = TableView,
+  FileText = Report,
+  ShieldCheck = Verified,
+  MessageSquare = Assistant,
+  Network = NetworkGlyph,
+  Activity = Trend;

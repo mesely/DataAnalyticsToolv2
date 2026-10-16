@@ -3,7 +3,7 @@ import { TableWrap } from "./TableWrap";
 import { Upload } from "./BrandIcons";
 import modelArt from "./assets/model-studio.jpeg";
 import React, { useEffect, useRef, useState } from "react";
-import { FlaskConical, Loader2, FolderOpen } from "lucide-react";
+import { Experiment, Spinner, SavedExperiments } from "./BrandIcons";
 import { api } from "../api";
 import { useLocale } from "./Locale";
 import type { DataProfile } from "./Preparation";
@@ -738,9 +738,9 @@ export function ModelStudio({
                 onClick={() => void train()}
               >
                 {loading ? (
-                  <Loader2 className="spin" size={16} />
+                  <Spinner className="spin" size={16} />
                 ) : (
-                  <FlaskConical size={16} />
+                  <Experiment size={16} />
                 )}{" "}
                 {t("Modelleri karşılaştır", "Compare models")}
               </button>
@@ -766,7 +766,7 @@ export function ModelStudio({
                       else setError(r.error.detail);
                     }}
                   >
-                    <FolderOpen size={15} />
+                    <SavedExperiments size={16} />
                     <span>{s.title}</span>
                     <ArrowRight size={15} />
                   </button>

@@ -1,3 +1,4 @@
+@import "./workbench/glyphs.generated.css";
 @import "./workbench/workbench.css";
 /* One stylesheet, hand-written, no framework (D-103: light SPA).
    Colours carry meaning in exactly one place — the status dot — and are

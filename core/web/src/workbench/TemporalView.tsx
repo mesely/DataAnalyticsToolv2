@@ -1,7 +1,7 @@
 import { ChevronRight, Download, Info } from "./BrandIcons";
 import { TableWrap } from "./TableWrap";
 import React, { useEffect, useRef, useState } from "react";
-import { Clock3, Loader2, Play } from "lucide-react";
+import { PeriodChange, Spinner, Run } from "./BrandIcons";
 import { api } from "../api";
 import { useLocale } from "./Locale";
 import type { Dataset, Filters } from "./types";
@@ -163,7 +163,7 @@ export function TemporalView({
     <details className="wb-panel wb-expert wb-temporal">
       <summary>
         <span>
-          <Clock3 size={19} />
+          <PeriodChange size={20} />
           <strong>{t("Zaman içindeki değişim", "Change over time")}</strong>
           <small>
             {t(
@@ -236,9 +236,9 @@ export function TemporalView({
             disabled={busy || running || !month}
           >
             {running ? (
-              <Loader2 className="spin" size={16} />
+              <Spinner className="spin" size={16} />
             ) : (
-              <Play size={16} />
+              <Run size={16} />
             )}{" "}
             {t("Dönemleri karşılaştır", "Compare periods")}
           </button>

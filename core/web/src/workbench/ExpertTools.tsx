@@ -2,7 +2,7 @@ import { ChevronRight, Download, ShieldCheck } from "./BrandIcons";
 import { TableWrap } from "./TableWrap";
 import { Search, BookOpen, Code2 } from "./BrandIcons";
 import React, { useEffect, useRef, useState } from "react";
-import { Play, Loader2 } from "lucide-react";
+import { Run, Spinner } from "./BrandIcons";
 import { api } from "../api";
 import { useLocale } from "./Locale";
 import type { Filters, SavedRun } from "./types";
@@ -237,9 +237,9 @@ export function ExpertTools({
                   disabled={running || busy || !statement.trim()}
                 >
                   {running ? (
-                    <Loader2 size={16} className="spin" />
+                    <Spinner size={16} className="spin" />
                   ) : (
-                    <Play size={16} />
+                    <Run size={16} />
                   )}{" "}
                   {t("Sorguyu çalıştır", "Run query")}
                 </button>

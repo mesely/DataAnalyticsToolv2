@@ -1,8 +1,7 @@
 import { ChevronRight, ArrowRight } from "./BrandIcons";
 import { TableWrap } from "./TableWrap";
 import React, { useEffect, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
-import { Bookmark, Database } from "./BrandIcons";
+import { Findings, Database, Spinner } from "./BrandIcons";
 import { api } from "../api";
 import { useLocale } from "./Locale";
 import type { Filters } from "./types";
@@ -626,7 +625,7 @@ export function DecisionStudio({
             type="submit"
           >
             {running ? (
-              <Loader2 className="spin" size={17} />
+              <Spinner className="spin" size={18} />
             ) : (
               <ArrowRight size={17} />
             )}{" "}
@@ -984,13 +983,13 @@ export function DecisionStudio({
                       <CartesianGrid vertical={false} stroke="var(--border)" />
                       <XAxis
                         dataKey="period"
-                        fontSize={10}
+                        fontSize={12}
                         tick={{ fill: "var(--muted)" }}
                         tickFormatter={(s) => String(s).slice(5)}
                       />
                       <YAxis
                         width={60}
-                        fontSize={10}
+                        fontSize={12}
                         tick={{ fill: "var(--muted)" }}
                         tickFormatter={(n) => `£${Math.round(n / 1000)}k`}
                       />
@@ -999,6 +998,8 @@ export function DecisionStudio({
                           background: "var(--surface)",
                           borderColor: "var(--border)",
                           color: "var(--ink)",
+                          borderRadius: 10,
+                          padding: 12,
                         }}
                         formatter={(v) => money(Number(v))}
                       />
@@ -1279,7 +1280,7 @@ export function DecisionStudio({
       )}
       <details className="wb-decision-history">
         <summary>
-          <Bookmark size={17} />
+          <Findings size={18} />
           {t("Karar arşivim", "My decision archive")} · {history.length}
         </summary>
         <ul>

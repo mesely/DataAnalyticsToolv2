@@ -150,193 +150,13 @@
   "kind": "actual-local-application-screenshot"
  },
  {
-  "path": "core/web/src/workbench/assets/search.svg",
-  "sha256": "99305b16f1ff1bfc73283a5bb3ba63682167195feb7d314cc36f6fe5e01fffcb",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-refresh.svg",
-  "sha256": "caff30f00ba9db795e728be7f106f9cca593042fcd78b75eb67d596bf95b7499",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-zoom-in.svg",
-  "sha256": "f0712f650570dd2c7a9a250c50e8745d9dc6cc1e87dfd9ece785ab398ce5a58b",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-activity.svg",
-  "sha256": "d7c3aa7dad0bd68fb785f4e9d8fafe718c64436fdf87deda29bf27206498e00e",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-message.svg",
-  "sha256": "eaa8283ebcbe5bdbdcc74b6d986a54c916696baca52847cb90b1b943550eb3a1",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-network.svg",
-  "sha256": "9bf0820c7cabef270e43d372e5627c0353c6544aad51671c4465970998842556",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-logout.svg",
-  "sha256": "473ba7792ce9026468e7e3087c7eeb4b106d84d040f73999696b965e3c1aaf48",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/overview.svg",
-  "sha256": "6537859575f1ed0110d9738678ac07975717711394d29e6d08bc587f73ea2e3b",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/database.svg",
-  "sha256": "a675def5893196bd2f7141ff151a90739fbae6c90f8a04125e18a14422357fa3",
-  "kind": "gemini-generated-vector"
- },
- {
   "path": "core/web/src/workbench/assets/app-icon.jpeg",
   "sha256": "bdd59a4f072f8f2f6718e295e53ec383da39ea5a766ff6b04a5b113bf533b868",
   "kind": "original-gemini-artwork"
  },
  {
-  "path": "core/web/src/workbench/assets/utility-chevron-down.svg",
-  "sha256": "486e8304a2881305fe9c97a9a4d128a530b4c03e9ea76f4a9bf51cb5ec1a606c",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-zoom-out.svg",
-  "sha256": "e39b48c37d3a47d6f0af262605cdaba160b18c0244d616048db43cbe0d26c9a2",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-shield.svg",
-  "sha256": "056184a3046b54a517f44eabe6ff900da275f4ba0252111f926ccc1c6a3a0d4c",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-send.svg",
-  "sha256": "6e0813fad19a71221bf3c4c1a98d3f3d33a0536948e4aaf15ff35b99e898cc13",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/book.svg",
-  "sha256": "eebc047319032fffc917fdc03e89b558409ee365dd7f1d89fd329b724c1fefff",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-table.svg",
-  "sha256": "44e8982e47518918aa0da9b2818e31894a57aa08f45f91e52cd070a9debd5fed",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-close.svg",
-  "sha256": "5ebf806ad23664d21a41a131411bdc2fed384c628de556295e4024289a1d9eb9",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-download.svg",
-  "sha256": "8e3d9eae330cb448d8bedbb637079456309e31c6fc92d074b3def59a106b1b02",
-  "kind": "gemini-generated-vector"
- },
- {
   "path": "core/web/src/workbench/assets/brand.svg",
   "sha256": "832a11f2e38dd1363862400140f7741da1ea77411e18c3fcf5eb21ef347925e3",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/compare.svg",
-  "sha256": "39bb1568a65dbb34d38788f2845e008121826b6090c772999d3da761fe63b94b",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-check.svg",
-  "sha256": "05c2caba57a7e7af689f04eee50b62e6d88373cf407daa98dbae4d6984bf4c2b",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-settings.svg",
-  "sha256": "891b2ba9b24a906b9840478c10e7c62d15b0f68bde5b5f100364404da8fb79ee",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-chevron-right.svg",
-  "sha256": "d5abff37cade770c41637e4ece94e709c96f63fb3df49baab4e89df40ee5fdd7",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/network.svg",
-  "sha256": "bdfb80cef4ee4193bc7ee17ad2307fd2af229eb990f96bbd4a1622b2bb710d85",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-external.svg",
-  "sha256": "5d8516006c8e60f484f8df4c4940e0525991f1aad08ee77b3315e4f7226e60d5",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/sun.svg",
-  "sha256": "fcf5c0a96cc81ce54988f2c3867d4cadfa3bdaa643d2a8a7792a919bd9d7a8f1",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-info.svg",
-  "sha256": "1dc18ed362e6777ad17e3d3cdd7b76376849326e11c23bbd5bb4a984e2f4892b",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/analysis.svg",
-  "sha256": "b41de037793ed7080e2753d7b6341afa11d344e2250bd393a824b27d5768cbce",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/findings.svg",
-  "sha256": "ee4f3352ef14d28e43f644818818b8e9f972dca4b4e98b1a67dc745560f74b4f",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-filter.svg",
-  "sha256": "809a06357dac26a76488eebb6edc80cb965b60b486b7546cb9e4953e48c8ddb5",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/globe.svg",
-  "sha256": "85a9ea30fb28e013d2577e87231919b38ced04e1b3bf97ae1f59728bf0493bd6",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/workspace.svg",
-  "sha256": "291a4b5ad8efb1cde2783a091932218c6ccd56c4004730fe57dcbfc7dcf669ac",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/upload.svg",
-  "sha256": "7015d8522c6ef2ac64c14741340750368942bb9450eed15b9d9da02406ee760a",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/bookmark.svg",
-  "sha256": "067d183c84d3971a53cd41f2f69345b13d6db242493ce0240018e40795f8b5a8",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/help.svg",
-  "sha256": "0a072742de2ccefbb7ea20a6050d1827f0c5d20b40e3a15dec72f7fcf3c576db",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-file.svg",
-  "sha256": "6a9ce472ea2957c02a3d747292c904c581622a71d1e19adc0aa667107e85e114",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/utility-arrow-right.svg",
-  "sha256": "5e8473586d4275ec6e5df26b026360d8b0da32046d0f3c6dfde37c3b57be287e",
-  "kind": "gemini-generated-vector"
- },
- {
-  "path": "core/web/src/workbench/assets/moon.svg",
-  "sha256": "5752d8382efbbca07c3bd71f4c80fd8f49dc40df024d31cf76b1d9f148dcca53",
   "kind": "gemini-generated-vector"
  },
  {
@@ -388,5 +208,35 @@
   "path": "docs/evidence/phase11/06-decision-light-final.jpeg",
   "sha256": "71e6e5e38e81cd721183da898eedf7e6d3933f2a43a74e1e269daf05f9165314",
   "kind": "actual-local-application-screenshot"
+ },
+ {
+  "path": "core/web/src/workbench/assets/glyphs/gemini-batch-1.json",
+  "sha256": "317165ccaa624f8bab78540639d60ee4654a130396b03f2fe220f78ab1982f76",
+  "kind": "original-gemini-glyph-source"
+ },
+ {
+  "path": "core/web/src/workbench/assets/glyphs/gemini-batch-2.json",
+  "sha256": "810e6690b41a42c107941fa643be3930cd6dcec7adeb73a94de3ecc270b7303d",
+  "kind": "original-gemini-glyph-source"
+ },
+ {
+  "path": "core/web/src/workbench/assets/glyphs/gemini-batch-3.json",
+  "sha256": "812618d5d930e241048480f333e284813177fcf61a14eb7a0c66dc9c062ee4d7",
+  "kind": "original-gemini-glyph-source"
+ },
+ {
+  "path": "core/web/src/workbench/assets/glyphs/gemini-batch-4.json",
+  "sha256": "99c1c5f27e44af89c64fd39a6170f206aeaac6d475e91eb09b659c50c53d894e",
+  "kind": "original-gemini-glyph-source"
+ },
+ {
+  "path": "core/web/src/workbench/assets/glyphs/gemini-batch-5.json",
+  "sha256": "fa9350a5b1d725dc54b6a53816113124feff430049eace49de64509c094203c6",
+  "kind": "original-gemini-glyph-source"
+ },
+ {
+  "path": "core/web/src/workbench/assets/glyphs/gemini-batch-6.json",
+  "sha256": "c2fd9b48f6173501cd3d1924dc581b5492038aa3a851d43fcbd7e1b46af31300",
+  "kind": "original-gemini-glyph-source"
  }
 ]

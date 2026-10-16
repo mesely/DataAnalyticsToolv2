@@ -13,7 +13,7 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.55;
   color: var(--ink);
   background: var(--tone-f7f8fb);
@@ -67,12 +67,12 @@
   margin: 0;
 }
 .wb h2 {
-  font-size: 15px;
+  font-size: 14px;
   letter-spacing: -0.3px;
-  font-weight: 650;
+  font-weight: 600;
 }
 .wb h3 {
-  font-size: 15px;
+  font-size: 14px;
 }
 .wb p {
   color: var(--muted);
@@ -125,15 +125,15 @@
 .wb-brand {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   color: #fff;
   padding: 0 8px;
-  font-size: 21px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.7px;
 }
 .wb-brand > div > span {
-  font-weight: 350;
+  font-weight: 400;
   color: var(--tone-c2cbe0);
 }
 .wb-brandmark {
@@ -141,29 +141,29 @@
   place-items: center;
   background: var(--tone-5465e2);
   border: 1px solid var(--tone-7888ee);
-  border-radius: 8px;
+  border-radius: 10px;
   width: 34px;
   height: 34px;
   box-shadow: 0 3px 15px #0002;
 }
 .wb-brand small {
   display: block;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 1.65px;
   color: var(--tone-8494b2);
   font-weight: 500;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 .wb-project {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   background: var(--tone-1a2943);
   border: 1px solid var(--tone-2a3851);
-  border-radius: 8px;
-  margin: 30px 0 28px;
-  padding: 12px 9px;
-  font-size: 11px;
+  border-radius: 10px;
+  margin: 32px 0 28px;
+  padding: 12px 8px;
+  font-size: 12px;
   color: var(--tone-e2e8f3);
 }
 .wb-project > div {
@@ -171,35 +171,35 @@
 }
 .wb-project small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--tone-8fa0bc);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 .wb-avatar {
   display: grid;
   place-items: center;
   width: 31px;
   height: 31px;
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--tone-30405c);
   border: 1px solid var(--tone-465674);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--tone-e2e6fb);
-  font-weight: 650;
+  font-weight: 600;
   flex-shrink: 0;
 }
 .wb-nav-label {
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 1.4px;
   font-weight: 600;
   padding: 0 12px;
-  margin-bottom: 10px !important;
+  margin-bottom: 12px !important;
   color: var(--tone-7789a9) !important;
 }
 .wb-sidebar nav {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 .wb-sidebar button {
   background: none;
@@ -208,10 +208,10 @@
   display: flex;
   align-items: center;
   text-align: left;
-  gap: 11px;
+  gap: 12px;
   min-height: 44px;
-  padding: 11px 13px;
-  border-radius: 7px;
+  padding: 12px 12px;
+  border-radius: 10px;
   font-size: 12px;
 }
 .wb-sidebar nav button:hover {
@@ -225,28 +225,28 @@
 }
 .wb-count {
   margin-left: auto;
-  padding: 0 6px;
-  font-size: 10px;
+  padding: 0 8px;
+  font-size: 12px;
   background: #ffffff24;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 .wb-nav-tools {
-  margin-top: 26px;
+  margin-top: 28px;
   border-top: 1px solid var(--tone-26334b);
   padding-top: 16px;
 }
 .wb-nav-tools > button {
   width: 100%;
-  font-size: 11px;
+  font-size: 12px;
 }
 .wb-admin-list {
   max-height: 210px;
   overflow: auto;
-  padding-left: 21px;
+  padding-left: 20px;
 }
 .wb-admin-list button {
   width: 100%;
-  font-size: 11px;
+  font-size: 12px;
   justify-content: space-between;
   min-height: 36px;
 }
@@ -255,15 +255,15 @@
 }
 .wb-sidebar-bottom > button {
   width: 100%;
-  font-size: 11px;
+  font-size: 12px;
 }
 .wb-local {
   border: 1px solid var(--tone-2c3c53);
   background: var(--tone-192a3e);
-  border-radius: 8px;
-  padding: 13px 12px;
-  margin-bottom: 15px;
-  font-size: 11px;
+  border-radius: 10px;
+  padding: 12px 12px;
+  margin-bottom: 16px;
+  font-size: 12px;
   color: var(--tone-d2e2de);
 }
 .wb-local > span {
@@ -272,22 +272,22 @@
   height: 6px;
   border-radius: 100%;
   background: var(--tone-6ec6a2);
-  margin-right: 7px;
+  margin-right: 8px;
 }
 .wb-local small {
   display: block;
   color: var(--tone-92a7b3);
-  font-size: 10px;
-  margin: 6px 0 0 13px;
+  font-size: 12px;
+  margin: 8px 0 0 12px;
 }
 .wb-user {
   border-top: 1px solid var(--tone-29354b);
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 19px 0;
+  gap: 8px;
+  padding: 20px 0;
   margin-top: 12px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--tone-edf0f7);
 }
 .wb-user > div {
@@ -296,12 +296,12 @@
 .wb-user small {
   display: block;
   color: var(--tone-8192ad);
-  font-size: 10px;
+  font-size: 12px;
 }
 .wb-user .wb-icon {
-  padding: 5px;
+  padding: 4px;
   width: 32px;
-  min-height: 40px;
+  min-height: var(--control);
   color: var(--tone-8192ad);
 }
 .wb-frame {
@@ -324,11 +324,11 @@
   align-items: center;
   gap: 12px;
   color: var(--tone-8490a3);
-  font-size: 11px;
+  font-size: 12px;
 }
 .wb-breadcrumb strong {
   color: var(--tone-39465d);
-  font-weight: 550;
+  font-weight: 600;
 }
 .wb-top-actions {
   display: flex;
@@ -338,23 +338,24 @@
 .wb-command {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   color: var(--tone-7e889b);
   background: var(--tone-fafbfd);
   border: 1px solid var(--border);
-  border-radius: 7px;
-  padding: 0 11px;
+  border-radius: 10px;
+  padding: 0 12px;
   min-height: 38px;
-  font-size: 11px !important;
+  font-size: 12px !important;
   width: 220px;
 }
 .wb-command kbd {
-  font-size: 10px;
+  font-size: 12px;
   margin-left: auto;
   border: 1px solid var(--tone-e0e5ee);
   background: var(--surface);
-  border-radius: 4px;
-  padding: 1px 4px;
+  border-radius: 6px;
+  padding: 0 4px;
+  line-height: 20px;
   color: var(--tone-8a94a6);
 }
 .wb-icon {
@@ -363,7 +364,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   background: transparent;
   border: 0;
   color: var(--tone-738099);
@@ -374,8 +375,8 @@
   background: var(--tone-eef1f8);
 }
 .wb-language {
-  font-size: 10px !important;
-  font-weight: 650 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
 }
 .wb-mobile-toggle {
   display: none;
@@ -390,30 +391,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 22px;
-  margin-bottom: 27px;
+  gap: 24px;
+  margin-bottom: 28px;
 }
 .wb-eyebrow {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   color: var(--tone-7887a1);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 1.6px;
-  font-weight: 650;
+  font-weight: 600;
 }
 .wb-eyebrow > span {
   height: 6px;
   width: 6px;
-  border-radius: 2px;
+  border-radius: 6px;
   background: var(--tone-6881db);
 }
 .wb h1 {
-  font-size: 30px;
+  font-size: 32px;
   letter-spacing: -1.1px;
   line-height: 1.3;
-  font-weight: 650;
-  margin: 9px 0 7px;
+  font-weight: 600;
+  margin: 8px 0 8px;
 }
 .wb-page-heading p {
   font-size: 12px;
@@ -429,14 +430,14 @@
   justify-content: center;
   gap: 8px;
   min-height: 42px;
-  padding: 9px 14px;
+  padding: 8px 16px;
   border: 1px solid var(--tone-dfe4ee);
-  border-radius: 7px;
+  border-radius: 10px;
   background: var(--surface);
   color: var(--tone-40516a);
-  font-weight: 550;
+  font-weight: 600;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 12px;
   text-decoration: none !important;
   box-shadow: 0 1px 2px #10182803;
 }
@@ -457,23 +458,23 @@
   background: none;
   border: 0;
   color: var(--accent);
-  padding: 10px 5px;
+  padding: 12px 4px;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-size: 11px;
-  font-weight: 550;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
 }
 .wb-badge {
-  font-size: 9px;
+  font-size: 12px;
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--tone-dce3f6);
-  border-radius: 5px;
-  padding: 3px 7px;
+  border-radius: 6px;
+  padding: 4px 8px;
   white-space: nowrap;
-  font-weight: 550;
+  font-weight: 600;
 }
 .wb-badge.blue {
   background: var(--tone-eef1fc);
@@ -491,15 +492,15 @@
   align-items: center;
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 15px 18px;
-  border-radius: 9px;
-  margin-bottom: 14px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  margin-bottom: 16px;
   gap: 16px;
 }
 .wb-source-select {
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 12px;
   min-width: 0;
 }
 .wb-source-icon {
@@ -509,12 +510,12 @@
   place-items: center;
   background: var(--tone-f0f2fa);
   color: var(--tone-6a79bc);
-  border-radius: 7px;
+  border-radius: 10px;
   border: 1px solid var(--tone-e4e8f7);
 }
 .wb-source-select label > span {
   display: block;
-  font-size: 8px;
+  font-size: 12px;
   color: var(--tone-8b95a7);
   letter-spacing: 1px;
 }
@@ -525,7 +526,7 @@
   padding: 0 20px 0 0;
   color: var(--tone-28374f);
   font-size: 12px;
-  font-weight: 650;
+  font-weight: 600;
   max-width: 260px;
   min-height: 28px;
 }
@@ -533,7 +534,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--tone-7f8ca1);
   white-space: nowrap;
 }
@@ -543,17 +544,17 @@
   background: var(--tone-e2e7ef);
 }
 .wb-usage {
-  padding-left: 14px;
+  padding-left: 16px;
   border-left: 1px solid var(--tone-e6eaf1);
-  font-size: 9px;
+  font-size: 12px;
   color: var(--tone-5c8e79);
   min-width: 85px;
 }
 .wb-meter {
   height: 3px;
   background: var(--tone-e8eee9);
-  border-radius: 3px;
-  margin-top: 5px;
+  border-radius: 6px;
+  margin-top: 4px;
   overflow: hidden;
 }
 .wb-meter i {
@@ -566,16 +567,16 @@
   display: flex;
   align-items: flex-end;
   gap: 12px;
-  padding: 8px 0 18px;
-  margin-bottom: 2px;
+  padding: 8px 0 20px;
+  margin-bottom: 4px;
   flex-wrap: wrap;
 }
 .wb-filter-title {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   color: var(--tone-63718a);
-  font-size: 10px;
+  font-size: 12px;
   min-height: 38px;
   margin-right: auto;
 }
@@ -584,7 +585,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--tone-77849a);
 }
 .wb-filterbar input,
@@ -596,8 +597,8 @@
   border: 1px solid var(--tone-e0e5ee);
   border-radius: 6px;
   min-height: 38px;
-  padding: 8px 10px;
-  font-size: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
   min-width: 123px;
   max-width: 220px;
 }
@@ -613,29 +614,29 @@
   border-color: var(--tone-dde3f7);
 }
 .wb-loading-bar {
-  font-size: 11px;
+  font-size: 12px;
   padding: 8px 0;
   color: var(--accent);
 }
 .wb-kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 15px;
-  margin-bottom: 22px;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 .wb-kpi {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 9px;
-  padding: 17px 19px;
+  border-radius: 10px;
+  padding: 16px 20px;
   min-height: 132px;
 }
 .wb-kpi > div {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
-  font-weight: 550;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--tone-737e92);
 }
 .wb-kpi i {
@@ -648,8 +649,8 @@
   color: var(--tone-8b97af);
 }
 .wb-kpi strong {
-  font-size: 28px;
-  font-weight: 650;
+  font-size: 24px;
+  font-weight: 600;
   letter-spacing: -1px;
   display: block;
   font-variant-numeric: tabular-nums;
@@ -657,7 +658,7 @@
   margin: 4px 0;
 }
 .wb-kpi p {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--tone-8994a6);
 }
 .wb-kpi.primary {
@@ -677,15 +678,15 @@
   min-width: 0;
 }
 .wb-panel-head {
-  padding: 21px 22px 15px;
+  padding: 20px 24px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
+  gap: 16px;
 }
 .wb-panel-head p {
-  font-size: 10px;
-  margin-top: 5px;
+  font-size: 12px;
+  margin-top: 4px;
   color: var(--tone-8791a3);
 }
 .wb-panel-head > svg {
@@ -701,21 +702,21 @@
   display: inline-flex;
   background: var(--tone-f5f7fb);
   border: 1px solid var(--tone-e8ecf4);
-  padding: 3px;
+  padding: 4px;
   border-radius: 6px;
-  gap: 2px;
+  gap: 4px;
 }
 .wb-tabs button {
   background: transparent;
   color: var(--tone-8892a5);
   border: 0;
-  border-radius: 4px;
-  font-size: 9px;
+  border-radius: 6px;
+  font-size: 12px;
   min-height: 30px;
-  padding: 6px 9px;
+  padding: 8px 8px;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 .wb-tabs button[aria-selected="true"],
 .wb-tabs button.active {
@@ -724,23 +725,23 @@
   box-shadow: 0 1px 4px #17213b0e;
 }
 .wb-chart {
-  padding: 3px 12px 10px;
+  padding: 4px 12px 12px;
   min-height: 275px;
 }
 .wb-panel-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 22px;
+  padding: 12px 24px;
   border-top: 1px solid var(--tone-edf0f5);
-  font-size: 9px;
+  font-size: 12px;
   color: var(--tone-98a1b1);
   gap: 8px;
 }
 .wb-panel-footer span {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 .wb-panel-footer span svg {
   color: var(--tone-7ca691);
@@ -748,20 +749,20 @@
 .wb-panel-footer button {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   border: 0;
   background: none;
   color: var(--tone-6074c9);
-  font-size: 10px;
+  font-size: 12px;
   min-height: 35px;
 }
 .wb-ranking {
-  padding: 4px 21px 0;
+  padding: 4px 20px 0;
 }
 .wb-ranking button {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   width: 100%;
   background: none;
   border: 0;
@@ -776,10 +777,10 @@
   flex: 1;
 }
 .wb-ranking button > svg {
-  color: var(--tone-b9c3d2);
+  color: var(--muted); /* was --tone-b9c3d2: 1.6–1.8:1, below the 3:1 non-text minimum */
 }
 .wb-rank-num {
-  font-size: 10px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
   color: var(--tone-a9b3c5);
 }
@@ -787,18 +788,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 6px;
-  font-size: 10px;
+  gap: 8px;
+  font-size: 12px;
   color: var(--tone-4d5c75);
   text-align: left;
-  margin-bottom: 9px;
+  margin-bottom: 8px;
 }
 .wb-rank-label strong {
-  font-weight: 550;
+  font-weight: 600;
 }
 .wb-rank-label span {
   font-variant-numeric: tabular-nums;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--tone-607088);
 }
 .wb-rank-bar {
@@ -814,8 +815,8 @@
   border-radius: 6px;
 }
 .wb-card-note {
-  font-size: 9px;
-  padding: 14px 22px;
+  font-size: 12px;
+  padding: 16px 24px;
   color: var(--tone-96a1b2) !important;
 }
 .wb-lower-grid {
@@ -826,8 +827,8 @@
 .wb-start {
   display: flex;
   align-items: flex-start;
-  gap: 15px;
-  padding: 22px;
+  gap: 16px;
+  padding: 24px;
 }
 .wb-start-symbol {
   display: grid;
@@ -840,34 +841,34 @@
   flex-shrink: 0;
 }
 .wb-start h2 {
-  margin-top: 6px;
+  margin-top: 8px;
 }
 .wb-start p {
-  font-size: 10px;
-  margin-top: 6px;
+  font-size: 12px;
+  margin-top: 8px;
 }
 .wb-start .wb-eyebrow,
 .wb-network-teaser .wb-eyebrow {
-  font-size: 8px;
+  font-size: 12px;
 }
 .wb-starters {
   display: flex;
-  gap: 7px;
-  margin-top: 15px;
+  gap: 8px;
+  margin-top: 16px;
   flex-wrap: wrap;
 }
 .wb-starters button,
 .wb-question-chips button {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 10px;
+  gap: 8px;
+  font-size: 12px;
   background: var(--surface);
   color: var(--tone-667590);
   border: 1px solid var(--tone-e4e9f2);
   border-radius: 6px;
   min-height: 38px;
-  padding: 8px 10px;
+  padding: 8px 12px;
 }
 .wb-starters button:hover,
 .wb-question-chips button:hover {
@@ -878,21 +879,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 23px;
-  gap: 14px;
+  padding: 24px;
+  gap: 16px;
   background: linear-gradient(120deg, #fff, var(--tone-f8faff));
 }
 .wb-network-teaser h2 {
   max-width: 240px;
-  margin: 7px 0 6px;
+  margin: 8px 0 8px;
 }
 .wb-network-teaser p {
-  font-size: 10px;
+  font-size: 12px;
 }
 .wb-network-teaser .wb-text-btn {
-  font-size: 10px;
+  font-size: 12px;
   min-height: 30px;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 .wb-teaser-icon {
   color: var(--tone-94a2df);
@@ -908,31 +909,31 @@
 }
 .wb-chat-welcome {
   text-align: center;
-  padding: 45px 20px 25px;
+  padding: 44px 20px 24px;
   color: var(--tone-8493cc);
 }
 .wb-chat-welcome h3 {
-  margin: 13px 0 7px;
+  margin: 12px 0 8px;
   color: var(--tone-3c4a64);
 }
 .wb-chat-welcome p {
-  font-size: 11px;
+  font-size: 12px;
 }
 .wb-answer {
   margin: 24px;
-  padding: 22px;
+  padding: 24px;
   background: var(--tone-f8f9fd);
   border: 1px solid var(--tone-e4e8f4);
-  border-radius: 9px;
+  border-radius: 10px;
 }
 .wb-answer-state {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--tone-527a69);
-  font-size: 10px;
-  font-weight: 550;
-  margin-bottom: 13px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 12px;
 }
 .wb-answer > p {
   font-size: 14px;
@@ -942,17 +943,17 @@
 .wb-answer-citations {
   display: flex;
   gap: 8px;
-  margin-top: 18px;
+  margin-top: 20px;
 }
 .wb-answer-citations button {
   border: 1px solid var(--tone-dce3ef);
   background: var(--surface);
-  border-radius: 5px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 9px;
-  font-size: 9px;
+  gap: 8px;
+  padding: 8px 8px;
+  font-size: 12px;
   color: var(--tone-70809d);
   min-height: 34px;
 }
@@ -960,7 +961,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 5px 24px 18px;
+  padding: 4px 24px 20px;
 }
 .wb-composer {
   margin: 0 24px 12px;
@@ -980,7 +981,7 @@
   border: 0;
   resize: vertical;
   min-height: 102px;
-  padding: 18px;
+  padding: 20px;
   font-size: 12px;
   outline: none !important;
 }
@@ -992,17 +993,17 @@
   gap: 8px;
 }
 .wb-composer span {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--tone-9aa5b7);
 }
 .wb-footnote {
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.7;
-  margin: 0 24px 22px !important;
+  margin: 0 24px 24px !important;
   color: var(--tone-929db0) !important;
 }
 .wb-context {
-  padding: 23px;
+  padding: 24px;
   height: max-content;
 }
 .wb-context h2 {
@@ -1016,13 +1017,13 @@
 }
 .wb-context dt,
 .wb-node-detail dt {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--tone-97a2b5);
 }
 .wb-context dd,
 .wb-node-detail dd {
-  font-size: 11px;
-  margin: 0 0 15px;
+  font-size: 12px;
+  margin: 0 0 16px;
   color: var(--tone-52617a);
 }
 .wb-context .wb-btn {
@@ -1032,7 +1033,7 @@
 .wb-network-controls {
   display: flex;
   gap: 12px;
-  padding: 5px 22px 18px;
+  padding: 4px 24px 20px;
   align-items: flex-end;
   flex-wrap: wrap;
 }
@@ -1047,7 +1048,7 @@
   display: flex !important;
   flex-direction: row !important;
   align-items: center;
-  gap: 6px !important;
+  gap: 8px !important;
   margin-left: auto;
 }
 .wb-node-search input {
@@ -1058,20 +1059,20 @@
   background: var(--tone-f3f5fb);
   border: 1px solid var(--tone-e3e7f3);
   color: var(--tone-64738c);
-  font-size: 11px;
-  border-radius: 7px;
-  padding: 14px;
+  font-size: 12px;
+  border-radius: 10px;
+  padding: 16px;
   line-height: 1.8;
-  margin: 14px 0;
+  margin: 16px 0;
 }
 .wb-graph-note {
-  margin: 0 22px 16px;
+  margin: 0 24px 16px;
   display: flex;
-  gap: 9px;
-  font-size: 10px;
+  gap: 8px;
+  font-size: 12px;
 }
 .wb-graph-note svg {
-  margin-top: 3px;
+  margin-top: 4px;
   color: var(--tone-8a98bf);
 }
 .wb-network-layout {
@@ -1100,7 +1101,7 @@
   cursor: pointer;
 }
 .wb-graph-node text {
-  font-size: 10px;
+  font-size: 12px;
   fill: var(--tone-4e5e7b);
   paint-order: stroke;
   stroke: var(--tone-fbfcff);
@@ -1114,53 +1115,53 @@
 }
 .wb-zoom {
   position: absolute;
-  bottom: 18px;
-  left: 18px;
+  bottom: 20px;
+  left: 20px;
   display: flex;
   border: 1px solid var(--tone-e2e7f0);
-  border-radius: 7px;
+  border-radius: 10px;
   background: var(--surface);
   box-shadow: 0 2px 6px #00000006;
 }
 .wb-zoom .wb-icon {
   min-width: 36px;
-  min-height: 40px;
+  min-height: var(--control);
 }
 .wb-canvas-hint {
   position: absolute;
   right: 16px;
-  bottom: 27px;
-  font-size: 9px;
+  bottom: 28px;
+  font-size: 12px;
   color: var(--tone-8b97af);
 }
 .wb-node-detail {
   border-left: 1px solid var(--border);
-  padding: 25px 22px;
+  padding: 24px 24px;
   color: var(--tone-8e9cbc);
 }
 .wb-node-detail h3 {
   font-size: 16px;
   color: var(--tone-465671);
-  margin: 14px 0;
+  margin: 16px 0;
 }
 .wb-node-detail p {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.8;
 }
 .wb-node-detail .wb-small {
-  font-size: 9px;
-  margin-top: 25px;
+  font-size: 12px;
+  margin-top: 24px;
   overflow-wrap: anywhere;
 }
 .wb-table-wrap {
   overflow: auto;
   max-height: 330px;
-  padding: 0 20px 15px;
+  padding: 0 20px 16px;
 }
 .wb-table-wrap table {
   border-collapse: collapse;
   min-width: 100%;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--tone-5d6d85);
 }
 .wb-table-wrap th {
@@ -1174,7 +1175,7 @@
 }
 .wb-table-wrap td,
 .wb-table-wrap th {
-  padding: 11px 10px;
+  padding: 12px 12px;
   border-bottom: 1px solid var(--tone-edf0f5);
   max-width: 240px;
   overflow: hidden;
@@ -1186,23 +1187,23 @@
   text-align: left;
   color: var(--tone-939fb2);
   padding-top: 12px;
-  font-size: 9px;
+  font-size: 12px;
 }
 .wb-quality {
-  padding: 15px 22px 20px;
+  padding: 16px 24px 20px;
 }
 .wb-quality-score {
   display: flex;
   gap: 12px;
   color: var(--tone-6b9a85);
-  margin-bottom: 19px;
+  margin-bottom: 20px;
 }
 .wb-quality-score strong {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--tone-496554);
 }
 .wb-quality-score p {
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 4px;
 }
 .wb-quality dl {
@@ -1213,9 +1214,9 @@
 .wb-quality dl > div {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  font-size: 10px;
-  padding-bottom: 7px;
+  gap: 12px;
+  font-size: 12px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--tone-eef0f5);
 }
 .wb-quality dt {
@@ -1226,16 +1227,16 @@
   margin: 0;
 }
 .wb-quality > p {
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 16px;
 }
 .wb-findings {
-  padding: 0 22px 22px;
+  padding: 0 24px 24px;
 }
 .wb-findings article {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   padding: 20px 0;
   border-bottom: 1px solid var(--border);
 }
@@ -1244,14 +1245,14 @@
   min-width: 0;
 }
 .wb-findings h3 {
-  font-size: 13px;
+  font-size: 14px;
 }
 .wb-findings p {
-  font-size: 10px;
+  font-size: 12px;
   margin: 4px 0;
 }
 .wb-findings article > div > span {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--tone-687d9a);
 }
 .wb-finding-icon {
@@ -1261,16 +1262,16 @@
   height: 42px;
   background: var(--tone-f0f3fd);
   color: var(--tone-7c8aca);
-  border-radius: 8px;
+  border-radius: 10px;
 }
 .wb-empty {
-  padding: 45px 25px;
+  padding: 44px 24px;
   text-align: center;
   color: var(--tone-a9b6ca);
 }
 .wb-empty h3 {
-  margin: 15px 0 8px;
-  font-size: 15px;
+  margin: 16px 0 8px;
+  font-size: 14px;
   color: var(--tone-566784);
 }
 .wb-empty p {
@@ -1284,34 +1285,34 @@
   gap: 16px;
 }
 .wb-bottom-actions > span {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--tone-96a2b5);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 .wb-bottom-actions > div {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 .wb-bottom-actions .wb-text-btn {
-  font-size: 10px;
+  font-size: 12px;
 }
 .wb-footer {
-  margin-top: 30px;
+  margin-top: 32px;
   padding: 20px 0;
   border-top: 1px solid var(--tone-e7ebf2);
   display: flex;
   align-items: center;
   justify-content: space-between;
   color: var(--tone-a1aaba);
-  font-size: 9px;
+  font-size: 12px;
 }
 .wb-footer span {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
 }
 .wb-footer i {
   display: block;
@@ -1323,11 +1324,11 @@
 .wb-alert {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 12px;
-  padding: 12px 15px;
+  padding: 12px 16px;
   border: 1px solid;
-  border-radius: 7px;
+  border-radius: 10px;
   margin-bottom: 16px;
 }
 .wb-alert > span {
@@ -1365,7 +1366,7 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  font-size: 13px;
+  font-size: 14px;
 }
 .wb-dialog::backdrop {
   background: #13213d88;
@@ -1375,8 +1376,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
-  padding: 19px 25px;
+  gap: 16px;
+  padding: 20px 24px;
   border-bottom: 1px solid var(--tone-e9edf5);
   position: sticky;
   top: 0;
@@ -1384,16 +1385,16 @@
   z-index: 1;
 }
 .wb-dialog h2 {
-  font-size: 17px;
+  font-size: 16px;
   margin: 0;
   letter-spacing: -0.4px;
 }
 .wb-dialog h3 {
-  font-size: 13px;
-  margin: 20px 0 10px;
+  font-size: 14px;
+  margin: 20px 0 12px;
 }
 .wb-dialog-body {
-  padding: 23px 25px;
+  padding: 24px 24px;
   overflow-wrap: anywhere;
 }
 .wb-dialog-body > p {
@@ -1403,11 +1404,11 @@
 }
 .wb-dialog pre {
   white-space: pre-wrap;
-  font-size: 11px;
+  font-size: 12px;
   background: var(--tone-f7f9fd);
   padding: 16px;
   border: 1px solid var(--tone-e7ebf2);
-  border-radius: 7px;
+  border-radius: 10px;
   color: var(--tone-5b6d8c);
   overflow-wrap: anywhere;
 }
@@ -1415,7 +1416,7 @@
   display: grid;
   grid-template-columns: 110px 1fr;
   gap: 12px;
-  font-size: 11px;
+  font-size: 12px;
   margin: 20px 0;
 }
 .wb-detail-list dt {
@@ -1426,32 +1427,32 @@
   overflow-wrap: anywhere;
 }
 .wb-detail-list code {
-  font-size: 10px;
+  font-size: 12px;
 }
 .wb-schema {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 5px;
+  gap: 4px;
 }
 .wb-schema > span {
   display: flex;
   justify-content: space-between;
   padding: 8px;
   background: var(--tone-f7f9fc);
-  border-radius: 4px;
-  font-size: 10px;
+  border-radius: 6px;
+  font-size: 12px;
   color: var(--tone-7486a4);
 }
 .wb-metric-definition {
-  padding: 0 0 17px;
+  padding: 0 0 16px;
   border-bottom: 1px solid var(--tone-edf0f5);
 }
 .wb-metric-definition code {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--tone-7385aa);
 }
 .wb-metric-definition p {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--tone-8794aa);
   line-height: 1.8;
 }
@@ -1459,7 +1460,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--tone-647793);
 }
 .wb-field input {
@@ -1470,20 +1471,20 @@
   color: var(--tone-3c4f6a);
 }
 .wb-help-steps {
-  padding-left: 23px;
+  padding-left: 24px;
   color: var(--tone-596e95);
 }
 .wb-help-steps li {
-  padding: 0 0 14px 8px;
+  padding: 0 0 16px 8px;
 }
 .wb-help-steps strong {
-  font-size: 13px;
+  font-size: 14px;
 }
 .wb-help-steps p {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.8;
   color: var(--tone-8b98ad);
-  margin: 5px 0;
+  margin: 4px 0;
 }
 .wb-upload {
   margin: 20px 0;
@@ -1492,29 +1493,29 @@
   align-items: center;
   gap: 8px;
   border: 1px dashed var(--tone-b6c3e4);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--tone-f9faff);
-  padding: 25px;
+  padding: 24px;
   color: var(--tone-7c8ec3);
   font-size: 12px;
   cursor: pointer;
 }
 .wb-upload input {
   max-width: 100%;
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 8px;
 }
 .wb-upload span {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--tone-99a5b7);
 }
 .wb-search-input {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   border: 1px solid var(--tone-cfd8ed);
-  border-radius: 8px;
-  padding: 11px 13px;
+  border-radius: 10px;
+  padding: 12px 12px;
   color: var(--tone-92a0ba);
 }
 .wb-search-input input {
@@ -1523,13 +1524,13 @@
   background: var(--surface);
   color: var(--tone-4e6286);
   width: 100%;
-  font-size: 13px;
+  font-size: 14px;
   min-height: 24px;
 }
 .wb-command-results {
   display: flex;
   flex-direction: column;
-  margin-top: 15px;
+  margin-top: 16px;
 }
 .wb-command-results button {
   display: flex;
@@ -1539,7 +1540,7 @@
   border-bottom: 1px solid var(--tone-eef1f6);
   background: var(--surface);
   color: var(--tone-5b6f91);
-  padding: 14px 10px;
+  padding: 16px 12px;
   font-size: 12px;
   min-height: 45px;
 }
@@ -1556,13 +1557,13 @@
 }
 @media (min-width: 1500px) {
   .wb main {
-    padding: 40px 46px 0;
+    padding: 40px 48px 0;
   }
   .wb-topbar {
-    padding: 0 46px;
+    padding: 0 48px;
   }
   .wb-kpi {
-    padding: 22px;
+    padding: 24px;
   }
   .wb-kpi strong {
     font-size: 32px;
@@ -1581,7 +1582,7 @@
     margin-left: 200px;
   }
   .wb main {
-    padding: 25px 24px 0;
+    padding: 24px 24px 0;
   }
   .wb-topbar {
     padding: 0 24px;
@@ -1593,22 +1594,22 @@
     grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   }
   .wb-kpis {
-    gap: 10px;
+    gap: 12px;
   }
   .wb-kpi {
-    padding: 13px;
+    padding: 12px;
   }
   .wb-kpi strong {
-    font-size: 25px;
+    font-size: 24px;
   }
   .wb-page-heading p {
     max-width: 440px;
   }
   .wb-panel-head {
-    padding: 18px 16px 12px;
+    padding: 20px 16px 12px;
   }
   .wb h2 {
-    font-size: 13px;
+    font-size: 14px;
   }
   .wb-analysis-grid {
     grid-template-columns: minmax(0, 1fr) 235px;
@@ -1623,7 +1624,7 @@
     max-width: 220px;
   }
   .wb-sourcebar {
-    padding: 13px;
+    padding: 12px;
   }
 }
 @media (max-width: 960px) {
@@ -1674,7 +1675,7 @@
   .wb-command {
     width: auto;
   }
-  .wb-command > span:not(.wb-custom-icon) {
+  .wb-command > span {
     display: none;
   }
   .wb-network-layout {
@@ -1715,14 +1716,14 @@
   .wb-topbar {
     height: 62px;
     padding: 0 12px;
-    gap: 5px;
+    gap: 4px;
   }
   .wb-top-actions {
     gap: 0;
   }
   .wb-breadcrumb {
-    font-size: 10px;
-    gap: 5px;
+    font-size: 12px;
+    gap: 4px;
     margin-right: auto;
   }
   .wb-breadcrumb > strong {
@@ -1739,25 +1740,25 @@
     padding: 24px 16px 0;
   }
   .wb-page-heading {
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 20px;
   }
   .wb h1 {
-    font-size: 25px;
-    margin-top: 7px;
+    font-size: 24px;
+    margin-top: 8px;
   }
   .wb-page-heading p {
-    font-size: 10px;
+    font-size: 12px;
     max-width: 250px;
   }
   .wb-eyebrow {
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 1.1px;
   }
   .wb-heading-actions .wb-btn {
     min-height: 36px;
     padding: 8px;
-    font-size: 9px;
+    font-size: 12px;
   }
   .wb-heading-actions .wb-btn svg {
     width: 13px;
@@ -1767,20 +1768,20 @@
   }
   .wb-source-select select {
     max-width: 175px;
-    font-size: 10px;
+    font-size: 12px;
   }
   .wb-source-select .wb-badge {
-    font-size: 8px;
-    padding: 2px 5px;
+    font-size: 12px;
+    padding: 4px 4px;
   }
   .wb-source-icon {
     height: 32px;
     width: 32px;
   }
   .wb-source-stats {
-    font-size: 8px;
+    font-size: 12px;
     padding-left: 40px;
-    gap: 7px;
+    gap: 8px;
   }
   .wb-source-stats > i {
     display: none;
@@ -1795,7 +1796,7 @@
   .wb-filterbar select {
     min-width: 100px;
     max-width: 120px;
-    padding: 8px 6px;
+    padding: 8px 8px;
   }
   .wb-filterbar label {
     flex: 1;
@@ -1809,55 +1810,55 @@
     min-height: 38px;
   }
   .wb-kpi strong {
-    font-size: 23px;
+    font-size: 24px;
   }
   .wb-kpi > div {
-    font-size: 10px;
+    font-size: 12px;
   }
   .wb-kpi p {
-    font-size: 8px;
+    font-size: 12px;
   }
   .wb-kpi i {
     width: 22px;
     height: 22px;
   }
   .wb-kpis {
-    gap: 9px;
+    gap: 8px;
     margin-bottom: 16px;
   }
   .wb-overview-grid,
   .wb-lower-grid {
-    gap: 15px;
+    gap: 16px;
   }
   .wb-panel-head {
-    gap: 10px;
+    gap: 12px;
   }
   .wb-panel-head h2 {
     font-size: 12px;
   }
   .wb-panel-head p {
-    font-size: 8px;
+    font-size: 12px;
   }
   .wb-tabs button {
-    padding: 5px 7px;
-    font-size: 8px;
+    padding: 4px 8px;
+    font-size: 12px;
   }
   .wb-chart {
     padding-left: 0;
-    padding-right: 5px;
+    padding-right: 4px;
   }
   .wb-country .wb-ranking {
     display: block;
   }
   .wb-panel-footer {
-    padding: 9px 13px;
-    font-size: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
   }
   .wb-panel-footer button {
-    font-size: 8px;
+    font-size: 12px;
   }
   .wb-start {
-    padding: 18px 15px;
+    padding: 20px 16px;
     gap: 12px;
   }
   .wb-start-symbol {
@@ -1868,11 +1869,11 @@
     padding: 20px;
   }
   .wb-starters button {
-    font-size: 9px;
+    font-size: 12px;
   }
   .wb-network-controls {
-    padding: 5px 15px 15px;
-    gap: 10px;
+    padding: 4px 16px 16px;
+    gap: 12px;
   }
   .wb-network-controls label:first-child {
     width: 100%;
@@ -1889,20 +1890,20 @@
     width: 100%;
   }
   .wb-graph-note {
-    margin: 0 15px 12px;
-    font-size: 9px;
+    margin: 0 16px 12px;
+    font-size: 12px;
   }
   .wb-network-canvas,
   .wb-network-canvas > svg {
     min-height: 280px;
   }
   .wb-canvas-hint {
-    right: 10px;
+    right: 12px;
     bottom: 12px;
-    font-size: 8px;
+    font-size: 12px;
   }
   .wb-zoom {
-    bottom: 29px;
+    bottom: 28px;
     left: 12px;
   }
   .wb-answer {
@@ -1913,34 +1914,34 @@
     font-size: 12px;
   }
   .wb-question-chips {
-    padding: 0 16px 15px;
+    padding: 0 16px 16px;
   }
   .wb-question-chips button {
-    font-size: 9px;
+    font-size: 12px;
   }
   .wb-composer {
-    margin: 0 16px 10px;
+    margin: 0 16px 12px;
   }
   .wb-composer textarea {
-    font-size: 11px;
+    font-size: 12px;
   }
   .wb-composer span {
-    font-size: 8px;
+    font-size: 12px;
   }
   .wb-footnote {
-    margin: 0 16px 18px !important;
+    margin: 0 16px 20px !important;
   }
   .wb-bottom-actions > div {
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 4px;
   }
   .wb-bottom-actions .wb-text-btn {
-    font-size: 9px;
+    font-size: 12px;
   }
   .wb-footer {
-    font-size: 8px;
+    font-size: 12px;
     align-items: flex-start;
-    gap: 15px;
+    gap: 16px;
   }
   .wb-footer > span:last-child {
     display: none;
@@ -1955,17 +1956,17 @@
     grid-template-columns: 1fr;
   }
   .wb-dialog-body {
-    padding: 18px;
+    padding: 20px;
   }
   .wb-dialog-head {
-    padding: 15px 18px;
+    padding: 16px 20px;
   }
   .wb-schema {
     grid-template-columns: 1fr;
   }
   .wb-detail-list {
     grid-template-columns: 1fr !important;
-    gap: 5px !important;
+    gap: 4px !important;
   }
   .wb-breadcrumb {
     white-space: nowrap;
@@ -1981,27 +1982,27 @@
 @media (min-width: 701px) {
   .wb-filterbar label,
   .wb-network-controls label {
-    font-size: 10px;
+    font-size: 12px;
   }
   .wb-panel-head p,
   .wb-kpi p,
   .wb-card-note {
-    font-size: 10px;
+    font-size: 12px;
   }
   .wb-badge {
-    font-size: 10px;
+    font-size: 12px;
   }
   .wb-rank-label,
   .wb-rank-label span {
-    font-size: 11px;
+    font-size: 12px;
   }
   .wb-footer,
   .wb-panel-footer,
   .wb-bottom-actions > span {
-    font-size: 10px;
+    font-size: 12px;
   }
   .wb-source-stats {
-    font-size: 11px;
+    font-size: 12px;
   }
 }
 .wb-mobile-close {
@@ -2011,7 +2012,7 @@
   min-height: 44px;
 }
 .wb .wb-filterbar .wb-btn {
-  min-height: 40px;
+  min-height: var(--control);
 }
 @media (max-width: 700px) {
   .wb .wb-mobile-close {
@@ -2035,11 +2036,11 @@
 /* Keep long GBP amounts inside small KPI cards. */
 @media (max-width: 700px) {
   .wb-kpi strong {
-    font-size: clamp(17px, 5.2vw, 22px);
+    font-size: 20px;
     letter-spacing: -0.6px;
   }
   .wb-kpi {
-    padding: 13px 10px;
+    padding: 12px 12px;
   }
 }
 /* Phase 2: discoverable expert controls retain the four-task navigation. */
@@ -2052,7 +2053,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 18px 22px;
+  padding: 20px 24px;
   min-height: 64px;
   cursor: pointer;
   color: var(--tone-354762);
@@ -2063,11 +2064,11 @@
 .wb-expert > summary > span {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .wb-expert summary small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--tone-728096);
   font-weight: 400;
 }
@@ -2076,7 +2077,7 @@
 }
 .wb-expert-body {
   border-top: 1px solid var(--border);
-  padding: 22px;
+  padding: 24px;
 }
 .wb-expert-grid {
   display: grid;
@@ -2084,7 +2085,7 @@
   gap: 24px;
 }
 .wb-expert h2 {
-  margin-bottom: 9px;
+  margin-bottom: 8px;
 }
 .wb-expert p {
   font-size: 12px;
@@ -2097,24 +2098,24 @@
 }
 .wb-sql-examples {
   display: flex;
-  gap: 7px;
+  gap: 8px;
   flex-wrap: wrap;
   margin: 16px 0;
 }
 .wb-sql-examples .wb-btn {
-  font-size: 11px;
+  font-size: 12px;
 }
 .wb-sql-editor {
   display: block;
   width: 100%;
   min-height: 210px;
-  margin: 7px 0 12px;
+  margin: 8px 0 12px;
   border: 1px solid var(--tone-cfd7e6);
-  border-radius: 7px;
+  border-radius: 10px;
   background: var(--tone-f8faff);
   color: var(--tone-253c64);
   resize: vertical;
-  padding: 14px;
+  padding: 16px;
   font:
     12px/1.7 ui-monospace,
     SFMono-Regular,
@@ -2126,23 +2127,23 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 .wb-sql-actions > span {
   display: flex;
-  gap: 5px;
+  gap: 4px;
   align-items: center;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--tone-738797);
 }
 .wb-context-search {
   border-left: 1px solid var(--tone-e7ecf3);
-  padding-left: 23px;
+  padding-left: 24px;
   min-width: 0;
 }
 .wb-context-search h2 {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
 }
 .wb-context-search form {
@@ -2150,22 +2151,22 @@
 }
 .wb-context-search form > div {
   display: flex;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 8px;
+  margin-top: 8px;
 }
 .wb-context-search input {
   width: 100%;
   min-width: 0;
   border: 1px solid var(--tone-cfd7e6);
   border-radius: 6px;
-  padding: 10px;
+  padding: 12px;
   color: var(--tone-354762);
   background: var(--surface);
   font-size: 12px;
 }
 .wb-context-search details {
   border-bottom: 1px solid var(--tone-e9edf3);
-  padding: 11px 0;
+  padding: 12px 0;
 }
 .wb-context-search summary {
   display: flex;
@@ -2176,8 +2177,8 @@
 }
 .wb-context-search summary small {
   display: block;
-  margin-top: 3px;
-  font-size: 10px;
+  margin-top: 4px;
+  font-size: 12px;
 }
 .wb-context-search details p {
   margin-top: 8px;
@@ -2185,19 +2186,19 @@
 }
 .wb-schema-help code {
   display: block;
-  margin-top: 10px;
-  font-size: 11px;
+  margin-top: 12px;
+  font-size: 12px;
   overflow-wrap: anywhere;
 }
 .wb-query-result {
   margin-top: 24px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
 }
 .wb-sql-exports {
   display: flex;
-  gap: 7px;
+  gap: 8px;
 }
 .wb-query-table {
   max-height: 360px;
@@ -2220,7 +2221,7 @@
   display: block;
   margin: 12px 0;
   overflow-wrap: anywhere;
-  font-size: 11px;
+  font-size: 12px;
 }
 .wb-compare-controls {
   display: flex;
@@ -2236,10 +2237,10 @@
   width: 100%;
   max-width: 100%;
   display: block;
-  margin-top: 7px;
+  margin-top: 8px;
   border: 1px solid var(--tone-cfd7e6);
   border-radius: 6px;
-  padding: 10px;
+  padding: 12px;
   color: var(--tone-354762);
   background: var(--surface);
   min-height: 44px;
@@ -2267,7 +2268,7 @@
 }
 @media (max-width: 700px) {
   .wb-expert > summary {
-    padding: 15px;
+    padding: 16px;
   }
   .wb-expert-body {
     padding: 16px;
@@ -2306,25 +2307,25 @@
   align-items: flex-end;
   flex-wrap: wrap;
   gap: 12px;
-  margin: 18px 0;
+  margin: 20px 0;
 }
 .wb-temporal-controls label {
-  font-size: 11px;
+  font-size: 12px;
 }
 .wb-temporal-controls input,
 .wb-temporal-controls select {
   display: block;
-  margin-top: 6px;
+  margin-top: 8px;
   background: var(--surface);
   border: 1px solid var(--tone-ced7e6);
   min-height: 44px;
   border-radius: 6px;
-  padding: 9px 12px;
+  padding: 8px 12px;
   color: var(--tone-354762);
   font-size: 12px;
 }
 .wb-temporal-controls > span {
-  font-size: 11px;
+  font-size: 12px;
   align-self: center;
   color: var(--tone-738197);
   margin-left: auto;
@@ -2332,42 +2333,42 @@
 .wb-temporal-stages {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px;
   margin: 20px 0;
 }
 .wb-temporal-stage {
-  padding: 18px;
+  padding: 20px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--tone-fafbff);
   min-width: 0;
 }
 .wb-temporal-stage h3 {
-  font-size: 13px;
+  font-size: 14px;
   margin: 8px 0 12px;
 }
 .wb-temporal-stage p {
-  font-size: 10px;
+  font-size: 12px;
 }
 .wb-temporal-sales {
   display: block;
-  font-size: 23px;
-  font-weight: 650;
+  font-size: 24px;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  margin-top: 14px;
+  margin-top: 16px;
   color: var(--tone-283a58);
   letter-spacing: -0.6px;
 }
 .wb-temporal-stage > small {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--tone-7b879c);
 }
 .wb-temporal-stage dl {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px;
-  margin-top: 18px;
-  font-size: 11px;
+  gap: 12px;
+  margin-top: 20px;
+  font-size: 12px;
 }
 .wb-temporal-stage dt {
   color: var(--tone-77849a);
@@ -2379,10 +2380,10 @@
   font-variant-numeric: tabular-nums;
 }
 .wb-temporal .wb-callout {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 .wb-temporal-method {
-  margin: 18px 0;
+  margin: 20px 0;
   font-size: 12px;
 }
 .wb-temporal-method summary {
@@ -2398,7 +2399,7 @@
 .wb-temporal-method code {
   display: block;
   overflow-wrap: anywhere;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--tone-718197);
 }
 .wb-badge.amber {
@@ -2413,7 +2414,7 @@
     grid-template-columns: 1fr 1fr;
   }
   .wb-temporal-sales {
-    font-size: 26px;
+    font-size: 24px;
   }
 }
 @media (max-width: 700px) {
@@ -2430,20 +2431,20 @@
     width: 100%;
   }
   .wb-temporal-stage {
-    padding: 15px;
+    padding: 16px;
   }
   .wb-temporal .wb-callout {
-    font-size: 11px;
+    font-size: 12px;
   }
 }
 
 .wb-kpi strong.is-long {
-  font-size: 22px;
+  font-size: 24px;
   letter-spacing: -0.5px;
 }
 @media (max-width: 700px) {
   .wb-kpi strong.is-long {
-    font-size: 18px;
+    font-size: 20px;
     letter-spacing: -0.4px;
   }
 }
@@ -2461,7 +2462,7 @@
   border: 0;
   box-shadow: none;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 .wb-brandmark img {
   width: 56px;
@@ -2470,35 +2471,35 @@
   object-fit: contain;
 }
 .wb-brand {
-  gap: 10px;
+  gap: 12px;
 }
 .wb-brand > div {
   font-size: 20px;
 }
 .wb-brand small {
   letter-spacing: 2px;
-  font-size: 8px;
+  font-size: 12px;
 }
 .wb-page-heading {
-  padding-bottom: 2px;
+  padding-bottom: 4px;
 }
 .wb-page-heading h1 {
-  font-size: 29px;
+  font-size: 32px;
   letter-spacing: -0.9px;
   line-height: 1.2;
-  font-weight: 650;
+  font-weight: 600;
 }
 .wb-page-heading p {
-  margin-top: 9px;
+  margin-top: 8px;
   max-width: 58ch;
-  font-size: 13px;
+  font-size: 14px;
 }
 .wb-kpi.primary {
   background: var(--surface);
 }
 .wb-kpi strong {
   letter-spacing: -0.7px;
-  font-weight: 620;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 .wb-panel,
@@ -2518,7 +2519,7 @@
 .wb-analysis-mode label {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   min-height: 44px;
   font-weight: 600;
   cursor: pointer;
@@ -2535,14 +2536,14 @@
 }
 .wb-provider-notice {
   border-left: 3px solid var(--tone-ae863c);
-  padding: 10px 14px;
-  margin-top: 14px !important;
+  padding: 12px 16px;
+  margin-top: 16px !important;
   background: var(--tone-faf7ef);
   font-size: 12px;
 }
 .wb-empty-art {
   object-fit: contain;
-  border-radius: 18px;
+  border-radius: 14px;
   margin-bottom: 12px;
 }
 .wb-chat-welcome > svg {
@@ -2550,7 +2551,7 @@
 }
 @media (max-width: 600px) {
   .wb-page-heading h1 {
-    font-size: 25px;
+    font-size: 24px;
   }
   .wb-analysis-mode {
     gap: 4px;
@@ -2559,21 +2560,10 @@
 
 .wb-request-state {
   color: var(--tone-52627a);
-  font-size: 11px;
+  font-size: 12px;
   white-space: nowrap;
 }
 
-.wb-brand-nav-icon {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  flex: 0 0 20px;
-  background: currentColor;
-  mask-size: contain;
-  -webkit-mask-size: contain;
-  mask-repeat: no-repeat;
-  -webkit-mask-repeat: no-repeat;
-}
 /* Preparation: a short path with inspectable detail and reversible drafts. */
 .wb-prep-steps {
   display: flex;
@@ -2588,7 +2578,7 @@
   align-items: center;
   gap: 8px;
   color: var(--wb-muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .wb-prep-steps li span {
   display: grid;
@@ -2601,7 +2591,7 @@
 }
 .wb-prep-steps li[aria-current] {
   color: var(--tone-1e4ca1);
-  font-weight: 650;
+  font-weight: 600;
 }
 .wb-prep-steps li[aria-current] span {
   background: var(--tone-eaf0fc);
@@ -2610,8 +2600,8 @@
 .wb-prep-file {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin: 18px 0;
+  gap: 16px;
+  margin: 20px 0;
 }
 .wb-prep-file .wb-upload {
   flex: 1;
@@ -2620,34 +2610,34 @@
 .wb-prep-summary {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
-  padding: 14px 0;
+  gap: 20px;
+  padding: 16px 0;
   border-bottom: 1px solid var(--tone-e4e9f1);
-  font-size: 13px;
+  font-size: 14px;
 }
 .wb-prep-details {
   margin: 16px 0 24px;
 }
 .wb-prep-details summary {
   cursor: pointer;
-  padding: 10px 0;
+  padding: 12px 0;
   color: var(--tone-30558a);
-  font-size: 13px;
+  font-size: 14px;
   min-height: 44px;
 }
 .wb-prep-mapping {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  margin: 18px 0;
+  margin: 20px 0;
 }
 .wb-preparation select {
   width: 100%;
   min-width: 0;
   min-height: 44px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border: 1px solid var(--tone-cbd5e3);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--surface);
   color: var(--tone-233047);
   font: inherit;
@@ -2656,8 +2646,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin: 22px 0;
-  font-size: 13px;
+  margin: 24px 0;
+  font-size: 14px;
 }
 .wb-prep-options label {
   display: flex;
@@ -2675,7 +2665,7 @@
   min-height: 136px;
   padding: 12px;
   border: 1px solid var(--tone-cbd5e3);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--surface);
   color: var(--tone-233047);
   font:
@@ -2698,15 +2688,15 @@
 .wb-prep-preview {
   border: 1px solid var(--tone-c9d9d6);
   background: var(--tone-f3f9f7);
-  border-radius: 12px;
-  padding: 18px;
-  margin: 18px 0;
+  border-radius: 14px;
+  padding: 20px;
+  margin: 20px 0;
   color: var(--tone-234b43);
 }
 .wb-prep-preview > div {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
 }
 .wb-prep-preview h3 {
   margin: 0;
@@ -2719,11 +2709,11 @@
 }
 .wb-prep-preview dt {
   font-size: 12px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .wb-prep-preview dd {
   font-size: 20px;
-  font-weight: 650;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   margin: 0;
 }
@@ -2736,7 +2726,7 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  padding: 18px 0 4px;
+  padding: 20px 0 4px;
   border-top: 1px solid var(--tone-e4e9f1);
 }
 .wb-preparation .wb-table-wrap {
@@ -2760,25 +2750,25 @@
     flex-wrap: wrap;
   }
   .wb-prep-preview dl {
-    gap: 18px;
+    gap: 20px;
   }
 }
 .wb-model-entry {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 20px;
   margin: 0 0 16px;
-  padding: 18px 22px;
+  padding: 20px 24px;
   background: var(--surface);
   border: 1px solid var(--tone-dce4ef);
-  border-radius: 12px;
+  border-radius: 14px;
 }
 .wb-model-entry > div {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 14px;
 }
 .wb-model-entry span {
   font-size: 12px;
@@ -2786,13 +2776,13 @@
 }
 .wb-model-examples {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
-  margin: 18px 0;
+  margin: 20px 0;
 }
 .wb-model-features {
   border: 1px solid var(--tone-dce4ef);
-  border-radius: 9px;
+  border-radius: 10px;
   padding: 16px;
   margin: 20px 0;
   min-width: 0;
@@ -2800,15 +2790,15 @@
 .wb-model-features legend {
   font-size: 12px;
   font-weight: 600;
-  padding: 0 6px;
+  padding: 0 8px;
 }
 .wb-model-features > div {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px 15px;
+  gap: 8px 16px;
   max-height: 230px;
   overflow: auto;
-  margin: 14px 0;
+  margin: 16px 0;
 }
 .wb-model-features label {
   display: flex;
@@ -2835,7 +2825,7 @@
   box-sizing: border-box;
   padding: 12px;
   border: 1px solid var(--tone-cbd5e3);
-  border-radius: 8px;
+  border-radius: 10px;
   font: inherit;
   line-height: 1.6;
   color: var(--tone-233047);
@@ -2855,7 +2845,7 @@
 .wb-model-history {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin: 12px 0;
 }
 .wb-model-history button {
@@ -2888,23 +2878,23 @@
 /* Original Gemini instrument family: quiet orientation, no decoration on results. */
 .wb-feature-intro {
   display: flex;
-  gap: 22px;
+  gap: 24px;
   align-items: center;
   background: var(--tone-f6f7fa);
   border: 1px solid var(--tone-e6eaf1);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 16px;
-  margin: 16px 0 22px;
+  margin: 16px 0 24px;
 }
 .wb-feature-intro img {
   flex: 0 0 auto;
   width: 116px;
   height: 116px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 10px;
 }
 .wb-feature-intro h3 {
-  margin: 0 0 9px;
+  margin: 0 0 8px;
   font-size: 16px;
   line-height: 1.4;
   color: var(--tone-24334e);
@@ -2949,14 +2939,14 @@
   }
   .wb-model-entry-art {
     position: absolute;
-    top: 14px;
-    right: 14px;
+    top: 16px;
+    right: 16px;
     width: 56px;
     height: 56px;
   }
   .wb-model-entry > div {
     min-height: 52px;
-    padding-right: 62px;
+    padding-right: 64px;
   }
   .wb-relationship-art {
     width: 90px;
@@ -2978,7 +2968,7 @@
   cursor: pointer;
 }
 .wb-upload span {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--tone-5d6d85);
   line-height: 1.6;
 }
@@ -3004,7 +2994,7 @@
 }
 .wb-model-studio .wb-table-wrap caption,
 .wb-preparation .wb-table-wrap caption {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--tone-5b6c85);
   line-height: 1.65;
 }
@@ -3474,21 +3464,9 @@
   --soft: #25344a;
   color-scheme: dark;
 }
-.wb-custom-icon {
-  display: inline-block;
-  flex: 0 0 auto;
-  background: currentColor;
-  mask-repeat: no-repeat;
-  mask-position: center;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  -webkit-mask-size: contain;
-  vertical-align: middle;
-}
 .wb-source-origin {
-  font-size: 11px;
-  font-weight: 450;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--muted);
   margin-left: auto;
   white-space: nowrap;
@@ -3496,7 +3474,7 @@
 }
 .wb-theme-toggle {
   min-width: 40px;
-  min-height: 40px;
+  min-height: var(--control);
 }
 .wb[data-theme="dark"] .wb-sidebar {
   background: #152033;
@@ -3518,12 +3496,9 @@
   color: #c1cde0;
 }
 .wb[data-theme="dark"] .wb-btn.wb-primary {
-  background: #596fdf;
+  background: #4c5fd0; /* white text 5.45:1 (was #596fdf, 4.41:1) */
   color: #fff;
-  border-color: #7388ef;
-}
-.wb[data-theme="dark"] .wb-brand-nav-icon {
-  background: currentColor;
+  border-color: #6d80e6;
 }
 .wb[data-theme="dark"] input,
 .wb[data-theme="dark"] select,
@@ -3566,8 +3541,8 @@
   background: var(--surface);
 }
 .wb-decision-entry h2 {
-  margin: 5px 0 7px;
-  font-size: 18px;
+  margin: 4px 0 8px;
+  font-size: 20px;
 }
 .wb-decision-entry .wb-btn {
   flex-shrink: 0;
@@ -3580,11 +3555,11 @@
   font-size: 24px;
   line-height: 1.35;
   letter-spacing: -0.6px;
-  margin: 10px 0 12px;
+  margin: 12px 0 12px;
 }
 .wb-decision-form {
   display: grid;
-  gap: 18px;
+  gap: 20px;
   padding-bottom: 24px;
   border-bottom: 1px solid var(--border);
 }
@@ -3593,16 +3568,16 @@
 }
 .wb-decision-form label {
   font-size: 12px;
-  font-weight: 550;
+  font-weight: 600;
   display: grid;
   gap: 8px;
 }
 .wb-decision-form select,
 .wb-decision-form input[type="number"] {
   width: 100%;
-  padding: 11px 12px;
+  padding: 12px 12px;
   border: 1px solid var(--border);
-  border-radius: 7px;
+  border-radius: 10px;
   background: var(--surface);
   color: var(--ink);
   min-height: 44px;
@@ -3610,7 +3585,7 @@
 .wb-decision-form .wb-decision-check {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-height: 44px;
   font-weight: 500;
   cursor: pointer;
@@ -3625,8 +3600,8 @@
 }
 .wb-scenario-inputs {
   border: 1px solid var(--border);
-  padding: 18px;
-  border-radius: 8px;
+  padding: 20px;
+  border-radius: 10px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
@@ -3634,8 +3609,8 @@
   margin: 0;
 }
 .wb-scenario-inputs legend {
-  font-size: 11px;
-  padding: 0 6px;
+  font-size: 12px;
+  padding: 0 8px;
   color: var(--muted);
 }
 .wb-scenario-inputs p {
@@ -3676,7 +3651,7 @@
   margin: 8px 0;
 }
 .wb-decision-head p {
-  font-size: 11px;
+  font-size: 12px;
 }
 .wb-decision-downloads {
   display: flex;
@@ -3698,7 +3673,7 @@
   margin: 0;
 }
 .wb-recommendations > li {
-  padding: 26px 0;
+  padding: 28px 0;
   border-bottom: 1px solid var(--border);
 }
 .wb-recommendation-title {
@@ -3707,14 +3682,14 @@
   gap: 12px;
 }
 .wb-recommendation-title h4 {
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.5;
   margin: 0;
   flex: 1;
   font-weight: 600;
 }
 .wb-step-number {
-  font-size: 11px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
   color: var(--muted);
 }
@@ -3725,12 +3700,12 @@
   white-space: nowrap;
 }
 .wb-support-score small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
-  margin-left: 3px;
+  margin-left: 4px;
 }
 .wb-recommendations > li > p {
-  margin: 12px 0 14px;
+  margin: 12px 0 16px;
   max-width: 70ch;
 }
 .wb-evidence-links {
@@ -3739,8 +3714,8 @@
   gap: 8px 20px;
 }
 .wb-evidence-links button {
-  min-height: 40px;
-  font-size: 11px;
+  min-height: var(--control);
+  font-size: 12px;
   text-align: left;
 }
 .wb-recommendations details {
@@ -3749,31 +3724,31 @@
 }
 .wb-recommendations details ol,
 .wb-recommendations details ul {
-  padding-left: 22px;
+  padding-left: 24px;
   line-height: 1.9;
   color: var(--muted);
 }
 .wb-score-parts {
-  font-size: 10px;
+  font-size: 12px;
   overflow-wrap: anywhere;
 }
 .wb-evidence-inspector {
   background: var(--soft);
   padding: 20px;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  margin: 22px 0;
+  border-radius: 10px;
+  margin: 24px 0;
   outline-offset: 3px;
 }
 .wb-evidence-inspector h4 {
-  font-size: 15px;
-  margin: 0 0 10px;
+  font-size: 14px;
+  margin: 0 0 12px;
 }
 .wb-evidence-inspector > strong {
   font-size: 24px;
 }
 .wb-evidence-inspector p {
-  margin: 10px 0;
+  margin: 12px 0;
   font-size: 12px;
   overflow-wrap: anywhere;
 }
@@ -3797,7 +3772,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
-  margin: 14px 0 24px;
+  margin: 16px 0 24px;
 }
 .wb-forecast-metrics > div {
   min-width: 0;
@@ -3806,7 +3781,7 @@
 .wb-forecast-metrics small {
   display: block;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 .wb-forecast-metrics strong {
   display: block;
@@ -3823,9 +3798,9 @@
 }
 .wb-decision-studio caption {
   text-align: left;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
-  padding: 10px 0;
+  padding: 12px 0;
 }
 .wb-decision-methods {
   padding: 12px 0;
@@ -3838,7 +3813,7 @@
   margin-bottom: 8px;
 }
 .wb-decision-methods code {
-  font-size: 10px;
+  font-size: 12px;
   overflow-wrap: anywhere;
 }
 .wb-decision-history {
@@ -3860,7 +3835,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  padding: 18px 0;
+  padding: 20px 0;
   border-top: 1px solid var(--border);
 }
 .wb-decision-history strong {
@@ -3869,13 +3844,13 @@
   font-weight: 500;
 }
 .wb-decision-history small {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .wb-model-focus {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
-  margin: 6px 0;
+  margin: 8px 0;
   display: block;
 }
 .wb[data-theme="dark"] .wb-project {
@@ -3912,16 +3887,16 @@
     gap: 8px;
   }
   .wb-recommendation-title h4 {
-    font-size: 15px;
+    font-size: 14px;
   }
   .wb-support-score {
-    font-size: 21px;
+    font-size: 20px;
   }
   .wb-decision-downloads {
     flex-wrap: wrap;
   }
   .wb-source-origin {
-    font-size: 10px;
+    font-size: 12px;
   }
 }
 
@@ -3934,7 +3909,7 @@
 }
 .wb-decision-config > summary {
   font-size: 12px;
-  font-weight: 550;
+  font-weight: 600;
   color: var(--muted);
 }
 .wb-decision-config:not([open]) {
@@ -3946,7 +3921,7 @@
 .wb .wb-eyebrow,
 .wb .wb-source-select label > span {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 1.2px;
 }
 .wb-top-actions > .wb-icon,
@@ -3956,14 +3931,14 @@
 }
 
 .wb-forecast-diagnostics {
-  margin: 0.5rem 0 0;
-  padding-left: 1.1rem;
-  font-size: 0.85rem;
+  margin: 8px 0 0;
+  padding-left: 16px;
+  font-size: 12px;
   line-height: 1.4;
   color: var(--wb-text-muted, inherit);
 }
 .wb-forecast-diagnostics li + li {
-  margin-top: 0.25rem;
+  margin-top: 4px;
 }
 .wb-forecast-diagnostics li[data-severity="warning"] {
   color: inherit;
@@ -3975,7 +3950,7 @@
   border-bottom: 1px solid var(--border);
 }
 .wb-narrative-section .wb-panel-head {
-  padding: 0 0 6px;
+  padding: 0 0 8px;
 }
 .wb-narrative {
   list-style: none;
@@ -3985,7 +3960,7 @@
 .wb-narrative > li {
   display: grid;
   grid-template-columns: 96px minmax(0, 1fr);
-  gap: 6px 16px;
+  gap: 8px 16px;
   padding: 12px 0;
   border-top: 1px solid var(--border);
 }
@@ -3993,12 +3968,12 @@
   border-top: 0;
 }
 .wb-narrative-type {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 1.2px;
   text-transform: uppercase;
   color: var(--muted);
   padding-top: 4px;
-  font-weight: 650;
+  font-weight: 600;
 }
 .wb-narrative > li[data-type="recommendation"] .wb-narrative-type,
 .wb-narrative > li[data-type="fact"] .wb-narrative-type {
@@ -4015,16 +3990,16 @@
   color: var(--muted);
 }
 .wb-narrative .wb-evidence-links button {
-  min-height: 40px;
+  min-height: var(--control);
 }
 .wb-narrative-model {
   margin-top: 12px;
-  font-size: 13px;
+  font-size: 14px;
 }
 @media (max-width: 640px) {
   .wb-narrative > li {
     grid-template-columns: minmax(0, 1fr);
-    gap: 2px;
+    gap: 4px;
   }
 }
 .wb-prep-options select {
@@ -4040,3 +4015,453 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* ===== Design system v2 (AW-15) — measured targets, original glyphs ======================================
+ * Scales live in tools/design/normalize_css.py (type 12/14/16/20/24/32, weights 400–700, 4px spacing,
+ * radii 6/10/14). These rules come last on purpose: one control size for every interactive element (Fitts,
+ * WCAG 2.5.5 44px), one ink for the sidebar that is not remapped by the dark theme, and the glyph accent. */
+.wb,
+.wb-dialog {
+  --control: 44px;
+  --nav-ink: #e8edf7;
+  --nav-ink-muted: #a9b6cc;
+  --glyph-dot: #b07f3e;
+}
+.wb[data-theme="dark"],
+.wb[data-theme="dark"] .wb-dialog {
+  --glyph-dot: #d9b072;
+}
+.wb-user {
+  color: var(--nav-ink);
+}
+.wb-user small {
+  color: var(--nav-ink-muted);
+}
+.wb :is(button, select, summary, [role="button"], a.wb-btn),
+.wb input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+.wb-dialog :is(button, select, summary, input:not([type="checkbox"]):not([type="radio"])) {
+  min-height: var(--control);
+}
+.wb :is(button, a.wb-btn, summary) {
+  align-items: center;
+}
+.wb :is(button, a.wb-btn):not(.wb-graph-node) {
+  min-width: var(--control);
+}
+.wb .wb-icon,
+.wb-dialog .wb-icon {
+  min-width: var(--control);
+  min-height: var(--control);
+  align-items: center;
+  justify-content: center;
+}
+.wb label:has(> input[type="checkbox"]),
+.wb label:has(> input[type="radio"]) {
+  min-height: var(--control);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.wb-glyph {
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+.wb-glyph .idx {
+  fill: var(--glyph-dot);
+}
+.wb-glyph.spin {
+  animation: wb-spin 0.9s linear infinite;
+}
+@keyframes wb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wb-glyph.spin {
+    animation-duration: 2.4s;
+  }
+}
+/* Buttons without a workbench class inherit the legacy admin 0.35rem radius from app.css; put them on the scale. */
+.wb button:not([class*="wb-"]),
+.wb .wb-text-btn {
+  border-radius: 10px;
+}
+
+/* ----- Quiet surfaces (AW-15): no box outlines on content cards; tone and a soft shadow separate them.
+ * One content inset for every card (alignment: titles, values and notes start on the same line). */
+.wb {
+  --inset: 24px;
+  --surface-shadow: 0 1px 2px rgba(23, 34, 56, 0.06), 0 8px 24px rgba(23, 34, 56, 0.05);
+}
+.wb[data-theme="dark"] {
+  --surface-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+.wb .wb-kpi,
+.wb .wb-panel,
+.wb .wb-sourcebar {
+  border-color: transparent;
+  box-shadow: var(--surface-shadow);
+  border-radius: 14px;
+}
+.wb .wb-kpi,
+.wb .wb-sourcebar {
+  padding: 20px var(--inset);
+}
+.wb .wb-panel-head,
+.wb .wb-card-note {
+  padding-left: var(--inset);
+  padding-right: var(--inset);
+}
+.wb .wb-kpi > div {
+  justify-content: flex-start;
+  gap: 8px;
+  color: var(--muted);
+}
+.wb .wb-kpi i,
+.wb .wb-kpi.primary i {
+  width: auto;
+  height: auto;
+  background: none;
+  border-radius: 0;
+  color: var(--accent);
+}
+.wb .wb-kpi.primary {
+  background: var(--surface);
+}
+.wb .wb-kpi strong {
+  margin: 12px 0 4px;
+}
+@media (max-width: 760px) {
+  .wb {
+    --inset: 16px;
+  }
+}
+
+/* Scope region (Gestalt common region): the active dataset and the filters that narrow it form one surface;
+ * the filter controls sit right after their label (proximity) instead of being pushed to the far edge. */
+.wb .wb-scope {
+  background: var(--surface);
+  box-shadow: var(--surface-shadow);
+  border-radius: 14px;
+  margin-bottom: 24px;
+}
+.wb .wb-scope > .wb-sourcebar {
+  box-shadow: none;
+  background: transparent;
+  margin-bottom: 0;
+  border-radius: 14px 14px 0 0;
+}
+.wb .wb-scope > .wb-filterbar {
+  padding: 16px var(--inset) 20px;
+  margin: 0;
+  border-top: 1px solid var(--border);
+  justify-content: flex-start;
+  align-items: flex-end;
+  gap: 16px;
+}
+.wb .wb-scope .wb-filter-title {
+  margin-right: 8px;
+  min-height: var(--control);
+  color: var(--ink);
+  font-weight: 600;
+}
+.wb .wb-scope .wb-filterbar :is(input, select) {
+  min-height: var(--control);
+  border-radius: 10px;
+  font-size: 14px;
+}
+/* The glyph caret takes 40px of the select; keep the longest label ("Tüm ülkeler") whole. */
+.wb .wb-scope .wb-filterbar select {
+  min-width: min(168px, 100%);
+  max-width: 220px;
+}
+
+/* The analysis-mode row (Llama toggle and mode label) sat flush on the chat card edge and clipped its label. */
+.wb .wb-analysis-mode {
+  padding-left: var(--inset);
+  padding-right: var(--inset);
+}
+
+/* Count badge: solid light chip with navy text (was translucent white on the accent: 3.85:1). */
+.wb .wb-count {
+  background: var(--nav-ink);
+  color: #111e35;
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Relative sizes fell off the scale: UA `small` (smaller → 10px) and legacy `code { 0.92em }` (11px). */
+.wb small,
+.wb code,
+.wb-dialog small,
+.wb-dialog code {
+  font-size: 12px;
+}
+/* Blue badge text on its own tinted chip (was 4.38:1). */
+.wb[data-theme="light"] .wb-badge.blue {
+  color: #4153b0;
+}
+
+/* Export menu: one disclosure instead of two always-visible download links. */
+.wb .wb-export-menu {
+  position: relative;
+}
+.wb .wb-export-menu > summary {
+  list-style: none;
+  display: inline-flex;
+  gap: 8px;
+  cursor: pointer;
+  padding: 0 12px;
+}
+.wb .wb-export-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.wb .wb-export-menu > div {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  display: grid;
+  min-width: 192px;
+  padding: 8px;
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: var(--surface-shadow);
+  z-index: 5;
+}
+.wb .wb-export-menu > div button {
+  justify-content: flex-start;
+  padding: 0 12px;
+}
+/* Empty-state content shares the card inset. */
+.wb .wb-chat-welcome {
+  padding-left: var(--inset);
+  padding-right: var(--inset);
+}
+
+/* Panel footers and the network teaser use the shared inset too (were 12px / 20px on compact screens). */
+.wb .wb-panel-footer,
+.wb .wb-network-teaser {
+  padding-left: var(--inset);
+  padding-right: var(--inset);
+}
+
+/* Graph targets: transparent hit ring; on compact screens the canvas keeps a legible scale and pans sideways
+ * (the page itself never scrolls horizontally; the table view remains the accessible alternative). */
+.wb .wb-graph-hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+}
+@media (max-width: 760px) {
+  .wb .wb-network-canvas {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+  .wb .wb-network-canvas > svg {
+    min-width: 640px;
+  }
+}
+
+/* Narrow screens: the primary KPI (gross sales) becomes a full-width hero metric — clearer hierarchy, and its
+ * long value (e.g. £10.666.684,54) keeps the 24px step without touching the card edge. */
+@media (max-width: 480px) {
+  .wb .wb-kpi.primary {
+    grid-column: 1 / -1;
+  }
+  .wb .wb-kpi.primary strong {
+    font-size: 24px;
+  }
+  .wb .wb-kpi:not(.primary) strong.is-long {
+    font-size: 20px;
+  }
+  /* Balance: hero, a pair, then the last metric full width instead of an orphan half card. */
+  .wb .wb-kpi:last-child:nth-child(4) {
+    grid-column: 1 / -1;
+  }
+  /* Panel titles get the full width; their view switch sits below instead of squeezing the title. */
+  .wb .wb-panel-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .wb .wb-panel-head .wb-tabs {
+    align-self: flex-start;
+  }
+}
+
+/* Panel footer action: one line, on the 4px rhythm (app.css gives bare buttons 0.35rem). */
+.wb .wb-panel-footer button {
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+/* AW-15 widget glyphs: the browser's stock markers (disclosure triangle, select caret, date-picker icon,
+   checkbox tick, number spinners) are replaced by the Gemini family, via glyphs.generated.css. */
+.wb summary {
+  list-style: none;
+}
+.wb summary::-webkit-details-marker {
+  display: none;
+}
+.wb summary:not(:has(svg))::before {
+  content: "";
+  display: inline-block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: -3px;
+  background-color: currentColor;
+  -webkit-mask: var(--glyph-disclosure) center / 16px no-repeat;
+  mask: var(--glyph-disclosure) center / 16px no-repeat;
+  transition: transform 0.15s ease;
+}
+.wb details[open] > summary:not(:has(svg))::before {
+  transform: rotate(90deg);
+}
+/* Component rules set `background` shorthands on selects; the caret longhands win over all of them so the
+   surface colour stays theirs and the caret stays ours. */
+.wb {
+  --select-caret: var(--glyph-caret-light);
+}
+.wb[data-theme="dark"] {
+  --select-caret: var(--glyph-caret-dark);
+}
+.wb select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-left: 12px;
+  padding-right: 40px !important;
+  background-image: var(--select-caret) !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  background-size: 16px !important;
+}
+.wb input::-webkit-calendar-picker-indicator {
+  width: 16px;
+  height: 16px;
+  padding: 4px;
+  cursor: pointer;
+  background: currentColor;
+  -webkit-mask: var(--glyph-calendar) center / 16px no-repeat;
+  mask: var(--glyph-calendar) center / 16px no-repeat;
+  opacity: 0.85;
+}
+.wb input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.wb input[type="number"]::-webkit-inner-spin-button,
+.wb input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.wb input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: none;
+  display: inline-grid;
+  place-content: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1.5px solid var(--muted);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+.wb input[type="checkbox"]::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  background-color: var(--surface, #fff);
+  -webkit-mask: var(--glyph-tick) center / 16px no-repeat;
+  mask: var(--glyph-tick) center / 16px no-repeat;
+  transform: scale(0);
+  transition: transform 0.12s ease;
+}
+.wb input[type="checkbox"]:checked {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.wb input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+.wb input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.wb input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* >>> generated: light text contrast (tools/design/contrast_tones.py) */
+.wb[data-theme="light"] {
+  --tone-338763: #307e5c;
+  --tone-527a69: #517868;
+  --tone-586dc0: #566bbf;
+  --tone-5c8e79: #4e7867;
+  --tone-6074c9: #556ac5;
+  --tone-63728b: #62718a;
+  --tone-64738c: #627189;
+  --tone-647793: #60728d;
+  --tone-6577d0: #5569cb;
+  --tone-667590: #63718c;
+  --tone-687d9a: #5e728d;
+  --tone-6a79bc: #5c6cb6;
+  --tone-6b9a85: #527867;
+  --tone-70809d: #61718d;
+  --tone-718197: #637287;
+  --tone-728096: #647186;
+  --tone-737e92: #677184;
+  --tone-738099: #647189;
+  --tone-738197: #647287;
+  --tone-7385aa: #5d719a;
+  --tone-738797: #607281;
+  --tone-7486a4: #5f7191;
+  --tone-77849a: #647187;
+  --tone-7887a1: #62718c;
+  --tone-7a889e: #637187;
+  --tone-7b86d7: #5a68cd;
+  --tone-7b879c: #657187;
+  --tone-7c8aca: #5a6bbc;
+  --tone-7c8ec3: #576eb2;
+  --tone-7ca691: #527966;
+  --tone-7e889b: #677184;
+  --tone-7f8ca1: #637187;
+  --tone-8290a7: #61718a;
+  --tone-8490a3: #647186;
+  --tone-8493cc: #576bb9;
+  --tone-8791a3: #667185;
+  --tone-8794a9: #627189;
+  --tone-8794aa: #62718a;
+  --tone-8892a5: #657086;
+  --tone-8994a6: #657185;
+  --tone-8a94a6: #667186;
+  --tone-8a98bf: #5c6fa6;
+  --tone-8b95a7: #657185;
+  --tone-8b97af: #62718e;
+  --tone-8b98ad: #62718a;
+  --tone-8c9ab0: #60728c;
+  --tone-8e9cbc: #5c709c;
+  --tone-929db0: #637188;
+  --tone-92a0ba: #5e7195;
+  --tone-92a7b3: #5b7482;
+  --tone-939fb2: #62718a;
+  --tone-94a2df: #5168cb;
+  --tone-96a1b2: #637187;
+  --tone-96a2b5: #617089;
+  --tone-97a2b5: #63718b;
+  --tone-98a1b1: #657186;
+  --tone-99a5b7: #617189;
+  --tone-9aa5b7: #627189;
+  --tone-a0abc0: #607090;
+  --tone-a1aaba: #637087;
+  --tone-a9b3c5: #60718e;
+  --tone-a9b6ca: #5c7295;
+}
+/* <<< generated: light text contrast */

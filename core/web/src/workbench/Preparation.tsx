@@ -3,7 +3,7 @@ import { TableWrap } from "./TableWrap";
 import { Search, Upload } from "./BrandIcons";
 import preparationArt from "./assets/data-preparation.jpeg";
 import React, { useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "./BrandIcons";
 import { api } from "../api";
 import { useLocale } from "./Locale";
 import type { Dataset } from "./types";
@@ -375,7 +375,7 @@ export function Preparation({
           onClick={() => void inspect(false)}
         >
           {loading ? (
-            <Loader2 className="spin" size={16} />
+            <Spinner className="spin" size={16} />
           ) : (
             <Search size={16} />
           )}{" "}
@@ -641,7 +641,7 @@ export function Preparation({
               onClick={() => void (profile.preview ? commit() : inspect(true))}
             >
               {loading ? (
-                <Loader2 className="spin" size={16} />
+                <Spinner className="spin" size={16} />
               ) : (
                 <ArrowRight size={16} />
               )}{" "}

@@ -38,15 +38,25 @@ import {
 } from "./BrandIcons";
 import modelArt from "./assets/model-studio.jpeg";
 import relationshipArt from "./assets/relationship-explorer.jpeg";
-import overviewIcon from "./assets/overview.svg";
-import analysisIcon from "./assets/analysis.svg";
-import networkIcon from "./assets/network.svg";
-import findingsIcon from "./assets/findings.svg";
 import prismArt from "./assets/app-icon.jpeg";
 import { Sun, Moon } from "./BrandIcons";
+import {
+  Overview,
+  Assistant,
+  Findings,
+  Workspace as WorkspaceGlyph,
+  Guide,
+  Menu,
+  GrossSales,
+  Orders,
+  Units,
+  AverageOrder,
+  Markets,
+  Run,
+  Spinner,
+} from "./BrandIcons";
 import libraryArt from "./assets/analysis-library.jpeg";
 import React, { useEffect, useRef, useState } from "react";
-import { LayoutDashboard, Loader2 } from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -73,12 +83,6 @@ import type {
   SavedRun,
   Section,
 } from "./types";
-const brandNavIcons: Record<Section, string> = {
-  overview: overviewIcon,
-  analysis: analysisIcon,
-  network: networkIcon,
-  findings: findingsIcon,
-};
 const BASE = "/v1/dashboard/workbench";
 import { csvCell as cell } from "./csv";
 const titles: Record<Section, [string, string]> = {
@@ -414,10 +418,10 @@ function Workspace({
     source = selected?.source,
     filtered = !!(applied.country || applied.start || applied.end);
   const nav = [
-    { id: "overview" as const, icon: LayoutDashboard },
-    { id: "analysis" as const, icon: MessageSquare },
+    { id: "overview" as const, icon: Overview },
+    { id: "analysis" as const, icon: Assistant },
     { id: "network" as const, icon: Network },
-    { id: "findings" as const, icon: Bookmark },
+    { id: "findings" as const, icon: Findings },
   ];
   return (
     <div className="wb" data-theme={theme}>
@@ -442,12 +446,13 @@ function Workspace({
           </div>
         </div>
         <div className="wb-project">
-          <span className="wb-avatar">CL</span>
+          <span className="wb-avatar wb-project-mark">
+            <WorkspaceGlyph size={20} />
+          </span>
           <div>
             {t("Analiz çalışma alanı", "Analytics workspace")}
             <small>{t("Satış analitiği", "Retail analytics")}</small>
           </div>
-          <ShieldCheck size={15} />
         </div>
         <p className="wb-nav-label">{t("ÇALIŞMA ALANI", "WORKSPACE")}</p>
         <nav aria-label={t("Ana gezinme", "Main navigation")}>
@@ -457,14 +462,7 @@ function Workspace({
               className={section === n.id ? "active" : ""}
               onClick={() => go(n.id)}
             >
-              <span
-                className="wb-brand-nav-icon"
-                aria-hidden="true"
-                style={{
-                  maskImage: `url(${brandNavIcons[n.id]})`,
-                  WebkitMaskImage: `url(${brandNavIcons[n.id]})`,
-                }}
-              />
+              <n.icon size={20} className="wb-brand-nav-icon" />
               {t(...titles[n.id])}
               {n.id === "findings" && runs.some((x) => x.saved) && (
                 <span className="wb-count">
@@ -495,7 +493,7 @@ function Workspace({
         </div>
         <div className="wb-sidebar-bottom">
           <button onClick={() => setModal("help")}>
-            <HelpCircle size={18} />
+            <Guide size={20} />
             {t("Kullanım rehberi", "Getting started")}
           </button>
           <div className="wb-user">
@@ -523,7 +521,7 @@ function Workspace({
             onClick={() => setMenu(!menu)}
             aria-label={t("Menüyü aç", "Open navigation")}
           >
-            <Layers size={21} />
+            <Menu size={22} />
           </button>
           <div className="wb-breadcrumb">
             {t("Çalışma alanı", "Workspace")}
@@ -640,6 +638,7 @@ function Workspace({
               {notice}
             </div>
           )}
+          <div className="wb-scope">
           <div className="wb-sourcebar">
             <div className="wb-source-select">
               <span className="wb-source-icon">
@@ -730,7 +729,7 @@ function Workspace({
                 type="submit"
               >
                 {working ? (
-                  <Loader2 size={16} className="spin" />
+                  <Spinner size={16} className="spin" />
                 ) : (
                   <SlidersHorizontal size={15} />
                 )}{" "}
@@ -751,6 +750,7 @@ function Workspace({
               )}
             </form>
           )}
+          </div>
           {working && (
             <div className="wb-loading-bar" role="status">
               {t(
@@ -768,26 +768,26 @@ function Workspace({
                   "İade ve iptaller hariç · GBP",
                   "Returns/cancellations excluded · GBP",
                 )}
-                icon={<Activity size={18} />}
+                icon={<GrossSales size={20} />}
                 primary
               />
               <Kpi
                 title={t("Sipariş", "Orders")}
                 value={num(s.orders)}
                 subtitle={t("Benzersiz fatura", "Distinct invoices")}
-                icon={<FileText size={18} />}
+                icon={<Orders size={20} />}
               />
               <Kpi
                 title={t("Satılan adet", "Units sold")}
                 value={num(s.units)}
                 subtitle={`${num(s.products)} ${t("farklı ürün", "distinct products")}`}
-                icon={<Layers size={18} />}
+                icon={<Units size={20} />}
               />
               <Kpi
                 title={t("Ortalama sipariş", "Average order value")}
                 value={money(s.aov)}
                 subtitle={t("Brüt satış / sipariş", "Gross sales / orders")}
-                icon={<ArrowUpRight size={18} />}
+                icon={<AverageOrder size={20} />}
               />
             </div>
           )}
@@ -881,7 +881,7 @@ function Workspace({
                               dataKey="period"
                               tickLine={false}
                               axisLine={false}
-                              fontSize={11}
+                              fontSize={12}
                               tickMargin={12}
                             />
                             <YAxis
@@ -892,7 +892,7 @@ function Workspace({
                               }
                               tickLine={false}
                               axisLine={false}
-                              fontSize={11}
+                              fontSize={12}
                               width={60}
                             />
                             <Tooltip
@@ -900,7 +900,8 @@ function Workspace({
                                 background: "var(--surface)",
                                 borderColor: "var(--border)",
                                 color: "var(--ink)",
-                                borderRadius: 8,
+                                borderRadius: 10,
+                                padding: 12,
                               }}
                               formatter={(v) => money(Number(v))}
                             />
@@ -958,7 +959,7 @@ function Workspace({
                         )}
                       </p>
                     </div>
-                    <Globe2 size={19} />
+                    <Markets size={20} />
                   </div>
                   <div className="wb-ranking">
                     {result.countries.slice(0, 5).map((c, i) => (
@@ -1303,7 +1304,7 @@ function Workspace({
                       disabled={working || !question.trim()}
                     >
                       {working ? (
-                        <Loader2 className="spin" size={16} />
+                        <Spinner className="spin" size={16} />
                       ) : (
                         <Send size={16} />
                       )}{" "}
@@ -1424,7 +1425,7 @@ function Workspace({
                     .map((r) => (
                       <article key={r.run_id}>
                         <span className="wb-finding-icon">
-                          <Bookmark size={21} />
+                          <Findings size={22} />
                         </span>
                         <div>
                           <h3>{r.title}</h3>
@@ -1477,7 +1478,7 @@ function Workspace({
                           }}
                         >
                           {t("Yeniden çalıştır", "Rerun")}
-                          <RotateCcw size={14} />
+                          <Run size={16} />
                         </button>
                       </article>
                     ))}
@@ -1510,29 +1511,39 @@ function Workspace({
                 >
                   {t("Metrik sözlüğü", "Metric dictionary")}
                 </button>
-                <button className="wb-text-btn" onClick={exportCsv}>
-                  <Download size={14} />
-                  {t("Önizleme CSV", "Preview CSV")}
-                </button>
-                <button
-                  className="wb-text-btn"
-                  onClick={() =>
-                    download("analysis.json", JSON.stringify(result, null, 2))
-                  }
-                >
-                  <ArrowDownToLine size={14} />
-                  {t("Analiz JSON", "Analysis JSON")}
-                </button>
-                <button
-                  className="wb-btn"
-                  onClick={() => {
-                    setSaveTitle(question || "Satış analizi");
-                    setModal("save");
-                  }}
-                >
-                  <Bookmark size={15} />
-                  {saved ? t("Kaydedildi", "Saved") : t("Kaydet", "Save")}
-                </button>
+                {/* Progressive disclosure: both downloads behind one choice (Hick–Hyman). */}
+                <details className="wb-export-menu">
+                  <summary className="wb-text-btn">
+                    <Download size={16} />
+                    {t("Dışa aktar", "Export")}
+                  </summary>
+                  <div role="group" aria-label={t("Dışa aktarım biçimleri", "Export formats")}>
+                    <button className="wb-text-btn" onClick={exportCsv}>
+                      {t("Önizleme CSV", "Preview CSV")}
+                    </button>
+                    <button
+                      className="wb-text-btn"
+                      onClick={() =>
+                        download("analysis.json", JSON.stringify(result, null, 2))
+                      }
+                    >
+                      {t("Analiz JSON", "Analysis JSON")}
+                    </button>
+                  </div>
+                </details>
+                {/* The analysis view already offers "Save finding" beside the answer; no second save button. */}
+                {section !== "analysis" && (
+                  <button
+                    className="wb-btn"
+                    onClick={() => {
+                      setSaveTitle(question || "Satış analizi");
+                      setModal("save");
+                    }}
+                  >
+                    <Bookmark size={16} />
+                    {saved ? t("Kaydedildi", "Saved") : t("Kaydet", "Save")}
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -1935,8 +1946,8 @@ function Kpi({
   return (
     <section className={"wb-kpi" + (primary ? " primary" : "")}>
       <div>
+        <i aria-hidden="true">{icon}</i>
         <span>{title}</span>
-        <i>{icon}</i>
       </div>
       <strong
         title={value}
@@ -2286,6 +2297,9 @@ function NetworkView({
                     <title>
                       {n.label} · {t("Topluluk", "Community")} {n.community + 1}
                     </title>
+                    {/* Invisible hit ring: the largest radius that never overlaps a neighbour (layout keeps 72
+                        units between centres), so every node is an adequate, unambiguous target (Fitts). */}
+                    <circle r={36} className="wb-graph-hit" />
                     <circle
                       r={15 + Math.min(9, n.degree / 2)}
                       fill={colors[n.community % colors.length]}

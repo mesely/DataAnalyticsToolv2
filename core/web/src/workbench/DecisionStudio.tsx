@@ -705,6 +705,15 @@ export function DecisionStudio({
                     </small>
                   </div>
                 </div>
+                {forecast.holdout.selected.mae_gbp >=
+                  forecast.holdout.naive.mae_gbp && (
+                  <p className="wb-provider-notice">
+                    {t(
+                      "Seçilen yöntem son testte naif referansı geçemedi. Bu projeksiyon tek başına operasyon kararı için yeterli değildir.",
+                      "The selected method did not beat naive on the final test. This projection alone is insufficient for an operating decision.",
+                    )}
+                  </p>
+                )}
                 <div
                   className="wb-decision-chart"
                   role="img"

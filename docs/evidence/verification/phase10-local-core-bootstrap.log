@@ -1,0 +1,47 @@
+
+> @contextlayer/core@0.1.0 test
+> vitest run test/workbench.test.ts test/dashboard-b1.test.ts
+
+
+ RUN  v2.1.9 /Users/selmanyilmaz/Projects/context-layer/core
+
+warning: You appear to have cloned an empty repository.
+warning: You appear to have cloned an empty repository.
+ ❯ test/dashboard-b1.test.ts (43 tests | 43 skipped) 2587ms
+ ❯ test/workbench.test.ts (17 tests | 17 skipped) 2587ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/dashboard-b1.test.ts > B-1 dashboard surfaces
+Error: local CLI exited 1: connectors.sdk.runner: job local-bfccb791852c420d847e979d7edb2f96: failed source_unavailable (cannot start postgres container from image 'postgres:16': Cannot connect to the Docker daemon at unix:///Users/selmanyilmaz/.docker/run/docker.sock. Is the docker daemon running?)
+job local-bfccb791852c420d847e979d7edb2f96: FAILED source_unavailable (retryable) — cannot start postgres container from image 'postgres:16': Cannot connect to the Docker daemon at unix:///Users/selmanyilmaz/.docker/run/docker.sock. Is the docker daemon running?
+
+ ❯ ChildProcess.<anonymous> test/helpers.ts:239:41
+    237|       child.on("error", reject);
+    238|       child.on("close", (code) =>
+    239|         code === 0 ? resolve() : reject(new Error(`local CLI exited ${…
+       |                                         ^
+    240|       );
+    241|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  test/workbench.test.ts > analyst extension identity, CSRF, ownership and real calculation
+Error: local CLI exited 1: connectors.sdk.runner: job local-1dbeecd617be4a05ab508b7ac355b9ae: failed source_unavailable (cannot start postgres container from image 'postgres:16': Cannot connect to the Docker daemon at unix:///Users/selmanyilmaz/.docker/run/docker.sock. Is the docker daemon running?)
+job local-1dbeecd617be4a05ab508b7ac355b9ae: FAILED source_unavailable (retryable) — cannot start postgres container from image 'postgres:16': Cannot connect to the Docker daemon at unix:///Users/selmanyilmaz/.docker/run/docker.sock. Is the docker daemon running?
+
+ ❯ ChildProcess.<anonymous> test/helpers.ts:239:41
+    237|       child.on("error", reject);
+    238|       child.on("close", (code) =>
+    239|         code === 0 ? resolve() : reject(new Error(`local CLI exited ${…
+       |                                         ^
+    240|       );
+    241|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+ Test Files  2 failed (2)
+      Tests  60 skipped (60)
+   Start at  02:57:24
+   Duration  3.66s (transform 389ms, setup 0ms, collect 1.54s, tests 5.17s, environment 0ms, prepare 134ms)
+

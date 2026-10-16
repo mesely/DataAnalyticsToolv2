@@ -1,0 +1,5 @@
+nul-scan	No NUL bytes in tracked files (A6-F1 / D-123.2)	2026-10-16T00:25:12.2981099Z NUL scan clean: 787 tracked files, no NUL bytes.
+tests	Run full suite (incl. postgres containers)	2026-10-16T00:26:57.3864237Z ================== 874 passed, 17 skipped in 82.52s (0:01:22) ==================
+analytics	Offline analytics and planner contracts (no live model key)	2026-10-16T00:26:46.7770957Z 207 passed in 12.87s
+core	Core suite	2026-10-16T00:31:17.8477002Z  Test Files  34 passed | 1 skipped (35)
+core	Core suite	2026-10-16T00:31:17.8478653Z       Tests  474 passed | 4 skipped (478)

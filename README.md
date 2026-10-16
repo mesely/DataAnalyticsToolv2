@@ -1,10 +1,16 @@
-<p align="center"><img src="core/web/src/workbench/assets/context-prism.jpeg" width="112" alt="Context Layer brand artwork"></p>
+<p align="center"><img src="core/web/src/workbench/assets/app-icon.jpeg" width="112" alt="Context Layer brand artwork"></p>
 <h1 align="center">Context Layer</h1>
-<p align="center">A workspace for data preparation, sales analysis, relationship networks and measured model experiments.</p>
+<p align="center">A workspace for exploring data, testing models and making evidence-led decisions.</p>
 
-Context Layer brings CSV preparation, dataset exploration, governed SQL, product networks, bounded machine learning experiments and reproducible analysis into one authenticated workspace. It builds on Alper Çamlı's metadata and governance platform, with adapted retrieval, safety and export components from adviSU and network methods from PoliEcoTRNetSci.
+Context Layer brings CSV preparation, dataset exploration, governed SQL, product networks, bounded machine learning experiments, weekly sales projections and evidence-linked decision briefs into one authenticated workspace. It builds on Alper Çamlı's metadata and governance platform, with adapted retrieval, safety and export components from adviSU and network methods from PoliEcoTRNetSci.
 
-![Sales overview on the UCI Online Retail dataset](docs/evidence/phase4/02-overview.jpeg)
+![Dark sales workspace on the UCI Online Retail dataset](docs/evidence/phase10/01-dark-overview.jpeg)
+
+<details><summary>Light appearance</summary>
+
+![Light sales workspace](docs/evidence/phase10/02-light-overview.jpeg)
+
+</details>
 
 ## Explore, investigate, keep the evidence
 
@@ -12,17 +18,18 @@ Context Layer brings CSV preparation, dataset exploration, governed SQL, product
 |---|---|
 | **Prepare data** | Profile any bounded CSV schema, preserve leading-zero identifiers, map retail fields, preview quality and totals, and explicitly remove duplicates before import. |
 | **Model studio** | Choose a target and features, use random/group/time splits, compare baseline/forest/linear candidates with training CV, inspect held-out metrics, and save/export an owner-scoped model card. |
+| **Decision studio** | Inspect ranked investigations and their evidence, compare weekly forecasts with a naive benchmark, declare price/volume/budget scenarios, and reopen or export saved decision briefs. |
 | **Overview** | Inspect gross sales, orders, units and average order value. Filter dates/countries, inspect monthly trends, review schema and data quality. |
 | **Analysis** | Ask bounded analytics questions, inspect formulas and calculation evidence, search metric/schema context, and use the read-only SQL lab. |
 | **Relationships** | Explore invoice co-purchase or country-profile similarity, select products, inspect communities/centralities, and switch to accessible data tables. |
 | **Change over time** | Compare before/focus/after windows using a shared product universe, new/lost relationships, Jaccard overlap, concentration and descriptive intervals. |
 | **Findings** | Save, reopen, rerun, compare, archive and restore your analyses. Export query results to CSV/Excel and calculation evidence to JSON. |
 
-The interface supports Turkish and English, command search, keyboard navigation and responsive layouts. Original Gemini artwork and four custom navigation vectors complement a restrained navy/cobalt visual system; illustrations are separate from analytic charts.
+The interface supports Turkish and English, command search, keyboard navigation and responsive layouts. Light and navy/charcoal appearances follow the system preference, with a manual session toggle. Six Gemini raster assets and 37 geometry-only SVGs form the visual family, including the product icon and custom workspace, language, dataset and utility controls. Illustrations remain separate from analytic charts.
 
 ### Analysis assistant
 
-An optional **Llama 3.3 70B** planner uses the Hugging Face inference router through the adapted adviSU provider transport. It maps a question to an allowlisted intent within the current filters. Facts and numbers come from the local calculation engine; the model cannot execute arbitrary SQL or Python. The question and a static routing policy are sent only when the user enables Llama. Dataset rows and results are not sent.
+An optional **Llama 3.3 70B** planner uses the Hugging Face inference router through the adapted adviSU provider transport. It maps a question to an allowlisted intent within the current filters. Facts and numbers come from the local calculation engine; the model cannot execute arbitrary SQL or Python. The question and a static routing policy are sent only when the user enables Llama. Dataset rows and results are not sent by this routing mode. The separate decision-studio opt-in below sends minimized numerical aggregates and methodology notes, without raw rows or product/country labels.
 
 **Current live-service limitation:** the configured account returned HTTP 402 (inference credit required). The app handles this explicitly and preserves the standard calculated answer. A successful live model response and model accuracy benchmark have **not** been verified. Fifty offline plan-contract fixtures test schema/executor behavior; they do not measure model accuracy.
 
@@ -32,6 +39,34 @@ An optional **Llama 3.3 70B** planner uses the Hugging Face inference router thr
 ![Bounded analysis with calculation evidence](docs/evidence/phase4/03-analysis.jpeg)
 
 </details>
+
+### From analysis to a decision brief
+
+The **Decision studio** combines measured gross sales, market concentration,
+co-purchase evidence and a one-week sales projection. Each investigation has
+an explanation, explicit missing evidence, a three-step decision sequence and
+links to the actual calculation or chart. Its support score is a published
+checklist, not a probability of correctness or an expected return.
+
+![Decision brief with ranked investigations and evidence references](docs/evidence/phase10/03-decisions-light.jpeg)
+
+Forecasts compare last-week and trailing four-week methods using development
+origins, followed by four separate rolling test origins. The UI shows errors
+and the naive benchmark, including when the selected method performs worse.
+The empirical residual band is uncalibrated. At least 16 complete weeks are
+required. Price and volume scenarios use declared assumptions; gross-sales
+delta is separate from budget, profit and causal impact.
+
+An optional Llama step receives a bounded XML evidence bundle and methodology
+notes retrieved with the adapted adviSU BM25 kernel. Strict validation permits
+only existing candidate IDs and rationale codes. The local engine controls
+numbers, scores, ordering and explanations; provider failure preserves the
+local brief. XML structure and schema validation do not establish model accuracy.
+The current live provider remains blocked by HTTP 402.
+
+Briefs are saved per signed-in identity. Export JSON calculations, a Markdown
+report or the minimized XML model context. The [public UCI report](docs/evidence/phase10/uci-decision.md)
+and [evaluation report](docs/phases/PHASE_10_REPORT.md) show actual results and limits.
 
 ### Product networks and time windows
 
@@ -77,7 +112,7 @@ models are not persisted.
 
 <p><img src="core/web/src/workbench/assets/data-preparation.jpeg" width="180" alt="Original data preparation instrument"><img src="core/web/src/workbench/assets/model-studio.jpeg" width="180" alt="Original model comparison sculpture"><img src="core/web/src/workbench/assets/relationship-explorer.jpeg" width="180" alt="Original relationship constellation"></p>
 
-Five original Gemini raster illustrations and four custom navigation vectors
+Six Gemini raster assets and 37 generated geometry vectors
 form the product's visual family. New illustrations orient the preparation,
 model and relationship entrances; calculated charts and results retain their
 own clear visual language. [Asset provenance](core/web/src/workbench/assets/PROVENANCE.md).
@@ -129,7 +164,7 @@ This is a **locally verified development release**. Production identity/tenant R
 npm --prefix core run build
 ```
 
-Core integration tests require the test PostgreSQL environment described in the walkthrough. Latest logs are under `docs/evidence/verification/`. The e94819a GitHub run passed all five jobs, including Docker-dependent core and Python regressions; each later release keeps its own checks and evidence.
+Core integration tests use Docker-backed connector fixtures. Local tests, browser checks, source attribution and measured worker timings are under `docs/evidence/verification/phase10-*`. The latest CI receipt and acceptance limits are in [progress.md](progress.md) and the [phase 10 report](docs/phases/PHASE_10_REPORT.md). Offline schema tests do not measure live-model accuracy.
 
 ## Source projects
 

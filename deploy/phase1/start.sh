@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/../.."
+# PostgreSQL 16 on macOS aborts with "postmaster became multithreaded during startup" when the launching
+# shell has no valid locale (seen 2026-10-16 from a non-interactive shell); the cluster is initdb'd with --locale=C.
+export LC_ALL="${LC_ALL:-C}" LANG="${LANG:-C}"
 NODE_BIN="${CONTEXT_NODE_BIN:-/Users/selmanyilmaz/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin}"
 if [ -x "$NODE_BIN/node" ]; then export PATH="$NODE_BIN:$PATH"; fi
 node -e 'if(Number(process.versions.node.split(".")[0])<22)throw Error("Node.js 22+ required")'

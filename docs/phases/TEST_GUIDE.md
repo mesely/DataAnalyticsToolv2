@@ -121,3 +121,34 @@ CSV birim fiyatları en fazla dört ondalık basamak kabul eder. UCI toplamı **
 Tam test: `.venv/bin/python -m pytest analysis/tests -q`; yeni paket174 test.
 CI e94819a:473 core pass/4 skip,841 root Python pass/17 skip,173 analytics
 pass (skew fixture sonrasında174 yerelde). Son publish için güncelCI loguna bak.
+
+
+## Aşama 7–10 — tema ve karar stüdyosu
+
+1. http://127.0.0.1:8123/app/ adresine `selman` / `analiz-demo` ile girin.
+   Ay/güneş düğmesiyle açık/koyu görünümü değiştirin. Arka plan lacivert/füme;
+   kaynak metninde yeşil çerçeve yok. Tema bellektedir; reload sistem tercihine döner.
+2. UCI seçili, filtreler boşken **Karar stüdyosunu aç**. Senaryo ekleyin:
+   hacim5, fiyat0, bütçe100. Llama kapalı oluşturun. 19960sipariş, 52tamhafta;
+   son tam hafta£324,370.83 → varsayımsal£340,589.37; fark£16,218.54,
+   bütçe£100 ayrı. Bunlar kâr veya kampanya etkisi değildir.
+3. Son dört testte MAE£55,787.19, naif£41,723.39 ve geçemedi uyarısı.
+   Projeksiyon2011-12-05 haftası içindir;2026satışlarını tahmin etmez.
+4. **Dayanak skoru nasıl okunmalı?**: iş doğrulaması0;60/100, “%60doğru”
+   demek değil. **Karar adımları ve eksik bilgiler**: üç adım ve eksik kanıtlar.
+5. **Lider ülke payı**: aynı kaydın ülke tablosu/path/birim/hash ve odak.
+   **Birlikte alım**: gerçek graph ürün çiftleri/fatura sayısı; nedensellik değil.
+6. **JSON**, **Raporu indir**, **Yöntem notları → LLM bağlamını XML indir**.
+   JSON hesap/sınırları içerir, ham CSV içermez. XML ürün/ülke adlarını içermez.
+7. **Karar arşivim → Aç** ile aynı kaydı iki kez açın. Dialog başa dönmeli;
+   yöntem/kanıt disclosures kapalı. Bu snapshot okur, yeni analiz yeniden hesaplar.
+8. Yeni analiz ayarlarında Growth/Resilience eşit skorluların önceliğini değiştirir;
+   dayanak skorunu değiştirmez. Ayar değişince eski sonuç geçersiz olur.
+9. Llama opt-in ile mevcut hesapta gerçek402kredi/faturalandırma hatası beklenir.
+   Yerel kartlar korunmalı; Llama odağı uydurulmamalı.
+10. Perakende örneğinde16tamhafta yok: tahmin çıkmamalı. Boş kapsamda
+    pazar/ağ/tahmin önerileri uydurulmamalı.39OCAK gibi geçersiz tarih reddedilir.
+11.390px/masaüstü, Tab/Shift-Tab/Esc/Cmd-K ve tablo yatay kaymasını kontrol edin.
+
+Ölçüm `.venv/bin/python -m analysis.evaluate_decisions`: yalnız worker,
+HTTP/OIDC/DB/browser/LLM hariç. Gerçek model accuracy402çözülmeden ölçülemez.

@@ -1,0 +1,33 @@
+
+> @contextlayer/core@0.1.0 build
+> node web/build.mjs && tsc -p tsconfig.json
+
+
+  web/dist/app.css  96.4kb
+
+⚡ Done in 45ms
+
+  web/dist/app.js                                      732.0kb
+  web/dist/assets/relationship-explorer-OKU4WN5J.jpeg   95.1kb
+  web/dist/assets/model-studio-ZOGPXEIT.jpeg            78.5kb
+  web/dist/assets/data-preparation-FT6TZG4Z.jpeg        77.0kb
+  web/dist/assets/analysis-library-PHLTAUAQ.jpeg        67.2kb
+  web/dist/assets/app-icon-VDXPBKJM.jpeg                62.2kb
+  web/dist/assets/utility-settings-RE7KYLVV.svg         1009b
+  web/dist/assets/network-2IYE3AHK.svg                   462b
+  web/dist/assets/findings-WGG2S7TB.svg                  422b
+  web/dist/assets/utility-refresh-JGDLWDA3.svg           401b
+  web/dist/assets/utility-table-3CSY4MJA.svg             393b
+  web/dist/assets/sun-2GTSYYKW.svg                       389b
+  web/dist/assets/utility-zoom-in-J4BA27MO.svg           384b
+  web/dist/assets/utility-external-E7N4W5BF.svg          373b
+  web/dist/assets/database-6O53EPRY.svg                  371b
+  web/dist/assets/book-QZAFLXHT.svg                      368b
+  web/dist/assets/overview-JMYANLN5.svg                  361b
+  web/dist/assets/utility-download-JXSAI4AN.svg          359b
+  web/dist/assets/globe-VF4GHXQC.svg                     357b
+  web/dist/assets/upload-2RWD6FAL.svg                    357b
+  ...and 22 more output files...
+
+⚡ Done in 784ms
+built dashboard bundle -> web/dist

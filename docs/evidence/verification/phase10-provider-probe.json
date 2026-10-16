@@ -1,0 +1,11 @@
+{
+  "observed_date": "2026-10-16",
+  "model": "meta-llama/Llama-3.3-70B-Instruct",
+  "operation": "one real bounded planner request with user-provided replacement server credential",
+  "status": "unavailable",
+  "error_code": "invalid_request",
+  "http_status": 402,
+  "successful_live_answers": 0,
+  "accuracy": null,
+  "credential_stored": "ignored server-only file, mode0600; value excluded"
+}

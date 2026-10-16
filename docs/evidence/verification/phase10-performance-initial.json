@@ -1,0 +1,229 @@
+{
+  "scope": "Full local subprocess, warm cache, public historical UCI records. Small sample; no HTTP/OIDC/PG/browser/HF overhead. Not an SLA, user pilot or LLM accuracy.",
+  "environment": {
+    "platform": "Darwin",
+    "machine": "arm64",
+    "python": "3.12.9",
+    "threads_per_worker": 1
+  },
+  "source_rows": 530104,
+  "build": {
+    "sha256": "2c56bae8f9cfcc38b8f230647fda457bdce261dfe1789897f3c2ec201cddb739",
+    "scheme": "source-dependencies-v1",
+    "files": 39
+  },
+  "observations": [
+    {
+      "action": "forecast",
+      "concurrency": 1,
+      "samples": 9,
+      "p50_ms": 320.42,
+      "sample_p95_ms": 1054.95,
+      "max_ms": 1054.95,
+      "failures": 0,
+      "raw_ms": [
+        1054.95,
+        320.42,
+        317.53,
+        313.58,
+        351.69,
+        311.35,
+        336.58,
+        324.38,
+        318.26
+      ]
+    },
+    {
+      "action": "forecast",
+      "concurrency": 3,
+      "samples": 9,
+      "p50_ms": 513.75,
+      "sample_p95_ms": 530.26,
+      "max_ms": 530.26,
+      "failures": 0,
+      "raw_ms": [
+        510.86,
+        517.39,
+        513.75,
+        530.26,
+        526.45,
+        517.42,
+        472.0,
+        465.72,
+        466.12
+      ]
+    },
+    {
+      "action": "decisions",
+      "concurrency": 1,
+      "samples": 9,
+      "p50_ms": 950.02,
+      "sample_p95_ms": 1802.48,
+      "max_ms": 1802.48,
+      "failures": 0,
+      "raw_ms": [
+        1335.38,
+        928.46,
+        1802.48,
+        1407.22,
+        950.02,
+        1010.69,
+        868.74,
+        884.6,
+        831.73
+      ]
+    },
+    {
+      "action": "decisions",
+      "concurrency": 3,
+      "samples": 9,
+      "p50_ms": 1064.68,
+      "sample_p95_ms": 1091.04,
+      "max_ms": 1091.04,
+      "failures": 0,
+      "raw_ms": [
+        1050.68,
+        1064.68,
+        1064.24,
+        1070.94,
+        1063.39,
+        1058.71,
+        1080.77,
+        1091.04,
+        1083.65
+      ]
+    }
+  ],
+  "forecast": {
+    "weeks": 52,
+    "selected": "mean4",
+    "holdout": {
+      "selected": {
+        "mae_gbp": 55787.19,
+        "rmse_gbp": 68309.8262435482,
+        "wape": 0.15945456873641253,
+        "n": 4
+      },
+      "naive": {
+        "mae_gbp": 41723.39,
+        "rmse_gbp": 50662.65895022635,
+        "wape": 0.11925650240980316,
+        "n": 4
+      },
+      "records": [
+        {
+          "origin": "2011-10-31",
+          "target": "2011-11-07",
+          "train_end_index": 47,
+          "actual_pence": 37004497,
+          "predicted_pence": 26697151.5
+        },
+        {
+          "origin": "2011-11-07",
+          "target": "2011-11-14",
+          "train_end_index": 48,
+          "actual_pence": 38862244,
+          "predicted_pence": 30228871.25
+        },
+        {
+          "origin": "2011-11-14",
+          "target": "2011-11-21",
+          "train_end_index": 49,
+          "actual_pence": 31641216,
+          "predicted_pence": 33028021.75
+        },
+        {
+          "origin": "2011-11-21",
+          "target": "2011-11-28",
+          "train_end_index": 50,
+          "actual_pence": 32437083,
+          "predicted_pence": 34424435.0
+        }
+      ]
+    },
+    "next": {
+      "period": "2011-12-05",
+      "pence": 34986260.0,
+      "lower_pence": 27322844.5,
+      "upper_pence": 42649675.5
+    },
+    "uncertainty": {
+      "method": "development absolute-error empirical 90th percentile envelope",
+      "residual_count": 44,
+      "calibrated": false
+    }
+  },
+  "decision_oracle": {
+    "gross_pence": 1066668454,
+    "orders": 19960,
+    "recommendations": [
+      {
+        "id": "quality",
+        "support_score": 60,
+        "score_components": {
+          "traceability": 40,
+          "descriptive_sufficiency": 20,
+          "temporal_validation": 0,
+          "business_validation": 0
+        }
+      },
+      {
+        "id": "forecast",
+        "support_score": 60,
+        "score_components": {
+          "traceability": 40,
+          "descriptive_sufficiency": 20,
+          "temporal_validation": 0,
+          "business_validation": 0
+        }
+      },
+      {
+        "id": "country",
+        "support_score": 60,
+        "score_components": {
+          "traceability": 40,
+          "descriptive_sufficiency": 20,
+          "temporal_validation": 0,
+          "business_validation": 0
+        }
+      },
+      {
+        "id": "basket",
+        "support_score": 60,
+        "score_components": {
+          "traceability": 40,
+          "descriptive_sufficiency": 20,
+          "temporal_validation": 0,
+          "business_validation": 0
+        }
+      },
+      {
+        "id": "scenario",
+        "support_score": 60,
+        "score_components": {
+          "traceability": 40,
+          "descriptive_sufficiency": 20,
+          "temporal_validation": 0,
+          "business_validation": 0
+        }
+      }
+    ],
+    "scenario": {
+      "assumptions": {
+        "volume_pct": 5.0,
+        "price_pct": 0.0,
+        "budget_gbp": 100.0
+      },
+      "baseline_pence": 32437083,
+      "assumed_gross_pence": 34058937,
+      "gross_delta_pence": 1621854,
+      "budget_pence": 10000,
+      "note": "User assumptions, not predicted causal effects. Price and volume vary independently; demand elasticity, margin, capacity, returns and campaign effectiveness are unknown. Budget is shown separately; gross delta is not profit or ROI."
+    }
+  },
+  "live_llm": {
+    "status": "not_executed_by_this_benchmark",
+    "accuracy": null,
+    "successful_answers": null
+  }
+}

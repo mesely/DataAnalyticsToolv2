@@ -17,15 +17,20 @@
 | 11 | Analytics intent için LSTM | +0–2 | SNIPS sınıfları yeniden eğitim; train-only vocab ve padding-invariance; basit TF-IDF baseline'dan ölçülmüş fayda yoksa ürüne ekleme |
 | 12 | Özel görsel varlıklar ve ileri polish | +0–1 | Mevcut işlevsel ikon dilini koru; gerekirse marka illüstrasyonu üret. Ulaşılabilirlik ve veri anlamını dekorla zayıflatma |
 
-## Güncel aşama haritası / otomatik devam
+## Güncel aşama haritası ve açık kapsam
 
-- **Aşama1–3:** yerel kontratlar tamam; başlangıç ürününe dönme.
-- **Aşama4:** yerel paket tamam; e94c520 ve e94819a beş CI job yeşil, eski Docker regresyon kapısı bu koşularla kapandı. HF402/gerçek model eval, gerçek tenant/IdP, pilot/large-scale kapıları açık.
-- **Aşama5:** AW-8 CSV profile/mapping/receipt/preview/import tamam; Parquet ve generic metric compiler bitmedi. PHASE_5_REPORT.
-- **Aşama6:** AW-9 gerçek model deneyi ve Influencer adapterı tamam; model serving/OOF stacking/grup+zaman birlikte/calibration bitmedi. Üç ek Gemini asset ve mobile/keyboard polish aynı teslimde. PHASE_6_REPORT.
-- **Aşama7 (başlamadı):** güvenli tabular deney genişletmesi. İlk bağımsız işler: Parquet bounded read (metadata/decompression bütçesi, no external path), explicit numeric/categorical schema ve metric grain/unit sözleşmesi; group/time-safe OOF stacking ile mevcut CV-only baseline karşılaştırması. Önce `specs/analyst-workspace-phase7.md` ve PHASE_7 sözleşmesini yaz, kullanıcı verisinde hedef varsayma. AW-8/9'u geriye dönük bozma. Yeni routes aynı viewer/bounded; profile/ML kartları owner/audit kapsamını korur. Holdout'u model seçimine sokmadan golden/property/adversarial + browser desktop/mobile + CI ile kapa.
-- **Aşama8 (başlamadı):** local production hardening: tenant+subject migration/RLS fixture, retention tombstone/reference contract; hard worker resource process izolasyonu; 5M ölçümü ve cancel/backpressure HTTP stress. Gerçek müşteri/IdP config ve prod rollout dış kapıdır. Başka projelerin Docker daemon'unu restart etme.
-- **Aşama9 (başlamadı):** governed report/BI artifact delivery + adviSU conversation reference. Önce mevcut `core/src/publish*.ts`/`specs/lineage-and-report-artifact-formats-spec.md` ve `EXTRA_REUSE_RESEARCH.md` symbol kaydını oku. Kimlik/visibility/dataset sürümü bağlanmadan publish token yolu bypass edilmez; real BI publish ayrıca yetki gerektirir.
-- **Aşama10 (dış katılım):** 5–8 kullanıcı pilotu ve ölçümlü erişilebilirlik/üretim kabulü; task protocol, consent, gerçek ölçümler. Sahte kullanıcı/uydurulmuş completion süresi yok. SNIPS/LSTM ayrıca ölçülmüş gerekçeye bağlı.
+A1–6 uygulanmış ürün korunuyor.16Ekimde A7–10'a forecast/decision/XML/report/appearance **ek paketleri** eklendi (AW-10–13); ayrıntı PHASE_7..10_REPORT. Bu ek paketler aşağıdaki orijinal işlerin kapandığını göstermez. Kullanıcının tüm aşamaları tamamlama amacı sürer; eksik yerel kabul veya açık orijinal görevden devam et.
 
-“Aşama7'ye devam et” denirse bu sırayı uygula: progress üst/son kartı → PHASE_5/6_REPORT → açık test kapısı → A7 spec/plan → kod → anlamlı test → görsel QA → log/report/progress/README → secret/diff kontrolü → aynı açık PR'a push. Yeni aşama adı vererek eski geniş backlog'un tamamını kapatma. Ücret/gerçek erişim gerektiren işi dış kapı olarak koru ve bağımsız teknik işe devam et.
+| Sıra | Kalan iş | Önce okunacak gerçek giriş |
+|---:|---|---|
+|1| Sonkod CI ve final browser kabulü; eksik varsa önce kapat | progress üst/son kart; phase10-github-final/browser-qa receipt; DecisionStudio aynıIDreopen/390px/theme/CmdK/Esc/download |
+|2| Gerçek model erişimi + dondurulmuş TR/EN karar/intent golden/OOD/injection/citation eval | llm.py,decisions.py,adapted/providers.py; gerçek402; accuracy null. Hesap/ödeme değişikliği otomatik yok |
+|3| Tahmin kalitesi | forecast.py; mean4 son testte naiften kötü. Yeni development/holdout ayır; seasonalnaive/calendar/drift adayları, calibratedcoverage ve period/countryerror slices. Mevcut holdout üstünde tuning yapma |
+|4| A7 orijinal: Parquet/genericmetric/explicit schema ve OOFstacking | preparation.py,ml.py,FoldPreprocessor; parquetmetadata/decompression budget, metricgrain/unit, group/time-safe nestedOOF; trainfoldSMOTE; modelserving ayrı |
+|5| A8 orijinal: tenant+subjectRLS,retention,tombstone,hardresource | core/src/workbench.ts,migrations0017–0021; existingauth/PGpermits; kayıtrefleri silinmeden lifecycle;5MHTTPcancel/backpressurestress; prodIdP/dışdeployment ayrı |
+|6| A9 orijinal: governedBI ve conversationreference | core/src/publish*.ts, lineage/reportformats spec; adviSU conversation_memory/sourceindexer/retrievalpolicy adayları; ownerUUIDarchive genelmemory değildir |
+|7| A10 orijinal:5–8gerçek kullanıcı pilotu, accessibility/production ölçüm | TEST_GUIDE; görev/consent/observedtime/errors, ekranokuyucu/zoom/contrast; sahte katılımcı yok |
+|8| Veri ve iş kararının geçerliliği | iade/marj/stok/elastikiyet/capacity, kontrollüpilot; supportbusinessvalidationşuanda0; nedensel etki/ROI yalnız veriyle |
+|9| SNIPS/LSTM ve ileri rerank | önce realanalytics intentcorpus+TFIDFbaseline; ölçülmüşkazanç yoksa ekleme; vocabularyfit/paddinginvariance |
+
+Yeni ajan: repo /Users/selmanyilmaz/Projects/context-layer. Önce progress → bu sıra → authoritative spec → kod → anlamlı test → gerçek browser → receipt/report/mirror/README → secret/diff → aynı açık PR'a push. Eski çalışan modülü yeniden port etme; port_sources.py adaptasyonları overwrite eder. Proje tokenı yalnız ignoredserver0600; loglama/commitleme.

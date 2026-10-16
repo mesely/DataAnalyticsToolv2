@@ -61,3 +61,19 @@ Kaynak notebook SHA: `analysis/SOURCE_LEDGER.json`; orijinal hücre gövdeleri
 
 SNIPS henüz runtime'da değil. Her kaynağı zorla ekleme; TF-IDF/LSTM ancak
 ayrı analytics intent dataset'i ve ölçülmüş baseline kazancıyla değerlendirilir.
+
+
+## Aşama 7–10 — karar bağlamı ve gerçek özetleyici
+
+adviSU `server/modules/response_formatter.py` içindeki `_plain_text`,
+`split_summary`, `compact_summary` gövdeleri `analysis/adapted/formatting.py`
+içine çıkarıldı. `analysis/decisions.py::decision_brief` runtime'da çağırır:
+hesaplanan aday metinlerinden extractive özet; Mongo/akademik audit taşınmadı.
+SHA/pin SOURCE_LEDGER içinde;12upstream dosyası read-only doğrulandı.
+
+`knowledge` mevcut gerçek adviSU BM25 ile üç yöntem notu seçer;
+`select_actions` gerçek provider transport/retry/deadline kullanır. `context_xml`,
+checklist, forecast ve scenario yeni hedef kodudur; kopya kaynak diye sayılmaz.
+Strict ID/reason JSON serbest LLM prose entailment doğrulaması değildir.
+Conversation_memory genel referans çözümü hâlâ açık; explicit owner UUID ile
+arşiv açma, bu modülün adapte edildiği anlamına gelmez.

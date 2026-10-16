@@ -3986,7 +3986,7 @@
   color: var(--muted);
 }
 .wb-narrative .wb-evidence-links button {
-  min-height: 36px;
+  min-height: 40px;
 }
 .wb-narrative-model {
   margin-top: 12px;

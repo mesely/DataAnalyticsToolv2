@@ -26,7 +26,7 @@ Servis kapalıysa `/Users/selmanyilmaz/Projects/context-layer/deploy/phase1/star
 Repo `/Users/selmanyilmaz/Projects/context-layer`:
 
 ```
-.venv/bin/python -m pytest analysis/tests -q   # 228 test; test_forecast.py (tahmin v2), test_llm_eval.py (LLM harness)
+.venv/bin/python -m pytest analysis/tests -q   # 254 test; test_forecast.py (tahmin v3), test_narrative.py, test_llm_eval.py (LLM harness v2)
 .venv/bin/python -m analysis.llm_eval --providers scripted-ideal,scripted-adversarial,local   # LLM değerlendirme (hf = BLOCKED/402)
 PATH=/Users/selmanyilmaz/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH CORE_TEST_DATABASE_URL=postgres://postgres:phase1-local-only@127.0.0.1:5549/postgres npm --prefix core test -- test/workbench.test.ts
 PATH=/Users/selmanyilmaz/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin:$PATH npm --prefix core run build
@@ -174,6 +174,6 @@ HTTP/OIDC/DB/browser/LLM hariç. Gerçek model accuracy402çözülmeden ölçül
 7. Model stüdyosu → Wine → Modelleri karşılaştır: "Olasılık kalitesi" tablosu (log loss, Brier, ECE; ortalama
    kesinlik üç sınıfta —). Seçim ölçütü hâlâ macro F1'dir.
 
-Otomatik: `.venv/bin/python -m pytest analysis/tests -q` (253 test); `.venv/bin/python -m analysis.llm_eval
+Otomatik: `.venv/bin/python -m pytest analysis/tests -q` (254 test); `.venv/bin/python -m analysis.llm_eval
 --providers scripted-ideal,scripted-adversarial,local` (narrate sütunları); tahmin kanıtı
 `docs/evidence/phase10/forecast-v3-uci.json`.

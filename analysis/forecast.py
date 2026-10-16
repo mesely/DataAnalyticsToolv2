@@ -329,6 +329,52 @@ def backtest(weeks):
     return result
 
 
+SLICE_COUNTRIES = 3
+
+
+def _country_slices(metadata, where, args, data_dir, *, first_week, n_weeks, result):
+    """Error slices: the aggregate's selected method and naive, re-run on the leading countries' own weekly
+    series over the SAME final origins. Diagnostic only — slices never change the aggregate selection.
+    Labels stay in this result (shown to the user) and never enter diagnostics text or model packets."""
+    start = date.fromisoformat(first_week)
+    with duckdb.connect(str(data_dir / (metadata["id"] + ".duckdb")), read_only=True) as con:
+        leaders = [r[0] for r in con.execute(
+            "SELECT country FROM transactions" + where + " GROUP BY 1 ORDER BY SUM(line_pence) DESC, country LIMIT " + str(SLICE_COUNTRIES), args
+        ).fetchall()]
+        if not leaders:
+            return []
+        rows = con.execute(
+            "SELECT country, order_date::VARCHAR, SUM(line_pence)::BIGINT FROM transactions" + where
+            + (" AND" if where else " WHERE") + " country IN (" + ",".join("?" * len(leaders)) + ") GROUP BY 1, 2",
+            list(args) + leaders,
+        ).fetchall()
+    observed = {}
+    for country, d, p in rows:
+        observed.setdefault(country, {})[date.fromisoformat(d)] = int(p)
+    final_origins = list(range(n_weeks - result["split"]["holdout_origins"], n_weeks))
+    dev_origins = list(range(result["split"]["first_origin"], n_weeks - result["split"]["holdout_origins"]))
+    out = []
+    for country in leaders:
+        days = observed.get(country, {})
+        weeks = [{"period": (start + timedelta(days=7 * i)).isoformat(),
+                  "pence": sum(days.get(start + timedelta(days=7 * i + k), 0) for k in range(7))} for i in range(n_weeks)]
+        values = [w["pence"] for w in weeks]
+        if n_weeks < MIN_WEEKS or not any(values):
+            out.append({"country": country, "status": "insufficient_data", "complete_weeks": n_weeks})
+            continue
+        naive_dev = _records(weeks, values, _BY_ID["naive"], dev_origins)
+        scale = sum(abs(r["actual_pence"] - r["predicted_pence"]) for r in naive_dev) / len(naive_dev)
+        selected = metrics(_records(weeks, values, _BY_ID[result["selected"]], final_origins), scale)
+        naive = metrics(_records(weeks, values, _BY_ID["naive"], final_origins), scale)
+        out.append({
+            "country": country, "status": "ready", "gross_pence": sum(values),
+            "final": {"selected": selected, "naive": naive},
+            "selected_beats_naive_final": selected["mae_gbp"] < naive["mae_gbp"],
+            "zero_weeks": sum(1 for v in values if v == 0),
+        })
+    return out
+
+
 def forecast(request, metadata, where, args, data_dir):
     start = max(
         date.fromisoformat(metadata["start"]),
@@ -360,6 +406,14 @@ def forecast(request, metadata, where, args, data_dir):
             "complete_weeks": len(weeks),
             "history": weeks,
         }
+    if result.get("status") == "ready":
+        result["slices"] = _country_slices(metadata, where, args, data_dir, first_week=weeks[0]["period"], n_weeks=len(weeks), result=result)
+        disagree = [x for x in result["slices"] if x["status"] == "ready" and not x["selected_beats_naive_final"]]
+        if disagree:
+            result["diagnostics"].append({
+                "code": "slice_disagreement", "severity": "warning",
+                "message": f"In {len(disagree)} of {sum(1 for x in result['slices'] if x['status'] == 'ready')} leading-country slices the aggregate's selected method did not beat naive on the final window; the aggregate conclusion does not transfer to every market.",
+            })
     final_count = result.get("split", {}).get("holdout_origins")
     result["notes"] = [
         "Positive invoice-line gross GBP; excludes returns/cancellations and is not net revenue or profit.",
@@ -368,6 +422,7 @@ def forecast(request, metadata, where, args, data_dir):
         + (f"{final_count} " if final_count else "")
         + "origins are evaluated afterwards and never select the method. When the naive method is best, it is selected.",
         "Residual envelope is empirical, not a guaranteed or calibrated prediction interval. Historical records may not represent future trading.",
+        "Country slices re-run the aggregate's selected method and naive on each leading country's own weeks over the same final origins; they are diagnostic and never change the selection.",
     ]
     result["scope"] = {
         "filters": request.get("filters") or {},

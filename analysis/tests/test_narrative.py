@@ -36,7 +36,8 @@ def test_renderings_accept_locale_and_unit_forms():
     assert {"2140500", "21405", "214050"} <= renderings(2140500, "pence")   # pence, £ with 0 and 1 decimals
     assert "2140500" in renderings(2140500, "pence")                          # "£21,405.00" and "21.405,00" strip to the same digits
     assert {"83", "834", "8340", "0834"} <= renderings(0.834, "ratio")
-    assert renderings(19960, "count") == {"19960", "199600", "1996000"}
+    assert renderings(19960, "count") == {"19960"}  # a count has one rendering: "199,600 orders" must not pass
+    assert renderings(47206.66, "GBP") == {"47207", "472067", "4720666"}
 
 
 def test_unsupported_numbers_rule(brief):

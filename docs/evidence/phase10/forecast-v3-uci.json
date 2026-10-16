@@ -339,9 +339,10 @@
   "Positive invoice-line gross GBP; excludes returns/cancellations and is not net revenue or profit.",
   "Only complete Monday–Sunday weeks; boundary fragments excluded. Dates without observed rows count as zero; collection completeness is not established.",
   "One-step rolling origins use only earlier observations. The method is chosen on development origins; the final 10 origins are evaluated afterwards and never select the method. When the naive method is best, it is selected.",
-  "Residual envelope is empirical, not a guaranteed or calibrated prediction interval. Historical records may not represent future trading."
+  "Residual envelope is empirical, not a guaranteed or calibrated prediction interval. Historical records may not represent future trading.",
+  "Country slices re-run the aggregate's selected method and naive on each leading country's own weeks over the same final origins; they are diagnostic and never change the selection."
  ],
- "output_sha256": "85b31e08774e8d0974b7d800355385402669b42c6e94c981cd645c8f5000fa7e",
+ "output_sha256": "afd4c781789f959fb915e59f7b0b451c78aa00cdf29b81af48c1bdcdb03343ea",
  "recipe_version": "weekly-gross-v3",
  "scope": {
   "dataset_sha256": "f6003ea90b31435e94afdb17facc703aedeb4f85a3a992ab7cb1586e21c3c636",
@@ -351,6 +352,89 @@
  },
  "selected": "mean8",
  "selected_description": "mean of the last 8 weeks",
+ "slices": [
+  {
+   "country": "United Kingdom",
+   "final": {
+    "naive": {
+     "bias_gbp": 1632.295,
+     "mae_gbp": 48503.079000000005,
+     "mase": 1.677667068501258,
+     "n": 10,
+     "rmse_gbp": 58819.93916116532,
+     "smape": 0.19669138927654237,
+     "wape": 0.18907236116051424
+    },
+    "selected": {
+     "bias_gbp": 45144.873,
+     "mae_gbp": 45522.515999999996,
+     "mase": 1.5745727393620024,
+     "n": 10,
+     "rmse_gbp": 59869.21253484022,
+     "smape": 0.1822835651355358,
+     "wape": 0.17745367435513296
+    }
+   },
+   "gross_pence": 838698454,
+   "selected_beats_naive_final": true,
+   "status": "ready",
+   "zero_weeks": 1
+  },
+  {
+   "country": "Netherlands",
+   "final": {
+    "naive": {
+     "bias_gbp": -1640.39,
+     "mae_gbp": 10916.618,
+     "mase": 1.3492721386554343,
+     "n": 10,
+     "rmse_gbp": 13799.105832206666,
+     "smape": 1.6044600685587391,
+     "wape": 1.63955870792786
+    },
+    "selected": {
+     "bias_gbp": -781.707,
+     "mae_gbp": 7366.615,
+     "mase": 0.9104988720592038,
+     "n": 10,
+     "rmse_gbp": 9761.310650379752,
+     "smape": 1.2213024999385411,
+     "wape": 1.106386407512106
+    }
+   },
+   "gross_pence": 27352572,
+   "selected_beats_naive_final": true,
+   "status": "ready",
+   "zero_weeks": 18
+  },
+  {
+   "country": "EIRE",
+   "final": {
+    "naive": {
+     "bias_gbp": -229.94799999999998,
+     "mae_gbp": 5421.858,
+     "mase": 1.1751562948827843,
+     "n": 10,
+     "rmse_gbp": 6562.983715567181,
+     "smape": 0.8604010876633652,
+     "wape": 0.8043442849856647
+    },
+    "selected": {
+     "bias_gbp": -112.75112499999999,
+     "mae_gbp": 4213.136375,
+     "mase": 0.9131728887552726,
+     "n": 10,
+     "rmse_gbp": 4671.239466504129,
+     "smape": 0.6835009514723339,
+     "wape": 0.6250278345719255
+    }
+   },
+   "gross_pence": 27477080,
+   "selected_beats_naive_final": true,
+   "status": "ready",
+   "zero_weeks": 3
+  }
+ ],
  "split": {
   "development_origins": 34,
   "final_window_rule": "last min(12, max(4, n // 5)) origins; evaluated after selection, never used for it",

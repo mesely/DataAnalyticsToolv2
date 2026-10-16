@@ -62,9 +62,11 @@ def renderings(value, unit):
             add(v * 100, d)
         for d in range(1, 7):
             add(v, d)
-    else:  # GBP, count, rows, weeks, percent, distinct_invoices
+    elif unit in ("GBP", "percent"):
         for d in range(3):
             add(v, d)
+    else:  # count, rows, weeks, distinct_invoices: whole numbers have exactly one rendering
+        add(v, 0)
     return {x for x in out if x}
 
 

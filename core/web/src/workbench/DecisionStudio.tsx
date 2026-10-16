@@ -68,6 +68,13 @@ type Forecast = {
     >;
   };
   diagnostics?: { code: string; severity: string; message: string }[];
+  slices?: {
+    country: string;
+    status: string;
+    final?: { selected: { mae_gbp: number }; naive: { mae_gbp: number } };
+    selected_beats_naive_final?: boolean;
+    zero_weeks?: number;
+  }[];
   leaderboard?: {
     method: string;
     development_mae_gbp: number;
@@ -966,6 +973,42 @@ export function DecisionStudio({
                     </tbody>
                   </table>
                 </div>
+                {forecast.slices && forecast.slices.some((s) => s.status === "ready") && (
+                  <div className="wb-table-wrap">
+                    <table>
+                      <caption>
+                        {t(
+                          "Lider ülke dilimleri · aynı final dönemlerinde seçilen yöntem ve naif; yalnız teşhis, seçimi değiştirmez",
+                          "Leading-country slices · selected method and naive on the same final origins; diagnostic only, never selects",
+                        )}
+                      </caption>
+                      <thead>
+                        <tr>
+                          <th>{t("Ülke", "Country")}</th>
+                          <th>{t("Seçilen MAE", "Selected MAE")}</th>
+                          <th>{t("Naif MAE", "Naive MAE")}</th>
+                          <th>{t("Sıfır hafta", "Zero weeks")}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {forecast.slices
+                          .filter((s) => s.status === "ready" && s.final)
+                          .map((s) => (
+                            <tr key={s.country}>
+                              <th scope="row">{s.country}</th>
+                              <td>
+                                {money(s.final!.selected.mae_gbp)}
+                                {!s.selected_beats_naive_final &&
+                                  " · " + t("naifi geçemedi", "did not beat naive")}
+                              </td>
+                              <td>{money(s.final!.naive.mae_gbp)}</td>
+                              <td>{s.zero_weeks ?? 0}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
                 <p>
                   {t(
                     "Aralık, geliştirme hatalarından ampirik bir banttır; kalibre edilmiş güven düzeyi içermez. Veri tarihîdir, bugünün ticaretini temsil etmeyebilir.",

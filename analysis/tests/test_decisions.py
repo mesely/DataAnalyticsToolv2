@@ -65,12 +65,12 @@ def test_holdout_changes_cannot_select_method_or_change_development_errors():
 
 def test_forecast_boundaries_zero_observations_and_digest(tmp_path):
     con = duckdb.connect(str(tmp_path / "test.duckdb"))
-    con.execute("CREATE TABLE transactions(order_date DATE,line_pence BIGINT)")
+    con.execute("CREATE TABLE transactions(order_date DATE,line_pence BIGINT,country VARCHAR)")
     start = date(2024, 1, 3)  # Wednesday, partial boundary excluded
     end = start + timedelta(days=150)
     con.executemany(
-        "INSERT INTO transactions VALUES(?,?)",
-        [(start + timedelta(days=i), 100) for i in range(151) if i % 3 != 0],
+        "INSERT INTO transactions VALUES(?,?,?)",
+        [(start + timedelta(days=i), 100, "A") for i in range(151) if i % 3 != 0],
     )
     con.close()
     meta = {
@@ -284,3 +284,30 @@ def test_objective_controls_ties_without_overriding_support(objective, second):
     assert [c["support_score"] for c in b["recommendations"]] == sorted(
         [c["support_score"] for c in b["recommendations"]], reverse=True
     )
+
+
+def test_country_slices_are_diagnostic_and_never_change_selection(tmp_path):
+    # Aggregate = A + B. A is a clean linear trend (drift wins); B is flat with alternating noise where the
+    # drift method is worse than naive on B's own final window → slice disagreement is reported, selection unchanged.
+    con = duckdb.connect(str(tmp_path / "s.duckdb"))
+    con.execute("CREATE TABLE transactions(order_date DATE,line_pence BIGINT,country VARCHAR)")
+    start = date(2024, 1, 1)  # Monday
+    rows = []
+    for w in range(30):
+        monday = start + timedelta(days=7 * w)
+        rows.append((monday, 100000 + 1000 * w, "A"))
+        rows.append((monday, 5000 + (300 if w % 2 else -300), "B"))
+    con.executemany("INSERT INTO transactions VALUES(?,?,?)", rows)
+    con.close()
+    meta = {"id": "s", "sha256": "b" * 64, "start": start.isoformat(), "end": (start + timedelta(days=7 * 30 - 1)).isoformat()}
+    r = forecast({}, meta, "", [], tmp_path)
+    assert r["selected"] == "drift"
+    by = {x["country"]: x for x in r["slices"]}
+    assert set(by) == {"A", "B"} and by["A"]["selected_beats_naive_final"] is True
+    assert by["B"]["selected_beats_naive_final"] is False
+    assert by["A"]["final"]["selected"]["n"] == r["split"]["holdout_origins"]
+    assert any(d["code"] == "slice_disagreement" and "B" not in d["message"] for d in r["diagnostics"])
+    # Slices are evaluated after selection; removing B's rows from the final window cannot change the method.
+    only_a = forecast({}, meta, " WHERE country = 'A'", [], tmp_path)
+    assert only_a["selected"] == "drift" and [x["country"] for x in only_a["slices"]] == ["A"]
+    assert not any(d["code"] == "slice_disagreement" for d in only_a["diagnostics"])

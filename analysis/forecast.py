@@ -72,7 +72,7 @@ def predict(history, method):
         raise ValueError("Unknown forecast method")
     if method == "seasonal_naive" and len(history) <= SEASON_WEEKS:
         raise ValueError("seasonal_naive needs more than one season of history")
-    return _BY_ID[method](history)
+    return max(0, _BY_ID[method](history))
 
 
 def metrics(records, scale_pence=None):
@@ -106,7 +106,7 @@ def _records(weeks, values, fn, origins):
             "target": weeks[i]["period"],
             "train_end_index": i - 1,
             "actual_pence": values[i],
-            "predicted_pence": fn(values[:i]),
+            "predicted_pence": max(0, fn(values[:i])),
         }
         for i in origins
     ]
@@ -155,6 +155,13 @@ def _diagnostics(weeks, values, seasonal_available, scale, selected, candidates,
     if cov is not None and cov < 0.8:
         out.append({"code": "band_undercovers_development", "severity": "warning",
                     "message": f"The 90% band covered only {cov:.0%} of evaluated development origins when built from earlier residuals; treat the displayed range as optimistic."})
+    final_cov = (uncertainty or {}).get("levels", {}).get("0.9", {}).get("final_window_coverage")
+    if final_cov is not None and final_cov < 0.8:
+        out.append({"code": "band_undercovers_final", "severity": "warning",
+                    "message": f"The nominal 90% band covered only {final_cov:.0%} of {holdout['origins']} final origins. This is observed undercoverage, not a calibrated 90% range; the final window is never used to tune it."})
+    if (uncertainty or {}).get("collapsed_relative_band"):
+        out.append({"code": "relative_band_collapsed", "severity": "warning",
+                    "message": "Relative scaling met a zero forecast in the final window or next period: its range collapses to zero. Coverage and width remain descriptive; this range is weak for planning."})
     if holdout["selected"]["mae_gbp"] >= holdout["naive"]["mae_gbp"]:
         out.append({"code": "final_window_worse_than_naive", "severity": "warning",
                     "message": "On the final window the selected method did not beat the naive benchmark; treat the projection as weak."})
@@ -196,6 +203,10 @@ def _rolling_coverage(records, scaled, scaling, level):
     return (covered / evaluated if evaluated else None), evaluated
 
 
+def _width_gbp(point, radius):
+    return (point + radius - max(0, point - radius)) / 100
+
+
 def interval(dev_records, final_records, point):
     """Band construction with a development-only scaling choice. Final-window coverage is descriptive."""
     scalings = {}
@@ -207,7 +218,13 @@ def interval(dev_records, final_records, point):
         per_level = {}
         for level in INTERVAL_LEVELS:
             coverage, evaluated = _rolling_coverage(dev_records, scaled, scaling, level)
-            per_level[str(level)] = {"development_rolling_coverage": coverage, "development_rolling_n": evaluated}
+            widths = []
+            for k in range(MIN_INTERVAL_RESIDUALS, len(dev_records)):
+                p = dev_records[k]["predicted_pence"]
+                q = _quantile_radius(sorted(scaled[:k]), level)
+                widths.append(_width_gbp(p, q if scaling == "absolute" else q * p))
+            per_level[str(level)] = {"development_rolling_coverage": coverage, "development_rolling_n": evaluated,
+                                     "development_mean_width_gbp": statistics.mean(widths) if widths else None}
         scalings[scaling] = per_level
     def distance(scaling):
         rows = scalings[scaling]
@@ -226,6 +243,7 @@ def interval(dev_records, final_records, point):
             "radius_pence": int(round(radius_for(point))),
             "quantile": q,
             "final_window_coverage": covered / len(final_records) if final_records else None,
+            "final_mean_width_gbp": statistics.mean(_width_gbp(r["predicted_pence"], radius_for(r["predicted_pence"])) for r in final_records) if final_records else None,
             **scalings[chosen][str(level)],
         }
     return {
@@ -237,7 +255,8 @@ def interval(dev_records, final_records, point):
         "levels": levels,
         "scalings": scalings,
         "calibrated": False,
-        "note": "Final-window coverage is a descriptive check on a handful of points, not a calibration claim. Development rolling coverage is the honest in-sample check of the band's construction.",
+        "collapsed_relative_band": chosen == "relative" and (point == 0 or any(r["predicted_pence"] == 0 for r in final_records)),
+        "note": "Final-window coverage and width are descriptive checks on a handful of points, not calibration claims. Development rolling coverage tunes the scaling and is not independent calibration evidence.",
     }
 
 
@@ -252,6 +271,8 @@ def backtest(weeks):
     if len(weeks) > MAX_WEEKS:
         raise ValueError(f"Forecast supports at most {MAX_WEEKS} complete weeks; select a shorter date range.")
     values = [w["pence"] for w in weeks]
+    if any(not math.isfinite(v) or v < 0 for v in values):
+        raise ValueError("Weekly gross must be finite and nonnegative.")
     n = len(values)
     seasonal_available = n >= 2 * SEASON_WEEKS
     first_origin = SEASON_WEEKS + 1 if seasonal_available else FIRST_ORIGIN
@@ -277,7 +298,7 @@ def backtest(weeks):
         "records": final_records,
         "origins": final_count,
     }
-    point = _BY_ID[selected](values)
+    point = predict(values, selected)
     uncertainty = interval(candidates[selected]["records"], final_records, point)
     radii = uncertainty["levels"]
     next_week = (date.fromisoformat(weeks[-1]["period"]) + timedelta(days=7)).isoformat()

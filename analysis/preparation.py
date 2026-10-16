@@ -22,6 +22,7 @@ from analysis.prepare import COLUMNS, normalize
 
 VERSION = "csv-preparation-v2"
 MAX_BYTES, MAX_ROWS, MAX_COLUMNS, MAX_FIELD = 2_000_000, 10_000, 60, 4096
+MAX_TABLE_BYTES = 8_000_000
 DATE_FORMATS = {
     "iso": None,  # YYYY-MM-DD, required as-is
     "dmy_slash": "%d/%m/%Y",
@@ -111,24 +112,43 @@ def read_parquet(encoded):
     try:
         with os.fdopen(fd, "wb") as f:
             f.write(data)
-        with duckdb.connect() as con:
-            columns = [r[0] for r in con.execute("DESCRIBE SELECT * FROM read_parquet(?)", [path]).fetchall()]
+        with duckdb.connect(config={"autoinstall_known_extensions": False,
+                                    "autoload_known_extensions": False, "memory_limit": "64MB",
+                                    "threads": 1, "max_temp_directory_size": "0B"}) as con:
+            con.execute("SET allowed_paths = ?", [[path]])
+            con.execute("SET enable_external_access=false")
+            con.execute("SET lock_configuration=true")
+            schema = con.execute("DESCRIBE SELECT * FROM read_parquet(?)", [path]).fetchall()
+            columns = [r[0] for r in schema]
             header = [str(c).strip() for c in columns]
             _check_header(header)
+            primitive = re.compile(r"(?:VARCHAR|BOOLEAN|U?(?:TINYINT|SMALLINT|INTEGER|BIGINT|HUGEINT)|FLOAT|DOUBLE|DECIMAL\(\d+,\d+\)|DATE|TIME(?: WITH TIME ZONE)?|TIMESTAMP(?:_[NSM]+| WITH TIME ZONE)?|UUID)")
+            if any(not primitive.fullmatch(r[1]) for r in schema):
+                raise ValueError("Parquet iç içe veya ikili sütunları desteklenmiyor; düz metin/sayısal sütunlar gerekiyor.")
             count = con.execute("SELECT COUNT(*) FROM read_parquet(?)", [path]).fetchone()[0]
             if count > MAX_ROWS:
                 raise ValueError("Parquet sınırı 10.000 satır.")
             if count == 0:
                 raise ValueError("Parquet en az bir veri satırı içermeli.")
-            select = ", ".join(f'COALESCE(CAST("{c}" AS VARCHAR), \'\') AS "{c}"' for c in columns)
+            # Column names are untrusted identifiers, including names containing a double quote.
+            quoted = ['"' + c.replace('"', '""') + '"' for c in columns]
+            expressions = [f"COALESCE(CAST({c} AS VARCHAR), '')" for c in quoted]
+            checks = ", ".join(f"MAX(length({e}))" for e in expressions)
+            byte_sum = " + ".join(f"octet_length(encode({e}))" for e in expressions)
+            stats = con.execute(f"SELECT {checks}, SUM({byte_sum}) FROM read_parquet(?)", [path]).fetchone()
+            if any(n > MAX_FIELD for n in stats[:-1]):
+                raise ValueError("Parquet alan sınırı 4.096 karakter.")
+            if stats[-1] > MAX_TABLE_BYTES:
+                raise ValueError("Parquet açılmış metin sınırı 8 MB.")
+            select = ", ".join(f"{e} AS {c}" for e, c in zip(expressions, quoted))
             rows = con.execute(f"SELECT {select} FROM read_parquet(?)", [path]).fetchall()
     except duckdb.Error as e:
         raise ValueError("Parquet dosyası okunamadı.") from e
     finally:
         os.unlink(path)
     frame = pd.DataFrame(rows, columns=header)
-    if (frame.map(len) > MAX_FIELD).any().any():
-        raise ValueError("Parquet alan sınırı 4.096 karakter.")
+    if frame.map(lambda s: "\x00" in s).any().any():
+        raise ValueError("Parquet NUL karakteri kabul edilmez.")
     return frame, data
 
 

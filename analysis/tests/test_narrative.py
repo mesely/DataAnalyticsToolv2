@@ -2,6 +2,7 @@
 repair policy, local statements never replaced, context budget and label minimization."""
 
 from copy import deepcopy
+from decimal import Decimal
 from types import SimpleNamespace
 import json
 import pytest
@@ -33,11 +34,12 @@ def test_local_statements_pass_the_validator_and_cover_every_type_but_use_only_r
 
 
 def test_renderings_accept_locale_and_unit_forms():
-    assert {"2140500", "21405", "214050"} <= renderings(2140500, "pence")   # pence, £ with 0 and 1 decimals
-    assert "2140500" in renderings(2140500, "pence")                          # "£21,405.00" and "21.405,00" strip to the same digits
-    assert {"83", "834", "8340", "0834"} <= renderings(0.834, "ratio")
-    assert renderings(19960, "count") == {"19960"}  # a count has one rendering: "199,600 orders" must not pass
-    assert renderings(47206.66, "GBP") == {"47207", "472067", "4720666"}
+    assert ("GBP", Decimal("21405.00")) in renderings(2140500, "pence")
+    assert ("pence", Decimal("2140500")) in renderings(2140500, "pence")
+    assert ("GBP", Decimal("214.05")) not in renderings(2140500, "pence")
+    assert ("percent", Decimal("83.4")) in renderings(0.834, "ratio")
+    assert renderings(19960, "count") == {("count", Decimal("19960"))}
+    assert renderings(47206.66, "GBP") == {("GBP", Decimal(x)) for x in ("47207", "47206.7", "47206.66")}
 
 
 def test_unsupported_numbers_rule(brief):
@@ -45,7 +47,7 @@ def test_unsupported_numbers_rule(brief):
     assert unsupported_numbers("Gross sales are £21,405.00 across 180 orders.", ["gross", "orders"], pk) == []
     assert unsupported_numbers("Brüt satış 21.405,00 £.", ["gross"], pk) == []
     assert unsupported_numbers("Gross sales are £21,406.00.", ["gross"], pk) == ["21,406.00"]
-    assert unsupported_numbers("Three steps over 12 weeks.", [], pk) == []      # one- and two-digit integers are not checked
+    assert unsupported_numbers("Three steps over 12 weeks.", [], pk) == ["12"]
     assert unsupported_numbers("Sales were 999 last week.", ["gross"], pk) == ["999"]
     assert unsupported_numbers("Peak on 2031-01-01.", [], pk) == ["2031-01-01"]  # dates outside the packet periods are rejected
 
@@ -79,7 +81,53 @@ def test_validator_rejects_bad_envelopes_and_non_candidate_recommendations(brief
     ok = validate_statements(json.dumps({"statements": [{"type": "limitation", "text": "Margins are unknown.", "evidence": []}]}), pk)
     assert ok[0]["type"] == "limitation"
     with pytest.raises(ValueError, match="unavailable evidence"):  # missing evidence is unknown, never zero
-        validate_statements(json.dumps({"statements": [{"type": "fact", "text": "Returns were 0 GBP.", "evidence": ["gross"]}]}), pk)
+        validate_statements(json.dumps({"statements": [{"type": "fact", "text": "Returns were recorded.", "evidence": ["gross"]}]}), pk)
+
+
+@pytest.mark.parametrize("body", ["Gross sales are £99.", "Gross sales are £214.05.",
+    "Gross sales are -£21,405.00.", "Gross sales are £-21.405,00.", "Gross sales are 21405%.",
+    "Gross sales are 2,1405 GBP.", "There are 0 orders.", "There are 99 orders."])
+def test_wrong_magnitude_sign_unit_and_small_values_are_rejected(brief, body):
+    with pytest.raises(ValueError, match="Unsupported numbers"):
+        validate_statements(json.dumps({"statements": [{"type": "fact", "text": body, "evidence": ["gross"]}]}), packet(brief))
+
+
+def test_count_currency_and_percent_units_cannot_substitute_for_each_other(brief):
+    pk = packet(brief)
+    assert unsupported_numbers("There are 180 orders.", ["orders"], pk) == []
+    assert unsupported_numbers("£180.", ["orders"], pk) == ["180"]
+    assert unsupported_numbers("180%.", ["orders"], pk) == ["180"]
+    for body in ("Gross sales are $21405.", "Gross sales are 21405 USD.", "Gross sales are 180 EUR.",
+                 "Order share is 180 percent.", "Order share is yüzde 180.", "Gross sales are (£21,405.00)."):
+        assert unsupported_numbers(body, ["gross", "orders"], pk)
+    for body in ("Gross sales are £21,405.00.", "Brüt satış 21.405,00 GBP.", "Gross sales are 2140500 pence."):
+        assert unsupported_numbers(body, ["gross"], pk) == []
+    negative = deepcopy(pk)
+    negative["evidence"]["delta"] = {"renderings": renderings(-12345, "pence")}
+    assert unsupported_numbers("Delta is -£123.45.", ["delta"], negative) == []
+    assert unsupported_numbers("Delta is £123.45.", ["delta"], negative) == ["123.45"]
+    for kind in ("fact", "calculation"):
+        with pytest.raises(ValueError, match="unavailable evidence"):
+            validate_statements(json.dumps({"statements": [{"type": kind, "text": "Profit is £21,405.00.", "evidence": ["gross"]}]}), pk)
+
+
+def test_filtered_country_label_never_leaves_in_outbound_context():
+    b = handle({"action": "decisions", "dataset": "demo", "filters": {"country": "Germany"}})
+    xml = analysis_context_xml(b)
+    assert "Germany" not in xml
+    filters = json.loads(ET.fromstring(xml).find("filters").text)
+    assert filters == {"country_filter_applied": True}
+    assert b["filters"]["country"] == "Germany"  # local scope is retained
+
+
+def test_large_locale_grouped_counts_in_local_narrative_validate(brief):
+    b = deepcopy(brief)
+    b["references"]["orders"]["value"] = 19960
+    b["references"]["excluded"]["value"] = 11805
+    b["references"]["duplicates"]["value"] = 5268
+    for en in (True, False):
+        local = local_statements(b, en)
+        assert validate_statements(json.dumps({"statements": local}), packet(b)) == local
 
 
 class Scripted:
@@ -118,7 +166,7 @@ def test_model_narrative_is_additive_and_local_numbers_are_kept(brief):
     assert out["narrative"]["provider"]["status"] == "accepted"
     assert out["narrative"]["model"] == [{"type": "fact", "text": "Gross sales are £21,405.00.", "evidence": ["gross"]}]
     assert out["narrative"]["local"] == local_statements(out, en=True)   # never replaced
-    assert "model, validated" in out["report_markdown"]
+    assert "model, mechanically checked" in out["report_markdown"]
     assert "telemetry" not in json.dumps({k: v for k, v in out.items() if k == "output_sha256"})
     rejected = decision_brief({"objective": "balanced", "use_llm": True, "locale": "en"}, source, brief["forecast"],
                               Scripted([selection, "prose", "more prose"]))

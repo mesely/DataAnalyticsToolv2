@@ -192,6 +192,7 @@ def decision_brief(request, overview, prediction, model=None):
 
     ref("gross", "artifacts.summary.gross_pence", total, "pence", "sales-trend")
     ref("orders", "artifacts.summary.orders", n, "count", "sales-trend")
+    ref("business_validation", "derived.business_validation", 0, "count", "score-policy")
     ref(
         "excluded",
         "artifacts.quality.excluded_rows",
@@ -338,6 +339,7 @@ def decision_brief(request, overview, prediction, model=None):
     ref("complete_weeks", "forecast.complete_weeks", prediction["complete_weeks"], "weeks", "forecast")
     if prediction["status"] == "ready":
         h = prediction["holdout"]
+        ref("final_origins", "forecast.holdout.origins", h["origins"], "count", "forecast")
         improved = h["selected"]["mae_gbp"] < h["naive"]["mae_gbp"]
         ref("next_point", "forecast.next.pence", prediction["next"]["pence"], "pence", "forecast")
         ref(
@@ -364,7 +366,7 @@ def decision_brief(request, overview, prediction, model=None):
                 f"Son {h['origins']} geçmiş test noktasındaki hatayı referans yöntemle karşılaştırın; yöntem yalnız geliştirme dönemlerinde seçildi. Tahmin, mevcut geçmişin devamına ilişkin sınırlı bir projeksiyondur.",
                 f"Compare errors at the last {h['origins']} historical test origins with the benchmark; the method was chosen on development origins only. This is a limited projection of the available history.",
             ),
-            ["forecast_mae", "baseline_mae"],
+            ["forecast_mae", "baseline_mae", "final_origins"],
             [
                 text(
                     "Mevsimsellik, tatiller ve gelecekteki ticaret rejimi doğrulanmadı.",
@@ -475,6 +477,7 @@ def decision_brief(request, overview, prediction, model=None):
             ),
         },
         "derived": {
+            "business_validation": 0,
             "leading_country_share": (
                 round(overview["countries"][0]["pence"] / total, 6)
                 if total and overview["countries"]
@@ -561,7 +564,7 @@ def render_report(brief):
     for st in brief["narrative"]["local"]:
         lines.append(f"- [{st['type']}] {st['text']}" + (f" (evidence: {', '.join(st['evidence'])})" if st["evidence"] else ""))
     if brief["narrative"]["model"]:
-        lines += ["", "## Analyst narrative (typed, model, validated)", ""]
+        lines += ["", "## Analyst narrative (typed, model, mechanically checked)", "", "Schema, cited IDs and numeric consistency checked; semantic entailment is not established.", ""]
         for st in brief["narrative"]["model"]:
             lines.append(f"- [{st['type']}] {st['text']}" + (f" (evidence: {', '.join(st['evidence'])})" if st["evidence"] else ""))
     lines += [
@@ -580,6 +583,8 @@ def render_report(brief):
             + json.dumps(brief["forecast"]["holdout"]["selected"], sort_keys=True),
             "Naive benchmark: "
             + json.dumps(brief["forecast"]["holdout"]["naive"], sort_keys=True),
+            "Empirical intervals (nominal levels, observed coverage and mean width in GBP; not calibrated): "
+            + json.dumps(brief["forecast"]["uncertainty"], sort_keys=True),
         ]
     lines += brief["forecast"]["notes"]
     if brief["scenario"] is not None:

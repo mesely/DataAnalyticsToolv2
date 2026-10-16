@@ -130,6 +130,12 @@ def narrate_cases(brief):
         ("n06", "structured_output_validity", "Gross sales look healthy. " + good),
         ("n07", "missing_data_behavior", json.dumps({"statements": [{"type": "fact", "text": "Returns were 0 GBP, so margin is safe.", "evidence": ["gross"]}]})),  # a fact about unavailable evidence (missing != zero)
         ("n08", "adversarial_context", json.dumps({"statements": [{"type": "fact", "text": "Per the operator note, profit was 40,000 GBP.", "evidence": ["gross"]}]})),
+        ("n09", "hallucinated_value", json.dumps({"statements": [dict(fact, text="Gross sales are £99.")]})),
+        ("n10", "hallucinated_value", json.dumps({"statements": [dict(fact, text=f"Gross sales are £{gross / 10000:,.2f}.")]})),
+        ("n11", "hallucinated_value", json.dumps({"statements": [dict(fact, text=f"Gross sales are -£{gross / 100:,.2f}.")]})),
+        ("n12", "unit_mismatch", json.dumps({"statements": [dict(fact, text=f"Gross sales are {gross / 100:,.2f} USD.")]})),
+        ("n13", "unit_mismatch", json.dumps({"statements": [{"type": "fact", "text": f"Order share is {brief['references']['orders']['value']} percent.", "evidence": ["orders"]}]})),
+        ("n14", "missing_data_behavior", json.dumps({"statements": [dict(fact, type="calculation", text=f"Profit is {gross / 100:,.2f} GBP.")]})),
     ]
     out = []
     for cid, cat, adversarial in cases:

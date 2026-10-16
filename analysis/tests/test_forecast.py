@@ -167,3 +167,39 @@ def test_band_undercoverage_diagnostic_fires_on_growing_errors():
     vals = [20000 + rng.randint(-200, 200) + (0 if i < 24 else rng.choice([-9000, 9000])) for i in range(40)]
     codes = {d["code"] for d in backtest(series(vals))["diagnostics"]}
     assert "band_undercovers_development" in codes
+
+
+def test_nonnegative_domain_applies_before_evaluation_and_relative_radius():
+    rng = random.Random(5)
+    vals = [int(10000 * 1.04**i * (1 + rng.uniform(-.2, .2))) for i in range(60)]
+    original = backtest(series(vals))
+    vals[-12:] = [0] * 12
+    r = backtest(series(vals))
+    assert r["selected"] == original["selected"] == "holt_damped_0.6_0.1"
+    assert r["uncertainty"]["scaling"] == original["uncertainty"]["scaling"] == "relative"
+    assert r["uncertainty"]["scalings"] == original["uncertainty"]["scalings"]
+    assert r["next"]["pence"] == 0
+    assert r["next"]["lower_pence"] == r["next"]["upper_pence"] == 0
+    assert all(x["predicted_pence"] >= 0 for x in r["holdout"]["records"])
+    assert all(x["predicted_pence"] >= 0 for c in r["candidates"].values() for x in c["records"])
+    assert all(x["radius_pence"] >= 0 for x in r["uncertainty"]["levels"].values())
+    assert "relative_band_collapsed" in {d["code"] for d in r["diagnostics"]}
+    assert predict([100, 20, 0], "drift") == 0
+
+
+def test_interval_width_oracle_and_final_undercoverage_warning():
+    from analysis.forecast import interval
+    dev = [{"actual_pence": 100, "predicted_pence": 200} for _ in range(12)]
+    final = [{"actual_pence": 1000, "predicted_pence": 50} for _ in range(4)]
+    u = interval(dev, final, 50)
+    for v in u["levels"].values():
+        assert v["development_mean_width_gbp"] == 2  # [100,300]
+        assert v["final_mean_width_gbp"] == 1.5  # [0,150], clipped at zero
+        assert v["final_window_coverage"] == 0
+    r = backtest(series([10000] * 24 + [100000 * (i + 1) for i in range(6)]))
+    assert "band_undercovers_final" in {d["code"] for d in r["diagnostics"]}
+
+
+def test_negative_gross_history_is_rejected():
+    with pytest.raises(ValueError, match="nonnegative"):
+        backtest(series([100] * 19 + [-1]))

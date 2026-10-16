@@ -64,6 +64,10 @@ export function Preparation({
   const [text, setText] = useState("");
   const [parquet, setParquet] = useState("");
   const [encodingNote, setEncodingNote] = useState("");
+  const fileBytes = useRef<ArrayBuffer | null>(null);
+  const [encoding, setEncoding] = useState("utf-8");
+  const [confirmEncoding, setConfirmEncoding] = useState(false);
+  const [encodingConfirmed, setEncodingConfirmed] = useState(false);
   const [name, setName] = useState("");
   const [profile, setProfile] = useState<DataProfile | null>(null);
   const [mapping, setMapping] = useState<Record<string, string>>({});
@@ -78,7 +82,8 @@ export function Preparation({
     decimal_comma: decimalComma,
     date_format: dateFormat,
   };
-  const hasFile = Boolean(parquet || text);
+  const hasFile =
+    Boolean(parquet || text) && (!confirmEncoding || encodingConfirmed);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const generation = useRef(0);
@@ -92,7 +97,7 @@ export function Preparation({
     setError("");
   }
   async function inspect(preview: boolean) {
-    if (locked) return;
+    if (locked || !hasFile) return;
     const current = ++generation.current;
     setLoading(true);
     activity(1);
@@ -120,7 +125,7 @@ export function Preparation({
     }
   }
   async function commit() {
-    if (locked || !profile?.receipt) return;
+    if (locked || !hasFile || !profile?.receipt) return;
     setLoading(true);
     activity(1);
     setError("");
@@ -198,7 +203,11 @@ export function Preparation({
         <label className="wb-upload">
           <Upload size={24} />
           <strong>
-            {name || t("CSV veya Parquet dosyası seçin", "Choose a CSV or Parquet file")}
+            {name ||
+              t(
+                "CSV veya Parquet dosyası seçin",
+                "Choose a CSV or Parquet file",
+              )}
           </strong>
           <span>
             {t(
@@ -213,11 +222,15 @@ export function Preparation({
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (!file) return;
-              ++generation.current;
+              const current = ++generation.current;
               setProfile(null);
               setMapping({});
               setError("");
               setEncodingNote("");
+              fileBytes.current = null;
+              setEncoding("utf-8");
+              setConfirmEncoding(false);
+              setEncodingConfirmed(false);
               setText("");
               setParquet("");
               setDecimalComma(false);
@@ -227,16 +240,32 @@ export function Preparation({
                 setError(t("Dosya sınırı 2 MB.", "File limit is 2 MB."));
                 return;
               }
-              const bytes = await file.arrayBuffer();
+              let bytes: ArrayBuffer;
+              try {
+                bytes = await file.arrayBuffer();
+              } catch {
+                if (current === generation.current)
+                  setError(
+                    t(
+                      "Dosya okunamadı. Yeniden seçin.",
+                      "Could not read the file. Choose it again.",
+                    ),
+                  );
+                return;
+              }
+              if (current !== generation.current) return;
               if (/\.parquet$/i.test(file.name)) {
                 // Binary → base64 in chunks; the server decodes and bounds it again.
                 const view = new Uint8Array(bytes);
                 let binary = "";
                 for (let i = 0; i < view.length; i += 0x8000)
-                  binary += String.fromCharCode(...view.subarray(i, i + 0x8000));
+                  binary += String.fromCharCode(
+                    ...view.subarray(i, i + 0x8000),
+                  );
                 setParquet(btoa(binary));
                 return;
               }
+              fileBytes.current = bytes;
               try {
                 setText(
                   new TextDecoder("utf-8", { fatal: true }).decode(bytes),
@@ -244,10 +273,12 @@ export function Preparation({
               } catch {
                 // Not UTF-8: decode as Windows-1252 and say so; nothing is changed silently.
                 setText(new TextDecoder("windows-1252").decode(bytes));
+                setEncoding("windows-1252");
+                setConfirmEncoding(true);
                 setEncodingNote(
                   t(
-                    "Dosya UTF-8 değildi; Windows-1252 (Latin) olarak okundu. Özel karakterleri sütun kalitesinde kontrol edin.",
-                    "The file was not UTF-8; it was read as Windows-1252 (Latin). Check special characters in column quality.",
+                    "Dosya UTF-8 değil. Önerilen kodlamayı ve aşağıdaki metni kontrol edip onaylayın; Türkçe dosyalar Windows-1254 olabilir.",
+                    "The file is not UTF-8. Check the suggested encoding and text below, then confirm; Turkish files may use Windows-1254.",
                   ),
                 );
               }
@@ -263,6 +294,78 @@ export function Preparation({
         <p className="wb-muted" role="status">
           {encodingNote}
         </p>
+      )}
+      {fileBytes.current && !parquet && (
+        <details
+          className="wb-prep-details"
+          open={confirmEncoding || undefined}
+        >
+          <summary>
+            {t("Metin kodlaması ve önizleme", "Text encoding and preview")}
+          </summary>
+          <label>
+            {t("CSV kodlaması", "CSV encoding")}
+            <select
+              value={encoding}
+              disabled={locked}
+              onChange={(e) => {
+                ++generation.current;
+                const selected = e.target.value;
+                setEncoding(selected);
+                setProfile(null);
+                setMapping({});
+                setError("");
+                setConfirmEncoding(selected !== "utf-8");
+                setEncodingConfirmed(false);
+                try {
+                  setText(
+                    new TextDecoder(selected, { fatal: true }).decode(
+                      fileBytes.current!,
+                    ),
+                  );
+                } catch {
+                  setText("");
+                  setError(
+                    t(
+                      "Bu kodlama dosyayla uyuşmuyor. Başka kodlama seçin.",
+                      "This encoding does not match the file. Choose another encoding.",
+                    ),
+                  );
+                }
+              }}
+            >
+              <option value="utf-8">UTF-8</option>
+              <option value="windows-1252">Windows-1252 · Latin</option>
+              <option value="windows-1254">Windows-1254 · Türkçe</option>
+            </select>
+          </label>
+          <textarea
+            aria-label={t("Kodlama önizlemesi", "Encoding preview")}
+            readOnly
+            rows={5}
+            value={text.split(/\r?\n/).slice(0, 5).join("\n").slice(0, 2000)}
+          />
+          {confirmEncoding && (
+            <label className="wb-check">
+              <input
+                type="checkbox"
+                checked={encodingConfirmed}
+                disabled={locked}
+                onChange={(e) => setEncodingConfirmed(e.target.checked)}
+              />
+              {t(
+                "Kodlama ve özel karakterleri kontrol ettim",
+                "I checked the encoding and special characters",
+              )}
+            </label>
+          )}
+          <p className="wb-muted">
+            {t(
+              "İlk satırlar yalnız bu pencerede gösterilir. Kaynak özeti, sunucuya gönderilen UTF-8 metne aittir.",
+              "The first lines are shown only in this window. The source hash identifies the UTF-8 text sent to the server.",
+            )}
+          </p>
+        </details>
       )}
       {!profile && (
         <button
@@ -530,7 +633,9 @@ export function Preparation({
             <button
               className="wb-btn wb-primary"
               disabled={
-                locked || FIELDS.slice(0, -1).some(([k]) => !mapping[k])
+                locked ||
+                !hasFile ||
+                FIELDS.slice(0, -1).some(([k]) => !mapping[k])
               }
               onClick={() => void (profile.preview ? commit() : inspect(true))}
             >

@@ -169,6 +169,30 @@ def test_parquet_bounds_and_garbage_are_rejected():
     assert f.iloc[1]["a"] == "" and f.iloc[0]["b"] == ""  # NULL behaves like a blank CSV field
 
 
+def test_parquet_quoted_column_names_remain_identifiers():
+    import pandas as pd
+    from analysis.preparation import read_parquet
+    name = 'odd "quoted" column; punctuation'
+    encoded, _ = _parquet_b64(pd.DataFrame({name: ["001", "007"]}))
+    frame, _ = read_parquet(encoded)
+    assert list(frame.columns) == [name] and frame[name].tolist() == ["001", "007"]
+
+
+def test_parquet_expansion_and_nested_types_are_bounded():
+    import pandas as pd
+    from analysis.preparation import read_parquet
+    field, _ = _parquet_b64(pd.DataFrame({"a": ["x" * 4097]}))
+    with pytest.raises(ValueError, match="4.096"):
+        read_parquet(field)
+    expanded, data = _parquet_b64(pd.DataFrame({"a": ["x" * 4000] * 2100}))
+    assert len(data) < 2_000_000
+    with pytest.raises(ValueError, match="8 MB"):
+        read_parquet(expanded)
+    nested, _ = _parquet_b64(pd.DataFrame({"a": [[1, 2]]}))
+    with pytest.raises(ValueError, match="iç içe"):
+        read_parquet(nested)
+
+
 SEMI = CSV.replace(",", ";")  # a decimal-comma file is semicolon-delimited in practice
 
 

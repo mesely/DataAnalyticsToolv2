@@ -41,33 +41,28 @@ Rules: every fact, calculation and recommendation cites at least one supplied ev
 Repeat: only the statements JSON; cite supplied ids only; no number without a cited evidence value; unavailable evidence is unknown, not zero."""
 
 
-def _digits(text):
-    return re.sub(r"\D", "", text)
-
-
 def renderings(value, unit):
-    """Digit-only forms a human may use for this evidence value (locale separators are irrelevant after
-    stripping non-digits). Pence may appear as GBP with 0–2 decimals; ratios as percent with 0–2 decimals."""
+    """Signed values tagged with units; punctuation never changes their magnitude."""
     out = set()
     v = Decimal(str(value))
-    def add(number, decimals):
+    def add(number, decimals, kind):
         q = Decimal(1).scaleb(-decimals)
-        out.add(_digits(str(number.quantize(q, rounding=ROUND_HALF_UP))))
+        out.add((kind, number.quantize(q, rounding=ROUND_HALF_UP)))
     if unit == "pence":
         for d in range(3):
-            add(v / 100, d)
-        add(v, 0)
+            add(v / 100, d, "GBP")
+        add(v, 0, "pence")
     elif unit == "ratio":
         for d in range(3):
-            add(v * 100, d)
+            add(v * 100, d, "percent")
         for d in range(1, 7):
-            add(v, d)
+            add(v, d, "ratio")
     elif unit in ("GBP", "percent"):
         for d in range(3):
-            add(v, d)
+            add(v, d, unit)
     else:  # count, rows, weeks, distinct_invoices: whole numbers have exactly one rendering
-        add(v, 0)
-    return {x for x in out if x}
+        add(v, 0, "count")
+    return out
 
 
 def packet(brief):
@@ -82,26 +77,63 @@ def packet(brief):
     }
 
 
-_NUMBER = re.compile(r"\d(?:[\d.,]*\d)?")
+_NUMBER = re.compile(r"(?P<sign1>[+\-−]?)\s*(?P<prefix>£|GBP|%|percent|yüzde|pence)?\s*(?P<sign2>[+\-−]?)\s*(?P<number>\d+(?:[.,]\d+)*)(?:\s*(?P<suffix>£|GBP|%|percent|yüzde|pence))?", re.I)
 _ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+_OTHER_CURRENCY = re.compile(r"[$€¥₺₹₽₩]|\b(?:USD|EUR|TRY|TL|JPY|CNY|CHF|CAD|AUD|INR|RUB|KRW|BTC|ETH)\b", re.I)
+_ACCOUNTING_AMOUNT = re.compile(r"\(\s*(?:£|GBP)\s*\d[\d.,]*\s*\)|\(\s*\d[\d.,]*\s*(?:£|GBP)\s*\)", re.I)
+
+
+def _numeric_values(token, unit):
+    """Parse valid EN/TR grouping and decimal syntax. Preserve ambiguity instead of guessing."""
+    out = set()
+    max_decimals = 0 if unit in {"count", "pence"} else 2 if unit == "GBP" else 6
+    if token.isdigit():
+        return {Decimal(token)}
+    for decimal, grouping in ((".", ","), (",", ".")):
+        parts = token.split(decimal)
+        if len(parts) > 2:
+            continue
+        whole = parts[0]
+        if grouping in whole:
+            if not re.fullmatch(r"\d{1,3}(?:" + re.escape(grouping) + r"\d{3})+", whole):
+                continue
+            whole = whole.replace(grouping, "")
+        if not whole.isdigit():
+            continue
+        if len(parts) == 2:
+            fraction = parts[1]
+            if not fraction.isdigit() or not 1 <= len(fraction) <= max_decimals:
+                continue
+            out.add(Decimal(whole + "." + fraction))
+        else:
+            out.add(Decimal(whole))
+    return out
 
 
 def unsupported_numbers(text, cited, pk):
-    """Numeric tokens of three or more digits (or with a decimal/thousand separator) that match no cited
-    evidence rendering. One- and two-digit integers (ordinals, small counts) are not checked. ISO dates are
-    allowed only when they are periods of the packet."""
+    """Check every signed numeric token against cited values and explicit units. Ambiguous unmarked
+    separators must match in every valid interpretation. Dates must be known packet periods."""
     allowed = set()
     for key in cited:
         allowed |= pk["evidence"][key]["renderings"]
-    bad = []
+    bad = _OTHER_CURRENCY.findall(text) + _ACCOUNTING_AMOUNT.findall(text)
     dates = _ISO_DATE.findall(text)
     bad += [d for d in dates if d not in pk["periods"]]
     stripped = _ISO_DATE.sub(" ", text)
-    for token in _NUMBER.findall(stripped):
-        digits = _digits(token)
-        if len(digits) < 3 and not re.search(r"[.,]", token):
-            continue
-        if digits not in allowed:
+    for match in _NUMBER.finditer(stripped):
+        token = match["number"]
+        markers = [x.lower() for x in (match["prefix"], match["suffix"]) if x]
+        units = {"GBP" if x in ("£", "gbp") else "percent" if x in ("%", "percent", "yüzde") else "pence" for x in markers}
+        unit = next(iter(units)) if len(units) == 1 else None
+        if unit is None and re.match(r"\s*(?:orders?|invoices?|rows?|weeks?|origins?|complete weeks|source rows|duplicate rows|dönem|sipariş|satır|hafta|tam hafta|tekrar satır)", stripped[match.end():], re.I):
+            unit = "count"
+        if unit is None and re.search(r"(?:orders?|rows?|weeks?|origins?|sipariş(?: sayısı)?|satır(?: sayısı)?|dönem(?: sayısı)?|hafta(?: sayısı)?)\s*[:=]?$", stripped[max(0, match.start() - 40):match.start()], re.I):
+            unit = "count"
+        values = _numeric_values(token, unit)
+        if match["sign1"] in ("-", "−") or match["sign2"] in ("-", "−"):
+            values = {-v for v in values}
+        permitted = {v for u, v in allowed if unit is None or u == unit}
+        if len(units) > 1 or (match["sign1"] and match["sign2"]) or not values or not values <= permitted:
             bad.append(token)
     return bad
 
@@ -138,8 +170,8 @@ def validate_statements(text, pk):
         bad = unsupported_numbers(body, cites, pk)
         if bad:
             raise ValueError("Unsupported numbers: " + ", ".join(bad[:4]))
-        if kind == "fact" and _UNAVAILABLE_TERMS.search(body):
-            raise ValueError("Fact asserted about unavailable evidence")
+        if kind in {"fact", "calculation"} and _UNAVAILABLE_TERMS.search(body):
+            raise ValueError("Fact/calculation asserted about unavailable evidence; use a limitation")
         clean = {"type": kind, "text": body.strip(), "evidence": list(cites)}
         if kind == "recommendation":
             clean["candidate"] = s["candidate"]
@@ -173,7 +205,7 @@ def local_statements(brief, en):
         out.append({"type": "calculation", "evidence": ["country_share", "gross"], "text": t(
             f"Lider ülke brüt satışın %{share.replace('.', ',')} payına sahip; pay tek başına büyüme veya risk nedeni değildir.",
             f"The leading country holds {share}% of gross sales; the share alone is not a cause of growth or risk.")})
-        concentrated = Decimal(str(refs["country_share"]["value"])) >= Decimal("0.5")
+        concentrated = Decimal(str(refs["country_share"]["value"])) > Decimal("0.5")
         out.append({"type": "inference", "evidence": ["country_share"], "text": t(
             "Satışın yarıdan fazlası tek pazarda toplanmış görünüyor; bu betimleyici bir okumadır, pazar riski veya nedensellik kanıtı değildir." if concentrated else
             "Satış birden çok pazara dağılmış görünüyor; bu betimleyici bir okumadır, pazar riski veya nedensellik kanıtı değildir.",
@@ -183,7 +215,7 @@ def local_statements(brief, en):
     if f.get("status") == "ready" and "forecast_mae" in refs:
         sel, naive = refs["forecast_mae"]["value"], refs["baseline_mae"]["value"]
         n = f["holdout"]["origins"]
-        out.append({"type": "calculation", "evidence": ["forecast_mae", "baseline_mae", "complete_weeks"], "text": t(
+        out.append({"type": "calculation", "evidence": ["forecast_mae", "baseline_mae", "complete_weeks", "final_origins"], "text": t(
             f"{_count(refs['complete_weeks']['value'], en)} tam hafta üzerinde, yöntem seçimine girmeyen son {n} dönemde seçilen yöntemin MAE'si {_money(round(sel * 100), en)}, naif referans {_money(round(naive * 100), en)}.",
             f"Over {_count(refs['complete_weeks']['value'], en)} complete weeks, the selected method's MAE on the final {n} origins excluded from selection is {_money(round(sel * 100), en)} against a naive benchmark of {_money(round(naive * 100), en)}.")})
         better = sel < naive
@@ -203,12 +235,12 @@ def local_statements(brief, en):
             f"Senaryo, son tam hafta {_money(refs['scenario_base']['value'], en)} üzerinden hacmin %{vol.replace('.', ',')} ve fiyatın %{price.replace('.', ',')} bağımsız değiştiğini varsayar; talep tepkisi ölçülmedi.",
             f"The scenario assumes volume changes by {vol}% and price by {price}% independently on the last complete week of {_money(refs['scenario_base']['value'], en)}; demand response is not measured.")})
         out.append({"type": "calculation", "evidence": ["scenario_delta"], "text": t(
-            f"Bu varsayımlarla brüt fark {_money(refs['scenario_delta']['value'], en)}; bu kâr, yatırım getirisi veya nedensel etki değildir.",
-            f"Under those assumptions the gross delta is {_money(refs['scenario_delta']['value'], en)}; it is not profit, ROI or a causal effect.")})
+            f"Bu varsayımlarla hesaplanan brüt fark {_money(refs['scenario_delta']['value'], en)}; talep tepkisi hesaplanmadı.",
+            f"The calculated gross delta under those assumptions is {_money(refs['scenario_delta']['value'], en)}; demand response is not modeled.")})
     for c in brief["recommendations"][:2]:
         out.append({"type": "recommendation", "candidate": c["id"], "evidence": list(c["evidence_refs"]), "text": t(
             f"Sonraki adım: {c['title']}. {c['explanation']}", f"Next step: {c['title']}. {c['explanation']}")})
-    out.append({"type": "limitation", "evidence": [], "text": t(
+    out.append({"type": "limitation", "evidence": ["business_validation"], "text": t(
         "İade, maliyet/marj, stok, esneklik ve kampanya etkisi bu veride yok; eksik kanıt sıfır sayılmaz. İş doğrulaması yapılmadığı için dayanak skorunun o bileşeni 0'dır; skor doğruluk olasılığı değildir.",
         "Returns, cost/margin, stock, elasticity and campaign effects are absent from this data; missing evidence is unknown, not zero. Business validation is unperformed, so that score component is 0; the score is not a probability of correctness.")})
     return out[:MAX_STATEMENTS]
@@ -221,7 +253,9 @@ def analysis_context_xml(brief):
     f = brief["forecast"]
     ET.SubElement(root, "dataset", sha256=brief["dataset_sha256"], metric_version="retail-v1", currency="GBP",
                   complete_weeks=str(f.get("complete_weeks", 0)), forecast_status=str(f.get("status")))
-    ET.SubElement(root, "filters").text = json.dumps(brief["filters"], sort_keys=True, ensure_ascii=True)
+    filters = {k: v for k, v in brief["filters"].items() if k in {"start", "end"}}
+    filters["country_filter_applied"] = bool(brief["filters"].get("country"))
+    ET.SubElement(root, "filters").text = json.dumps(filters, sort_keys=True, ensure_ascii=True)
     defs = ET.SubElement(root, "definitions")
     for k, v in DEFINITIONS.items():
         ET.SubElement(defs, "definition", id=k).text = v

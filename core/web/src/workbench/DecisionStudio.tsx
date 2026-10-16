@@ -63,6 +63,8 @@ type Forecast = {
         radius_pence: number;
         final_window_coverage: number | null;
         development_rolling_coverage: number | null;
+        development_mean_width_gbp?: number | null;
+        final_mean_width_gbp?: number | null;
         development_rolling_n: number;
       }
     >;
@@ -93,15 +95,24 @@ function forecastMethodLabel(id: string | undefined): [string, string] {
 const FORECAST_METHOD_LABELS: Record<string, [string, string]> = {
   naive: ["Son hafta", "Last week"],
   seasonal_naive: ["Geçen sezonun aynı haftası", "Same week last season"],
-  drift: ["Son hafta + ortalama haftalık değişim", "Last week plus average weekly change"],
+  drift: [
+    "Son hafta + ortalama haftalık değişim",
+    "Last week plus average weekly change",
+  ],
   mean2: ["Son 2 hafta ortalaması", "Last 2-week mean"],
   mean4: ["Son 4 hafta ortalaması", "Last 4-week mean"],
   mean8: ["Son 8 hafta ortalaması", "Last 8-week mean"],
   "ses_0.2": ["Üstel düzleştirme (α 0,2)", "Exponential smoothing (α 0.2)"],
   "ses_0.5": ["Üstel düzleştirme (α 0,5)", "Exponential smoothing (α 0.5)"],
   "ses_0.8": ["Üstel düzleştirme (α 0,8)", "Exponential smoothing (α 0.8)"],
-  "holt_damped_0.3_0.1": ["Sönümlü Holt eğilimi (α 0,3)", "Damped Holt trend (α 0.3)"],
-  "holt_damped_0.6_0.1": ["Sönümlü Holt eğilimi (α 0,6)", "Damped Holt trend (α 0.6)"],
+  "holt_damped_0.3_0.1": [
+    "Sönümlü Holt eğilimi (α 0,3)",
+    "Damped Holt trend (α 0.3)",
+  ],
+  "holt_damped_0.6_0.1": [
+    "Sönümlü Holt eğilimi (α 0,6)",
+    "Damped Holt trend (α 0.6)",
+  ],
 };
 type Statement = {
   type: string;
@@ -318,6 +329,8 @@ export function DecisionStudio({
     scenario_base: t("Senaryo başlangıcı", "Scenario baseline"),
     scenario_delta: t("Varsayımsal fark", "Assumed delta"),
     complete_weeks: t("Tam hafta", "Complete weeks"),
+    final_origins: t("Son test dönemi sayısı", "Final-origin count"),
+    business_validation: t("İş doğrulaması", "Business validation"),
     next_point: t("Sonraki hafta projeksiyonu", "Next-week projection"),
     scenario_volume: t("Varsayılan hacim değişimi", "Assumed volume change"),
     scenario_price: t("Varsayılan fiyat değişimi", "Assumed price change"),
@@ -652,8 +665,8 @@ export function DecisionStudio({
                 <p className="wb-provider-notice" role="status">
                   {brief.narrative.provider.status === "accepted"
                     ? t(
-                        "Llama anlatısı doğrulamadan geçti: yalnız mevcut dayanak kimlikleri ve bunlara eşit sayılar kabul edildi. Yerel anlatı yukarıda korunur.",
-                        "The Llama narrative passed validation: only existing evidence ids and numbers equal to them were accepted. The local narrative above is kept.",
+                        "Llama anlatısının biçimi, atıfları ve sayıları kontrol edildi. Bu kontrol, yorumların anlamca doğru olduğunu kanıtlamaz; dayanakları inceleyin. Yerel anlatı yukarıda korunur.",
+                        "The Llama narrative's schema, citations and numbers were checked. This does not prove its interpretations are correct; inspect the evidence. The local narrative above is kept.",
                       )
                     : brief.narrative.provider.status === "rejected"
                       ? t(
@@ -675,8 +688,8 @@ export function DecisionStudio({
                 <details className="wb-narrative-model">
                   <summary>
                     {t(
-                      "Doğrulanmış Llama anlatısı",
-                      "Validated Llama narrative",
+                      "Llama yorumu · biçim ve sayı kontrolü",
+                      "Llama interpretation · schema and numbers checked",
                     )}{" "}
                     · {brief.narrative.model.length}
                   </summary>
@@ -973,42 +986,44 @@ export function DecisionStudio({
                     </tbody>
                   </table>
                 </div>
-                {forecast.slices && forecast.slices.some((s) => s.status === "ready") && (
-                  <div className="wb-table-wrap">
-                    <table>
-                      <caption>
-                        {t(
-                          "Lider ülke dilimleri · aynı final dönemlerinde seçilen yöntem ve naif; yalnız teşhis, seçimi değiştirmez",
-                          "Leading-country slices · selected method and naive on the same final origins; diagnostic only, never selects",
-                        )}
-                      </caption>
-                      <thead>
-                        <tr>
-                          <th>{t("Ülke", "Country")}</th>
-                          <th>{t("Seçilen MAE", "Selected MAE")}</th>
-                          <th>{t("Naif MAE", "Naive MAE")}</th>
-                          <th>{t("Sıfır hafta", "Zero weeks")}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {forecast.slices
-                          .filter((s) => s.status === "ready" && s.final)
-                          .map((s) => (
-                            <tr key={s.country}>
-                              <th scope="row">{s.country}</th>
-                              <td>
-                                {money(s.final!.selected.mae_gbp)}
-                                {!s.selected_beats_naive_final &&
-                                  " · " + t("naifi geçemedi", "did not beat naive")}
-                              </td>
-                              <td>{money(s.final!.naive.mae_gbp)}</td>
-                              <td>{s.zero_weeks ?? 0}</td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                {forecast.slices &&
+                  forecast.slices.some((s) => s.status === "ready") && (
+                    <div className="wb-table-wrap">
+                      <table>
+                        <caption>
+                          {t(
+                            "Lider ülke dilimleri · aynı final dönemlerinde seçilen yöntem ve naif; yalnız teşhis, seçimi değiştirmez",
+                            "Leading-country slices · selected method and naive on the same final origins; diagnostic only, never selects",
+                          )}
+                        </caption>
+                        <thead>
+                          <tr>
+                            <th>{t("Ülke", "Country")}</th>
+                            <th>{t("Seçilen MAE", "Selected MAE")}</th>
+                            <th>{t("Naif MAE", "Naive MAE")}</th>
+                            <th>{t("Sıfır hafta", "Zero weeks")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {forecast.slices
+                            .filter((s) => s.status === "ready" && s.final)
+                            .map((s) => (
+                              <tr key={s.country}>
+                                <th scope="row">{s.country}</th>
+                                <td>
+                                  {money(s.final!.selected.mae_gbp)}
+                                  {!s.selected_beats_naive_final &&
+                                    " · " +
+                                      t("naifi geçemedi", "did not beat naive")}
+                                </td>
+                                <td>{money(s.final!.naive.mae_gbp)}</td>
+                                <td>{s.zero_weeks ?? 0}</td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 <p>
                   {t(
                     "Aralık, geliştirme hatalarından ampirik bir banttır; kalibre edilmiş güven düzeyi içermez. Veri tarihîdir, bugünün ticaretini temsil etmeyebilir.",
@@ -1022,6 +1037,16 @@ export function DecisionStudio({
                         {t(
                           `%90 bandı, yalnız önceki geliştirme hatalarından kurulduğunda ${forecast.uncertainty.levels["0.9"].development_rolling_n} geliştirme döneminin ${Math.round(forecast.uncertainty.levels["0.9"].development_rolling_coverage * 100)}%'ini kapsadı; son pencerede ${Math.round((forecast.uncertainty.levels["0.9"].final_window_coverage ?? 0) * 100)}%.`,
                           `Built only from earlier development errors, the 90% band covered ${Math.round(forecast.uncertainty.levels["0.9"].development_rolling_coverage * 100)}% of ${forecast.uncertainty.levels["0.9"].development_rolling_n} development origins; ${Math.round((forecast.uncertainty.levels["0.9"].final_window_coverage ?? 0) * 100)}% of the final window.`,
+                        )}
+                        {forecast.uncertainty.levels["0.9"]
+                          .final_mean_width_gbp != null && (
+                          <>
+                            {" "}
+                            {t(
+                              `Ortalama bant genişliği: geliştirmede ${money(forecast.uncertainty.levels["0.9"].development_mean_width_gbp ?? 0)}, son testte ${money(forecast.uncertainty.levels["0.9"].final_mean_width_gbp)}. Geliştirme kapsaması bant seçiminde kullanıldı; bağımsız kalibrasyon ölçümü değildir.`,
+                              `Mean band width: ${money(forecast.uncertainty.levels["0.9"].development_mean_width_gbp ?? 0)} on development, ${money(forecast.uncertainty.levels["0.9"].final_mean_width_gbp)} on the final window. Development coverage was used to select the scaling; it is not independent calibration evidence.`,
+                            )}
+                          </>
                         )}
                       </>
                     )}

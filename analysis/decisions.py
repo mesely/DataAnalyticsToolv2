@@ -587,6 +587,14 @@ def render_report(brief):
             "Empirical intervals (nominal levels, observed coverage and mean width in GBP; not calibrated): "
             + json.dumps(brief["forecast"]["uncertainty"], sort_keys=True),
         ]
+        if brief["forecast"].get("period_slices"):
+            lines += ["", "Error and 90% band by month of the target week (diagnostic; development bands use earlier errors only):", "",
+                      "| month | phase | weeks | selected MAE GBP | naive MAE GBP | inside band | mean width GBP |", "|---|---|---:|---:|---:|---:|---:|"]
+            lines += [f"| {m['month']} | {m['phase']} | {m['n']} | {m['selected_mae_gbp']:.2f} | {m['naive_mae_gbp']:.2f} | "
+                      + (f"{m['band_covered']}/{m['band_n']}" if m["band_n"] else "—") + " | "
+                      + (f"{m['band_mean_width_gbp']:.2f}" if m["band_mean_width_gbp"] is not None else "—") + " |"
+                      for m in brief["forecast"]["period_slices"]]
+            lines += [""]
     lines += brief["forecast"]["notes"]
     if brief["scenario"] is not None:
         lines += [

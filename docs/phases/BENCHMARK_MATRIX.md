@@ -13,6 +13,7 @@ E2E = tıklamadan görünen sonuca. Kaynak dosyalar `docs/evidence/` altındadı
 | B. Tahmin | %90 bandı yuvarlanan geliştirme kapsaması / final kapsaması | 0,846 / 0,70 — **kalibre değil** | MEASURED | MICRO | aynı |
 | B. Tahmin | %90 bant ortalama genişliği: geliştirme / final | £124.948,63 / £130.997,26 | MEASURED | MICRO | `phase11-forecast-uci.json` |
 | B. Tahmin | Lider ülke dilimleri (UK/NL/EIRE) seçilen < naif, final | 3/3 evet | MEASURED | MICRO | aynı |
+| B. Tahmin | Aylık final dilimi: Kasım 2011 (4 hafta) mean8 / naif MAE; %90 bant | £59.289 / £41.723 — naif daha iyi; 2/4 | MEASURED | MICRO | `phase11-forecast-uci.json` period_slices |
 | B. Tahmin | Seasonal naive doğrulaması (≥104 hafta) | veri 52 hafta | NOT MEASURED | — | teşhis `seasonal_naive_unavailable` |
 | C. LLM groundedness | Gerçek model (HF Llama 3.3 70B) plan/decide/narrate doğruluğu | — | **BLOCKED** (HTTP 402) | — | `llm-eval.json` hf satırı |
 | C. LLM groundedness | Doğrulayıcı öz-denetimi: tasarlanmış-kötü yanıtların reddi (decide 6, narrate 16, claims 8) | 1,00 / 1,00 / 1,00 | MEASURED (model değil) | MICRO | `phase11-llm-offline.json` |
@@ -33,7 +34,7 @@ E2E = tıklamadan görünen sonuca. Kaynak dosyalar `docs/evidence/` altındadı
 | H. Erişilebilirlik | A11 gerçek tarayıcı kabulü: karar/anlatı/dilim/tema/390px/klavye/CSV/Parquet/indirmeler | 16/16 PASS; 44px form hedefleri; sayfa taşması ve bozuk görsel yok | MEASURED (tam WCAG değil) | BROWSER | `phase11-browser-qa.json` |
 | H. Erişilebilirlik | Tam WCAG denetimi / ekran okuyucu | — | NOT MEASURED | — | — |
 | I. Görsel kalite | 6 raster / 37 SVG özgün aile; manifest hash | doğrulandı | MEASURED | — | `ASSET_MANIFEST.json`, 48 test |
-| J. Sürdürülebilirlik | Analytics pytest / NUL-asset / web tsc+build | 274 / 48 / geçti | MEASURED | MICRO | bu tur logu |
+| J. Sürdürülebilirlik | Analytics pytest / NUL-asset / web tsc+build | 277 / 48 / geçti | MEASURED | MICRO | bu tur logu |
 | J. Sürdürülebilirlik | Core TS suite (yerel) | Docker fixture → koşmaz | BLOCKED (yerel) / CI'da koşar | — | progress kartı |
 | K. Ölçeklenebilirlik | 5M/50M satır bütçesi | — | NOT MEASURED | — | NEXT_BACKLOG 6 |
 | L. Tekrarlanabilirlik | Aynı girdi → aynı output_sha256 (karar/tahmin/ML kartı) | geçiyor | MEASURED | MICRO | test_decisions/test_narrative/test_ml |

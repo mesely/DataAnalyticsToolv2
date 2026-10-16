@@ -70,6 +70,17 @@ type Forecast = {
     >;
   };
   diagnostics?: { code: string; severity: string; message: string }[];
+  period_slices?: {
+    month: string;
+    phase: string;
+    n: number;
+    selected_mae_gbp: number;
+    naive_mae_gbp: number;
+    selected_beats_naive: boolean;
+    band_n: number;
+    band_covered: number;
+    band_mean_width_gbp: number | null;
+  }[];
   slices?: {
     country: string;
     status: string;
@@ -1024,6 +1035,72 @@ export function DecisionStudio({
                       </table>
                     </div>
                   )}
+                {forecast.period_slices && forecast.period_slices.length > 0 && (
+                  <details className="wb-prep-details">
+                    <summary>
+                      {t(
+                        "Aylara göre hata ve %90 bant kapsaması",
+                        "Error and 90% band coverage by month",
+                      )}
+                    </summary>
+                    <div
+                      className="wb-table-wrap"
+                      tabIndex={0}
+                      role="region"
+                      aria-label={t(
+                        "Aylara göre hata tablosu, yatay kaydırılabilir",
+                        "Error by month table, horizontally scrollable",
+                      )}
+                    >
+                      <table>
+                        <caption>
+                          {t(
+                            "Hedef haftanın ayı. Geliştirme bantları yalnız önceki hatalardan kurulur (ilk 8 dönemde bant yok); son pencere sabit yarıçapı kullanır. Teşhistir, seçimi değiştirmez; aylar birkaç hafta içerir.",
+                            "Month of the target week. Development bands use earlier errors only (none for the first 8 origins); the final window uses the fixed radius. Diagnostic, never selects; months hold a few weeks.",
+                          )}
+                        </caption>
+                        <thead>
+                          <tr>
+                            <th scope="col">{t("Ay", "Month")}</th>
+                            <th scope="col">{t("Aşama", "Phase")}</th>
+                            <th scope="col">{t("Hafta", "Weeks")}</th>
+                            <th scope="col">{t("Seçilen MAE", "Selected MAE")}</th>
+                            <th scope="col">{t("Naif MAE", "Naive MAE")}</th>
+                            <th scope="col">{t("Bant içinde", "Inside band")}</th>
+                            <th scope="col">{t("Ort. genişlik", "Mean width")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {forecast.period_slices.map((m) => (
+                            <tr key={m.month + m.phase}>
+                              <th scope="row">{m.month}</th>
+                              <td>
+                                {m.phase === "final"
+                                  ? t("Son pencere", "Final")
+                                  : t("Geliştirme", "Development")}
+                              </td>
+                              <td>{m.n}</td>
+                              <td>
+                                {money(m.selected_mae_gbp)}
+                                {!m.selected_beats_naive &&
+                                  " · " + t("naifi geçemedi", "did not beat naive")}
+                              </td>
+                              <td>{money(m.naive_mae_gbp)}</td>
+                              <td>
+                                {m.band_n ? `${m.band_covered}/${m.band_n}` : "—"}
+                              </td>
+                              <td>
+                                {m.band_mean_width_gbp === null
+                                  ? "—"
+                                  : money(m.band_mean_width_gbp)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </details>
+                )}
                 <p>
                   {t(
                     "Aralık, geliştirme hatalarından ampirik bir banttır; kalibre edilmiş güven düzeyi içermez. Veri tarihîdir, bugünün ticaretini temsil etmeyebilir.",
@@ -1035,7 +1112,7 @@ export function DecisionStudio({
                       <>
                         {" "}
                         {t(
-                          `%90 bandı, yalnız önceki geliştirme hatalarından kurulduğunda ${forecast.uncertainty.levels["0.9"].development_rolling_n} geliştirme döneminin ${Math.round(forecast.uncertainty.levels["0.9"].development_rolling_coverage * 100)}%'ini kapsadı; son pencerede ${Math.round((forecast.uncertainty.levels["0.9"].final_window_coverage ?? 0) * 100)}%.`,
+                          `%90 bandı, yalnız önceki geliştirme hatalarından kurulduğunda ${forecast.uncertainty.levels["0.9"].development_rolling_n} geliştirme döneminin %${Math.round(forecast.uncertainty.levels["0.9"].development_rolling_coverage * 100)}'ini kapsadı; son pencerede %${Math.round((forecast.uncertainty.levels["0.9"].final_window_coverage ?? 0) * 100)}.`,
                           `Built only from earlier development errors, the 90% band covered ${Math.round(forecast.uncertainty.levels["0.9"].development_rolling_coverage * 100)}% of ${forecast.uncertainty.levels["0.9"].development_rolling_n} development origins; ${Math.round((forecast.uncertainty.levels["0.9"].final_window_coverage ?? 0) * 100)}% of the final window.`,
                         )}
                         {forecast.uncertainty.levels["0.9"]

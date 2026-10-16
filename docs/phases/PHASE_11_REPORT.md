@@ -105,6 +105,21 @@ pandas'ı yükler (~1 s)" bu turda ölçülerek düzeltildi: filtreli forecast't
 disk); asıl darboğaz LangChain'di. `evaluate_decisions.py` artık `--actions run run_filtered forecast decisions` alır.
 HTTP kabulü değişiklik sonrası 21/21. Ölçülmeyen: /run HTTP gidiş-dönüşü ve tarayıcıda görünür gecikme.
 
+## 7d. Aylık dönem dilimleri (Opus devam turu) — IMPLEMENTED · TESTED · BROWSER
+`forecast.period_slices`: hedef haftanın ayına göre, aşama ayrımıyla seçilen/naif MAE, bias, %90 bant içinde k/n ve
+ortalama genişlik. Geliştirme bantları yalnız önceki artıklardan (ilk 8 origin bantsız), final sabit yarıçap; seçimden
+sonra hesaplanır. Testler: dilimler kayıtları bölüştürür, ay MAE'leri bağımsız oracle'a eşit, bant sayıları toplam
+kapsamayla (22/26 geliştirme, 7/10 final) uzlaşır, final değişikliği geliştirme dilimlerini değiştirmez. UCI ölçümü
+(MEASURED, betimsel): final pencerenin naife göre %21 avantajı Eylül sonu/Ekim'den gelir — **Kasım 2011'in 4 final
+haftasında mean8 MAE £59.288,62, naif £41.723,39; bant 2/4; tüm hata eksik tahmin (bias +£59.288,62)**. Ekim 4/5 bant,
+seçilen £45.061 < naif £60.944. Geliştirmede Şubat–Mart ve Eylül'de de naif daha iyiydi. Yeni teşhis
+`final_month_worse_than_naive` 2011-11'i adlandırır. Okuma: 8 haftalık ortalama tatil rampasını geriden izliyor; bu bir
+yöntem değişikliği gerekçesi **değildir** (10 final origin üzerinde ayar yapılmaz); ≥2 sezon veriyle seasonal naive
+veya takvim değişkenleri yeni bir dondurulmuş protokol ister. UI: Karar stüdyosunda katlanır "Aylara göre hata ve %90
+bant kapsaması" tablosu (Markdown raporunda da); kaydırılabilir tablo bölgesi klavyeyle odaklanır (role=region, 2 px
+odak, ok tuşu ile kaydırma doğrulandı). TR kapsama cümlesi artık "%85 / %70" yazar. Kanıt: `phase11-forecast-uci.json`
+(`period_slices`), `phase11-browser-binding.json` 10/10. Analytics **277 passed**.
+
 ## 8. Açık kalanlar
 Gerçek LLM erişimi (402), 5–8 kullanıcı pilotu, üretim RLS/retention/hard isolation, 5M+ ölçek, decisions yolunun
 decisions/run yolunda kalan ~0,7 s başlangıç (pandas/networkx; graph gerektirir), ≥2 sezon veriyle seasonal naive doğrulaması, dönem (ay) dilimleri ve anlatı için anlamsal iddia-dayanak doğrulaması (ölçü/dönem bağı kelime düzeyinde eklendi). Parquet core TS rotası önceki CI’da geçti; açık iş olarak tutulmaz.

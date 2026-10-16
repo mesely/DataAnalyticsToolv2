@@ -15,8 +15,11 @@ Disk tur başında 1,8 GB boştu (99 %); bu turda temizlik yapılmadı — sonra
 **Ek iş (ölçüldü):** her `run`/`decisions` isteği model kapalıyken LangChain yüklüyordu (~1 s). Sağlayıcı artık yalnız
 model çağrısında import edilir: run p50 1.483 → 703 ms, decisions 1.497 → 733 ms (n=9, aynı betik;
 `phase11-performance-startup.json`); 274 test, HTTP 21/21. Eski "DuckDB parametresi ~1 s" notu ölçümle ~0,2 s'ye
-düzeltildi. **Sonraki iş:** aşağıdaki kartın tablosunda görev 3 (dönem/ay dilimleri + final kapsama × genişlik; mevcut 10 final
-üzerinde tuning yok) veya görev 4 (filtreli istekte DuckDB parametre → pandas soğuk başlangıcı). Görev 2 dış kredi
+düzeltildi. **Görev 3 yapıldı:** `forecast.period_slices` (ay × aşama: seçilen/naif MAE, bias, %90 bant k/n, genişlik) + teşhis
+`final_month_worse_than_naive`. UCI: Kasım 2011'in 4 final haftasında mean8 naiften kötü (£59.289 / £41.723), bant 2/4,
+hepsi eksik tahmin — yöntem değiştirilmedi (final üzerinde ayar yok). Karar stüdyosu katlanır ay tablosu, klavye ile
+kaydırılabilir bölge; 277 test; tarayıcı 10/10. **Sonraki iş:** TR ekranda İngilizce teşhis metinleri (kod → TR şablon),
+diğer kaydırılabilir tabloların klavye erişimi, kalan ~0,6 s pandas/networkx başlangıcı; görev 2 dış kredi kapısında. Görev 2 dış kredi
 kapısına bağlı. Commit/CI sonucu: `gh run list --repo mesely/DataAnalyticsToolv2 --limit 3`.
 
 ---

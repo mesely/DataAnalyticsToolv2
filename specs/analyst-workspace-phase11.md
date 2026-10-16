@@ -50,6 +50,11 @@ Contract (additive; decision-narrative-v1 statement schema unchanged, local narr
    wrong-period attachments that use the packet's own vocabulary; paraphrases outside the term lists are not detected.
    Live model accuracy stays BLOCKED (HTTP 402) and null.
 
+Period slices (same amendment, additive `forecast.period_slices`): error and 90% band behaviour by calendar month of
+the target week, per phase. Development bands are rolling from earlier residuals only; final bands use the fixed radius.
+Computed after selection; never used for it. Diagnostic `final_month_worse_than_naive` when a final month with ≥ 2 weeks
+has selected MAE ≥ naive (non-naive selection only). No tuning on the existing final window.
+
 Acceptance: the local EN and TR narratives (including negative scenarios) validate unchanged; swapped-MAE,
 wrong-measure and wrong-period counter-examples with valid IDs are rejected in unit tests and in two new
 `llm_eval` narrate cases; existing narrative, decision, forecast and LLM-eval tests stay green.

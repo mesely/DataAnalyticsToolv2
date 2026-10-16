@@ -203,3 +203,59 @@ def test_interval_width_oracle_and_final_undercoverage_warning():
 def test_negative_gross_history_is_rejected():
     with pytest.raises(ValueError, match="nonnegative"):
         backtest(series([100] * 19 + [-1]))
+
+
+def _month_series():
+    rng = random.Random(11)
+    vals = [20000 + 150 * i + rng.randint(-1500, 1500) for i in range(40)]
+    for i in range(34, 40):  # a late ramp the trailing mean lags
+        vals[i] += 4000 * (i - 33)
+    return series(vals, start=date(2024, 1, 1))
+
+
+def test_period_slices_partition_records_and_match_independent_oracles():
+    r = backtest(_month_series())
+    sl = r["period_slices"]
+    dev = r["candidates"][r["selected"]]["records"]
+    fin = r["holdout"]["records"]
+    assert sum(x["n"] for x in sl if x["phase"] == "development") == len(dev)
+    assert sum(x["n"] for x in sl if x["phase"] == "final") == len(fin) == r["split"]["holdout_origins"]
+    naive_dev = {x["target"]: x for x in r["candidates"]["naive"]["records"]}
+    for x in sl:
+        recs = [d for d in (dev if x["phase"] == "development" else fin) if d["target"][:7] == x["month"]]
+        assert x["n"] == len(recs)
+        assert x["selected_mae_gbp"] == pytest.approx(sum(abs(d["actual_pence"] - d["predicted_pence"]) for d in recs) / len(recs) / 100)
+        if x["phase"] == "development":
+            nv = [naive_dev[d["target"]] for d in recs]
+            assert x["naive_mae_gbp"] == pytest.approx(sum(abs(d["actual_pence"] - d["predicted_pence"]) for d in nv) / len(nv) / 100)
+    # band counts reconcile with the aggregate uncertainty numbers
+    lvl = r["uncertainty"]["levels"]["0.9"]
+    dev_band = [x for x in sl if x["phase"] == "development"]
+    assert sum(x["band_n"] for x in dev_band) == lvl["development_rolling_n"]
+    assert sum(x["band_covered"] for x in dev_band) == pytest.approx(lvl["development_rolling_coverage"] * lvl["development_rolling_n"])
+    fin_band = [x for x in sl if x["phase"] == "final"]
+    assert sum(x["band_n"] for x in fin_band) == len(fin)
+    assert sum(x["band_covered"] for x in fin_band) == pytest.approx(lvl["final_window_coverage"] * len(fin))
+
+
+def test_period_slices_are_post_selection_and_final_changes_leave_development_untouched():
+    a = backtest(_month_series())
+    changed = _month_series()
+    for w in changed[-8:]:  # 40 // 5 = 8 final origins
+        w["pence"] *= 3
+    b = backtest(changed)
+    assert a["selected"] == b["selected"]
+    dev = lambda r: [x for x in r["period_slices"] if x["phase"] == "development"]
+    assert dev(a) == dev(b)
+    assert [x for x in a["period_slices"] if x["phase"] == "final"] != [x for x in b["period_slices"] if x["phase"] == "final"]
+
+
+def test_final_month_worse_than_naive_diagnostic_names_months_not_labels():
+    vals = [30000 + (i % 4) * 200 for i in range(40)]
+    for i in range(32, 40):  # final window: a steady climb, where last-week naive beats any trailing mean
+        vals[i] = 30000 + 5000 * (i - 31)
+    r = backtest(series(vals, start=date(2024, 1, 1)))
+    if r["selected"] == "naive":
+        pytest.skip("naive selected on development; the diagnostic only applies to other methods")
+    d = [x for x in r["diagnostics"] if x["code"] == "final_month_worse_than_naive"]
+    assert d and all(m["month"] in d[0]["message"] for m in r["period_slices"] if m["phase"] == "final" and m["n"] >= 2 and not m["selected_beats_naive"])

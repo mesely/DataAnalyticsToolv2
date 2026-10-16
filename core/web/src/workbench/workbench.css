@@ -4035,3 +4035,8 @@
   flex-direction: row;
   gap: 12px;
 }
+/* Scrollable table regions that take keyboard focus show the same focus ring as controls. */
+.wb-table-wrap[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

@@ -31,6 +31,22 @@
   {
    "name": "TR percent evidence button reads %84,6 (was 84,611%) after reopening the saved brief from the archive",
    "ok": true
+  },
+  {
+   "name": "UCI decision brief: 'Aylara göre hata ve %90 bant kapsaması' disclosure lists 12 month rows (9 development, 3 final); 2011-11 final row flagged 'naifi geçemedi' with 2/4 inside band; diagnostic final_month_worse_than_naive names 2011-11",
+   "ok": true
+  },
+  {
+   "name": "TR coverage sentence uses prefix percent (%85, %70)",
+   "ok": true
+  },
+  {
+   "name": "390x844: month table scrolls inside its wrapper (617px in 320px), document scrollWidth 390, summary 44px tall",
+   "ok": true
+  },
+  {
+   "name": "keyboard: Tab reaches the month table region (role=region, aria-label) with a 2px focus outline; ArrowRight x8 scrolls it 240 of 297px",
+   "ok": true
   }
  ],
  "not_checked": [
@@ -38,7 +54,11 @@
   "light theme and keyboard pass for this change (unchanged paths; covered by phase11-browser-qa.json)"
  ],
  "summary": {
-  "passed": 6,
+  "passed": 10,
   "failed": 0
+ },
+ "web_sha256_after_period_slices": {
+  "app.css": "70f9402ffa757437d55b19b641e32b98cf49ff0d39a59f1b7a25ee3228cbc1c5",
+  "app.js": "044050d2b161aaf1f9ceaea6263f89ea0ac12139f52dde2bac9b4835ee11348e"
  }
 }

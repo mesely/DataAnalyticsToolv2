@@ -260,6 +260,47 @@ def interval(dev_records, final_records, point):
     }
 
 
+
+def period_slices(dev_selected, dev_naive, final_selected, final_naive, uncertainty, level="0.9"):
+    """Error and band behaviour by calendar month of the target week (the Monday's month), for the selected
+    method and naive, split by phase. Development bands are rolling — radius from EARLIER development residuals
+    only, exactly as in the scaling check (the first MIN_INTERVAL_RESIDUALS origins have no band). Final bands
+    use the fixed radius built from all development residuals. Diagnostic only: computed after selection and
+    never used for it. Months hold a handful of weeks; read counts, not rates."""
+    scaling, lvl = uncertainty["scaling"], float(level)
+    band = {}
+    scaled = _scaled_errors(dev_selected, scaling)
+    for k in range(MIN_INTERVAL_RESIDUALS, len(dev_selected)):
+        r = dev_selected[k]
+        q = _quantile_radius(sorted(scaled[:k]), lvl)
+        radius = q if scaling == "absolute" else q * r["predicted_pence"]
+        band[("development", r["target"])] = (abs(r["actual_pence"] - r["predicted_pence"]) <= radius, _width_gbp(r["predicted_pence"], radius))
+    q = uncertainty["levels"][level]["quantile"]
+    for r in final_selected:
+        radius = q if scaling == "absolute" else q * r["predicted_pence"]
+        band[("final", r["target"])] = (abs(r["actual_pence"] - r["predicted_pence"]) <= radius, _width_gbp(r["predicted_pence"], radius))
+    groups = {}
+    for phase, selected, naive in (("development", dev_selected, dev_naive), ("final", final_selected, final_naive)):
+        naive_by_target = {r["target"]: r for r in naive}
+        for r in selected:
+            g = groups.setdefault((r["target"][:7], phase), {"selected": [], "naive": [], "band": []})
+            g["selected"].append(r)
+            g["naive"].append(naive_by_target[r["target"]])
+            if (phase, r["target"]) in band:
+                g["band"].append(band[(phase, r["target"])])
+    out = []
+    for (month, phase), g in sorted(groups.items(), key=lambda kv: (kv[0][0], kv[0][1] != "development")):
+        sel, nai = metrics(g["selected"]), metrics(g["naive"])
+        out.append({
+            "month": month, "phase": phase, "n": sel["n"],
+            "selected_mae_gbp": sel["mae_gbp"], "naive_mae_gbp": nai["mae_gbp"], "selected_bias_gbp": sel["bias_gbp"],
+            "selected_beats_naive": sel["mae_gbp"] < nai["mae_gbp"],
+            "band_level": lvl, "band_n": len(g["band"]), "band_covered": sum(1 for c, _ in g["band"] if c),
+            "band_mean_width_gbp": statistics.mean(w for _, w in g["band"]) if g["band"] else None,
+        })
+    return out
+
+
 def backtest(weeks):
     if len(weeks) < MIN_WEEKS:
         return {
@@ -346,7 +387,17 @@ def backtest(weeks):
             "mase_scale": "development naive one-step MAE",
         },
     }
+    result["period_slices"] = period_slices(
+        candidates[selected]["records"], candidates["naive"]["records"], final_records,
+        _records(weeks, values, _BY_ID["naive"], final_origins), uncertainty)
     result["diagnostics"] = _diagnostics(weeks, values, seasonal_available, scale, selected, candidates, holdout, uncertainty)
+    losing = [x for x in result["period_slices"] if x["phase"] == "final" and x["n"] >= 2 and not x["selected_beats_naive"]]
+    if losing and selected != "naive":
+        result["diagnostics"].append({
+            "code": "final_month_worse_than_naive", "severity": "warning",
+            "message": "In " + ", ".join(f"{x['month']} ({x['n']} final weeks)" for x in losing)
+            + " the selected method's MAE exceeded naive; the final-window advantage does not hold in every month.",
+        })
     return result
 
 

@@ -115,7 +115,7 @@
   "method": "empirical envelope of development errors of the selected method (80% and 90% quantiles); the 90% radius is the displayed band",
   "scaling": "absolute",
   "scaling_rule": "absolute pence or relative to the forecast; chosen by rolling development coverage closest to nominal (radius from earlier development residuals only); ties resolve to absolute; the final window never informs the choice",
-  "quantile_rule": "finite-sample split-conformal index ceil((n+1)\u00b7level), truncated to the largest residual when it exceeds n",
+  "quantile_rule": "finite-sample split-conformal index ceil((n+1)·level), truncated to the largest residual when it exceeds n",
   "residual_count": 34,
   "levels": {
    "0.8": {
@@ -285,5 +285,196 @@
  "output_sha256": "3292a8e75e714b895252bd4123d07186b660cce761a9b8b9c47def76746c58ee",
  "producer": "Actual browser-downloaded UCI decision JSON; subset of forecast fields, no owner/session identifiers",
  "generated_utc": "2026-10-16T11:48:44.970625+00:00",
- "git_head": "2b3f9570ddd141d3945de17eb14abd4d498cfd82"
+ "git_head": "2b3f9570ddd141d3945de17eb14abd4d498cfd82",
+ "period_slices": [
+  {
+   "month": "2011-01",
+   "phase": "development",
+   "n": 1,
+   "selected_mae_gbp": 37264.63375,
+   "naive_mae_gbp": 819.89,
+   "selected_bias_gbp": -37264.63375,
+   "selected_beats_naive": false,
+   "band_level": 0.9,
+   "band_n": 0,
+   "band_covered": 0,
+   "band_mean_width_gbp": null
+  },
+  {
+   "month": "2011-02",
+   "phase": "development",
+   "n": 4,
+   "selected_mae_gbp": 21213.06875,
+   "naive_mae_gbp": 19133.3225,
+   "selected_bias_gbp": -2346.38125,
+   "selected_beats_naive": false,
+   "band_level": 0.9,
+   "band_n": 0,
+   "band_covered": 0,
+   "band_mean_width_gbp": null
+  },
+  {
+   "month": "2011-03",
+   "phase": "development",
+   "n": 4,
+   "selected_mae_gbp": 25743.7165625,
+   "naive_mae_gbp": 21018.8075,
+   "selected_bias_gbp": 18835.2203125,
+   "selected_beats_naive": false,
+   "band_level": 0.9,
+   "band_n": 1,
+   "band_covered": 0,
+   "band_mean_width_gbp": 74529.2675
+  },
+  {
+   "month": "2011-04",
+   "phase": "development",
+   "n": 4,
+   "selected_mae_gbp": 21111.799375,
+   "naive_mae_gbp": 34107.75,
+   "selected_bias_gbp": -21111.799375,
+   "selected_beats_naive": true,
+   "band_level": 0.9,
+   "band_n": 4,
+   "band_covered": 3,
+   "band_mean_width_gbp": 109240.5125
+  },
+  {
+   "month": "2011-05",
+   "phase": "development",
+   "n": 5,
+   "selected_mae_gbp": 35563.2415,
+   "naive_mae_gbp": 45303.376,
+   "selected_bias_gbp": 20387.7175,
+   "selected_beats_naive": true,
+   "band_level": 0.9,
+   "band_n": 5,
+   "band_covered": 4,
+   "band_mean_width_gbp": 130503.14850000001
+  },
+  {
+   "month": "2011-06",
+   "phase": "development",
+   "n": 4,
+   "selected_mae_gbp": 40556.6128125,
+   "naive_mae_gbp": 47221.425,
+   "selected_bias_gbp": 5521.0246875,
+   "selected_beats_naive": true,
+   "band_level": 0.9,
+   "band_n": 4,
+   "band_covered": 4,
+   "band_mean_width_gbp": 131541.275625
+  },
+  {
+   "month": "2011-07",
+   "phase": "development",
+   "n": 4,
+   "selected_mae_gbp": 23795.69875,
+   "naive_mae_gbp": 40796.3825,
+   "selected_bias_gbp": 7154.243125,
+   "selected_beats_naive": true,
+   "band_level": 0.9,
+   "band_n": 4,
+   "band_covered": 4,
+   "band_mean_width_gbp": 130997.26
+  },
+  {
+   "month": "2011-08",
+   "phase": "development",
+   "n": 5,
+   "selected_mae_gbp": 12582.5,
+   "naive_mae_gbp": 13537.681999999999,
+   "selected_bias_gbp": 358.788,
+   "selected_beats_naive": true,
+   "band_level": 0.9,
+   "band_n": 5,
+   "band_covered": 5,
+   "band_mean_width_gbp": 129919.269
+  },
+  {
+   "month": "2011-09",
+   "phase": "development",
+   "n": 3,
+   "selected_mae_gbp": 75815.74,
+   "naive_mae_gbp": 61571.18333333333,
+   "selected_bias_gbp": 75815.74,
+   "selected_beats_naive": false,
+   "band_level": 0.9,
+   "band_n": 3,
+   "band_covered": 2,
+   "band_mean_width_gbp": 128302.2825
+  },
+  {
+   "month": "2011-09",
+   "phase": "final",
+   "n": 1,
+   "selected_mae_gbp": 9604.8625,
+   "naive_mae_gbp": 126971.57,
+   "selected_bias_gbp": 9604.8625,
+   "selected_beats_naive": true,
+   "band_level": 0.9,
+   "band_n": 1,
+   "band_covered": 1,
+   "band_mean_width_gbp": 130997.26
+  },
+  {
+   "month": "2011-10",
+   "phase": "final",
+   "n": 5,
+   "selected_mae_gbp": 45061.45,
+   "naive_mae_gbp": 60944.322,
+   "selected_bias_gbp": 45061.45,
+   "selected_beats_naive": true,
+   "band_level": 0.9,
+   "band_n": 5,
+   "band_covered": 4,
+   "band_mean_width_gbp": 130997.26
+  },
+  {
+   "month": "2011-11",
+   "phase": "final",
+   "n": 4,
+   "selected_mae_gbp": 59288.6234375,
+   "naive_mae_gbp": 41723.39,
+   "selected_bias_gbp": 59288.6234375,
+   "selected_beats_naive": false,
+   "band_level": 0.9,
+   "band_n": 4,
+   "band_covered": 2,
+   "band_mean_width_gbp": 130997.26
+  }
+ ],
+ "period_slices_note": "Month of the target week (Monday). Development bands rolling from earlier residuals only (first 8 origins have none); final bands use the fixed radius. Diagnostic only, computed after selection. Months hold 1-5 weeks; read counts, not rates.",
+ "diagnostics_after_period_slices": [
+  {
+   "code": "seasonal_naive_unavailable",
+   "severity": "info",
+   "message": "Seasonal naive (52-week) needs at least 104 complete weeks; 52 available. Yearly seasonality cannot be validated from this history."
+  },
+  {
+   "code": "zero_weeks",
+   "severity": "warning",
+   "message": "1 complete week(s) have no observed gross sales; they count as zero and may be collection gaps."
+  },
+  {
+   "code": "outlier_weeks",
+   "severity": "warning",
+   "message": "Weeks far from the typical level (robust 3-sigma): 2010-12-27, 2011-11-07, 2011-11-14."
+  },
+  {
+   "code": "possible_level_shift",
+   "severity": "warning",
+   "message": "The mean of the last 8 weeks differs from the previous 8 by more than twice the typical weekly change; a structural change cannot be excluded."
+  },
+  {
+   "code": "band_undercovers_final",
+   "severity": "warning",
+   "message": "The nominal 90% band covered only 70% of 10 final origins. This is observed undercoverage, not a calibrated 90% range; the final window is never used to tune it."
+  },
+  {
+   "code": "final_month_worse_than_naive",
+   "severity": "warning",
+   "message": "In 2011-11 (4 final weeks) the selected method's MAE exceeded naive; the final-window advantage does not hold in every month."
+  }
+ ]
 }

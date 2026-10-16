@@ -64,7 +64,8 @@ sonraki iş olarak NEXT_BACKLOG'a yazıldı — kullanıcı girdisini SQL'e kaç
 ## 6. Testler (gerçek log)
 `.venv/bin/python -m pytest analysis/tests -q` → **254 passed** (önceki 228). `tests/test_nul_scan.py` +
 `test_brand_assets.py` → 48 passed. Web `tsc --noEmit` ve `npm run build` geçti. Core `workbench.test.ts` yerelde
-`source_unavailable` (Docker daemon kapalı; connector fixture `postgres:16` ister) → **CI'da koşar**.
+`source_unavailable` (Docker daemon kapalı; connector fixture `postgres:16` ister) → **CI'da koştu ve geçti**:
+https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38886787881 (e4f82af, 5 job success).
 
 ## 7. Tarayıcı kabulü
 BEKLİYOR — bu turda tarayıcı aracı güvenlik sınıflandırıcısı geçici olarak erişilemezdi; gerçek ekran alınınca bu

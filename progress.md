@@ -2,8 +2,9 @@
 
 ## ŞİMDİ OKU — 16 Ekim 2026, öğleden sonra turu (AW-14, yeni ajan)
 
-**Güncel kod: bu kartın altındaki commitler (e4f82af ve sonrası), publish dalına push edildi; CI sonucu aşağıdaki
-satırda.** Başlangıç durumu doğrulandı: 59aa444 CI 5 job yeşil; 228 analitik test yerelde geçti; uygulama ayaktaydı;
+**Güncel kod: bu kartın altındaki commitler. e4f82af publish dalına push edildi → GitHub CI
+https://github.com/mesely/DataAnalyticsToolv2/actions/runs/38886787881 **BEŞ JOB YEŞİL** (nul-scan, tests, core, benchmark-integrity,
+analytics; core suite Parquet rotasını da kapsar). Sonraki doküman/perf commitleri push edilince yeni koşu doğrulanmalı.** Başlangıç durumu doğrulandı: 59aa444 CI 5 job yeşil; 228 analitik test yerelde geçti; uygulama ayaktaydı;
 disk 3,2 GB boş (98 %). Bu turda silinenler yalnız yeniden üretilebilir önbellekler: npm cache 151 MB, repo
 `__pycache__` 3,7 MB, clang modül önbelleği 221 MB → 3,6 GB boş. Claude ShipIt güncelleme önbelleği (619 MB), Chrome
 önbelleği (1 GB), CoreDevice/Simulator/Docker verileri bilerek silinmedi.

@@ -3998,3 +3998,11 @@
     gap: 2px;
   }
 }
+.wb-prep-options select {
+  max-width: 220px;
+}
+.wb-prep-options .wb-field {
+  align-items: center;
+  flex-direction: row;
+  gap: 12px;
+}

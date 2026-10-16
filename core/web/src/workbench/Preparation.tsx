@@ -19,8 +19,9 @@ const FIELDS: [string, string, string][] = [
 ];
 export type DataProfile = {
   version: string;
+  source_format?: string;
   source_sha256: string;
-  delimiter: string;
+  delimiter: string | null;
   profile: {
     rows: number;
     duplicate_rows: number;
@@ -30,6 +31,8 @@ export type DataProfile = {
       missing: number;
       distinct: number;
       leading_zero: boolean;
+      decimal_comma_candidates?: number;
+      date_patterns?: { iso: number; slash: number; dot: number };
     }[];
   };
   suggested_mapping: Record<string, string>;
@@ -59,11 +62,23 @@ export function Preparation({
 }) {
   const { t, locale } = useLocale();
   const [text, setText] = useState("");
+  const [parquet, setParquet] = useState("");
+  const [encodingNote, setEncodingNote] = useState("");
   const [name, setName] = useState("");
   const [profile, setProfile] = useState<DataProfile | null>(null);
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [trim, setTrim] = useState(true);
   const [dedup, setDedup] = useState(false);
+  const [decimalComma, setDecimalComma] = useState(false);
+  const [dateFormat, setDateFormat] = useState("iso");
+  const source = parquet ? { parquet_base64: parquet } : { csv: text };
+  const options = {
+    trim,
+    drop_duplicates: dedup,
+    decimal_comma: decimalComma,
+    date_format: dateFormat,
+  };
+  const hasFile = Boolean(parquet || text);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const generation = useRef(0);
@@ -86,10 +101,8 @@ export function Preparation({
       const r = await api.post<DataProfile>(
         BASE + "/prepare",
         {
-          csv: text,
-          ...(preview
-            ? { mapping, options: { trim, drop_duplicates: dedup } }
-            : {}),
+          ...source,
+          ...(preview ? { mapping, options } : {}),
         },
         csrf,
       );
@@ -115,10 +128,10 @@ export function Preparation({
       const r = await api.post<Dataset>(
         BASE + "/import",
         {
-          csv: text,
-          title: name.replace(/\.csv$/i, "") || "Yüklenen CSV",
+          ...source,
+          title: name.replace(/\.(csv|parquet)$/i, "") || "Yüklenen veri",
           mapping,
-          options: { trim, drop_duplicates: dedup },
+          options,
           receipt: profile.receipt,
         },
         csrf,
@@ -176,24 +189,26 @@ export function Preparation({
       {profile && (
         <p>
           {t(
-            "CSV dosyanızın yapısını inceleyin. Satış analizi için alanları eşleyip içe aktarmadan önce sonucu görün.",
-            "Inspect any CSV schema. For sales analysis, map its fields and preview the result before importing.",
+            "Dosyanızın yapısını inceleyin. Satış analizi için alanları eşleyip içe aktarmadan önce sonucu görün.",
+            "Inspect the file's structure. For sales analysis, map its fields and preview the result before importing.",
           )}
         </p>
       )}
       <div className="wb-prep-file">
         <label className="wb-upload">
           <Upload size={24} />
-          <strong>{name || t("CSV dosyası seçin", "Choose a CSV file")}</strong>
+          <strong>
+            {name || t("CSV veya Parquet dosyası seçin", "Choose a CSV or Parquet file")}
+          </strong>
           <span>
             {t(
-              "UTF-8 · virgül, noktalı virgül veya sekme · 2 MB / 10.000 satır",
-              "UTF-8 · comma, semicolon or tab · 2 MB / 10,000 rows",
+              "CSV (UTF-8; virgül, noktalı virgül veya sekme) ya da Parquet · 2 MB / 10.000 satır",
+              "CSV (UTF-8; comma, semicolon or tab) or Parquet · 2 MB / 10,000 rows",
             )}
           </span>
           <input
             type="file"
-            accept=".csv,text/csv,text/tab-separated-values"
+            accept=".csv,.parquet,text/csv,text/tab-separated-values,application/vnd.apache.parquet"
             disabled={locked}
             onChange={async (e) => {
               const file = e.target.files?.[0];
@@ -202,22 +217,37 @@ export function Preparation({
               setProfile(null);
               setMapping({});
               setError("");
+              setEncodingNote("");
               setText("");
+              setParquet("");
+              setDecimalComma(false);
+              setDateFormat("iso");
               setName(file.name);
               if (file.size > 2_000_000) {
-                setError(t("CSV sınırı 2 MB.", "CSV limit is 2 MB."));
+                setError(t("Dosya sınırı 2 MB.", "File limit is 2 MB."));
                 return;
               }
               const bytes = await file.arrayBuffer();
+              if (/\.parquet$/i.test(file.name)) {
+                // Binary → base64 in chunks; the server decodes and bounds it again.
+                const view = new Uint8Array(bytes);
+                let binary = "";
+                for (let i = 0; i < view.length; i += 0x8000)
+                  binary += String.fromCharCode(...view.subarray(i, i + 0x8000));
+                setParquet(btoa(binary));
+                return;
+              }
               try {
                 setText(
                   new TextDecoder("utf-8", { fatal: true }).decode(bytes),
                 );
               } catch {
-                setError(
+                // Not UTF-8: decode as Windows-1252 and say so; nothing is changed silently.
+                setText(new TextDecoder("windows-1252").decode(bytes));
+                setEncodingNote(
                   t(
-                    "Dosyayı UTF-8 CSV olarak kaydedin.",
-                    "Save the file as UTF-8 CSV.",
+                    "Dosya UTF-8 değildi; Windows-1252 (Latin) olarak okundu. Özel karakterleri sütun kalitesinde kontrol edin.",
+                    "The file was not UTF-8; it was read as Windows-1252 (Latin). Check special characters in column quality.",
                   ),
                 );
               }
@@ -229,10 +259,15 @@ export function Preparation({
           {t("Örnek CSV", "Sample CSV")}
         </a>
       </div>
+      {encodingNote && (
+        <p className="wb-muted" role="status">
+          {encodingNote}
+        </p>
+      )}
       {!profile && (
         <button
           className="wb-btn wb-primary"
-          disabled={!text || locked}
+          disabled={!hasFile || locked}
           onClick={() => void inspect(false)}
         >
           {loading ? (
@@ -276,6 +311,7 @@ export function Preparation({
                       t("Tür", "Type"),
                       t("Boş", "Missing"),
                       t("Benzersiz", "Distinct"),
+                      t("Biçim notu", "Format note"),
                     ].map((h) => (
                       <th key={h} scope="col">
                         {h}
@@ -314,6 +350,30 @@ export function Preparation({
                       </td>
                       <td>{number(c.missing)}</td>
                       <td>{number(c.distinct)}</td>
+                      <td>
+                        {[
+                          c.decimal_comma_candidates
+                            ? t(
+                                `${number(c.decimal_comma_candidates)} ondalık virgüllü değer`,
+                                `${number(c.decimal_comma_candidates)} decimal-comma values`,
+                              )
+                            : "",
+                          c.date_patterns?.slash
+                            ? t(
+                                `${number(c.date_patterns.slash)} GG/AA/YYYY veya AA/GG/YYYY tarih`,
+                                `${number(c.date_patterns.slash)} DD/MM/YYYY or MM/DD/YYYY dates`,
+                              )
+                            : "",
+                          c.date_patterns?.dot
+                            ? t(
+                                `${number(c.date_patterns.dot)} GG.AA.YYYY tarih`,
+                                `${number(c.date_patterns.dot)} DD.MM.YYYY dates`,
+                              )
+                            : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" · ") || "—"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -323,8 +383,8 @@ export function Preparation({
           <h3>{t("Satış alanlarını eşleyin", "Map the sales fields")}</h3>
           <p className="wb-muted">
             {t(
-              "Her satır bir fatura kalemi olmalı. Para birimi GBP; miktar ve fiyat ondalık nokta kullanır. Ülke ve tarih dönüşümü otomatik yapılmaz.",
-              "Each row must represent one invoice line. Currency is GBP; quantity and price use a decimal dot. Country and date conversion is explicit.",
+              "Her satır bir fatura kalemi olmalı. Para birimi GBP. Ondalık virgül ve tarih biçimi aşağıda açıkça seçilir; hiçbir dönüşüm tahmin edilmez.",
+              "Each row must represent one invoice line. Currency is GBP. Decimal comma and date format are chosen explicitly below; nothing is guessed.",
             )}
           </p>
           <div className="wb-prep-mapping">
@@ -378,6 +438,37 @@ export function Preparation({
               />
               {t("Tamamen aynı satırları çıkar", "Remove exact duplicate rows")}
             </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={decimalComma}
+                disabled={locked}
+                onChange={(e) => {
+                  setDecimalComma(e.target.checked);
+                  invalidate();
+                }}
+              />
+              {t(
+                "Miktar ve fiyatta ondalık virgül (1.234,56 → 1234.56)",
+                "Decimal comma in quantity and price (1.234,56 → 1234.56)",
+              )}
+            </label>
+            <label className="wb-field">
+              {t("Tarih biçimi", "Date format")}
+              <select
+                disabled={locked}
+                value={dateFormat}
+                onChange={(e) => {
+                  setDateFormat(e.target.value);
+                  invalidate();
+                }}
+              >
+                <option value="iso">YYYY-MM-DD</option>
+                <option value="dmy_slash">DD/MM/YYYY</option>
+                <option value="mdy_slash">MM/DD/YYYY</option>
+                <option value="dmy_dot">DD.MM.YYYY</option>
+              </select>
+            </label>
           </div>
           {profile.preview && (
             <div className="wb-prep-preview" role="status">
@@ -427,6 +518,8 @@ export function Preparation({
               onClick={() => {
                 setTrim(true);
                 setDedup(false);
+                setDecimalComma(false);
+                setDateFormat("iso");
                 setMapping(profile.suggested_mapping);
                 invalidate();
               }}

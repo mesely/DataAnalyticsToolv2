@@ -652,13 +652,13 @@ def handle(request):
         return prepare(request)
     if action == "import":
         if request.get("mapping") is not None:
-            from analysis.preparation import prepare, read_csv, map_frame, options_for
+            from analysis.preparation import prepare, load_table, map_frame, options_for
 
             prepared = prepare(request)
             if request.get("receipt") != prepared["receipt"]:
                 raise ValueError("Önizleme değişti veya eksik. Yeniden önizleyin.")
             raw, _ = map_frame(
-                read_csv(request["csv"])[0],
+                load_table(request)[0],
                 request["mapping"],
                 options_for(request.get("options")),
             )
@@ -678,6 +678,7 @@ def handle(request):
                         "recipe": prepared["recipe"],
                         "receipt": prepared["receipt"],
                         "preview": prepared["preview"],
+                        "source_format": prepared["source_format"],
                     },
                 },
             )

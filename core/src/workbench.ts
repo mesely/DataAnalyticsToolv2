@@ -638,19 +638,32 @@ export function registerWorkbench(
         .send(await readFile(path.join(ROOT, "analysis/data", file)));
     },
   );
+  // CSV text (≤ 2 MB UTF-8) or Parquet bytes (≤ 2 MB, base64) — exactly one of them.
+  function tableSource(b: Obj): { csv?: string; parquet_base64?: string } | null {
+    const csv = b.csv, parquet = b.parquet_base64;
+    if (typeof csv === "string" && parquet === undefined)
+      return Buffer.byteLength(csv) > 2_000_000 ? null : { csv };
+    if (typeof parquet === "string" && csv === undefined)
+      return parquet.length > 2_800_000 || !/^[A-Za-z0-9+/=]+$/.test(parquet)
+        ? null
+        : { parquet_base64: parquet };
+    return null;
+  }
   app.post(BASE + "/prepare", async (req, reply) => {
     const v = await viewer(req, reply, true);
     if (!v) return;
     const b = (req.body || {}) as Obj;
-    if (typeof b.csv !== "string" || Buffer.byteLength(b.csv) > 2_000_000)
-      return reply
-        .code(400)
-        .send({ error: "file_limit", detail: "UTF-8 CSV sınırı 2 MB." });
+    const source = tableSource(b);
+    if (!source)
+      return reply.code(400).send({
+        error: "file_limit",
+        detail: "UTF-8 CSV veya Parquet sınırı 2 MB; tek bir kaynak gönderin.",
+      });
     return bounded(v.identity.subject, reply, async () => {
       try {
         const result = await analysisWorker({
           action: "prepare",
-          csv: b.csv,
+          ...source,
           mapping: b.mapping,
           options: b.options,
         });
@@ -668,10 +681,13 @@ export function registerWorkbench(
     const v = await viewer(req, reply, true);
     if (!v) return;
     const b = (req.body || {}) as Obj;
-    if (typeof b.csv !== "string" || Buffer.byteLength(b.csv) > 2_000_000)
-      return reply
-        .code(400)
-        .send({ error: "file_limit", detail: "UTF-8 CSV sınırı 2 MB." });
+    const source = tableSource(b);
+    if (!source || (source.parquet_base64 !== undefined && b.mapping === undefined))
+      return reply.code(400).send({
+        error: "file_limit",
+        detail:
+          "UTF-8 CSV veya Parquet sınırı 2 MB; Parquet içe aktarımı alan eşlemesi gerektirir.",
+      });
     const owner = createHash("sha256")
       .update(v.identity.subject)
       .digest("hex")
@@ -683,7 +699,7 @@ export function registerWorkbench(
           mapping: b.mapping,
           options: b.options,
           receipt: b.receipt,
-          csv: b.csv,
+          ...source,
           title: b.title,
           owner,
         })) as Obj;

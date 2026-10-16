@@ -433,12 +433,12 @@ def decision_brief(request, overview, prediction, model=None):
                 ),
             ],
         )
-    priority = {
-        key: i
-        for i, key in enumerate(
-            ["quality", "forecast", "country", "basket", "scenario"]
-        )
-    }
+    priority_order = {
+        "balanced": ["quality", "forecast", "country", "basket", "scenario"],
+        "growth": ["quality", "basket", "scenario", "country", "forecast"],
+        "resilience": ["quality", "country", "forecast", "scenario", "basket"],
+    }[objective]
+    priority = {key: i for i, key in enumerate(priority_order)}
     candidates.sort(key=lambda c: (-c["support_score"], priority[c["id"]]))
     brief = {
         "version": VERSION,

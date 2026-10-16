@@ -264,3 +264,15 @@ def test_report_has_traceable_limits_and_actual_reuse(brief):
             }
         )["output_sha256"]
     )
+
+
+@pytest.mark.parametrize(
+    "objective,second", [("growth", "basket"), ("resilience", "country")]
+)
+def test_objective_controls_ties_without_overriding_support(objective, second):
+    b = handle({"action": "decisions", "dataset": "demo", "objective": objective})
+    assert b["recommendations"][0]["id"] == "quality"
+    assert b["recommendations"][1]["id"] == second
+    assert [c["support_score"] for c in b["recommendations"]] == sorted(
+        [c["support_score"] for c in b["recommendations"]], reverse=True
+    )

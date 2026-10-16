@@ -297,13 +297,13 @@ export function Preparation({
       )}
       {fileBytes.current && !parquet && (
         <details
-          className="wb-prep-details"
+          className="wb-prep-details wb-prep-encoding"
           open={confirmEncoding || undefined}
         >
           <summary>
             {t("Metin kodlaması ve önizleme", "Text encoding and preview")}
           </summary>
-          <label>
+          <label className="wb-field">
             {t("CSV kodlaması", "CSV encoding")}
             <select
               value={encoding}

@@ -2633,6 +2633,7 @@
   padding: 10px 0;
   color: var(--tone-30558a);
   font-size: 13px;
+  min-height: 44px;
 }
 .wb-prep-mapping {
   display: grid;
@@ -2640,10 +2641,10 @@
   gap: 16px;
   margin: 18px 0;
 }
-.wb-prep-mapping select {
+.wb-preparation select {
   width: 100%;
   min-width: 0;
-  min-height: 42px;
+  min-height: 44px;
   padding: 8px 10px;
   border: 1px solid var(--tone-cbd5e3);
   border-radius: 8px;
@@ -2662,7 +2663,31 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 28px;
+  min-height: 44px;
+}
+.wb-prep-encoding .wb-field {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+.wb-prep-encoding textarea {
+  width: 100%;
+  min-height: 136px;
+  padding: 12px;
+  border: 1px solid var(--tone-cbd5e3);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--tone-233047);
+  font:
+    13px/1.5 ui-monospace,
+    monospace;
+  resize: vertical;
+}
+.wb-prep-encoding .wb-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
 }
 .wb-prep-options input {
   width: 17px;
@@ -3937,8 +3962,12 @@
   line-height: 1.4;
   color: var(--wb-text-muted, inherit);
 }
-.wb-forecast-diagnostics li + li { margin-top: 0.25rem; }
-.wb-forecast-diagnostics li[data-severity="warning"] { color: inherit; }
+.wb-forecast-diagnostics li + li {
+  margin-top: 0.25rem;
+}
+.wb-forecast-diagnostics li[data-severity="warning"] {
+  color: inherit;
+}
 
 /* Typed analyst narrative (AW-14): a quiet two-column list; the type label is text, not a badge. */
 .wb-narrative-section {

@@ -129,6 +129,7 @@ export function DecisionStudio({
   const [brief, setBrief] = useState<Brief | null>(null),
     [history, setHistory] = useState<History[]>([]),
     [running, setRunning] = useState(false),
+    [revision, setRevision] = useState(0),
     [error, setError] = useState(""),
     [refKey, setRefKey] = useState("");
   const version = useRef(0),
@@ -150,7 +151,7 @@ export function DecisionStudio({
   }, []);
   useEffect(() => {
     if (brief) top.current?.closest("dialog")?.scrollTo({ top: 0 });
-  }, [brief?.decision_id]);
+  }, [revision]);
   useEffect(() => {
     if (refKey) {
       reference.current?.scrollIntoView({ block: "nearest" });
@@ -196,6 +197,7 @@ export function DecisionStudio({
       if (current === version.current) {
         if (r.ok) {
           setBrief(r.data);
+          setRevision((n) => n + 1);
           setRefKey("");
           void loadHistory();
         } else
@@ -219,6 +221,7 @@ export function DecisionStudio({
       if (current === version.current) {
         if (r.ok) {
           setBrief(r.data);
+          setRevision((n) => n + 1);
           setRefKey("");
         } else setError(t("Kayıt bulunamadı.", "Record not found."));
       }
@@ -275,7 +278,11 @@ export function DecisionStudio({
           </p>
         </div>
       )}
-      <details className="wb-decision-config" open={!brief}>
+      <details
+        className="wb-decision-config"
+        open={!brief}
+        key={"config-" + revision}
+      >
         <summary>
           {brief
             ? t("Yeni analiz ayarları", "New analysis settings")
@@ -432,7 +439,7 @@ export function DecisionStudio({
         </p>
       )}
       {brief && (
-        <div className="wb-decision-result">
+        <div className="wb-decision-result" key={revision}>
           <header className="wb-decision-head">
             <div>
               <span className="wb-eyebrow">

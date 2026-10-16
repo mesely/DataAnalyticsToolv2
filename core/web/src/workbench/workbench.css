@@ -3916,3 +3916,16 @@
   border-bottom: 1px solid var(--border);
   margin-top: -8px;
 }
+
+/* Contrast and pointer-target acceptance after measured light-mode audit. */
+.wb .wb-eyebrow,
+.wb .wb-source-select label > span {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+}
+.wb-top-actions > .wb-icon,
+.wb-top-actions > .wb-command {
+  min-height: 44px;
+  min-width: 44px;
+}

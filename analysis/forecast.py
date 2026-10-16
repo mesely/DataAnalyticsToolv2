@@ -337,20 +337,22 @@ def _country_slices(metadata, where, args, data_dir, *, first_week, n_weeks, res
     series over the SAME final origins. Diagnostic only — slices never change the aggregate selection.
     Labels stay in this result (shown to the user) and never enter diagnostics text or model packets."""
     start = date.fromisoformat(first_week)
+    # One query, same bound parameters as the aggregate: the leaders are a subquery, so no extra parameter
+    # list is built (DuckDB imports pandas when it inspects a Python parameter list — ~0.9 s of startup).
+    leaders_sql = "SELECT country FROM transactions" + where + " GROUP BY 1 ORDER BY SUM(line_pence) DESC, country LIMIT " + str(SLICE_COUNTRIES)
     with duckdb.connect(str(data_dir / (metadata["id"] + ".duckdb")), read_only=True) as con:
-        leaders = [r[0] for r in con.execute(
-            "SELECT country FROM transactions" + where + " GROUP BY 1 ORDER BY SUM(line_pence) DESC, country LIMIT " + str(SLICE_COUNTRIES), args
-        ).fetchall()]
-        if not leaders:
-            return []
         rows = con.execute(
-            "SELECT country, order_date::VARCHAR, SUM(line_pence)::BIGINT FROM transactions" + where
-            + (" AND" if where else " WHERE") + " country IN (" + ",".join("?" * len(leaders)) + ") GROUP BY 1, 2",
-            list(args) + leaders,
+            "WITH leaders AS (" + leaders_sql + ") SELECT country, order_date::VARCHAR, SUM(line_pence)::BIGINT FROM transactions" + where
+            + (" AND" if where else " WHERE") + " country IN (SELECT country FROM leaders) GROUP BY 1, 2",
+            list(args) * 2,
         ).fetchall()
-    observed = {}
+    observed, totals = {}, {}
     for country, d, p in rows:
         observed.setdefault(country, {})[date.fromisoformat(d)] = int(p)
+        totals[country] = totals.get(country, 0) + int(p)
+    leaders = sorted(totals, key=lambda c: (-totals[c], c))
+    if not leaders:
+        return []
     final_origins = list(range(n_weeks - result["split"]["holdout_origins"], n_weeks))
     dev_origins = list(range(result["split"]["first_origin"], n_weeks - result["split"]["holdout_origins"]))
     out = []

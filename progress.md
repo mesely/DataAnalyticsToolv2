@@ -1,6 +1,41 @@
 # Context Layer / Analytics — tek giriş ve devir rehberi
 
-## ŞİMDİ OKU — 16 Ekim 2026, gece turu (yeni ajan)
+## ŞİMDİ OKU — 16 Ekim 2026, öğleden sonra turu (AW-14, yeni ajan)
+
+**Güncel kod: bu kartın altındaki commitler (e4f82af ve sonrası), publish dalına push edildi; CI sonucu aşağıdaki
+satırda.** Başlangıç durumu doğrulandı: 59aa444 CI 5 job yeşil; 228 analitik test yerelde geçti; uygulama ayaktaydı;
+disk 3,2 GB boş (98 %). Bu turda silinenler yalnız yeniden üretilebilir önbellekler: npm cache 151 MB, repo
+`__pycache__` 3,7 MB, clang modül önbelleği 221 MB → 3,6 GB boş. Claude ShipIt güncelleme önbelleği (619 MB), Chrome
+önbelleği (1 GB), CoreDevice/Simulator/Docker verileri bilerek silinmedi.
+
+**Yapılanlar (spec `specs/analyst-workspace-phase11.md`, rapor `docs/phases/PHASE_11_REPORT.md`):**
+1. Tahmin bandı v3 (`weekly-gross-v3`): absolute/relative ölçek yalnız geliştirme yuvarlanan kapsamasıyla seçilir,
+   sonlu-örneklem conformal kuantil, `band_undercovers_development`; UCI %90 bandı geliştirmede 0,85 (eski 0,77),
+   final 0,70 — **kalibre değil** etiketi korunur. Lider ülke dilimleri (UK/NL/EIRE) aynı final origin'lerde: üçünde
+   de mean8 naifi geçti. UI "son dört" sabit metni dinamik oldu. Kanıt `docs/evidence/phase10/forecast-v3-uci.json`.
+2. Tipli analist anlatısı (`analysis/narrative.py`, decision-narrative-v1): yerel renderer + doğrulanmış model
+   anlatısı (bilinmeyen kimlik / desteklenmeyen sayı / atıfsız olgu / aday olmayan öneri / eksik kanıt hakkında olgu
+   reddedilir; bir onarım; yerel korunur). DecisionStudio "Analist anlatısı" + kanıt paketi XML. Harness v2 narrate
+   satırı; **gerçek model hâlâ BLOCKED (402)** — accuracy null.
+3. Alım v2 (`csv-preparation-v2`): Parquet (DuckDB), `decimal_comma`, `date_format`, sütun teşhisleri, Windows-1252
+   notu; her seçenek receipt'te. Rotalar `parquet_base64` kabul eder.
+4. ML kartı `probabilistic` (log loss/Brier/ECE/AP) seçimden sonra; ModelStudio tablosu.
+5. Worker başlangıcı: `analysis.prepare` pandas importu fonksiyon içine → import 0,9 s → 0,1 s; forecast p50 882 → 130 ms
+   (`docs/evidence/verification/phase11-performance.json`). Decisions ~2,1 s (sonraki hedef).
+
+**Testler:** analytics **254 passed**; NUL/asset 48; web tsc/build geçti. Core `workbench.test.ts` yerelde Docker
+fixture nedeniyle koşmaz (CI'da koşar).
+
+**Açık kalan (bu tur):** tarayıcı kabulü (DecisionStudio anlatı/dilim tablosu/dinamik final metni, hazırlama seçenekleri,
+390 px, açık/koyu, reopen, indirme) — tarayıcı aracının güvenlik sınıflandırıcısı tur boyunca erişilemezdi; mock
+üretilmedi; `phase11-browser-qa.json` yok. Sonraki ajan: önce gerçek tarayıcıyla kapat, sonra CI'yı doğrula
+(`gh run list --repo mesely/DataAnalyticsToolv2`), sonra NEXT_BACKLOG sırası. Uygulamayı yeniden başlatmak için
+mevcut `node deploy/phase1/start.mjs` sürecini durdurup `./deploy/phase1/start.sh` çalıştır (web/dist statik servis
+edilir; TS rota değişikliği restart ister).
+
+---
+
+## ÖNCEKİ KART — 16 Ekim 2026, gece turu (yeni ajan)
 
 **Güncel kod: bu kartın altındaki commit (forecast v2).** Önceki turun A7–10 devir dokümanları commit edilmemişti; 86e3a7f ile
 commit/push edildi (PR #1, CI tetiklendi). Gerçek başlangıç durumu: HEAD fddc4f1 = son yeşil CI (5 job). 207 analitik test

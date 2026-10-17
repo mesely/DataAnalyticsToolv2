@@ -128,7 +128,7 @@ kullansın, ekranda da hangisini kullandığını söylesin.
 - [x] 530 bin satır için sunucu tarafında sayfalama (sayfa başına 50/100/500); toplam satır sayısı görünsün.
 - [x] Sütuna göre sıralama (artan/azalan, çoklu sıralama Shift ile).
 - [x] Sütun filtresi: metin içerir, sayı aralığı, tarih aralığı, değer listesi. Filtreler genel bakıştaki filtre çiplerine bağlı olsun.
-- [x] Sütun gizle/göster, sütun sırası, sütun genişliği; seçim kullanıcı başına hatırlansın.
+- [x] Sütun gizle/göster, sütun sırası (genişlik yok); seçim oturum boyunca bellekte tutulur — tarayıcıda kalıcı depolama yasak (D-103.1).
 - [x] "Düzenleme" kaynak veriyi değiştirmesin. — Sütun gizle/göster, yeniden adlandır, sırala yapıldı (tarayıcıda saklanır). Hesaplanmış sütun ve satır notu yapılmadı; kaynakta düzeltme katmanı Selman'ın kararına bağlı (Açık sorular 2). Görünüm düzeyinde: sütun adı değiştir, hesaplanmış sütun ekle (ör. `adet × fiyat`), satıra not ekle. Kaynak veride gerçek düzeltme gerekiyorsa denetim kayıtlı ayrı bir "düzeltme katmanı" olarak tasarlansın (bkz. Açık sorular).
 - [x] İndirme: CSV ve Excel (.xlsx), görünen filtre/sıralama ile. Formül enjeksiyonu nötrleştirmesi (`= + - @`) Excel için de uygulanır. Büyük indirmeler sınırlansın (ör. 1 milyon hücre) ve kullanıcıya söylensin.
 - [x] **Tabloya sor:** tablonun o anki hali (filtre, sıralama, görünen sütunlar) bağlam olarak gitsin. Soru doğrulanmış salt-okunur SQL'e çevrilsin (`analysis/sql_lab.py` doğrulayıcısı), sonuç tablo veya grafik olarak dönsün, SQL'i görülebilsin. Hazır sorular: "en çok iade edilen ürün", "bu ülkede aylık değişim", "seçili satırların toplamı".

@@ -7,8 +7,8 @@ import { Download, Send, Spinner, Info, Trend, Reset, ChevronDown, X } from "./B
 import type { Filters, RoutingReceipt } from "./types";
 
 // v3 G3: the overview's data table. Rows or a summary of the current scope; click a header to sort (Shift for a
-// second and third key), type under a header to filter, page through, hide/rename/reorder columns (a view setting —
-// the source never changes), download what is shown as CSV or Excel, or ask the table in a sentence.
+// second and third key), type under a header to filter, page through, hide/rename/reorder columns (a view setting
+// for the session — the source never changes), download what is shown as CSV or Excel, or ask the table in a sentence.
 
 const BASE = "/v1/dashboard/workbench";
 type Column = { name: string; type: "text" | "date" | "int" | "decimal" | "pence"; label: string };
@@ -39,21 +39,13 @@ type ViewPrefs = { hidden: string[]; labels: Record<string, string>; order: stri
 const GROUP_OPTIONS = ["country", "month", "week", "weekday", "product"] as const;
 const PAGE_SIZES = [25, 50, 100, 500];
 
+// Column settings live for the session only, in memory: the workspace keeps nothing in browser storage (D-103.1).
+const sessionPrefs = new Map<string, ViewPrefs>();
 function loadPrefs(key: string): ViewPrefs {
-  try {
-    const v = JSON.parse(window.localStorage.getItem(key) || "null");
-    if (v && Array.isArray(v.hidden) && Array.isArray(v.order) && typeof v.labels === "object") return v;
-  } catch {
-    /* private window or blocked storage: defaults */
-  }
-  return { hidden: [], labels: {}, order: [] };
+  return sessionPrefs.get(key) ?? { hidden: [], labels: {}, order: [] };
 }
 function savePrefs(key: string, p: ViewPrefs) {
-  try {
-    window.localStorage.setItem(key, JSON.stringify(p));
-  } catch {
-    /* view settings are a convenience; ignore */
-  }
+  sessionPrefs.set(key, p);
 }
 
 export function DataGrid({

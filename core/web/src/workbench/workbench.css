@@ -5387,3 +5387,83 @@
   --tone-a9b6ca: #5c7295;
 }
 /* <<< generated: light text contrast */
+
+/* v3 G1: link strength is width + opacity + a three-step tone, so the strongest links read first in both themes.
+ * Hovering or focusing a product keeps only its own links lit and fades unrelated products. */
+.wb .wb-edge {
+  stroke: var(--edge-weak);
+  transition: opacity 0.15s ease, stroke-width 0.15s ease;
+}
+.wb .wb-edge.is-mid {
+  stroke: var(--edge-mid);
+}
+.wb .wb-edge.is-strong,
+.wb .wb-edge.is-lit {
+  stroke: var(--edge-strong);
+}
+.wb .wb-edge.is-negative {
+  stroke: var(--edge-negative);
+}
+.wb {
+  --edge-weak: #a9b3d3;
+  --edge-mid: #7b89d6;
+  --edge-strong: #3f4fc4;
+  --edge-negative: #c4585a;
+}
+.wb[data-theme="dark"] {
+  --edge-weak: #4a5874;
+  --edge-mid: #7684c4;
+  --edge-strong: #b8c4ff;
+  --edge-negative: #e58a8b;
+}
+.wb .wb-graph-node {
+  transition: opacity 0.15s ease;
+}
+.wb .wb-graph-node.is-faded {
+  opacity: 0.25;
+}
+.wb .wb-edge-legend {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  max-width: calc(100% - 24px);
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 12px;
+  color: var(--muted);
+}
+.wb .wb-edge-legend-title {
+  font-weight: 600;
+  color: var(--ink);
+}
+.wb .wb-edge-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .wb .wb-network-canvas > .wb-edge-legend {
+    position: sticky;
+    left: 12px;
+    top: auto;
+    margin: 12px 0 0;
+    width: max-content;
+    max-width: calc(100vw - 72px);
+  }
+}
+.wb .wb-edge-value {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}

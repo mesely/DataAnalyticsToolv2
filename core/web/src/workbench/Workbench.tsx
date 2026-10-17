@@ -73,6 +73,7 @@ import { DecisionStudio } from "./DecisionStudio";
 import { ModelStudio } from "./ModelStudio";
 import { Preparation } from "./Preparation";
 import { TemporalView } from "./TemporalView";
+import { DEFAULT_EDGE_LIMIT, EDGE_LIMITS, edgeScale, neighbourhood, strongest } from "./network";
 import { ExpertTools, CompareRuns } from "./ExpertTools";
 import { LocaleProvider, useLocale } from "./Locale";
 import { UsageMeter } from "./UsageMeter";
@@ -2240,7 +2241,9 @@ function NetworkView({
   const [selected, setSelected] = useState<GraphNode | null>(null),
     [zoom, setZoom] = useState(1),
     [filter, setFilter] = useState(""),
-    [table, setTable] = useState(false);
+    [table, setTable] = useState(false),
+    [limit, setLimit] = useState<number>(DEFAULT_EDGE_LIMIT),
+    [hover, setHover] = useState<string | null>(null);
   const g = result.graph,
     colors = [
       "#6674e5",
@@ -2263,7 +2266,15 @@ function NetworkView({
         n.id.toLowerCase().includes(filter.toLowerCase()),
     ),
     ids = new Set(nodes.map((n) => n.id)),
-    edges = g.edges.filter((e) => ids.has(e.source) && ids.has(e.target)),
+    linked = strongest(g.edges.filter((e) => ids.has(e.source) && ids.has(e.target)), 0),
+    edges = strongest(linked, limit),
+    scale = edgeScale(edges),
+    focus = neighbourhood(edges, hover ?? selected?.id ?? null),
+    copurchase = g.mode !== "similarity",
+    weightText = (w: number) =>
+      copurchase
+        ? `${Math.round(w)} ${t("ortak fatura", "shared invoices")}`
+        : `${t("benzerlik", "similarity")} ${w.toFixed(2)}`,
     nodeText = (n: { label: string }) =>
       n.label.length > (nodes.length > 16 ? 12 : 23)
         ? n.label.slice(0, nodes.length > 16 ? 11 : 21) + "…"
@@ -2282,8 +2293,11 @@ function NetworkView({
         <div>
           <h2>{t("Ürün ilişkileri", "Product relationships")}</h2>
           <p>
-            {nodes.length} {t("düğüm", "nodes")} · {edges.length}{" "}
-            {t("kenar", "edges")} · {g.communities || 0}{" "}
+            {nodes.length} {t("düğüm", "nodes")} ·{" "}
+            {edges.length < linked.length
+              ? t(`en güçlü ${edges.length} / ${linked.length} kenar`, `strongest ${edges.length} of ${linked.length} edges`)
+              : `${edges.length} ${t("kenar", "edges")}`}{" "}
+            · {g.communities || 0}{" "}
             {t("topluluk", "communities")}
           </p>
         </div>
@@ -2341,6 +2355,16 @@ function NetworkView({
         <button className="wb-btn" disabled={busy} onClick={onRecalculate}>
           {t("Ağı hesapla", "Compute network")}
         </button>
+        <label>
+          {t("Gösterilen bağ", "Links shown")}
+          <select value={limit} onChange={(e) => setLimit(Number(e.target.value))}>
+            {EDGE_LIMITS.map((n) => (
+              <option key={n} value={n}>
+                {n ? t(`En güçlü ${n}`, `Strongest ${n}`) : t(`Tümü (${linked.length})`, `All (${linked.length})`)}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="wb-node-search">
           <Search size={16} />
           <input
@@ -2404,7 +2428,7 @@ function NetworkView({
               </tr>
             </thead>
             <tbody>
-              {edges.map((e) => (
+              {linked.map((e) => (
                 <tr key={e.source + ":" + e.target}>
                   <td>
                     {nodes.find((n) => n.id === e.source)?.label || e.source}
@@ -2432,33 +2456,52 @@ function NetworkView({
               <g
                 transform={`translate(${375 - 375 * zoom},${230 - 230 * zoom}) scale(${zoom})`}
               >
-                {edges.map((e, i) => {
+                {/* Weakest first, so a strong link is never painted over by a weak one. */}
+                {[...edges].reverse().map((e) => {
                   const a = nodes.find((n) => n.id === e.source),
                     b = nodes.find((n) => n.id === e.target);
                   if (!a || !b) return null;
-                  const h =
-                    selected && (selected.id === a.id || selected.id === b.id);
+                  const st = scale.style(e.weight),
+                    lit = focus && focus.has(a.id) && focus.has(b.id) && (a.id === (hover ?? selected?.id) || b.id === (hover ?? selected?.id));
                   return (
                     <line
                       aria-hidden="true"
-                      key={i}
+                      key={e.source + ":" + e.target}
                       x1={375 + a.x * 270}
                       y1={230 + a.y * 165}
                       x2={375 + b.x * 270}
                       y2={230 + b.y * 165}
-                      stroke={
-                        e.weight < 0 ? "#d88384" : h ? "#6173df" : "#c6cde5"
-                      }
-                      strokeDasharray={e.weight < 0 ? "5 4" : undefined}
-                      strokeWidth={h ? 2 : 1.2}
-                      opacity={selected && !h ? 0.3 : 0.65}
+                      className={`wb-edge is-${st.tier}${st.negative ? " is-negative" : ""}${lit ? " is-lit" : ""}`}
+                      strokeDasharray={st.negative ? "5 4" : undefined}
+                      strokeWidth={lit ? st.width + 1 : st.width}
+                      strokeLinecap="round"
+                      opacity={focus ? (lit ? Math.max(0.9, st.opacity) : 0.07) : st.opacity}
                     >
                       <title>
-                        {a.label} ↔ {b.label}: {e.weight}
+                        {a.label} ↔ {b.label}: {weightText(e.weight)}
                       </title>
                     </line>
                   );
                 })}
+                {/* The lit links of the hovered or selected product carry their value at the midpoint. */}
+                {focus &&
+                  edges.map((e) => {
+                    const id = hover ?? selected?.id,
+                      a = nodes.find((n) => n.id === e.source),
+                      b = nodes.find((n) => n.id === e.target);
+                    if (!a || !b || (a.id !== id && b.id !== id)) return null;
+                    return (
+                      <text
+                        key={"w" + e.source + ":" + e.target}
+                        className="wb-edge-value"
+                        x={375 + ((a.x + b.x) / 2) * 270}
+                        y={230 + ((a.y + b.y) / 2) * 165 + 4}
+                        textAnchor="middle"
+                      >
+                        {copurchase ? Math.round(e.weight) : e.weight.toFixed(2)}
+                      </text>
+                    );
+                  })}
                 {nodes.map((n) => (
                   <g
                     key={n.id}
@@ -2468,13 +2511,17 @@ function NetworkView({
                     role="button"
                     aria-label={`${n.label}, ${n.degree} ${t("bağlantı", "connections")}`}
                     onClick={() => setSelected(n)}
+                    onMouseEnter={() => setHover(n.id)}
+                    onMouseLeave={() => setHover(null)}
+                    onFocus={() => setHover(n.id)}
+                    onBlur={() => setHover(null)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
                         setSelected(n);
                       }
                     }}
-                    className="wb-graph-node"
+                    className={`wb-graph-node${focus && !focus.has(n.id) ? " is-faded" : ""}`}
                   >
                     <title>
                       {n.label} · {t("Topluluk", "Community")} {n.community + 1}
@@ -2524,10 +2571,35 @@ function NetworkView({
             </div>
             <span className="wb-canvas-hint">
               {t(
-                "Bir ürün seçin · renkler toplulukları gösterir",
-                "Select a product · colors show communities",
+                "Bir ürünün üzerine gelin veya seçin · düğüm rengi topluluğu gösterir",
+                "Hover or select a product · node colour shows the community",
               )}
             </span>
+            <div className="wb-edge-legend" aria-label={t("Bağ gücü göstergesi", "Link strength legend")}>
+            <span className="wb-edge-legend-title">
+              {copurchase ? t("Bağ gücü (ortak fatura)", "Link strength (shared invoices)") : t("Bağ gücü (benzerlik)", "Link strength (similarity)")}
+            </span>
+            {scale.legend.map((l) => {
+              const mid = scale.style(l.to);
+              const fmt = (v: number) => (copurchase ? String(Math.round(v)) : v.toFixed(2));
+              return (
+                <span key={l.tier} className="wb-edge-legend-item">
+                  <svg width="36" height="12" aria-hidden="true">
+                    <line x1="2" y1="6" x2="34" y2="6" className={`wb-edge is-${l.tier}`} strokeWidth={mid.width} strokeLinecap="round" opacity={mid.opacity} />
+                  </svg>
+                  {l.tier === "weak" ? t("zayıf", "weak") : l.tier === "mid" ? t("orta", "medium") : t("güçlü", "strong")} {fmt(l.from)}–{fmt(l.to)}
+                </span>
+              );
+            })}
+            {!copurchase && (
+              <span className="wb-edge-legend-item">
+                <svg width="36" height="12" aria-hidden="true">
+                  <line x1="2" y1="6" x2="34" y2="6" className="wb-edge is-negative" strokeWidth={2} strokeDasharray="5 4" />
+                </svg>
+                {t("kesik: ters yönlü benzerlik", "dashed: opposite profile")}
+              </span>
+            )}
+          </div>
           </div>
           <aside className="wb-node-detail">
             {selected ? (

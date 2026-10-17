@@ -11,7 +11,7 @@ session with per-user ownership and an audit log. It extends Alper Çamlı's met
 ([AlperCamli/DataAnalyticsTool](https://github.com/AlperCamli/DataAnalyticsTool)).
 
 Contents: [Screens](#screens) · [How it works](#how-it-works) · [Reproduce it](#reproduce-it) ·
-[Optional Llama planner](#optional-llama-planner) · [Tests and measurements](#tests-and-measurements) ·
+[Optional language model](#optional-language-model) · [Tests and measurements](#tests-and-measurements) ·
 [Limits](#limits) · [Sources](#sources)
 
 ---
@@ -112,7 +112,7 @@ flowchart LR
   C -- "sessions, ownership,<br/>admission, audit" --> P[(PostgreSQL 16)]
   C -- "JSON on stdin/stdout<br/>45 s, bounded output" --> W["Analysis worker<br/>Python 3.12"]
   W --> D[("DuckDB file per dataset<br/>read-only")]
-  W -. "optional: plan only,<br/>validated JSON" .-> L["Llama<br/>self-hosted or HF router"]
+  W -. "optional: plan only,<br/>validated JSON" .-> L["Language model<br/>Groq · GPT-OSS 20B<br/>or self-hosted Llama"]
 ```
 
 A request goes from the browser to the core service, which checks the session, the CSRF header, the role and the
@@ -140,7 +140,7 @@ writes an audit record. No result is stored in the browser.
 | 13 | Decision brief | Ranked next steps, price/volume scenarios and a typed narrative. | Candidates scored by a published checklist (traceability 40, descriptive sufficiency 20, temporal validation 20, business validation 0); not a probability. Statements typed fact, assumption, calculation, inference, recommendation, limitation, each citing evidence ids. A model narrative is accepted only if every number matches a cited value and every id exists. | `analysis/decisions.py`, `analysis/narrative.py` |
 | 14 | Reasoning tree | The typed statements shown as the chain they form. | A statement rests on the nearest lower-layer statements that share an evidence id (fact/assumption → calculation → inference → recommendation); limitations attach to the deepest statement they share evidence with. No shared evidence, no link. | `core/web/src/workbench/Reasoning.tsx` |
 | 15 | Model studio | Bounded comparison of a baseline and two models on an uploaded table. | 100–3 000 rows; dummy, random forest (64 trees, depth 8) and logistic or ridge regression; random, group or time split (seed 47) with 3-fold CV; selection on CV only; holdout metrics (macro F1, balanced accuracy, calibration error, or MAE/RMSE/R²). Only the model card is stored. | `analysis/ml.py` |
-| 16 | Optional model planner | A model may propose a plan in place of the local planner. | System prompt treats the user text as data; temperature 0; JSON only; strict key and enum validation; anything else falls back to the local planner and the screen says so. | `analysis/llm.py`, `chart_studio.py` `llm_plan` |
+| 16 | Optional model planner | A model (GPT-OSS 20B on Groq by default) may propose a plan in place of the local planner. | System prompt treats the user text as data; temperature 0; JSON only; strict key and enum validation; anything else falls back to the local planner and the screen says so. | `analysis/llm.py`, `chart_studio.py` `llm_plan` |
 | 17 | Evidence | Every result can be checked. | Executed SQL and parameters, dataset SHA-256, output SHA-256 over canonical JSON, recipe version, build fingerprint (SHA-256 over source and lock files). | `worker.py`, `analysis/fingerprint.py` |
 | 18 | Code export | The current analysis or chart as a runnable project. | `README.md`, `analysis.py` (only dependency `duckdb`), `analysis.sql`, `charts.py` (SVG, no dependencies), `expected.json`, figures, filtered rows as Parquet (zstd, fixed order, ≤ 6 MiB). Chart overlays (interval, trend, band, moving average) are recomputed by the script. `expected.json` comes from running the generated script; it must match the workspace before the bundle is returned. Zip entries are sorted and timestamped 1980-01-01, so the same scope gives the same bytes. | `analysis/code_export.py` |
 | 19 | Access and audit | Who may run what, and a record of it. | OIDC authorization code with PKCE; HttpOnly cookie whose SHA-256 is stored server-side; CSRF header compared in constant time; roles `analyst` or `ops`; every dataset, run, query, experiment and decision checked against the caller's subject; at most 1 running job per user and 3 in total (also across processes via advisory locks); audit record per action. CSV cells starting with `= + - @` are neutralised. | `core/src/workbench.ts`, `core/src/session.ts` |
@@ -242,15 +242,59 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 ---
 
-## Optional Llama planner
+## Optional language model
 
-Without a model the local planner handles every request. With a model configured and "Plan with Llama" ticked, the
-model proposes the plan instead; the plan is validated exactly like the local one and the screen names which
-planner was used.
+Without a model the local planner handles every request. With a provider configured, the analyst can tick
+"Plan with GPT-OSS 20B · Groq" (Chart Studio), "Interpret with the language model" (assistant) or the
+decision studio's focus selection. The model then proposes a plan or a typed narrative; the reply is validated
+like the local one, every number is still computed locally, and the screen names which planner was used. If the
+provider fails, is rate-limited or answers with something invalid, the local result is shown with a note.
 
-Two providers are supported. A self-hosted OpenAI-compatible server takes precedence over Hugging Face.
+<p align="center">
+  <img src="docs/showcase/21-chart-studio-groq.jpg" width="49%" alt="Chart Studio planned by GPT-OSS 20B on Groq: orders by country, United Kingdom excluded, bar chart">
+  <img src="docs/showcase/22-assistant-groq.jpg" width="49%" alt="Analysis assistant: the model routes the question to the country ranking; the amount comes from the calculation record">
+</p>
 
-**Self-hosted** (llama.cpp, Ollama, vLLM). The model name must contain `llama`.
+**Groq (default).** The hosted provider is [Groq](https://console.groq.com) with `openai/gpt-oss-20b`
+(`openai/gpt-oss-120b` is also accepted).
+
+```bash
+.venv/bin/python -m analysis.llm_setup            # asks for the key without echoing it, checks it, saves it
+.venv/bin/python -m analysis.llm_setup --check    # re-checks the saved key
+```
+
+`llm_setup` checks that the model is available to the key and sends one small JSON request. It then saves
+`analysis/.local/groq-provider.json` with mode 0600; the file is ignored by Git, and a world-readable file is
+refused. On a server, set `GROQ_API_KEY` (and optionally `GROQ_MODEL`) in the service environment instead; the
+analysis worker inherits it. Requests use temperature 0, JSON mode, `reasoning_effort: low` with the reasoning
+text excluded, and 768 extra completion tokens for the model's reasoning. Rate-limit answers are retried once
+when Groq asks for a short wait. When it asks for longer (the daily quota), the request falls back immediately and
+the screen says the usage limit was reached.
+
+What reaches the provider:
+
+| Feature | Sent to the provider |
+|---|---|
+| Assistant | The question text and a fixed routing policy |
+| Chart Studio | The request, metric and breakdown names, the date range and the dataset's country list |
+| Decision studio | Numerical aggregates, their units and periods, and methodology notes |
+
+Raw rows, amounts per row and product names are never sent.
+
+**Limits of the free tier.** A free Groq key allows 8,000 tokens a minute and 200,000 tokens a day for
+`gpt-oss-20b`. Measured costs per call:
+
+| Call | Tokens |
+|---|---:|
+| Assistant routing | ~380 |
+| Chart plan | ~930 |
+| Decision focus | ~1,400 |
+| Decision narrative | ~2,400 |
+
+That is a few hundred interactive requests a day. A shared deployment needs a paid tier, or a self-hosted model.
+
+**Self-hosted Llama** (llama.cpp, Ollama, vLLM). A self-hosted OpenAI-compatible server takes precedence over
+Groq; the model name must contain `llama`.
 
 ```bash
 # llama.cpp, from a GGUF file
@@ -266,24 +310,43 @@ vllm serve /content/drive/MyDrive/llama/llama31_8b_instruct --served-model-name 
 .venv/bin/python -m analysis.llm_setup --endpoint http://<host>:8000/v1 --model llama-3.1-8b-instruct
 ```
 
-`llm_setup` sends one two-token request, reports whether the server answered and saves
-`analysis/.local/llama-endpoint.json` with mode 0600 (ignored by Git). The same settings can be given as
-`LLAMA_BASE_URL`, `LLAMA_MODEL` and `LLAMA_API_KEY`. An 8B model needs roughly 6 GB of memory in 4-bit form and
-16 GB in 16-bit form.
+The same settings can be given as `LLAMA_BASE_URL`, `LLAMA_MODEL` and `LLAMA_API_KEY`. An 8B model needs roughly
+6 GB of memory in 4-bit form and 16 GB in 16-bit form. Hugging Face Inference Providers remain available with
+`llm_setup --provider hf` (`HF_TOKEN`, `HF_MODEL`).
 
-**Hugging Face router.** `.venv/bin/python -m analysis.llm_setup` asks for a token without echoing it, checks the
-account and one completion, and saves `analysis/.local/hf-provider.json` (mode 0600). `HF_TOKEN` and `HF_MODEL`
-work as well. HTTP 402 from the router means the account has no Inference Provider credits.
+**Measured accuracy (live, GPT-OSS 20B on Groq).** The evaluation `llm-eval-v2.3` ran on 17 October 2026, with
+every case a real call ([receipt](docs/evidence/verification/phase12-llm-eval-groq.json)).
 
-**Measuring it.** Once `llm_setup` reports the provider as ready:
+| Task | GPT-OSS 20B (Groq) | Local planner |
+|---|---:|---:|
+| Question routing, behaviour | 19 / 19 | 15 / 19 |
+| Question routing, intent | 17 / 17 | 15 / 17 |
+| Abstention (unsupported or ambiguous questions) | 6 / 6 | 6 / 6 |
+| Prompt-injection refusal | 2 / 2 | 2 / 2 |
+| Decision focus selection, valid and correct | 6 / 6 (2 with an injected operator note) | — |
+| Chart Studio requests, every field right | 19 / 24 | 24 / 24 |
+| Chart Studio fields | 38 / 47 | 47 / 47 |
+| Decision narrative accepted by the validator | 1 / 3 | always (it is the reference) |
+
+Over 48 calls, the median latency was 434 ms and the p95 781 ms, using 38,462 tokens in total.
+
+The local planner was written against these 24 chart requests, so its 24 / 24 is not an independent result. The
+model's five chart misses left a period or "top 5" unchanged ("son 6 ay", "Mart 2011", "top 5 products by units"),
+or set one of two fields ("compare Germany and France", "4-period moving average").
+
+Most rejected narratives contained the model's own arithmetic, for example "2140500 pence divided by 180" with a
+wrong quotient (11,875 instead of 11,891.67). The validator refuses any number that is not a supplied value, so
+the local narrative is kept. In 11 further samples with the same prompt, 7 were accepted.
+
+Run it again with:
 
 ```bash
-.venv/bin/python -m analysis.llm_eval --providers local,hf --out docs/evidence/verification/llm-eval-live.json
+LLM_EVAL_PAUSE=4 .venv/bin/python -m analysis.llm_eval --out docs/evidence/verification/llm-eval-live.json
 ```
 
-The evaluation scores intent plans, decision citations, narrative validation and 24 Chart Studio requests
-(Turkish and English, including exclusions and refinements). The live provider is probed once; if it cannot answer,
-its row is reported as blocked and no accuracy is computed.
+A full run uses about 40,000 tokens, a fifth of the free daily quota. If the provider cannot be reached, its row
+is reported as BLOCKED and no accuracy is computed. A reply the validator rejects counts as a wrong answer, not
+as an outage.
 
 ---
 
@@ -330,8 +393,9 @@ study.
 - The metrics are gross sales from invoice lines. There is no cost, margin, causal inference or market data.
 - The forecast is one week ahead and is reported against naive even when it loses.
 - The decision checklist is a traceability score, not a probability of success.
-- Live accuracy of a Llama planner has not been measured: the Hugging Face account used here returned HTTP 402, and
-  no self-hosted server was reachable from this machine. The self-hosted path is tested against a stand-in server.
+- Live model accuracy is measured for GPT-OSS 20B on Groq only, on small case sets (19 routing, 24 chart, 6 decision,
+  3 narrative cases). A self-hosted Llama has not been measured; that path is tested against a stand-in server.
+- The free Groq tier's daily quota (200,000 tokens) is enough for a demo, not for a team.
 - There has been no task-based user study.
 - Native date and month fields take their format from the operating system's language, so the English screenshots
   show `gg.aa.yyyy` and Turkish month names.

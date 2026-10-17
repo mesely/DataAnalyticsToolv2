@@ -253,3 +253,26 @@ Test: `analysis/tests/test_online_retail_ii.py` (son test yalnız uci2 hazırlan
    diyalogda açılır. Metrik tanımları, "Kanıtı incele" diyaloğunda SQL'in altında ve ⌘K → "Metrik sözlüğü"nde.
 6. **Oturum bitti ekranı.** Oturum düşünce sayfa Türkçe (tarayıcı İngilizceyse İngilizce) "Giriş yap" düğmesi
    gösterir; sunucunun hata kodu "Teknik ayrıntı" altında.
+
+## AW-17 — Groq (GPT-OSS 20B) dil modeli
+
+Hazırlık: `.venv/bin/python -m analysis.llm_setup` anahtarı gizli girişle ister (ya da `GROQ_API_KEY` ortam
+değişkeninden okur). Model listesini ve küçük bir JSON isteğini dener, `analysis/.local/groq-provider.json`
+dosyasına 0600 izniyle kaydeder. `--check` yalnız doğrular. Sunucuda dosya yerine `GROQ_API_KEY` yeterlidir.
+
+1. **Durum.** Grafik stüdyosunda seçenek "GPT-OSS 20B · Groq ile planla" olarak görünmeli. Anahtar yoksa seçenek
+   kapalıdır ve "Sağlayıcı bağlı değil; yerel planlayıcı kullanılır." yazar.
+2. **Grafik.** Seçeneği işaretleyip "orders by country except United Kingdom, top 10, bar chart" yazın. Rozet
+   "Model planladı · sayılar yerelde" olmalı. Plan çiplerinde metrik, kırılım, dışlama ve ilk 10 görünmeli; sayılar
+   yerel planlayıcıyla aynı istekteki sayılarla aynı olmalı.
+3. **Asistan.** Analiz asistanı → "Dil modeliyle yorumla" → "Which country brings in the most revenue?". Altta
+   "Model planı (GPT-OSS 20B · Groq): countries" görünmeli; tutarlar hesap kaydından gelir.
+4. **Karar stüdyosu.** "Dil modeliyle odak seçimi" → "Bu özet için GPT-OSS 20B · Groq kullan". Odak seçimi
+   işaretlenir. Model anlatısı ya kabul edilir ("biçim ve sayı kontrolü") ya da gerekçesiyle reddedilir; yerel anlatı
+   her durumda kalır. Model bir sayıyı kendi hesaplarsa (ör. sipariş başına tutar) doğrulayıcı reddeder.
+5. **Sınırlar.** Ücretsiz Groq hesabı dakikada 8.000 token verir. Sınır aşılırsa istek bir kez yeniden denenir,
+   sonra yerel sonuç "kullanılamadı" notuyla gösterilir; ekran hiçbir zaman boş kalmaz veya hata vermez.
+6. **Gizlilik.** Anahtar ekranda, kanıt JSON'unda, telemetride ve Git'te görünmez; `tests/test_no_committed_secrets.py`
+   izlenen her dosyayı tarar. Sağlayıcıya ham satır ve tutar gitmez. Asistan yalnız soru metnini gönderir. Grafik
+   planlayıcı istek metnini, metrik/kırılım adlarını, tarih aralığını ve veri setindeki ülke listesini gönderir.
+   Karar stüdyosu yalnız sayısal özetleri ve yöntem notlarını gönderir (ürün/ülke adı yok).

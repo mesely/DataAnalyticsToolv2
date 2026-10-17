@@ -1,6 +1,33 @@
 # Context Layer / Analytics — tek giriş ve devir rehberi
 
-## ŞİMDİ OKU — AW-16 devamı: dışlama, betikte katmanlar, dayanak ağacı, maskot, son UI geçişi (17 Ekim 2026)
+## ŞİMDİ OKU — AW-17: Groq (GPT-OSS 20B) dil modeli (17 Ekim 2026)
+
+- **Sağlayıcı:** kullanıcının Groq anahtarı.
+  - Model `openai/gpt-oss-20b`; hesapta Llama sohbet modeli yok.
+  - Anahtar `analysis/.local/groq-provider.json` dosyasında (0600, Git dışı). Sunucuda `GROQ_API_KEY` yeterli.
+  - Kurulum ve doğrulama: `python -m analysis.llm_setup [--check]`.
+- **Canlı ölçüm** (`docs/evidence/verification/phase12-llm-eval-groq.json`):
+  - yönlendirme 19/19
+  - karar odağı 6/6
+  - Grafik stüdyosu 19/24 (alan 38/47)
+  - anlatı 1/3 kabul (ek örneklerde 7/11)
+  - medyan 434 ms
+- **Canlı koşunun bulduğu hatalar:**
+  - Anlatı bağlamı ham ondalık sayılar taşıyordu (`59858.674000000006`); model değeri aynen kopyalasa bile
+    reddediliyordu. Değerler artık kanonik biçimde yazılıyor, test ediliyor.
+  - JSON üretim hatası (400) artık bir kez yeniden deneniyor.
+  - Günlük kota 429'unda istek beklemeden yerel sonuca dönüyor, ekran "kullanım sınırı" diyor.
+  - Değerlendirme reddedilen cevabı kesinti sayıyordu; artık yanlış cevap sayıyor.
+- **Arayüz:** "Llama" etiketleri sağlayıcıdan bağımsız hale geldi, model adı durumdan geliyor. Karar stüdyosundaki
+  model seçeneği sağlayıcı yokken kapalı. Grafik stüdyosu sağlayıcıya ne gittiğini yazıyor.
+- **Gizlilik:** `tests/test_no_committed_secrets.py` izlenen her dosyada anahtar biçimlerini tarıyor. pytest ve
+  vitest kayıtlı anahtarı testlerden yalıtıyor (`CONTEXT_LLM_DIR`).
+- **Açık:**
+  - Ücretsiz Groq günlük kotası 200.000 token; ekip kullanımı için ücretli katman gerekir.
+  - 17 Ekim'de değerlendirmeler kotayı doldurdu; karar stüdyosu ekran görüntüsü bu yüzden alınmadı.
+  - Self-hosted Llama canlı ölçülmedi.
+
+## ÖNCEKİ — AW-16 devamı: dışlama, betikte katmanlar, dayanak ağacı, maskot, son UI geçişi (17 Ekim 2026)
 
 - **Dışlama** ("İngiltere hariç", "except UK and EIRE"): ChartSpec'e eklemeli anahtar `exclude_countries` geldi
   (spec A1). Planlayıcı Türkçe ve İngilizce anlıyor; geri ekleme dışlamayı kaldırıyor. SQL'de `NOT IN (?)`.

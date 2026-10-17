@@ -119,6 +119,8 @@ BINARY_PATHS: tuple[str, ...] = (
     'docs/showcase/18-mobile-chart-studio.jpg',
     'docs/showcase/19-sign-in.jpg',
     'docs/showcase/20-empty-findings.jpg',
+    'docs/showcase/21-chart-studio-groq.jpg',
+    'docs/showcase/22-assistant-groq.jpg',
     'docs/showcase/chart-studio.gif',
 )
 

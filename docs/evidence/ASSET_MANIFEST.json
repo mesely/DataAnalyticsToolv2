@@ -413,5 +413,15 @@
   "path": "docs/showcase/chart-studio.gif",
   "sha256": "0dde85070d300a69e0489a35f2bf86b2d69fb13b750ff7a04dec4c223b9064ca",
   "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/21-chart-studio-groq.jpg",
+  "sha256": "c6a86443d2ba901ff7998a369a17ea570a079627e218590198c4061f4782316c",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/22-assistant-groq.jpg",
+  "sha256": "f0f0cf446cdf91f58cb34bbfcd3e399ad395a9f80138666843dbdeba0cf21202",
+  "kind": "screenshot"
  }
 ]

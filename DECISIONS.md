@@ -7878,3 +7878,35 @@ AW-14 continuation (16 October 2026): independent review reproduced negative rel
 
 
 AW-14 data addendum (2026-10-17): UCI Online Retail II (DOI 10.24432/C5CG6D, CC BY 4.0) is an optional public dataset `uci2`, downloaded with user approval and prepared locally (never committed, not required in CI). The two yearly sheets duplicate 2010-12-01..09 row for row; that window is taken once and a non-identical overlap is refused. The unchanged weekly-gross-v3 protocol registers seasonal naive at ≥104 weeks and selects it on development origins; its final-window result is reported, not tuned on.
+
+## AW-17 — Groq (GPT-OSS 20B) as the hosted language model
+
+17 Oct 2026, user instruction: use the user's Groq key instead of Llama. The key's account offers
+`openai/gpt-oss-20b`/`120b` and no Llama chat model, so the default hosted model is `openai/gpt-oss-20b`.
+
+- **Precedence.** Self-hosted Llama endpoint, then Groq (`GROQ_API_KEY`/`GROQ_MODEL` or
+  `analysis/.local/groq-provider.json`, mode 0600), then Hugging Face. Groq models are an allowlist (gpt-oss
+  20b/120b, Groq Llama ids). The key must carry the `gsk_` prefix.
+- **Request shape.** JSON mode, temperature 0, `reasoning_effort: low`, `include_reasoning: false`, and 768 completion
+  tokens of headroom for reasoning (`analysis.llm.with_budget`).
+- **Failure handling.**
+  - Groq `json_validate_failed` (400) is retried once.
+  - A 429 whose Retry-After exceeds the budget (the 200k tokens/day quota) fails immediately to the local
+    fallback, and the interface names the usage limit.
+- **Protocol values are provider-neutral:** chart planner `source: "model"`, assistant mode
+  `model-plan-verified-facts`. The interface shows the configured model's label (e.g. "GPT-OSS 20B · Groq").
+- **Fixes found by the live run.**
+  - The narrative context leaked raw floats (`59858.674000000006` GBP, fractional pence) that the validator could
+    not accept verbatim. Values are now written in the canonical form the validator accepts; a test proves the round
+    trip for every evidence item.
+  - The evaluation counted a rejected reply as an outage; it now counts it as a wrong answer.
+- **Measured** (`docs/evidence/verification/phase12-llm-eval-groq.json`, llm-eval-v2.3, live):
+  - routing 19/19 (intent 17/17)
+  - decision focus 6/6
+  - Chart Studio 19/24 cases, 38/47 fields
+  - narrative accepted 1/3; most rejections are the model's own arithmetic
+  - median latency 434 ms
+- **Secrets.**
+  - The key never leaves `analysis/.local` or the process environment.
+  - `tests/test_no_committed_secrets.py` scans every tracked file for provider-key shapes in CI.
+  - Both test runners (pytest conftest, vitest setup file) isolate the saved key, so no test reaches a provider.

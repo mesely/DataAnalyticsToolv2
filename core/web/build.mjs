@@ -29,7 +29,7 @@ const options = {
   legalComments: "inline",
   sourcemap: false,
   outfile: path.join(out, "app.js"),
-  loader: { ".css": "css", ".jpeg": "file", ".svg": "file" },
+  loader: { ".css": "css", ".jpeg": "file", ".jpg": "file", ".svg": "file" },
   assetNames: "assets/[name]-[hash]",
   publicPath: "/app/",
   define: { "process.env.NODE_ENV": '"production"' },
@@ -47,6 +47,8 @@ const css = {
 // replaced by a generated glyph, say) is no longer served.
 await rm(path.join(out, "assets"), { recursive: true, force: true });
 await mkdir(out, { recursive: true });
+// Favicon: the Gemini app mark (AW-16) at 64px; brand.svg stays for older bookmarks.
+await copyFile(path.join(here, "src/workbench/assets/favicon.png"), path.join(out, "favicon.png"));
 await writeFile(path.join(out,"brand.svg"),(await readFile(path.join(here,"src/workbench/assets/brand.svg"),"utf8")).replaceAll("currentColor","#7d91ee"));
 
 if (process.argv.includes("--watch")) {

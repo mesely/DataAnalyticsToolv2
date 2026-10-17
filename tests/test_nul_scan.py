@@ -127,9 +127,11 @@ def test_the_shipped_allowlist_contains_only_named_real_images():
     assert nul_scan.BINARY_PATHS
     for name in nul_scan.BINARY_PATHS:
         assert not any(c in name for c in "*?[")
-        assert name.endswith((".png", ".jpeg"))
+        # AW-16 adds .jpg portraits and the README GIF; each is still a named file checked by its real signature.
+        assert name.endswith((".png", ".jpeg", ".jpg", ".gif"))
         raw = (REPO_ROOT / name).read_bytes()
-        assert raw.startswith(b"\x89PNG\r\n\x1a\n") if name.endswith(".png") else raw.startswith(b"\xff\xd8\xff")
+        magic = {".png": b"\x89PNG\r\n\x1a\n", ".gif": b"GIF89a"}.get(Path(name).suffix, b"\xff\xd8\xff")
+        assert raw.startswith(magic), name
 
 
 def test_the_cli_exits_nonzero_and_names_the_file(

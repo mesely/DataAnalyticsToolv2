@@ -38,7 +38,11 @@ import {
 } from "./BrandIcons";
 import modelArt from "./assets/model-studio.jpeg";
 import relationshipArt from "./assets/relationship-explorer.jpeg";
-import prismArt from "./assets/app-icon.jpeg";
+import appMark from "./assets/avatars/app-mark.jpg";
+import { AnalystAvatar, AvatarPicker } from "./Avatars";
+import { ChartStudio } from "./ChartStudio";
+import { CodeExport } from "./CodeExport";
+import type { ChartSpec } from "./types";
 import { Sun, Moon } from "./BrandIcons";
 import {
   Overview,
@@ -219,8 +223,12 @@ function Workspace({
       | "decisions"
       | "save"
       | "metrics"
+      | "avatar"
+      | "chart"
+      | "code"
       | null
     >(null),
+    [codeChart, setCodeChart] = useState<ChartSpec | null>(null),
     [search, setSearch] = useState(""),
     [runs, setRuns] = useState<SavedRun[]>([]),
     [archivedRuns, setArchivedRuns] = useState<SavedRun[]>([]),
@@ -229,7 +237,9 @@ function Workspace({
     [admin, setAdmin] = useState(false),
     [menu, setMenu] = useState(false),
     [dataTab, setDataTab] = useState<"chart" | "data" | "quality">("chart"),
-    [saved, setSaved] = useState(false);
+    [saved, setSaved] = useState(false),
+    [avatar, setAvatar] = useState<string | null>(null),
+    [avatarSaving, setAvatarSaving] = useState(false);
   const working = busy || childJobs > 0;
   const childJobsRef = useRef(0);
   function activity(delta: number) {
@@ -261,6 +271,8 @@ function Workspace({
           r.data.provider.configured ?? r.data.provider.connected,
         );
       } else setError(r.error.detail);
+      const p = await api.get<{ avatar: string }>(BASE + "/profile");
+      if (p.ok) setAvatar(p.data.avatar);
     } finally {
       activity(-1);
     }
@@ -332,6 +344,12 @@ function Workspace({
     void catalog().then(() => analyze());
     void history();
   }, []);
+  // Server-written text (answers, method notes) is rendered in the request locale: refresh it on a switch.
+  const firstLocale = useRef(locale);
+  useEffect(() => {
+    if (locale !== firstLocale.current && result) void analyze();
+    firstLocale.current = locale;
+  }, [locale]);
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -438,7 +456,7 @@ function Workspace({
         </button>
         <div className="wb-brand">
           <span className="wb-brandmark">
-            <img src={prismArt} alt="" width="56" height="56" />
+            <img src={appMark} alt="" width="56" height="56" />
           </span>
           <div>
             context<span>layer</span>
@@ -497,12 +515,17 @@ function Workspace({
             {t("Kullanım rehberi", "Getting started")}
           </button>
           <div className="wb-user">
-            <span className="wb-avatar">
-              {(session.display || session.subject).slice(0, 1)}
-            </span>
-            <div title={`${session.display || session.subject} · ${t("Analist oturumu", "Analyst session")}`}>
+            <button
+              type="button"
+              className="wb-portrait-button"
+              onClick={() => setModal("avatar")}
+              aria-label={t("Profil görselini değiştir", "Change profile portrait")}
+            >
+              {avatar ? <AnalystAvatar id={avatar} size={36} /> : <span className="wb-portrait wb-portrait-pending" />}
+            </button>
+            <div title={`${session.display || session.subject} · ${t("Analist", "Analyst")}`}>
               <span>{session.display || session.subject}</span>
-              <small>{t("Analist oturumu", "Analyst session")}</small>
+              <small>{t("Analist", "Analyst")}</small>
             </div>
             <button
               className="wb-icon"
@@ -944,10 +967,16 @@ function Workspace({
                         "Metric definition and calculation recorded",
                       )}
                     </span>
-                    <button onClick={() => setModal("evidence")}>
-                      {t("Kanıtı incele", "Inspect evidence")}
-                      <ArrowRight size={16} />
-                    </button>
+                    <span className="wb-panel-footer-actions">
+                      <button onClick={() => setModal("chart")}>
+                        {t("Stüdyoda düzenle", "Edit in studio")}
+                        <ArrowRight size={16} />
+                      </button>
+                      <button onClick={() => setModal("evidence")}>
+                        {t("Kanıtı incele", "Inspect evidence")}
+                        <ArrowRight size={16} />
+                      </button>
+                    </span>
                   </div>
                 </section>
                 <section className="wb-panel wb-country">
@@ -1128,6 +1157,24 @@ function Workspace({
                 onClick={() => setModal("model")}
               >
                 {t("Model deneyi aç", "Open model experiment")}
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
+          {section === "analysis" && (
+            <div className="wb-model-entry wb-chart-entry">
+              <AnalystAvatar id="analyst-core" size={72} className="wb-model-entry-art" />
+              <div>
+                <strong>{t("Grafik stüdyosu", "Chart studio")}</strong>
+                <span>
+                  {t(
+                    "İstediğiniz grafiği yazın: dönemi daraltın, ülkeleri karşılaştırın, güven aralığı veya trend ekleyin.",
+                    "Describe the chart you want: narrow the period, compare countries, add an interval or a trend.",
+                  )}
+                </span>
+              </div>
+              <button className="wb-btn" disabled={working} onClick={() => setModal("chart")}>
+                {t("Stüdyoyu aç", "Open studio")}
                 <ArrowRight size={16} />
               </button>
             </div>
@@ -1531,6 +1578,15 @@ function Workspace({
                     >
                       {t("Analiz JSON", "Analysis JSON")}
                     </button>
+                    <button
+                      className="wb-text-btn"
+                      onClick={() => {
+                        setCodeChart(null);
+                        setModal("code");
+                      }}
+                    >
+                      {t("Python, SQL ve README", "Python, SQL and README")}
+                    </button>
                   </div>
                 </details>
                 {/* The analysis view already offers "Save finding" beside the answer; no second save button. */}
@@ -1562,7 +1618,7 @@ function Workspace({
       </div>
       {modal && (
         <Modal
-          wide={modal === "decisions"}
+          wide={modal === "decisions" || modal === "chart" || modal === "code"}
           title={
             modal === "source"
               ? t("Verinin kaynağı ve sınırları", "Data provenance and limits")
@@ -1576,6 +1632,12 @@ function Workspace({
                       ? t("Karar stüdyosu", "Decision studio")
                       : modal === "model"
                         ? t("Model stüdyosu", "Model studio")
+                        : modal === "avatar"
+                          ? t("Profil görseli", "Profile portrait")
+                          : modal === "chart"
+                            ? t("Grafik stüdyosu", "Chart studio")
+                            : modal === "code"
+                              ? t("Analizi kod olarak dışa aktar", "Export the analysis as code")
                         : modal === "import"
                           ? t("Veri hazırlama", "Prepare data")
                           : modal === "search"
@@ -1672,6 +1734,37 @@ function Workspace({
                 {t("Kanıtı indir", "Download evidence")}
               </button>
             </>
+          )}
+          {modal === "chart" && (
+            <ChartStudio
+              dataset={dataset}
+              filters={applied}
+              csrf={csrf}
+              providerReady={providerReady}
+              onExportCode={(spec) => {
+                setCodeChart(spec);
+                setModal("code");
+              }}
+            />
+          )}
+          {modal === "code" && (
+            <CodeExport dataset={dataset} filters={applied} chart={codeChart} csrf={csrf} />
+          )}
+          {modal === "avatar" && avatar && (
+            <AvatarPicker
+              value={avatar}
+              saving={avatarSaving}
+              onChoose={async (id) => {
+                setAvatarSaving(true);
+                const r = await api.put<{ avatar: string }>(BASE + "/profile", { avatar: id }, csrf);
+                setAvatarSaving(false);
+                if (r.ok) {
+                  setAvatar(r.data.avatar);
+                  setModal(null);
+                  setNotice(t("Profil görseli güncellendi.", "Profile portrait updated."));
+                } else setError(r.error.detail || t("Profil görseli kaydedilemedi.", "Could not save the portrait."));
+              }}
+            />
           )}
           {modal === "metrics" &&
             result?.metrics.map((m) => (
@@ -1895,6 +1988,23 @@ function Workspace({
                       "Decision studio, forecasts and scenarios",
                     ),
                     action: () => setModal("decisions"),
+                  },
+                  {
+                    label: t(
+                      "Grafik stüdyosu: istediğiniz grafiği yazın",
+                      "Chart studio: describe any chart",
+                    ),
+                    action: () => setModal("chart"),
+                  },
+                  {
+                    label: t(
+                      "Analizi Python, SQL ve README olarak dışa aktar",
+                      "Export the analysis as Python, SQL and README",
+                    ),
+                    action: () => {
+                      setCodeChart(null);
+                      setModal("code");
+                    },
                   },
                   {
                     label: t("Metrik sözlüğü", "Metric dictionary"),

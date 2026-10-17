@@ -29,7 +29,26 @@ export function workbenchAllowed(roles: string[]): boolean {
   );
   return roles.some((r) => allowed.includes(r));
 }
-export function analysisWorker(payload: Obj): Promise<unknown> {
+/** Analyst avatar ids (AW-16): Gemini-generated portraits shipped with the web bundle. */
+export const AVATARS = [
+  "analyst-core",
+  "analyst-retail",
+  "analyst-banking",
+  "analyst-automotive",
+  "analyst-energy",
+  "analyst-telecom",
+  "analyst-logistics",
+  "analyst-health",
+] as const;
+/** Deterministic default per subject, so a new analyst has a portrait (never initials) before choosing. */
+export function defaultAvatar(subject: string): string {
+  const n = createHash("sha256").update(subject).digest().readUInt32BE(0);
+  return AVATARS[n % AVATARS.length] ?? "analyst-core";
+}
+export function analysisWorker(
+  payload: Obj,
+  maxOutput = 5_000_000,
+): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const child = spawn(
       process.env.CORE_ANALYSIS_PYTHON || path.join(ROOT, ".venv/bin/python"),
@@ -58,7 +77,7 @@ export function analysisWorker(payload: Obj): Promise<unknown> {
     }, 45000);
     child.stdout.on("data", (b: Buffer) => {
       out += b.toString();
-      if (out.length > 5_000_000) {
+      if (out.length > maxOutput) {
         child.kill("SIGKILL");
         reject(new Error("Sonuç boyut sınırını aştı."));
       }
@@ -557,6 +576,135 @@ export function registerWorkbench(
       });
     },
   );
+  // AW-16 developer code export: commented Python/SQL or a reproducible bundle of the current scope.
+  app.post(BASE + "/export/code", async (req, reply) => {
+    const v = await viewer(req, reply, true);
+    if (!v) return;
+    const b = (req.body || {}) as Obj;
+    if (
+      typeof b.dataset !== "string" ||
+      !(await permitted(v.identity.subject, b.dataset))
+    )
+      return reply.code(404).send({ error: "not_found" });
+    if (!["bundle", "python", "sql"].includes(String(b.format)))
+      return reply.code(400).send({ error: "invalid_format" });
+    return bounded(v.identity.subject, reply, async () => {
+      try {
+        const result = (await analysisWorker(
+          {
+            action: "code_export",
+            dataset: b.dataset,
+            filters: b.filters || {},
+            locale: b.locale === "en" ? "en" : "tr",
+            format: b.format,
+            ...(b.chart ? { chart: b.chart } : {}),
+          },
+          // The bundle carries the filtered rows as Parquet; base64 in JSON needs headroom.
+          12_000_000,
+        )) as Obj;
+        await audit(v.identity.subject, v.identity.roles, "export_code", {
+          dataset: b.dataset,
+          format: b.format,
+          sha256: result.sha256,
+          data_included: result.data_included,
+        });
+        return result;
+      } catch (e) {
+        await audit(
+          v.identity.subject,
+          v.identity.roles,
+          "export_code",
+          { dataset: b.dataset },
+          "denied",
+        );
+        reply.code(400);
+        return { error: "export_refused", detail: (e as Error).message };
+      }
+    });
+  });
+  // AW-16 Chart Studio: a request is planned (Llama when opted in, else locally) into a validated
+  // ChartSpec; every number is computed by the local engine.
+  app.post(BASE + "/chart", async (req, reply) => {
+    const v = await viewer(req, reply, true);
+    if (!v) return;
+    const b = (req.body || {}) as Obj;
+    if (
+      typeof b.dataset !== "string" ||
+      !(await permitted(v.identity.subject, b.dataset))
+    )
+      return reply.code(404).send({ error: "not_found" });
+    if (typeof b.prompt !== "string" || b.prompt.length > 500)
+      return reply.code(400).send({
+        error: "input_limit",
+        detail: "İstek en fazla 500 karakter olabilir.",
+      });
+    return bounded(v.identity.subject, reply, async () => {
+      try {
+        const result = (await analysisWorker({
+          action: "chart",
+          dataset: b.dataset,
+          filters: b.filters || {},
+          locale: b.locale === "en" ? "en" : "tr",
+          prompt: b.prompt,
+          base_spec: b.base_spec ?? null,
+          use_llm: b.use_llm === true,
+        })) as Obj;
+        await audit(v.identity.subject, v.identity.roles, "chart", {
+          dataset: b.dataset,
+          planner: (result.planner as Obj)?.source,
+          status: (result.planner as Obj)?.status,
+          output_sha256: result.output_sha256,
+        });
+        return result;
+      } catch (e) {
+        await audit(
+          v.identity.subject,
+          v.identity.roles,
+          "chart",
+          { dataset: b.dataset },
+          "denied",
+        );
+        reply.code(400);
+        return { error: "chart_refused", detail: (e as Error).message };
+      }
+    });
+  });
+  // AW-16 analyst profile: avatar choice only, owner-scoped, allowlisted ids.
+  app.get(BASE + "/profile", async (req, reply) => {
+    const v = await viewer(req, reply);
+    if (!v) return;
+    const r = await deps.pool.query(
+      "SELECT avatar FROM workbench_profiles WHERE subject=$1",
+      [v.identity.subject],
+    );
+    const chosen = r.rows[0]?.avatar as string | undefined;
+    return reply.send({
+      avatar:
+        chosen && (AVATARS as readonly string[]).includes(chosen)
+          ? chosen
+          : defaultAvatar(v.identity.subject),
+      chosen: Boolean(chosen),
+      avatars: AVATARS,
+    });
+  });
+  app.put(BASE + "/profile", async (req, reply) => {
+    const v = await viewer(req, reply, true);
+    if (!v) return;
+    const b = (req.body || {}) as Obj;
+    if (
+      typeof b.avatar !== "string" ||
+      !(AVATARS as readonly string[]).includes(b.avatar)
+    )
+      return reply.code(400).send({ error: "invalid_avatar" });
+    await deps.pool.query(
+      "INSERT INTO workbench_profiles(subject,avatar) VALUES($1,$2) ON CONFLICT (subject) DO UPDATE SET avatar=EXCLUDED.avatar, updated_at=now()",
+      [v.identity.subject, b.avatar],
+    );
+    await audit(v.identity.subject, v.identity.roles, "profile", {
+      avatar: b.avatar,
+    });
+    return reply.send({ avatar: b.avatar, chosen: true, avatars: AVATARS });
+  });
   app.post(BASE + "/ml", async (req, reply) => {
     const v = await viewer(req, reply, true);
     if (!v) return;

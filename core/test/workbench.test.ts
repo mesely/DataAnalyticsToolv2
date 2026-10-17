@@ -500,8 +500,9 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
     const assets = await readdir(
       new URL("../web/dist/assets/", import.meta.url),
     );
+    // AW-16: the product mark is the Gemini mascot tile (app-mark.jpg).
     const name = assets.find(
-      (x) => x.startsWith("app-icon-") && x.endsWith(".jpeg"),
+      (x) => x.startsWith("app-mark-") && x.endsWith(".jpg"),
     );
     expect(name).toBeTruthy();
     const image = await fetch(rig.base + "/app/assets/" + name);
@@ -510,10 +511,89 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
     const bytes = new Uint8Array(await image.arrayBuffer());
     expect([...bytes.slice(0, 3)]).toEqual([255, 216, 255]);
     expect((await fetch(rig.base + "/app/assets/secret.env")).status).toBe(404);
-    const favicon = await fetch(rig.base + "/app/brand.svg");
+    const legacy = await fetch(rig.base + "/app/brand.svg");
+    expect(legacy.status).toBe(200);
+    expect(legacy.headers.get("content-type")).toContain("image/svg+xml");
+    expect(await legacy.text()).toContain("#7d91ee");
+    const favicon = await fetch(rig.base + "/app/favicon.png");
     expect(favicon.status).toBe(200);
-    expect(favicon.headers.get("content-type")).toContain("image/svg+xml");
-    expect(await favicon.text()).toContain("#7d91ee");
+    expect(favicon.headers.get("content-type")).toBe("image/png");
+    expect([...new Uint8Array(await favicon.arrayBuffer()).slice(0, 4)]).toEqual([137, 80, 78, 71]);
+  });
+  it("AW-16: keeps the analyst portrait per owner, allowlisted, CSRF-bound and never a letter", async () => {
+    const put = (s: BrowserSession, body: unknown, csrf: string | null = s.csrf) =>
+      fetch(rig.base + B + "/profile", {
+        method: "PUT",
+        headers: {
+          cookie: s.cookie,
+          "content-type": "application/json",
+          ...(csrf === null ? {} : { "x-cl-csrf": csrf }),
+        },
+        body: JSON.stringify(body),
+      });
+    const first = await apiGet(rig, alice, B + "/profile");
+    expect(first.status).toBe(200);
+    const avatars = first.json.avatars as string[];
+    expect(avatars).toContain("analyst-core");
+    expect(avatars).toContain(first.json.avatar);
+    expect(first.json.chosen).toBe(false);
+    // Deterministic default: asking twice gives the same portrait.
+    expect((await apiGet(rig, alice, B + "/profile")).json.avatar).toBe(first.json.avatar);
+    expect((await put(alice, { avatar: "analyst-energy" }, null)).status).toBe(403);
+    expect((await put(alice, { avatar: "https://example.com/x.png" })).status).toBe(400);
+    expect((await put(alice, { avatar: "A" })).status).toBe(400);
+    expect((await put(alice, { avatar: "analyst-energy" })).status).toBe(200);
+    expect((await apiGet(rig, alice, B + "/profile")).json).toMatchObject({ avatar: "analyst-energy", chosen: true });
+    // Another subject's choice is independent.
+    expect((await apiGet(rig, bob, B + "/profile")).json.chosen).toBe(false);
+  });
+  it("AW-16: Chart Studio plans locally, computes real numbers and scopes uploads to the owner", async () => {
+    expect((await apiPost(rig, alice, B + "/chart", { dataset: "demo", prompt: "x" }, { csrf: null })).status).toBe(403);
+    expect((await apiPost(rig, alice, B + "/chart", { dataset: "demo", prompt: "x".repeat(501) })).status).toBe(400);
+    const r = await apiPost(rig, alice, B + "/chart", {
+      dataset: "demo",
+      prompt: "ülkelere göre sipariş sayısı",
+      locale: "tr",
+    });
+    expect(r.status).toBe(200);
+    expect(r.json.spec).toMatchObject({ metric: "orders", dimension: "country", chart: "bar" });
+    expect(r.json.planner).toMatchObject({ source: "local", status: "planned" });
+    const data = r.json.data as { value: number }[];
+    expect(data.length).toBeGreaterThan(0);
+    // Ordered largest first, and the bars add up to no more than the dataset's distinct orders (oracle 180).
+    expect(data.map((d) => d.value)).toEqual([...data.map((d) => d.value)].sort((a, b) => b - a));
+    expect(data.reduce((s, d) => s + d.value, 0)).toBeLessThanOrEqual(180);
+    expect(String(r.json.output_sha256)).toMatch(/^[0-9a-f]{64}$/);
+    // Refinement keeps unmentioned fields.
+    const refined = await apiPost(rig, alice, B + "/chart", {
+      dataset: "demo",
+      prompt: "ilk 3",
+      base_spec: r.json.spec,
+    });
+    expect(refined.status).toBe(200);
+    expect(refined.json.spec).toMatchObject({ metric: "orders", dimension: "country", top_n: 3 });
+    // A Llama request without a configured provider falls back locally and says so.
+    const llm = await apiPost(rig, alice, B + "/chart", { dataset: "demo", prompt: "son 3 ay", use_llm: true });
+    expect(llm.status).toBe(200);
+    expect((llm.json.planner as { source: string }).source).toBe("local");
+  });
+  it("AW-16: exports reproducible code for permitted scopes only", async () => {
+    const r = await apiPost(rig, alice, B + "/export/code", { dataset: "demo", format: "bundle", locale: "en" });
+    expect(r.status).toBe(200);
+    expect(r.json.filename).toBe("context-layer-demo-analysis.zip");
+    const files = (r.json.files as { path: string }[]).map((f) => f.path);
+    for (const f of ["README.md", "analysis.py", "analysis.sql", "charts.py", "expected.json", "requirements.txt"])
+      expect(files).toContain(f);
+    const zip = Buffer.from(String(r.json.base64), "base64");
+    expect([...zip.subarray(0, 2)]).toEqual([0x50, 0x4b]);
+    // Same scope, same bytes.
+    const again = await apiPost(rig, alice, B + "/export/code", { dataset: "demo", format: "bundle", locale: "en" });
+    expect(again.json.sha256).toBe(r.json.sha256);
+    const py = await apiPost(rig, alice, B + "/export/code", { dataset: "demo", format: "python" });
+    expect(py.status).toBe(200);
+    expect(Buffer.from(String(py.json.base64), "base64").toString()).toContain("def main(");
+    expect((await apiPost(rig, alice, B + "/export/code", { dataset: "demo", format: "exe" })).status).toBe(400);
+    expect((await apiPost(rig, alice, B + "/export/code", { dataset: "usr_000000000000_000000000000", format: "sql" })).status).toBe(404);
   });
   it("revokes access on the next request when roles disappear", async () => {
     rig.idp.setRoles(alice.subject, []);

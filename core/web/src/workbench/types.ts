@@ -102,3 +102,64 @@ export interface SavedRun {
   };
   summary: AnalysisResult["summary"];
 }
+
+/** AW-16 Chart Studio contract (specs/analyst-workspace-phase12.md §2). */
+export interface ChartSpec {
+  version: 1;
+  metric: "gross_sales" | "orders" | "units" | "aov";
+  dimension: "month" | "week" | "weekday" | "country" | "product";
+  chart: "line" | "area" | "bar";
+  start?: string | null;
+  end?: string | null;
+  countries: string[];
+  split_by_country: boolean;
+  top_n: number;
+  statistic: "none" | "ci95" | "moving_average" | "trend" | "control_band";
+  window: number;
+  sort: "natural" | "value_desc" | "value_asc";
+}
+export interface ChartPoint {
+  x: string;
+  series?: string | null;
+  value: number;
+  lower?: number | null;
+  upper?: number | null;
+  n?: number | null;
+  partial?: boolean;
+}
+export interface ChartResult {
+  spec: ChartSpec;
+  planner: {
+    source: "llama" | "local";
+    status: string;
+    changes: { field: string; from: unknown; to: unknown }[];
+    note?: string;
+    suggestions?: string[];
+  };
+  title: string;
+  subtitle: string;
+  unit: "GBP" | "count";
+  data: ChartPoint[];
+  overlays: {
+    moving_average?: { window: number; points: { x: string; value: number; series: string }[] };
+    trend?: { slope: number; intercept: number; r2: number; p_value: number; n: number; line: { x: string; value: number }[] };
+    control?: { mean: number; sd: number; lower: number; upper: number; n: number; outside: string[] };
+  };
+  statements: { type: "fact" | "calculation" | "inference" | "limitation"; text: string }[];
+  sql: string;
+  params: unknown[];
+  warnings: string[];
+  output_sha256: string;
+}
+/** AW-16 developer code export (§1). */
+export interface CodeExportResult {
+  format: "bundle" | "python" | "sql";
+  filename: string;
+  content_type: string;
+  base64: string;
+  bytes: number;
+  sha256: string;
+  data_included: boolean;
+  files: { path: string; bytes: number; sha256: string }[];
+  preview: Partial<Record<"README.md" | "analysis.py" | "analysis.sql", string>>;
+}

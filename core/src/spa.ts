@@ -217,6 +217,7 @@ const CONTENT_TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
   ".svg": "image/svg+xml",
   ".jpeg": "image/jpeg",
+  ".jpg": "image/jpeg",
   ".png": "image/png",
   ".webp": "image/webp",
   ".map": "application/json; charset=utf-8",
@@ -278,10 +279,11 @@ export function registerSpa(app: FastifyInstance, deps: SpaDeps): void {
 
   app.get(`${APP_BASE}/app.js`, async (_req, reply) => serve(reply, "app.js"));
   app.get<{ Params: { file: string } }>(`${APP_BASE}/assets/:file`, async (req, reply) => {
-    if (!/^[a-zA-Z0-9_-]+\.(jpeg|png|webp|svg)$/.test(req.params.file)) return reply.code(404).send();
+    if (!/^[a-zA-Z0-9_-]+\.(jpeg|jpg|png|webp|svg)$/.test(req.params.file)) return reply.code(404).send();
     return serve(reply, "assets/" + req.params.file);
   });
   app.get(`${APP_BASE}/brand.svg`, async (_req, reply) => serve(reply, "brand.svg"));
+  app.get(`${APP_BASE}/favicon.png`, async (_req, reply) => serve(reply, "favicon.png"));
   app.get(`${APP_BASE}/app.css`, async (_req, reply) => serve(reply, "app.css"));
 
   // Every in-app route serves the same shell; the client resolves the

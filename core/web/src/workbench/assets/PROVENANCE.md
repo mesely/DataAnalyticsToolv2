@@ -73,3 +73,35 @@ date/month picker button and the checkbox mark. Native number spinners are hidde
 Removed: the 36 earlier mask SVGs (navigation, AW-10 functional family and the 21 utility controls) and every
 lucide-react usage (Loader2, LayoutDashboard, FlaskConical, FolderOpen, Clock3, Play). `brand.svg` remains as
 the favicon. These are Gemini-produced outputs under the user's direction; this is not a trademark clearance.
+
+## AW-16 analyst portraits and product mark — 17 October 2026
+
+User request: replace the letter avatar and the product mark with original, Gemini-generated characters in the
+spirit of the user's own JobSpecificCV mascot (a teal plush monster), recoloured for this product, plus
+business-domain analysts. Generated with Gemini image generation (Nano Banana Pro, "Pro" model) in the signed-in,
+user-authorized conversation https://gemini.google.com/app/72fed973b5221d85 . No reference image was uploaded; the
+concept was described in text.
+
+Series grammar given in every prompt: polished 3D illustration, plush/soft materials, big glossy eyes,
+head-and-shoulders, slight three-quarter angle, generous margin for a circular crop, deep navy #172238 clothing,
+one small brass pin naming the domain, a single-hue radial background per domain, no text or logos.
+
+| File | Character | Background |
+|---|---|---|
+| `avatars/analyst-core.jpg` | Cobalt plush monster, brass-tipped antennae, navy hoodie, bar-chart pin | periwinkle |
+| `avatars/app-mark.jpg` | The same character's head on a navy tile with cobalt glow (sidebar product mark) | navy |
+| `avatars/analyst-retail.jpg` | Corgi, navy cardigan, price-tag pin | apricot |
+| `avatars/analyst-banking.jpg` | Owl, navy suit, brass glasses, coin pin (regenerated square after a 16:9 first output) | sage |
+| `avatars/analyst-automotive.jpg` | Fox, racing-style jacket, gear pin | coral |
+| `avatars/analyst-energy.jpg` | Friendly humanoid beetle, white safety helmet, lightning pin | amber |
+| `avatars/analyst-telecom.jpg` | Tabby cat, headset, connected-nodes pin | lavender |
+| `avatars/analyst-logistics.jpg` | Raccoon, utility vest, parcel pin | teal |
+| `avatars/analyst-health.jpg` | White rabbit, scrub top, plus pin | sky blue |
+| `favicon.png` | 64 px reduction of the app mark | navy |
+
+Export path: the rendered 1024 px outputs were drawn to a canvas in the Gemini page and captured at 800 × 800 by the
+browser tool (Gemini's own download did not reach the local disk from the embedded browser), then reduced with
+macOS `sips` to 256 px JPEG (quality 84) for the UI. No other editing. Human analyst portraits were requested but not
+produced in this session. Hashes: `docs/evidence/ASSET_MANIFEST.json` (kind `original-gemini-avatar`). The previous
+`app-icon.jpeg` and the unused `context-prism.jpeg` were removed. Gemini outputs under the user's direction; not a
+trademark clearance.

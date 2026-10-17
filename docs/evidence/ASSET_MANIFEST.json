@@ -5,11 +5,6 @@
   "kind": "original-gemini-artwork"
  },
  {
-  "path": "core/web/src/workbench/assets/context-prism.jpeg",
-  "sha256": "979e19f1b5f84467ebbc0ed736236ea18ada0e4705f4bc96054ca1986943ef84",
-  "kind": "original-gemini-artwork"
- },
- {
   "path": "core/web/src/workbench/assets/data-preparation.jpeg",
   "sha256": "7b5fff31f6cf01244a0b47dcf14aa291fead59d69af6ba6f310847b72af53085",
   "kind": "original-gemini-artwork"
@@ -150,11 +145,6 @@
   "kind": "actual-local-application-screenshot"
  },
  {
-  "path": "core/web/src/workbench/assets/app-icon.jpeg",
-  "sha256": "bdd59a4f072f8f2f6718e295e53ec383da39ea5a766ff6b04a5b113bf533b868",
-  "kind": "original-gemini-artwork"
- },
- {
   "path": "core/web/src/workbench/assets/brand.svg",
   "sha256": "832a11f2e38dd1363862400140f7741da1ea77411e18c3fcf5eb21ef347925e3",
   "kind": "gemini-generated-vector"
@@ -243,5 +233,130 @@
   "path": "core/web/src/workbench/assets/glyphs/gemini-batch-7.json",
   "sha256": "a17b8c6f57701dda5c8d7eea51562d6bb6a16719e1f67ac077ddb6a99107c99b",
   "kind": "original-gemini-glyph-source"
+ },
+ {
+  "path": "core/web/src/workbench/assets/avatars/analyst-automotive.jpg",
+  "sha256": "b5c5494fa07f21bd059a87293387414498c10a54ec2c6855b238c0e5b4de213f",
+  "kind": "original-gemini-avatar"
+ },
+ {
+  "path": "core/web/src/workbench/assets/avatars/analyst-banking.jpg",
+  "sha256": "af49596c449892a43df470e2af4fbc8db01bebe65ce411837f1715d421fd6a6f",
+  "kind": "original-gemini-avatar"
+ },
+ {
+  "path": "core/web/src/workbench/assets/avatars/analyst-core.jpg",
+  "sha256": "563476e4194c70d7aa44690a3aaa2552b576185dcc732967305f367f8b9645a2",
+  "kind": "original-gemini-avatar"
+ },
+ {
+  "path": "core/web/src/workbench/assets/avatars/analyst-energy.jpg",
+  "sha256": "e29f430e8473e43dafb5c8eb5b49f98142c6ba9053a60a5f97a2067e6690d049",
+  "kind": "original-gemini-avatar"
+ },
+ {
+  "path": "core/web/src/workbench/assets/avatars/analyst-health.jpg",
+  "sha256": "30e9ef83289b8c1800bd504bae397cf1deb952039592d5c850aa255f9e67b8d5",
+  "kind": "original-gemini-avatar"
+ },
+ {
+  "path": "core/web/src/workbench/assets/avatars/analyst-logistics.jpg",
+  "sha256": "bf9fef13911cc4ee5a14dba4a474b8bdab61cb8bbe68c8ffe40acd7cb89f03f1",
+  "kind": "original-gemini-avatar"
+ },
+ {
+  "path": "core/web/src/workbench/assets/avatars/analyst-retail.jpg",
+  "sha256": "0788eb0d40a32b00c098fa62fbc5a40778f394555012359f2f106eed839cfa96",
+  "kind": "original-gemini-avatar"
+ },
+ {
+  "path": "core/web/src/workbench/assets/avatars/analyst-telecom.jpg",
+  "sha256": "a9239724f6e6b74ef32ab3720a5cd303bf741ec9304d6b3f57a8b0968db99f77",
+  "kind": "original-gemini-avatar"
+ },
+ {
+  "path": "core/web/src/workbench/assets/avatars/app-mark.jpg",
+  "sha256": "7855b283244c61a8e9cbefd30a686768aa4e37561682b00c37aaa9c1e641441a",
+  "kind": "original-gemini-avatar"
+ },
+ {
+  "path": "core/web/src/workbench/assets/favicon.png",
+  "sha256": "4f18f3e9d1265f02754f609fbbf2585ba22e734082163373e6347dc8f71d5207",
+  "kind": "original-gemini-avatar"
+ },
+ {
+  "path": "docs/showcase/01-overview-dark.jpg",
+  "sha256": "52fc645698bd7a99f401cb49a021f1c6e0a70bd33737f1fac337c8655fd89c35",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/02-overview-light.jpg",
+  "sha256": "f4c91e667f4a00d5a6ae0cce52cd916093b482cc18b69744fab54fd378f9e3b0",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/03-chart-studio-compare.jpg",
+  "sha256": "d59977eaa5cc4b2e7947a3271e6f6cdd71f11b05f89b75970a2f99d6feda6942",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/04-chart-studio-interval.jpg",
+  "sha256": "915218462eae4c3ae055b666265880c629a325b35cd5d1ffb0e075623a1833ca",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/05-chart-studio-trend.jpg",
+  "sha256": "a5e3b831c9bd3755c5bf7d0cbad7043ec4f0849f8880a9e63dd51e718338ec8b",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/06-code-export-readme.jpg",
+  "sha256": "350504dace05f7cfb15d51cece4dd044936536cebe5bad171215d8e56a0b3b68",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/07-code-export-python.jpg",
+  "sha256": "1037844ed63da4547bbe5ec49a19ca2683c0c50d1cb57cdce299964f273478de",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/08-analyst-portraits.jpg",
+  "sha256": "608ca3eef17da1cbd2724ca6a923869ef60832058b099ece681a21daa6c3baf1",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/09-analysis-assistant.jpg",
+  "sha256": "8927509914b54ae9d87b21149cd7da9359142958aa5ddbc4939d4767d466fd69",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/10-network.jpg",
+  "sha256": "008c2698564f888d4a11c37e66ff95443d0ab2abbb4d5a1f5a29a3c1de7cda2f",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/11-decision-brief.jpg",
+  "sha256": "9b8f82ce4c1c13b6917027b52f6add40279bbb2225e2a30bfb07523a4524e9e6",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/12-decision-forecast.jpg",
+  "sha256": "50b03bd3930163ec368e2b11c1a9006845ae86e0635a18ab47d2d5342c0fd44c",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/13-mobile-overview.jpg",
+  "sha256": "4f40a0417f188fb1eefecf9323b9781d03938403b9133adf0fe56ddaf06acb89",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/14-mobile-chart-studio.jpg",
+  "sha256": "ab66dc8e93cce13c568f17aa9f6bffe03533c3358496a91ed1e18eb43cf43037",
+  "kind": "showcase-capture"
+ },
+ {
+  "path": "docs/showcase/chart-studio.gif",
+  "sha256": "9c6d5f21fddb180c105407452fd71a0cfdafcc69e400ca5c8f079fca228ead51",
+  "kind": "showcase-capture"
  }
 ]

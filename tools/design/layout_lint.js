@@ -61,13 +61,16 @@
     const parentCs = getComputedStyle(host.parentElement);
     if (parentCs.flexDirection.startsWith("column") || parentCs.display === "grid" && parentCs.gridTemplateRows !== "none" && host.parentElement.childElementCount > 2) continue;
     let tr;
-    if (sib.nodeType === 3) { const range = document.createRange(); range.selectNodeContents(sib); tr = range.getClientRects()[0]; } else { tr = sib.getClientRects()[0]; }
+    // A title + subtitle stack is a group the icon centres on; a single wrapped label aligns on its first line.
+    const stacked = sib.nodeType === 1 && [...sib.children].some((ch) => getComputedStyle(ch).display === "block");
+    if (stacked) tr = sib.getBoundingClientRect();
+    else { const range = document.createRange(); range.selectNodeContents(sib); tr = range.getClientRects()[0]; }
     if (!tr) continue;
     const gr = g.getBoundingClientRect();
     if (gr.bottom <= tr.top + 1 || tr.bottom <= gr.top + 1) continue; // stacked (icon above or below the text), not a row
     const d = (gr.top + gr.height / 2) - (tr.top + tr.height / 2);
     // Multi-line labels align the glyph with the first line, so compare against the first line box only.
-    if (Math.abs(d) > 2 && tr.height < 40) out.glyph_misaligned.push(`${name(host.parentElement)} glyph ${d > 0 ? "+" : ""}${d.toFixed(1)}px`);
+    if (Math.abs(d) > 2 && (tr.height < 40 || stacked)) out.glyph_misaligned.push(`${name(host.parentElement)} glyph ${d > 0 ? "+" : ""}${d.toFixed(1)}px`);
   }
 
   for (const card of root.querySelectorAll(".wb-panel, .wb-kpi, .wb-scope, .wb-dialog-body, .wb-narrative-section, .wb-forecast-result")) {

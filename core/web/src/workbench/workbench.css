@@ -3920,7 +3920,7 @@
 }
 
 .wb-forecast-diagnostics {
-  margin: 8px 0 0;
+  margin: 8px 0 16px;
   padding-left: 16px;
   font-size: 12px;
   line-height: 1.4;
@@ -3948,7 +3948,8 @@
 }
 .wb-narrative > li {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
+  /* Wide enough for the longest English label ("RECOMMENDATION") on one line. */
+  grid-template-columns: 136px minmax(0, 1fr);
   gap: 8px 16px;
   padding: 12px 0;
   border-top: 1px solid var(--border);
@@ -3957,6 +3958,7 @@
   border-top: 0;
 }
 .wb-narrative-type {
+  white-space: nowrap;
   font-size: 12px;
   letter-spacing: 1.2px;
   text-transform: uppercase;
@@ -4431,7 +4433,7 @@
 @media (max-width: 480px) {
   .wb .wb-panel-head:not(:has(.wb-tabs)) {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
   }
 }
 
@@ -4440,6 +4442,526 @@
   background: var(--surface);
   padding: 4px 8px;
   border-radius: 6px;
+}
+
+/* AW-16 analyst portraits: a round portrait replaces the letter avatar; the picker is a 4x2 radio grid. */
+.wb .wb-portrait {
+  display: block;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--tone-30405c);
+  box-shadow: 0 0 0 2px var(--tone-465674);
+}
+.wb .wb-portrait-pending {
+  width: 36px;
+  height: 36px;
+}
+.wb .wb-portrait-button {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: var(--control);
+  min-height: var(--control);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+.wb .wb-portrait-button:hover .wb-portrait,
+.wb .wb-portrait-button:focus-visible .wb-portrait {
+  box-shadow: 0 0 0 2px var(--glyph-dot);
+}
+.wb .wb-avatar-intro {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.wb .wb-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.wb .wb-avatar-option {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+}
+.wb .wb-avatar-option img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.wb .wb-avatar-option:hover {
+  border-color: var(--accent);
+}
+.wb .wb-avatar-option.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+@media (max-width: 480px) {
+  .wb .wb-avatar-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* The product mark is now the Gemini mascot tile; it carries its own navy ground. */
+.wb .wb-brandmark img {
+  border-radius: 14px;
+}
+
+/* AW-16 shared code surface: line numbers, muted comments, accent keywords, warm strings (>= 4.5:1 per theme). */
+.wb {
+  --code-bg: color-mix(in srgb, var(--ink) 4%, var(--surface));
+  --code-string: #84561a;
+}
+.wb[data-theme="dark"] {
+  --code-string: #e2bd80;
+}
+.wb .wb-code {
+  margin: 0;
+  max-height: 440px;
+  overflow: auto;
+  padding: 12px 0;
+  background: var(--code-bg);
+  color: var(--ink);
+  font: 12px/20px ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  white-space: pre;
+}
+.wb .wb-code-line {
+  display: block;
+  padding-right: 16px;
+}
+.wb .wb-code-no {
+  display: inline-block;
+  width: 48px;
+  padding-right: 16px;
+  text-align: right;
+  color: var(--muted);
+  user-select: none;
+}
+.wb .tk-comment {
+  color: var(--muted);
+  font-style: italic;
+}
+.wb .tk-doc {
+  color: var(--muted);
+}
+.wb .tk-keyword {
+  color: var(--accent);
+  font-weight: 600;
+}
+.wb .tk-string {
+  color: var(--code-string);
+}
+
+/* AW-16 code export dialog. */
+.wb .wb-code-export {
+  display: grid;
+  gap: 16px;
+}
+.wb .wb-code-intro {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.wb .wb-code-scope {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wb .wb-code-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.wb .wb-code-layout {
+  display: grid;
+  grid-template-columns: 288px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.wb .wb-code-files {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.wb .wb-code-files h3 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+/* Grid items default to min-width:auto and would grow to their longest file name; keep them in the card. */
+.wb .wb-code-files > * {
+  min-width: 0;
+}
+.wb .wb-code-files li span {
+  min-width: 0;
+}
+.wb .wb-code-files ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wb .wb-code-files li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font: 12px/20px ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+.wb .wb-code-files li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wb .wb-code-files li small {
+  flex: none;
+  color: var(--muted);
+}
+.wb .wb-code-data {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12px;
+  color: var(--ink);
+}
+.wb .wb-code-data .wb-glyph {
+  flex: none;
+  color: var(--accent);
+}
+.wb .wb-code-cmd {
+  margin: 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--code-bg);
+  font: 12px/20px ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  white-space: pre;
+  overflow-x: auto;
+}
+.wb .wb-code-hash {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.wb .wb-code-preview {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.wb .wb-code-toolbar .wb-text-btn {
+  white-space: nowrap;
+}
+.wb .wb-code-toolbar {
+  flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.wb .wb-code-toolbar .wb-tabs button {
+  font: 12px ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+.wb .wb-code-readme {
+  max-height: 440px;
+  overflow: auto;
+  padding: 16px 20px;
+}
+.wb .wb-md {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.wb .wb-md p,
+.wb .wb-md-list {
+  margin: 0 0 12px;
+}
+.wb .wb-md-list {
+  padding-left: 20px;
+}
+.wb .wb-md .wb-md-h {
+  margin: 20px 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.wb .wb-md h3.wb-md-h {
+  margin-top: 0;
+  font-size: 20px;
+}
+.wb .wb-md code,
+.wb .wb-md-pre {
+  font: 12px/20px ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg);
+  border-radius: 6px;
+}
+.wb .wb-md code {
+  padding: 0 4px;
+}
+.wb .wb-md-pre {
+  margin: 0 0 12px;
+  padding: 12px;
+  white-space: pre-wrap;
+}
+.wb .wb-md-table {
+  overflow-x: auto;
+  margin: 0 0 12px;
+}
+.wb .wb-md-table table {
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.wb .wb-md-table th,
+.wb .wb-md-table td {
+  padding: 4px 12px 4px 0;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.wb .wb-md-figure .wb-glyph {
+  margin-right: 8px;
+  vertical-align: -3px;
+}
+.wb .wb-md-figure {
+  /* Inline flow, not flex: a wrapped caption keeps the icon on its first line. */
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--code-bg);
+  font-size: 12px;
+}
+.wb .wb-md-link {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.wb .wb-code-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.wb .wb-code-actions small {
+  margin-left: 4px;
+  opacity: 0.8;
+}
+@media (max-width: 760px) {
+  .wb .wb-code-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* AW-16 Chart Studio. */
+.wb .wb-chart-studio {
+  display: grid;
+  gap: 16px;
+}
+.wb .wb-studio-intro {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.wb .wb-studio-intro > div {
+  display: grid;
+  gap: 4px;
+}
+.wb .wb-studio-intro strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+.wb .wb-studio-intro span {
+  color: var(--muted);
+  font-size: 14px;
+}
+.wb .wb-studio-prompt {
+  display: flex;
+  gap: 12px;
+}
+.wb .wb-studio-prompt input {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--control);
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+}
+.wb .wb-studio-llm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.wb .wb-studio-llm small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.wb .wb-studio-llm.is-off {
+  color: var(--muted);
+}
+.wb .wb-studio-result {
+  display: grid;
+  gap: 16px;
+  padding: 20px var(--inset);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.wb .wb-studio-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.wb .wb-studio-head h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+.wb .wb-studio-head p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.wb .wb-studio-plan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.wb .wb-studio-plan .wb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.wb .wb-studio-change {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--code-bg);
+  font-size: 12px;
+}
+.wb .wb-studio-change b {
+  font-weight: 600;
+}
+.wb .wb-studio-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+.wb .wb-studio-warnings {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 16px;
+  list-style: none;
+  border-radius: 10px;
+  background: var(--code-bg);
+}
+.wb .wb-studio-warnings li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 12px;
+}
+.wb .wb-studio-warnings .wb-glyph {
+  flex: none;
+  color: var(--accent);
+}
+.wb .wb-studio-chart {
+  min-width: 0;
+}
+.wb .wb-studio-empty,
+.wb .wb-studio-foot {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.wb .wb-studio-sql {
+  max-height: 320px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  white-space: pre-wrap;
+}
+.wb .wb-studio-actions {
+  /* A footer element inherits a 0.85rem site rule on phones; pin it to the scale. */
+  font-size: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.wb .wb-studio-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.wb .wb-studio-step {
+  max-width: 240px;
+  padding: 4px 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wb .wb-studio-step.is-current {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.wb .wb-studio-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+/* The chips sit directly in the studio column, without the chat card's inset. */
+.wb .wb-chart-studio .wb-question-chips {
+  padding: 0;
+  margin: 0;
+}
+.wb .wb-panel-footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+@media (max-width: 480px) {
+  .wb .wb-studio-prompt {
+    flex-direction: column;
+  }
+  .wb .wb-studio-intro .wb-portrait {
+    display: none;
+  }
+}
+
+/* Phones: the statement type sits above its sentence instead of taking a third of the width. */
+@media (max-width: 480px) {
+  .wb .wb-narrative > li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
 }
 
 /* AW-15 widget glyphs: the browser's stock markers (disclosure triangle, select caret, date-picker icon,

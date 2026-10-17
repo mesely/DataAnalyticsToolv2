@@ -189,7 +189,7 @@ def graph(request):
             "nodes": [],
             "edges": [],
             "mode": mode,
-            "note": "Bu filtrelerle ilişki hesaplanacak ürün yok.",
+            "note": "No products to relate under these filters." if request.get("locale") == "en" else "Bu filtrelerle ilişki hesaplanacak ürün yok.",
         }
     slots = ",".join("?" for _ in ids)
     minimum = int(request.get("min_shared", 2))
@@ -198,7 +198,11 @@ def graph(request):
     if mode == "copurchase":
         edge_sql = f"""WITH selected AS (SELECT DISTINCT invoice,product_id FROM transactions{where}{' AND ' if where else ' WHERE '}product_id IN ({slots})) SELECT a.product_id AS source,b.product_id AS target,COUNT(*)::BIGINT weight FROM selected a JOIN selected b ON a.invoice=b.invoice AND a.product_id<b.product_id GROUP BY 1,2 HAVING COUNT(*)>=? ORDER BY 3 DESC,1,2 LIMIT 150"""
         edges = query(con, edge_sql, [*args, *ids, minimum])
-        note = "Kenar ağırlığı: iki ürünün aynı faturada birlikte görüldüğü sipariş sayısı. İlk 24 ürün ve en güçlü en fazla 150 ilişki gösterilir; merkeziyetler bu görünür alt ağ içindir. Fatura hizmet/kargo kalemleri de ürün kodları arasında kalabilir. Tüm veri ağı değildir."
+        note = (
+            "Edge weight: the number of orders in which both products appear on the same invoice. The top 24 products and at most the 150 strongest links are shown; centralities describe this visible subnetwork. Service and postage lines can remain among the product codes. This is not the full network."
+            if request.get("locale") == "en"
+            else "Kenar ağırlığı: iki ürünün aynı faturada birlikte görüldüğü sipariş sayısı. İlk 24 ürün ve en güçlü en fazla 150 ilişki gösterilir; merkeziyetler bu görünür alt ağ içindir. Fatura hizmet/kargo kalemleri de ürün kodları arasında kalabilir. Tüm veri ağı değildir."
+        )
     else:
         matrix = query(
             con,
@@ -227,7 +231,11 @@ def graph(request):
                         }
                     )
         edge_sql = "PoliEco build_sparse_signed_graph(product × country sales matrix); k_pos=3,k_neg=2; abs(weight)>=0.10"
-        note = "PoliEco koduyla ülkelere göre satış profili benzerliği. Pozitif/negatif kenar gözlenmiş etkileşim değildir; birlikte alım veya nedensellik anlamına gelmez. Benzerlik için en az iki ülke gerekir; tek ülke filtresinde kenar üretilmez. Topluluklar yalnız pozitif benzerlik kenarlarından bulunur. Derece/betweenness görünür tüm kenarlarda işaretten bağımsız hesaplanır."
+        note = (
+            "Similarity of sales profiles across countries (PoliEco kernel). A positive or negative edge is not an observed interaction and implies neither co-purchase nor causation. At least two countries are needed; a single-country filter yields no edges. Communities use positive edges only; degree and betweenness use all visible edges regardless of sign."
+            if request.get("locale") == "en"
+            else "PoliEco koduyla ülkelere göre satış profili benzerliği. Pozitif/negatif kenar gözlenmiş etkileşim değildir; birlikte alım veya nedensellik anlamına gelmez. Benzerlik için en az iki ülke gerekir; tek ülke filtresinde kenar üretilmez. Topluluklar yalnız pozitif benzerlik kenarlarından bulunur. Derece/betweenness görünür tüm kenarlarda işaretten bağımsız hesaplanır."
+        )
     g = nx.Graph()
     g.add_nodes_from(ids)
     for e in edges:
@@ -640,6 +648,14 @@ def handle(request):
             {**request, "graph_mode": "copurchase", "min_shared": 2}
         )
         return decision_brief(request, observed, prediction)
+    if action == "chart":
+        from analysis.chart_studio import chart
+
+        return chart(request)
+    if action == "code_export":
+        from analysis.code_export import export_code
+
+        return export_code(request)
     if action == "graph":
         return graph(request)
     if action == "temporal":

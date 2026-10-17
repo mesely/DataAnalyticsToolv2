@@ -52,6 +52,16 @@ export interface GraphData {
   source_method: string;
   include_service?: boolean;
 }
+/** v3 G2: an answer about the relationship network (analysis/network_qa.py). */
+export interface NetworkAnswer {
+  question: string;
+  plan: { query: string; k: number; product: string | null; month: string | null };
+  planner: "local" | "model";
+  status: "answered" | "refused";
+  answer: string;
+  highlight: { nodes: string[]; edges: [string, string][] };
+  routing?: RoutingReceipt;
+}
 /** v3 G6: which planner ran for a task and why (analysis/llm_routing.py `receipt`). */
 export interface RoutingReceipt {
   task: string;

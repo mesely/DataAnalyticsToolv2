@@ -19,7 +19,7 @@ import datetime as dt
 import json
 import pathlib
 
-from analysis.llm_eval.heldout import CHART_CASES, GROUP_CASES, question_cases, studio_cases
+from analysis.llm_eval.heldout import CHART_CASES, GROUP_CASES, NETWORK_CASES, question_cases, studio_cases
 
 VERSION = "llm-eval-v3.0"
 MARGIN = 0.05
@@ -27,7 +27,7 @@ RESCUE_RATE = 0.60
 RESCUE_MIN = 3
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 TABLE = ROOT / "analysis" / "llm_routing.json"
-TASKS = ("chart_plan", "question_route", "studio_route", "chart_groups")
+TASKS = ("chart_plan", "question_route", "studio_route", "chart_groups", "network_question")
 
 
 def _catalog():
@@ -98,9 +98,47 @@ def _studios(provider, prior):
     return records, blocked
 
 
+def _network(provider, prior):
+    from analysis.llm import plan_network
+    from analysis.llm_eval.evaluate import _pause
+    from analysis.network_qa import _months, local_plan, validate_plan
+    from analysis.worker import graph, meta
+
+    g = graph({"dataset": "uci"})
+    months = _months(meta("uci"))
+    keep = _done(prior, "network_question", provider)
+    records, blocked = [], None
+    for case in NETWORK_CASES:
+        if case["id"] in keep:
+            records.append(keep[case["id"]])
+            continue
+        usage = {}
+        if provider == "local":
+            plan, raw = local_plan(case["q"], g["nodes"]), "planned"
+        elif blocked is None:
+            reply = plan_network(case["q"], g["nodes"], months)
+            _pause()
+            if reply["status"] == "unavailable" and reply.get("error_code") != "json_validate_failed":
+                blocked = {k: reply.get(k) for k in ("status", "error_code", "http_status")}
+            raw, plan = reply["status"], None
+            if reply["status"] == "planned":
+                try:
+                    plan = validate_plan(reply["plan"], g["nodes"], months)
+                except ValueError:
+                    raw = "invalid_plan"
+            usage = {k: (reply.get("telemetry") or {}).get(k) for k in ("latency_ms", "total_tokens")}
+        if blocked is not None and provider != "local":
+            records.append({"id": case["id"], "q": case["q"], "raw_status": "BLOCKED", "correct": None, "blocked": blocked})
+            continue
+        ok = plan is not None and all(plan.get(k) == v for k, v in case["expect"].items())
+        records.append({"id": case["id"], "q": case["q"], "expect": case["expect"], "got": plan, "raw_status": raw, "correct": ok, **usage})
+    return records, blocked
+
+
 RUNNERS = {"chart_plan": _chart, "question_route": _questions, "studio_route": _studios,
            # Reported on its own (v3.1); it does not change the chart_plan row of the table.
-           "chart_groups": lambda p, prior: _chart(p, prior, "chart_groups", GROUP_CASES)}
+           "chart_groups": lambda p, prior: _chart(p, prior, "chart_groups", GROUP_CASES),
+           "network_question": _network}
 
 
 def summarize(records):
@@ -160,6 +198,9 @@ def table(receipts):
     # local ranking, and its narrative passed the validator 1 time in 3 (phase12-llm-eval-groq.json).
     tasks.setdefault("decision_focus", {"method": "local", "why": "no local equivalent to compare against; the checklist ranking stays the reference",
                                         "receipt": "docs/evidence/verification/phase12-llm-eval-groq.json"})
+    tasks.setdefault("network_question", {"method": "local", "local_accuracy": 22 / 25, "model_accuracy": None, "n": 25,
+                                          "why": "model not measured yet; local 22/25 on the v3.1 network set (not independent)",
+                                          "receipt": "docs/evidence/verification/phase13-network-local.json"})
     tasks.setdefault("decision_narrative", {"method": "local", "local_accuracy": 1.0, "model_accuracy": 1 / 3,
                                             "why": "model narrative accepted by the validator 1/3",
                                             "receipt": "docs/evidence/verification/phase12-llm-eval-groq.json"})

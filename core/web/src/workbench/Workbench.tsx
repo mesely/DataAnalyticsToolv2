@@ -92,6 +92,7 @@ import type {
   Section,
   ChartTab,
   DecisionTab,
+  NetworkAnswer,
 } from "./types";
 const BASE = "/v1/dashboard/workbench";
 import { csvCell as cell } from "./csv";
@@ -1600,6 +1601,11 @@ function Workspace({
               onRecalculate={() => void analyze({ min: minimum })}
               money={money}
               onScope={() => setModal("scope")}
+              dataset={dataset}
+              filters={applied}
+              csrf={csrf}
+              includeService={includeService}
+              providerLabel={providerLabel}
             />
           )}
           {section === "findings" && (
@@ -2392,6 +2398,11 @@ function NetworkView({
   onRecalculate,
   money,
   onScope,
+  dataset,
+  filters,
+  csrf,
+  includeService,
+  providerLabel,
 }: {
   result: AnalysisResult;
   busy: boolean;
@@ -2402,8 +2413,31 @@ function NetworkView({
   onRecalculate: () => void;
   money: (n: number) => string;
   onScope: () => void;
+  dataset: string;
+  filters: Filters;
+  csrf: string | null;
+  includeService: boolean;
+  providerLabel: string | null;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  // v3 G2: questions about the network; the answer's nodes and links are lit on the graph.
+  const [question, setQuestion] = useState(""),
+    [answer, setAnswer] = useState<NetworkAnswer | null>(null),
+    [asking, setAsking] = useState(false),
+    [askError, setAskError] = useState("");
+  async function askNetwork(q: string) {
+    if (!q.trim()) return;
+    setAsking(true);
+    setAskError("");
+    const r = await api.post<NetworkAnswer>(
+      BASE + "/network/ask",
+      { dataset, filters, locale, question: q, graph_mode: mode, min_shared: minimum, include_service: includeService },
+      csrf,
+    );
+    setAsking(false);
+    if (r.ok) setAnswer(r.data);
+    else setAskError(r.error.detail || t("Soru cevaplanamadı.", "The question could not be answered."));
+  }
   const [selected, setSelected] = useState<GraphNode | null>(null),
     [zoom, setZoom] = useState(1),
     [filter, setFilter] = useState(""),
@@ -2433,7 +2467,13 @@ function NetworkView({
     ),
     ids = new Set(nodes.map((n) => n.id)),
     linked = strongest(g.edges.filter((e) => ids.has(e.source) && ids.has(e.target)), 0),
-    edges = strongest(linked, limit),
+    answerEdges = new Set((answer?.highlight.edges ?? []).flatMap(([x, y]) => [x + ":" + y, y + ":" + x])),
+    answerNodes = answer?.highlight.nodes.length ? new Set(answer.highlight.nodes) : null,
+    // An answer's links are drawn even when they are weaker than the strongest-N cut.
+    edges = [
+      ...strongest(linked, limit),
+      ...linked.filter((e) => answerEdges.has(e.source + ":" + e.target) && !strongest(linked, limit).includes(e)),
+    ],
     scale = edgeScale(edges),
     focus = neighbourhood(edges, hover ?? selected?.id ?? null),
     copurchase = g.mode !== "similarity",
@@ -2541,6 +2581,68 @@ function NetworkView({
           />
         </label>
       </div>
+      <div className="wb-network-ask">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void askNetwork(question);
+          }}
+        >
+          <label htmlFor="wb-network-q" className="sr-only">
+            {t("Ağa soru sorun", "Ask the network")}
+          </label>
+          <input
+            id="wb-network-q"
+            value={question}
+            maxLength={500}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder={t("Ağa sorun: örn. REGENCY CAKESTAND 3 TIER ile en çok ne alınıyor?", "Ask the network: e.g. what is bought with REGENCY CAKESTAND 3 TIER?")}
+          />
+          <button className="wb-btn" disabled={asking || !question.trim()}>
+            {asking ? <Spinner size={16} className="spin" /> : <Send size={16} />}
+            {t("Sor", "Ask")}
+          </button>
+        </form>
+        <div className="wb-question-chips" aria-label={t("Hazır ağ soruları", "Suggested network questions")}>
+          {[
+            t("En güçlü 5 ürün çifti hangisi?", "Which are the 5 strongest pairs?"),
+            t("Kaç topluluk var, her birinin öne çıkan ürünü ne?", "How many communities, and what leads each?"),
+            t("Hangi ürün köprü görevi görüyor?", "Which products act as bridges?"),
+            t("En çok bağlantısı olan ürünler", "Most connected products"),
+            t("Son ayda hangi bağlar oluştu veya koptu?", "Which links appeared or disappeared last month?"),
+          ].map((q) => (
+            <button
+              key={q}
+              type="button"
+              disabled={asking}
+              onClick={() => {
+                setQuestion(q);
+                void askNetwork(q);
+              }}
+            >
+              {q}
+              <ArrowRight size={16} />
+            </button>
+          ))}
+        </div>
+        {askError && (
+          <p className="wb-alert wb-alert-error" role="alert">
+            <Info size={16} /> {askError}
+          </p>
+        )}
+        {answer && (
+          <div className="wb-network-answer" role="status">
+            <div>
+              <RoutingBadge routing={answer.routing} providerLabel={providerLabel} />
+              <button type="button" className="wb-text-btn" onClick={() => setAnswer(null)}>
+                <X size={16} />
+                {t("Vurgulamayı kaldır", "Clear highlight")}
+              </button>
+            </div>
+            <p>{answer.answer}</p>
+          </div>
+        )}
+      </div>
       <div className="wb-callout wb-graph-note">
         <Info size={16} />
         <span>
@@ -2646,7 +2748,10 @@ function NetworkView({
                     b = nodes.find((n) => n.id === e.target);
                   if (!a || !b) return null;
                   const st = scale.style(e.weight),
-                    lit = focus && focus.has(a.id) && focus.has(b.id) && (a.id === (hover ?? selected?.id) || b.id === (hover ?? selected?.id));
+                    lit = focus
+                      ? focus.has(a.id) && focus.has(b.id) && (a.id === (hover ?? selected?.id) || b.id === (hover ?? selected?.id))
+                      : answerEdges.has(e.source + ":" + e.target);
+                  const dim = focus || answerNodes;
                   return (
                     <line
                       aria-hidden="true"
@@ -2659,7 +2764,7 @@ function NetworkView({
                       strokeDasharray={st.negative ? "5 4" : undefined}
                       strokeWidth={lit ? st.width + 1 : st.width}
                       strokeLinecap="round"
-                      opacity={focus ? (lit ? Math.max(0.9, st.opacity) : 0.07) : st.opacity}
+                      opacity={dim ? (lit ? Math.max(0.9, st.opacity) : 0.07) : st.opacity}
                     >
                       <title>
                         {a.label} ↔ {b.label}: {weightText(e.weight)}
@@ -2668,12 +2773,13 @@ function NetworkView({
                   );
                 })}
                 {/* The lit links of the hovered or selected product carry their value at the midpoint. */}
-                {focus &&
+                {(focus || answerEdges.size > 0) &&
                   edges.map((e) => {
                     const id = hover ?? selected?.id,
                       a = nodes.find((n) => n.id === e.source),
                       b = nodes.find((n) => n.id === e.target);
-                    if (!a || !b || (a.id !== id && b.id !== id)) return null;
+                    if (!a || !b) return null;
+                    if (focus ? a.id !== id && b.id !== id : !answerEdges.has(e.source + ":" + e.target)) return null;
                     return (
                       <text
                         key={"w" + e.source + ":" + e.target}
@@ -2705,7 +2811,7 @@ function NetworkView({
                         setSelected(n);
                       }
                     }}
-                    className={`wb-graph-node${focus && !focus.has(n.id) ? " is-faded" : ""}`}
+                    className={`wb-graph-node${(focus ? !focus.has(n.id) : answerNodes ? !answerNodes.has(n.id) : false) ? " is-faded" : ""}`}
                   >
                     <title>
                       {n.label} · {t("Topluluk", "Community")} {n.community + 1}

@@ -150,20 +150,20 @@ Hedef: dış bilgi gerektiren sorular (NATO üyeliği, döviz kuru, enflasyon, a
 model yalnız plan önerir; sayılar her zaman yerelde, kaynağı ve tarihi belli referans verisiyle hesaplanır.
 
 ### 5.1 Referans veri deposu
-- [ ] `analysis/reference/` altında sürümlü referans tabloları: her tabloda kaynak URL, lisans, çekiliş tarihi, geçerlilik aralığı ve SHA-256.
+- [x] `analysis/reference/` altında sürümlü referans tabloları: her tabloda kaynak URL, lisans, çekiliş tarihi, geçerlilik aralığı ve SHA-256.
 - [ ] İlk tablolar:
-  - [ ] Ülke grupları: NATO (katılış tarihleriyle), AB, Euro bölgesi, G7, OECD, kıtalar. Veri setindeki ad farklılıkları eşlensin: "EIRE", "RSA", "Channel Islands", "European Community", "Unspecified".
+  - [x] Ülke grupları: NATO (katılış tarihleriyle), AB, Euro bölgesi, G7, OECD, kıtalar. Veri setindeki ad farklılıkları eşlensin: "EIRE", "RSA", "Channel Islands", "European Community", "Unspecified".
   - [ ] Döviz kurları: GBP/TRY, GBP/USD, GBP/EUR günlük (ör. TCMB / ECB).
   - [ ] Enflasyon: İngiltere TÜFE (ONS), Türkiye TÜFE (TÜİK), aylık.
   - [ ] Altın fiyatı: GBP/ons, günlük (lisansı uygun bir kaynak seçilmeli).
 - [ ] Çevrimdışı çalışma: referans tabloları depoyla birlikte gelsin; güncelleme komutu ayrı ve elle çalıştırılsın.
-- [ ] Bilgi erişimi (RAG): model, soruya göre hangi referans tablosunun gerektiğini bu depodaki tablo kartlarından seçsin; serbest metinden sayı uydurmasın. Gerekli tablo yoksa "bu bilgi yok, şu kaynak eklenebilir" desin.
+- [x] Bilgi erişimi (RAG): model, soruya göre hangi referans tablosunun gerektiğini bu depodaki tablo kartlarından seçsin; serbest metinden sayı uydurmasın. Gerekli tablo yoksa "bu bilgi yok, şu kaynak eklenebilir" desin.
 
 ### 5.2 ChartSpec v2: türetilmiş grup boyutu (NATO sorusu)
-- [ ] Yeni alan `group_by`: referans grup tablosuna göre ülkeleri "grupta / grup dışı" sınıflasın. Hesap yerelde yapılsın.
-- [ ] "Hangi tarihteki üyelik?" seçimi: verinin dönemi (2010–2011) ya da bugün. Varsayılan verinin dönemi; ekranda yazsın. Örneğin bugün NATO üyesi olan Finlandiya ve İsveç, 2011'de üye değildi.
-- [ ] Sonuç: grup başına tutar ve yüzde, pasta veya yığılmış çubuk grafik, hangi ülkenin hangi grupta sayıldığını gösteren tablo, eşleşmeyen ülkeler ayrı satırda.
-- [ ] NATO sorusu ve benzerleri (AB/AB dışı, Euro bölgesi, kıta) değerlendirme setine eklensin.
+- [x] Yeni alan `group_by`: referans grup tablosuna göre ülkeleri "grupta / grup dışı" sınıflasın. Hesap yerelde yapılsın.
+- [x] "Hangi tarihteki üyelik?" seçimi: verinin dönemi (2010–2011) ya da bugün. Varsayılan verinin dönemi; ekranda yazsın. Örneğin bugün NATO üyesi olan Finlandiya ve İsveç, 2011'de üye değildi.
+- [x] Sonuç: grup başına tutar ve yüzde, pasta veya yığılmış çubuk grafik, hangi ülkenin hangi grupta sayıldığını gösteren tablo, eşleşmeyen ülkeler ayrı satırda.
+- [x] NATO sorusu ve benzerleri (AB/AB dışı, Euro bölgesi, kıta) değerlendirme setine eklensin.
 - **Kabul:** "ülkeleri NATO / NATO dışı diye sınıfla, yüzdesini grafik yap" sorusu TR ve EN olarak doğru grafiği üretir; yüzdeler bağımsız bir Decimal hesabıyla tutar; eşleşmeyen ülkeler listelenir.
 
 ### 5.3 ChartSpec v2: dönüşümler (TL, enflasyon, altın)
@@ -179,26 +179,35 @@ model yalnız plan önerir; sayılar her zaman yerelde, kaynağı ve tarihi bell
 - **Kabul:** brüt satışın TL karşılığı, kurun gün bazında uygulanmasıyla bağımsız oracle'la birebir tutar; enflasyon ve altın dönüşümleri için ayrı testler var; koda aktar `--check` geçer.
 
 ### 5.4 Karar
-- [ ] DECISIONS AW-19 (referans veri katmanı) ve AW-20 (ChartSpec v2: `group_by`, `transform`).
+- [x] DECISIONS AW-19 (referans veri katmanı ve ülke grupları). AW-20 (dönüşümler) veri kaynakları onaylanınca.
 
 ---
+
+### Faz 5 durumu (18 Ekim 2026)
+- Yapıldı: ülke grupları referans tablosu (NATO, AB, euro bölgesi, G7, OECD, kıtalar; katılış/ayrılış tarihleri, eşleşmeyenler açık), `country_group` boyutu, tarih kuralı (dönem sonu / bugün), pay etiketleri, üyelik tablosu, kod paketi desteği. NATO sorusu: veri dönemine göre %93,6, bugünkü üyelikle %94,2.
+- Bekleyen: 5.1'deki döviz, enflasyon ve altın serileri ve 5.3 dönüşümleri. Bunlar dış kaynaktan veri indirmeyi gerektiriyor; kaynak ve lisans seçimi Selman'da (Açık sorular 3).
 
 ## Faz 6 — İlişki ağı için soru-cevap (G2)
 
-- [ ] Ağ sayfasında (Grafik stüdyosu içinde) soru kutusu.
-- [ ] Hazır sorular:
-  - [ ] "En güçlü 5 ürün çifti hangisi?"
-  - [ ] "Şu ürünle en çok birlikte alınanlar?"
-  - [ ] "Kaç topluluk var, her birinin öne çıkan ürünü ne?"
-  - [ ] "Hangi ürün köprü görevi görüyor?" (aradalık merkeziliği)
-  - [ ] "Seçili ay ile önceki ay arasında hangi bağlar koptu veya oluştu?"
-- [ ] Açık uçlu sorular Faz 3'teki otomatik yönlendirmeyle cevaplansın. Model yalnız ağ sorgu planını önerir (hangi düğüm, hangi ölçüt, kaç sonuç); hesap yerelde ağ verisi üzerinden yapılır.
-- [ ] Cevap ağı da güncellesin: ilgili düğüm ve kenarlar vurgulansın, geri kalan soluklaşsın.
-- [ ] Ağın desteklemediği sorular (ör. "bu ürünü alan müşteri neden aldı?") çekimserlikle yanıtlansın.
-- [ ] 25 vakalık ağ soruları değerlendirme seti; yerel ve model ölçülsün, yönlendirme tablosuna girsin.
+- [x] Ağ sayfasında (Grafik stüdyosu içinde) soru kutusu.
+- [x] Hazır sorular:
+  - [x] "En güçlü 5 ürün çifti hangisi?"
+  - [x] "Şu ürünle en çok birlikte alınanlar?"
+  - [x] "Kaç topluluk var, her birinin öne çıkan ürünü ne?"
+  - [x] "Hangi ürün köprü görevi görüyor?" (aradalık merkeziliği)
+  - [x] "Seçili ay ile önceki ay arasında hangi bağlar koptu veya oluştu?"
+- [x] Açık uçlu sorular Faz 3'teki otomatik yönlendirmeyle cevaplansın. Model yalnız ağ sorgu planını önerir (hangi düğüm, hangi ölçüt, kaç sonuç); hesap yerelde ağ verisi üzerinden yapılır.
+- [x] Cevap ağı da güncellesin: ilgili düğüm ve kenarlar vurgulansın, geri kalan soluklaşsın.
+- [x] Ağın desteklemediği sorular (ör. "bu ürünü alan müşteri neden aldı?") çekimserlikle yanıtlansın.
+- [x] 25 vakalık ağ soruları değerlendirme seti; yerel ölçüldü (22/25, bağımsız değil). Modelin ölçümü Groq günlük kotası açılınca; o zamana kadar tabloda yerel.
 - **Kabul:** 5 hazır soru da doğru ve vurgulu cevap verir; açık uçlu sette ölçülmüş doğruluk rapora yazılır.
 
 ---
+
+### Faz 6 sonucu (18 Ekim 2026)
+- `analysis/network_qa.py` (network-qa-v1): en güçlü çiftler, bir ürünün komşuları, topluluklar, köprü ürünler, en çok bağlantılılar, bir ay ile önceki ay arasında oluşan/kopan bağlar; desteklenmeyen (neden, müşteri, kâr, tahmin) ve belirsiz sorular tahmin edilmez.
+- Cevabın düğüm ve bağları ağda yanar (en güçlü N sınırının altındaki cevap bağları da çizilir), değerleri bağın ortasında yazılır.
+- `POST /network/ask`; model karşılığı `plan_network` (doğrulanmış JSON), tabloda yerel.
 
 ## Faz 7 — Doğrulama ve teslim
 

@@ -486,6 +486,33 @@ export function registerWorkbench(
       });
     });
   }
+  // v3 G2: a question about the relationship network, answered on the network the analyst is looking at.
+  app.post(BASE + "/network/ask", async (req, reply) => {
+    const v = await viewer(req, reply, true);
+    if (!v) return;
+    const b = (req.body || {}) as Obj;
+    if (typeof b.dataset !== "string" || !(await permitted(v.identity.subject, b.dataset)))
+      return reply.code(404).send({ error: "not_found" });
+    if (typeof b.question !== "string" || !b.question.trim() || b.question.length > 500)
+      return reply.code(400).send({ error: "input_limit", detail: "Soru 1–500 karakter olmalı." });
+    return bounded(v.identity.subject, reply, async () => {
+      try {
+        return await analysisWorker({
+          action: "network_ask",
+          dataset: b.dataset,
+          filters: b.filters || {},
+          locale: b.locale === "en" ? "en" : "tr",
+          question: b.question,
+          graph_mode: b.graph_mode === "similarity" ? "similarity" : "copurchase",
+          min_shared: typeof b.min_shared === "number" ? b.min_shared : 2,
+          include_service: b.include_service === true,
+        });
+      } catch (e) {
+        reply.code(400);
+        return { error: "network_question_refused", detail: (e as Error).message };
+      }
+    });
+  });
   // v3 G8: one ask box, two studios. Wording only; no dataset is read, so no dataset permission is involved.
   app.post(BASE + "/route", async (req, reply) => {
     const v = await viewer(req, reply, true);

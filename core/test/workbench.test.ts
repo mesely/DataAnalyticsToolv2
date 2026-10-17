@@ -50,6 +50,21 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
     expect((await apiPost(rig, alice, B + "/route", { text: "" })).status).toBe(400);
     expect((await apiPost(rig, alice, B + "/route", { text: "x".repeat(8001) })).status).toBe(400);
   });
+  it("answers questions about the network and the data table behind identity and dataset permission (v3 G2, G3)", async () => {
+    const q = await apiPost(rig, alice, B + "/network/ask", { dataset: "demo", question: "en güçlü 3 çift" });
+    expect(q.status).toBe(200);
+    expect(q.json.plan).toMatchObject({ query: "strongest_pairs", k: 3 });
+    expect((await apiPost(rig, alice, B + "/network/ask", { dataset: "demo", question: "" })).status).toBe(400);
+    expect((await apiPost(rig, alice, B + "/network/ask", { dataset: "demo", question: "x" }, { csrf: null })).status).toBe(403);
+    const tb = await apiPost(rig, alice, B + "/table", { dataset: "demo", view: "summary", group_by: ["country"], page_size: 25 });
+    expect(tb.status).toBe(200);
+    expect(tb.json.total).toBe(3);
+    const bad = await apiPost(rig, alice, B + "/table", { dataset: "demo", view: "rows", filters_table: [{ column: "customer_id", op: "eq", value: "x" }] });
+    expect(bad.status).toBe(400);
+    const csv = await apiPost(rig, alice, B + "/table/export", { dataset: "demo", view: "summary", group_by: ["country"], format: "csv" });
+    expect(csv.status).toBe(200);
+    expect(Buffer.from(String(csv.json.base64), "base64").toString("utf-8")).toContain("Germany");
+  });
   it("leaves service lines out of product views unless asked, never out of gross sales (v3 G5)", async () => {
     const off = await apiPost(rig, alice, B + "/run", { dataset: "demo" });
     const on = await apiPost(rig, alice, B + "/run", { dataset: "demo", include_service: true });

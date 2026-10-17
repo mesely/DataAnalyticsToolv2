@@ -699,6 +699,10 @@ def handle(request):
         }
     if action == "run":
         return run(request)
+    if action == "network_ask":
+        from analysis.network_qa import answer
+
+        return answer(request)
     if action in ("table", "table_export", "table_ask"):
         from analysis import table as data_table
 

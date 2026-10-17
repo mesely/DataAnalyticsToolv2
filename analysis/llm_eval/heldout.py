@@ -169,3 +169,34 @@ GROUP_CASES = [
     {"id": "g11", "prompt": "bugünkü üyeliğe göre göster", "base": BASE_NATO, "expect": {"group": "nato", "group_as_of": "today"}},
     {"id": "g12", "prompt": "AB'ye göre yap", "base": BASE_NATO, "expect": {"dimension": "country_group", "group": "eu"}},
 ]
+
+
+# v3.1 network questions (v3 G2), written with network_qa.local_plan; the expected plan fields only. "product" names a
+# product by its stock code in the UCI copurchase network.
+NETWORK_CASES = [
+    {"id": "n01", "q": "En güçlü 5 ürün çifti hangisi?", "expect": {"query": "strongest_pairs", "k": 5}},
+    {"id": "n02", "q": "which 3 pairs are bought together most often", "expect": {"query": "strongest_pairs", "k": 3}},
+    {"id": "n03", "q": "en sık birlikte alınan ürün çiftleri", "expect": {"query": "strongest_pairs"}},
+    {"id": "n04", "q": "REGENCY CAKESTAND 3 TIER ile en çok birlikte alınanlar?", "expect": {"query": "neighbors", "product": "22423", "k": 5}},
+    {"id": "n05", "q": "what sells with jumbo bag red retrospot", "expect": {"query": "neighbors", "product": "85099B"}},
+    {"id": "n06", "q": "PARTY BUNTING'in yanında ne alınıyor", "expect": {"query": "neighbors", "product": "47566"}},
+    {"id": "n07", "q": "top 3 products bought with the white hanging heart t-light holder", "expect": {"query": "neighbors", "k": 3}},
+    {"id": "n08", "q": "Kaç topluluk var?", "expect": {"query": "communities"}},
+    {"id": "n09", "q": "show me the product clusters", "expect": {"query": "communities"}},
+    {"id": "n10", "q": "ürün grupları neler, her birinin öne çıkanı", "expect": {"query": "communities"}},
+    {"id": "n11", "q": "Hangi ürün köprü görevi görüyor?", "expect": {"query": "bridges"}},
+    {"id": "n12", "q": "which products connect the groups", "expect": {"query": "bridges"}},
+    {"id": "n13", "q": "betweenness en yüksek 3 ürün", "expect": {"query": "bridges", "k": 3}},
+    {"id": "n14", "q": "En çok bağlantısı olan ürünler", "expect": {"query": "hubs"}},
+    {"id": "n15", "q": "most connected products", "expect": {"query": "hubs"}},
+    {"id": "n16", "q": "ağın merkezindeki ürünler", "expect": {"query": "hubs"}},
+    {"id": "n17", "q": "2011-11'de hangi bağlar oluştu veya koptu?", "expect": {"query": "changes", "month": "2011-11"}},
+    {"id": "n18", "q": "Mart 2011'de değişen bağlar", "expect": {"query": "changes", "month": "2011-03"}},
+    {"id": "n19", "q": "which links appeared in September 2011", "expect": {"query": "changes", "month": "2011-09"}},
+    {"id": "n20", "q": "Son ayda hangi bağlar oluştu veya koptu?", "expect": {"query": "changes"}},
+    {"id": "n21", "q": "Bu ürünü alan müşteri neden aldı?", "expect": {"query": "unsupported"}},
+    {"id": "n22", "q": "why do people buy these together", "expect": {"query": "unsupported"}},
+    {"id": "n23", "q": "hangi ürün çifti en kârlı", "expect": {"query": "unsupported"}},
+    {"id": "n24", "q": "bunu açıkla", "expect": {"query": "clarify"}},
+    {"id": "n25", "q": "what is bought with it", "expect": {"query": "clarify"}},
+]

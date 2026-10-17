@@ -5321,6 +5321,281 @@
   padding-right: var(--inset);
 }
 
+/* v3 G1: link strength is width + opacity + a three-step tone, so the strongest links read first in both themes.
+ * Hovering or focusing a product keeps only its own links lit and fades unrelated products. */
+.wb .wb-edge {
+  stroke: var(--edge-weak);
+  transition: opacity 0.15s ease, stroke-width 0.15s ease;
+}
+.wb .wb-edge.is-mid {
+  stroke: var(--edge-mid);
+}
+.wb .wb-edge.is-strong,
+.wb .wb-edge.is-lit {
+  stroke: var(--edge-strong);
+}
+.wb .wb-edge.is-negative {
+  stroke: var(--edge-negative);
+}
+.wb {
+  --edge-weak: #a9b3d3;
+  --edge-mid: #7b89d6;
+  --edge-strong: #3f4fc4;
+  --edge-negative: #c4585a;
+}
+.wb[data-theme="dark"] {
+  --edge-weak: #4a5874;
+  --edge-mid: #7684c4;
+  --edge-strong: #b8c4ff;
+  --edge-negative: #e58a8b;
+}
+.wb .wb-graph-node {
+  transition: opacity 0.15s ease;
+}
+.wb .wb-graph-node.is-faded {
+  opacity: 0.25;
+}
+.wb .wb-edge-legend {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  max-width: calc(100% - 24px);
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 12px;
+  color: var(--muted);
+}
+.wb .wb-edge-legend-title {
+  font-weight: 600;
+  color: var(--ink);
+}
+.wb .wb-edge-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .wb .wb-network-canvas > .wb-edge-legend {
+    position: sticky;
+    left: 12px;
+    top: auto;
+    margin: 12px 0 0;
+    width: max-content;
+    max-width: calc(100vw - 72px);
+  }
+}
+.wb .wb-edge-value {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* v3 G4: applied filters are visible and removable one by one; a filtered country list offers the way back. */
+.wb .wb-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.wb .wb-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.wb .wb-filter-chip b {
+  font-weight: 600;
+}
+.wb .wb-filter-chip:hover,
+.wb .wb-filter-chip:focus-visible {
+  border-color: var(--accent);
+}
+.wb .wb-active-filters .wb-text-btn {
+  min-height: 32px;
+  padding: 4px;
+}
+.wb .wb-back-all {
+  white-space: nowrap;
+}
+
+/* v3 G5: "Why?" opens the scope and exclusions panel from the number it qualifies. */
+.wb .wb-why {
+  display: inline;
+  margin-left: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.wb .wb-scope-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+.wb .wb-scope-panel > section {
+  min-width: 0;
+}
+.wb .wb-scope-panel h3 {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+.wb .wb-scope-panel td {
+  white-space: normal;
+  vertical-align: top;
+}
+.wb .wb-scope-panel tfoot td {
+  font-weight: 600;
+}
+.wb .wb-scope-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  font-weight: 600;
+}
+.wb .wb-scope-toggle input {
+  margin-top: 4px;
+}
+.wb .wb-scope-flag {
+  margin-top: 12px;
+}
+.wb .wb-scope-periods {
+  margin: 4px 0 8px;
+  padding-left: 20px;
+}
+
+/* v3 G8: one ask box on the overview, two studios with their sections as tabs. */
+.wb .wb-ask-form {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+.wb .wb-ask-form input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.wb .wb-ask-form input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.wb .wb-studio-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.wb .wb-studio-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  text-align: left;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.wb .wb-studio-card > span {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+}
+.wb .wb-studio-card small {
+  color: var(--muted);
+  font-size: 14px;
+}
+.wb .wb-studio-card:hover,
+.wb .wb-studio-card:focus-visible {
+  border-color: var(--accent);
+}
+.wb .wb-studio-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 16px 0 12px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  width: max-content;
+  max-width: 100%;
+}
+.wb .wb-studio-tabs button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.wb .wb-studio-tabs button.active {
+  background: var(--accent);
+  color: #fff;
+}
+.wb[data-theme="dark"] .wb-studio-tabs button.active {
+  color: #0f1a2e;
+}
+.wb .wb-studio-page {
+  padding: 24px;
+}
+.wb .wb-routed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+@media (max-width: 760px) {
+  .wb .wb-studio-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .wb .wb-studio-page {
+    padding: 16px;
+  }
+  .wb .wb-studio-tabs {
+    width: 100%;
+  }
+  .wb .wb-studio-tabs button {
+    flex: 1 1 auto;
+  }
+}
+
 /* >>> generated: light text contrast (tools/design/contrast_tones.py) */
 .wb[data-theme="light"] {
   --tone-338763: #307e5c;
@@ -5387,278 +5662,3 @@
   --tone-a9b6ca: #5c7295;
 }
 /* <<< generated: light text contrast */
-
-/* v3 G1: link strength is width + opacity + a three-step tone, so the strongest links read first in both themes.
- * Hovering or focusing a product keeps only its own links lit and fades unrelated products. */
-.wb .wb-edge {
-  stroke: var(--edge-weak);
-  transition: opacity 0.15s ease, stroke-width 0.15s ease;
-}
-.wb .wb-edge.is-mid {
-  stroke: var(--edge-mid);
-}
-.wb .wb-edge.is-strong,
-.wb .wb-edge.is-lit {
-  stroke: var(--edge-strong);
-}
-.wb .wb-edge.is-negative {
-  stroke: var(--edge-negative);
-}
-.wb {
-  --edge-weak: #a9b3d3;
-  --edge-mid: #7b89d6;
-  --edge-strong: #3f4fc4;
-  --edge-negative: #c4585a;
-}
-.wb[data-theme="dark"] {
-  --edge-weak: #4a5874;
-  --edge-mid: #7684c4;
-  --edge-strong: #b8c4ff;
-  --edge-negative: #e58a8b;
-}
-.wb .wb-graph-node {
-  transition: opacity 0.15s ease;
-}
-.wb .wb-graph-node.is-faded {
-  opacity: 0.25;
-}
-.wb .wb-edge-legend {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 12px;
-  max-width: calc(100% - 24px);
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: var(--surface);
-  font-size: 12px;
-  color: var(--muted);
-}
-.wb .wb-edge-legend-title {
-  font-weight: 600;
-  color: var(--ink);
-}
-.wb .wb-edge-legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-@media (max-width: 760px) {
-  .wb .wb-network-canvas > .wb-edge-legend {
-    position: sticky;
-    left: 12px;
-    top: auto;
-    margin: 12px 0 0;
-    width: max-content;
-    max-width: calc(100vw - 72px);
-  }
-}
-.wb .wb-edge-value {
-  font-size: 11px;
-  font-weight: 600;
-  fill: var(--ink);
-  paint-order: stroke;
-  stroke: var(--surface);
-  stroke-width: 4px;
-  stroke-linejoin: round;
-  pointer-events: none;
-}
-
-/* v3 G4: applied filters are visible and removable one by one; a filtered country list offers the way back. */
-.wb .wb-active-filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin: 12px 0 0;
-  font-size: 13px;
-  color: var(--muted);
-}
-.wb .wb-filter-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 32px;
-  padding: 4px 10px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--ink);
-  font: inherit;
-  cursor: pointer;
-}
-.wb .wb-filter-chip b {
-  font-weight: 600;
-}
-.wb .wb-filter-chip:hover,
-.wb .wb-filter-chip:focus-visible {
-  border-color: var(--accent);
-}
-.wb .wb-active-filters .wb-text-btn {
-  min-height: 32px;
-  padding: 4px;
-}
-.wb .wb-back-all {
-  white-space: nowrap;
-}
-
-/* v3 G5: "Why?" opens the scope and exclusions panel from the number it qualifies. */
-.wb .wb-why {
-  display: inline;
-  margin-left: 6px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--accent);
-  font: inherit;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-}
-.wb .wb-scope-panel {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 24px;
-}
-.wb .wb-scope-panel > section {
-  min-width: 0;
-}
-.wb .wb-scope-panel h3 {
-  margin: 0 0 4px;
-  font-size: 15px;
-}
-.wb .wb-scope-panel td {
-  white-space: normal;
-  vertical-align: top;
-}
-.wb .wb-scope-panel tfoot td {
-  font-weight: 600;
-}
-.wb .wb-scope-toggle {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-top: 12px;
-  font-weight: 600;
-}
-.wb .wb-scope-toggle input {
-  margin-top: 3px;
-}
-.wb .wb-scope-flag {
-  margin-top: 12px;
-}
-.wb .wb-scope-periods {
-  margin: 4px 0 8px;
-  padding-left: 18px;
-}
-
-/* v3 G8: one ask box on the overview, two studios with their sections as tabs. */
-.wb .wb-ask-form {
-  display: flex;
-  gap: 8px;
-  margin: 12px 0;
-}
-.wb .wb-ask-form input {
-  flex: 1;
-  min-width: 0;
-  min-height: 44px;
-  padding: 0 12px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
-  color: var(--ink);
-  font: inherit;
-}
-.wb .wb-ask-form input:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-.wb .wb-studio-cards {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 16px;
-}
-.wb .wb-studio-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px 24px;
-  text-align: left;
-  color: var(--ink);
-  font: inherit;
-  cursor: pointer;
-}
-.wb .wb-studio-card > span {
-  display: grid;
-  gap: 4px;
-  flex: 1;
-}
-.wb .wb-studio-card small {
-  color: var(--muted);
-  font-size: 13px;
-}
-.wb .wb-studio-card:hover,
-.wb .wb-studio-card:focus-visible {
-  border-color: var(--accent);
-}
-.wb .wb-studio-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin: 16px 0 12px;
-  padding: 4px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
-  width: max-content;
-  max-width: 100%;
-}
-.wb .wb-studio-tabs button {
-  min-height: 40px;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 8px;
-  background: none;
-  color: var(--muted);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-.wb .wb-studio-tabs button.active {
-  background: var(--accent);
-  color: #fff;
-}
-.wb[data-theme="dark"] .wb-studio-tabs button.active {
-  color: #0f1a2e;
-}
-.wb .wb-studio-page {
-  padding: 24px;
-}
-.wb .wb-routed {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 16px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-@media (max-width: 760px) {
-  .wb .wb-studio-cards {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .wb .wb-studio-page {
-    padding: 16px;
-  }
-  .wb .wb-studio-tabs {
-    width: 100%;
-  }
-  .wb .wb-studio-tabs button {
-    flex: 1 1 auto;
-  }
-}

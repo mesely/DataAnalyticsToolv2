@@ -907,7 +907,7 @@ function Workspace({
                   <button key={k} className="wb-filter-chip" disabled={working} onClick={() => clearFilter(k)}
                     aria-label={t(`${FILTER_NAMES[k][0]} filtresini kaldır`, `Remove ${FILTER_NAMES[k][1]} filter`)}>
                     {t(FILTER_NAMES[k][0], FILTER_NAMES[k][1])}: <b>{k === "country" ? applied[k] : dateText(applied[k]!)}</b>
-                    <X size={14} />
+                    <X size={16} />
                   </button>
                 ) : null,
               )}

@@ -66,6 +66,9 @@ const APP_SOURCES = [
   "workbench/Locale.tsx",
   "workbench/types.ts",
   "workbench/csv.ts",
+  // v3
+  "workbench/network.ts",
+  "workbench/Scope.tsx",
 ];
 
 async function fileRequest(

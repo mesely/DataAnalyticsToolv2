@@ -176,10 +176,15 @@ export function TemporalView({
         </p>
         {(data.id === "uci" || data.id === "uci2") && (
           <div className="wb-callout">
-            {t(
-              "UCI verisinde kargo, hizmet ve Manual gibi fatura kalemleri de korunur. Ürün/hizmet sınıflaması yapılmadan fiziksel ürün ilişkisi olarak yorumlamayın.",
-              "UCI retains postage, service and Manual invoice lines. Interpret physical-product relationships only after product/service classification.",
-            )}
+            {includeService
+              ? t(
+                  "Kargo, Manual, ücret ve düzeltme kalemleri ürün olarak dahil; ağ ve yoğunlaşma bunları da içerir.",
+                  "Postage, manual, fee and adjustment lines are counted as products; the networks and concentration include them.",
+                )
+              : t(
+                  "Kargo, Manual, ücret ve düzeltme kalemleri ürün sayılmaz: ürün evreni, ağ ve yoğunlaşma (HHI) bunlarsız; dönem satışı ve ortalama sipariş bunları içerir.",
+                  "Postage, manual, fee and adjustment lines are not products here: the product universe, networks and concentration (HHI) leave them out; period sales and average order include them.",
+                )}
           </div>
         )}
         <form

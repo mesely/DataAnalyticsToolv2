@@ -75,13 +75,31 @@ async function request<T>(
   return { ok: true, data: (parsed ?? {}) as T };
 }
 
+/**
+ * The workspace runs one analysis job per user at a time (core `bounded`). A call refused with `busy` was never
+ * started, so it is sent again after a short wait — two panels loading together (the overview's analysis and its
+ * data table, or a studio opened from a link) then queue instead of one of them showing an error. Other refusals,
+ * including rate limits, return at once. Gives up after about a minute.
+ */
+async function admitted<T>(
+  method: string,
+  path: string,
+  opts: { csrf?: string | null; body?: unknown } = {},
+): Promise<ApiResult<T>> {
+  for (let attempt = 0; ; attempt++) {
+    const r = await request<T>(method, path, opts);
+    if (r.ok || r.error.status !== 429 || r.error.code !== "busy" || attempt >= 60) return r;
+    await new Promise((resolve) => setTimeout(resolve, Math.min(1000, 200 + attempt * 100)));
+  }
+}
+
 export const api = {
-  get: <T>(path: string) => request<T>("GET", path),
+  get: <T>(path: string) => admitted<T>("GET", path),
   post: <T>(path: string, body: unknown, csrf: string | null) =>
-    request<T>("POST", path, { body, csrf }),
+    admitted<T>("POST", path, { body, csrf }),
   put: <T>(path: string, body: unknown, csrf: string | null) =>
-    request<T>("PUT", path, { body, csrf }),
-  del: <T>(path: string, csrf: string | null) => request<T>("DELETE", path, { csrf }),
+    admitted<T>("PUT", path, { body, csrf }),
+  del: <T>(path: string, csrf: string | null) => admitted<T>("DELETE", path, { csrf }),
 };
 
 // -- shapes, as the server sends them ---------------------------------------

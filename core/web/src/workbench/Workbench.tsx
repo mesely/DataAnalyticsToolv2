@@ -265,6 +265,7 @@ function Workspace({
   const [draft, setDraft] = useState<Filters>({}),
     [applied, setApplied] = useState<Filters>({}),
     appliedRef = useRef<Filters>({}),
+    staleLocale = useRef(false),
     [question, setQuestion] = useState(""),
     // Display name of the configured language model, e.g. "GPT-OSS 20B · Groq"; null when none is configured.
     [providerLabel, setProviderLabel] = useState<string | null>(null),
@@ -400,6 +401,11 @@ function Workspace({
     } finally {
       setBusy(false);
       inFlight.current = false;
+      if (staleLocale.current) {
+        staleLocale.current = false;
+        // The latest render's analyze, so the rerun carries the new language.
+        setTimeout(() => void analyzeRef.current({ fromHistory: true }), 0);
+      }
     }
   }
   useEffect(() => {
@@ -421,9 +427,15 @@ function Workspace({
     return () => window.removeEventListener("popstate", back);
   }, []);
   // Server-written text (answers, method notes) is rendered in the request locale: refresh it on a switch.
+  const analyzeRef = useRef(analyze);
+  analyzeRef.current = analyze;
   const firstLocale = useRef(locale);
   useEffect(() => {
-    if (locale !== firstLocale.current && result) void analyze();
+    // A switch while an analysis is running would leave its text in the old language: rerun when it lands.
+    if (locale !== firstLocale.current) {
+      if (inFlight.current) staleLocale.current = true;
+      else if (result) void analyze();
+    }
     firstLocale.current = locale;
   }, [locale]);
   useEffect(() => {

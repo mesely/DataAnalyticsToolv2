@@ -517,6 +517,18 @@ export function ChartStudio({
                 <Reset size={16} />
                 {t("Geri al", "Undo")}
               </button>
+              {/* Every request refines the current chart; this starts a new one from the default. */}
+              <button
+                className="wb-text-btn"
+                disabled={steps.length < 2 || busy}
+                onClick={() => {
+                  setSteps([]);
+                  void ask("", null);
+                }}
+              >
+                <Reset size={16} />
+                {t("Baştan başla", "Start over")}
+              </button>
               <button
                 className="wb-text-btn"
                 onClick={() =>

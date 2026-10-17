@@ -648,8 +648,8 @@ export function DecisionStudio({
           </header>
           {brief.routing && (
             <div className="wb-routing-row">
-              <RoutingBadge routing={brief.routing.decision_focus} providerLabel={providerLabel} />
-              <RoutingBadge routing={brief.routing.decision_narrative} providerLabel={providerLabel} />
+              <RoutingBadge routing={brief.routing.decision_focus} providerLabel={providerLabel} prefix={t("Odak", "Focus")} />
+              <RoutingBadge routing={brief.routing.decision_narrative} providerLabel={providerLabel} prefix={t("Anlatı", "Narrative")} />
             </div>
           )}
           {brief.provider.status !== "not_requested" && (

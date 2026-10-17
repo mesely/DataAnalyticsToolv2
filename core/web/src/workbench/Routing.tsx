@@ -21,7 +21,16 @@ const UNAVAILABLE: Record<string, [string, string]> = {
 
 const pct = (v?: number | null) => (v == null ? "—" : `%${Math.round(v * 100)}`);
 
-export function RoutingBadge({ routing, providerLabel }: { routing?: RoutingReceipt | null; providerLabel?: string | null }) {
+export function RoutingBadge({
+  routing,
+  providerLabel,
+  prefix,
+}: {
+  routing?: RoutingReceipt | null;
+  providerLabel?: string | null;
+  /** Names the task when one result carries several badges, e.g. "Focus" and "Narrative". */
+  prefix?: string;
+}) {
   const { t, locale } = useLocale();
   if (!routing) return null;
   const model = routing.used === "model";
@@ -50,6 +59,7 @@ export function RoutingBadge({ routing, providerLabel }: { routing?: RoutingRece
     <details className={"wb-routing" + (model ? " is-model" : "")}>
       <summary>
         <Verified size={16} />
+        {prefix ? `${prefix} · ` : ""}
         {model
           ? t(`Planlayan: dil modeli${providerLabel ? ` (${providerLabel})` : ""}`, `Planned by: language model${providerLabel ? ` (${providerLabel})` : ""}`)
           : t("Planlayan: yerel yöntem", "Planned by: local method")}

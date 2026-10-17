@@ -5305,12 +5305,12 @@
 
 /* Final pass (AW-16): when a label wraps on a narrow screen its icon stays on the first line, and blocks inside
    cards follow the card inset so their edge lines up with the panel heading. */
-.wb .wb-panel-footer span,
+.wb .wb-panel-footer > span:not(.wb-panel-footer-actions),
 .wb .wb-evidence-links button {
   align-items: flex-start;
   line-height: 24px;
 }
-.wb .wb-panel-footer span svg,
+.wb .wb-panel-footer > span:not(.wb-panel-footer-actions) > svg,
 .wb .wb-evidence-links button svg {
   flex: none;
   margin-top: 4px;

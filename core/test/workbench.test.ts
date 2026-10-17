@@ -500,16 +500,20 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
     const assets = await readdir(
       new URL("../web/dist/assets/", import.meta.url),
     );
-    // AW-16: the product mark is the Gemini mascot tile (app-mark.jpg).
+    // AW-16: the sidebar mark is the Gemini mascot hanging from the top edge (transparent PNG); portraits are JPEG.
     const name = assets.find(
-      (x) => x.startsWith("app-mark-") && x.endsWith(".jpg"),
+      (x) => x.startsWith("mascot-hanging-") && x.endsWith(".png"),
     );
     expect(name).toBeTruthy();
     const image = await fetch(rig.base + "/app/assets/" + name);
     expect(image.status).toBe(200);
-    expect(image.headers.get("content-type")).toBe("image/jpeg");
+    expect(image.headers.get("content-type")).toBe("image/png");
     const bytes = new Uint8Array(await image.arrayBuffer());
-    expect([...bytes.slice(0, 3)]).toEqual([255, 216, 255]);
+    expect([...bytes.slice(0, 4)]).toEqual([137, 80, 78, 71]);
+    const portrait = assets.find((x) => x.startsWith("analyst-core-") && x.endsWith(".jpg"));
+    const jpeg = await fetch(rig.base + "/app/assets/" + portrait);
+    expect(jpeg.headers.get("content-type")).toBe("image/jpeg");
+    expect([...new Uint8Array(await jpeg.arrayBuffer()).slice(0, 3)]).toEqual([255, 216, 255]);
     expect((await fetch(rig.base + "/app/assets/secret.env")).status).toBe(404);
     const legacy = await fetch(rig.base + "/app/brand.svg");
     expect(legacy.status).toBe(200);

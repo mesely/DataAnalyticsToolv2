@@ -100,18 +100,27 @@ Hedef: kullanıcı nereye gideceğini düşünmesin. İki ana başlık olsun; he
 Hedef: "Groq ile planla / modelle yorumla" kutuları kalksın. Her iş için ölçümde hangi yöntem iyiyse sistem onu
 kullansın, ekranda da hangisini kullandığını söylesin.
 
-- [ ] Bağımsız (held-out) değerlendirme seti: yerel planlayıcının yazılırken görmediği en az 60 yeni grafik isteği ve 40 yeni soru (TR+EN, yazım hatalı, açık uçlu, NATO tipi). Yerel ve model aynı setle ölçülsün.
-- [ ] İş bazında yönlendirme tablosu `analysis/llm_routing.json`: her iş için (yönlendirme, grafik planı, anlatı, ağ soruları, tablo soruları) seçilen yöntem, ölçüm dosyası, ölçüm tarihi ve eşik değerleri yazılsın. Tablo elle değil, değerlendirme komutuyla üretilsin.
-- [ ] Karar kuralı: model, yereli iş bazında en az 5 puan geçmiyorsa yerel kullanılsın (yerel ücretsiz, hızlı ve çevrimdışı çalışır). Eşitlikte yerel kazanır.
-- [ ] Karma yol: yerel planlayıcı "anlamadım / desteklenmiyor" derse ve model o iş için güvenilirse modele sorulsun (NATO sorusu buradan geçer). Model geçersiz yanıt verirse yerel sonuç gösterilsin.
-- [ ] Tikler yerine bilgi rozeti: "Planlayan: yerel yöntem" / "Planlayan: dil modeli (GPT-OSS 20B · Groq)". Üstüne gelince neden o yöntemin seçildiği (ölçüm sonucu) görünsün.
-- [ ] Gizlilik: sağlayıcıya ne gönderildiği rozetin yanında yazmaya devam etsin. Yönetici "dış modele hiç gönderme" ayarını açabilsin; bu ayar her şeyi yerele zorlar.
-- [ ] Kota: Groq günlük ücretsiz kotası (200.000 token) otomatik kullanımda yetmez. Yanıt önbelleği (aynı istek + aynı veri sürümü), günlük bütçe sayacı ve kota dolunca sessizce yerele düşme eklenmeli. Ücretli plana geçiş kararı ayrıca verilir.
+- [x] Bağımsız (held-out) değerlendirme seti: yerel planlayıcının yazılırken görmediği en az 60 yeni grafik isteği ve 40 yeni soru (TR+EN, yazım hatalı, açık uçlu, NATO tipi). Yerel ve model aynı setle ölçülsün.
+- [x] İş bazında yönlendirme tablosu `analysis/llm_routing.json`: her iş için (yönlendirme, grafik planı, anlatı, ağ soruları, tablo soruları) seçilen yöntem, ölçüm dosyası, ölçüm tarihi ve eşik değerleri yazılsın. Tablo elle değil, değerlendirme komutuyla üretilsin.
+- [x] Karar kuralı: model, yereli iş bazında en az 5 puan geçmiyorsa yerel kullanılsın (yerel ücretsiz, hızlı ve çevrimdışı çalışır). Eşitlikte yerel kazanır.
+- [x] Karma yol: yerel planlayıcı "anlamadım / desteklenmiyor" derse ve model o iş için güvenilirse modele sorulsun (NATO sorusu buradan geçer). Model geçersiz yanıt verirse yerel sonuç gösterilsin.
+- [x] Tikler yerine bilgi rozeti: "Planlayan: yerel yöntem" / "Planlayan: dil modeli (GPT-OSS 20B · Groq)". Üstüne gelince neden o yöntemin seçildiği (ölçüm sonucu) görünsün.
+- [x] Gizlilik: sağlayıcıya ne gönderildiği rozetin yanında yazmaya devam etsin. Yönetici "dış modele hiç gönderme" ayarını açabilsin; bu ayar her şeyi yerele zorlar.
+- [x] Kota: Groq günlük ücretsiz kotası (200.000 token) otomatik kullanımda yetmez. Yanıt önbelleği (aynı istek + aynı veri sürümü), günlük bütçe sayacı ve kota dolunca sessizce yerele düşme eklenmeli. Ücretli plana geçiş kararı ayrıca verilir. — Önbellek ve günlük bütçe (150.000) yapıldı; ücretli plan kararı Selman'da.
 - [ ] Değerlendirme CI'de çevrimdışı (kayıtlı yanıtlarla) koşsun; canlı ölçüm haftalık elle tetiklensin ve yönlendirme tablosunu güncellesin.
-- [ ] DECISIONS AW-18: otomatik yönlendirme politikası.
+- [x] DECISIONS AW-18: otomatik yönlendirme politikası.
 - **Kabul:** arayüzde model seçme kutusu kalmaz; her sonuçta planlayan rozeti vardır; yönlendirme tablosu son ölçümle tutarlıdır (test); kota bitince ekran donmaz ve yerel sonuç gelir.
 
 ---
+
+### Faz 3 sonucu (18 Ekim 2026)
+| İş | Yerel | Model (GPT-OSS 20B) | Seçilen |
+|---|---:|---:|---|
+| Stüdyo yönlendirme (100) | 62 | 94 | model |
+| Soru yönlendirme (40) | 21 | 34 | model |
+| Grafik planı (60) | 49 | 10/19 (günlük kota doldu; aynı 19'da yerel 13) | yerel |
+| Karar anlatısı | — | 1/3 kabul | yerel |
+- Açık: grafik planının kalan 41 vakası kota açılınca ölçülecek (`--resume`); CI'de kayıtlı yanıtlarla çevrimdışı koşu eklenecek.
 
 ## Faz 4 — Genel bakışta veri tablosu (G3)
 

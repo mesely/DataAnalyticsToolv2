@@ -63,6 +63,7 @@ def _questions(provider, prior):
     out = []
     for r in records:
         r["raw_status"] = r["got"].get("raw_status")
+        r.update({k: r["got"][k] for k in ("latency_ms", "total_tokens") if r["got"].get(k) is not None})
         r["correct"] = None if r["raw_status"] == "BLOCKED" else bool(r["behavior_correct"] and r["intent_correct"] is not False)
         out.append(r)
     by = {**keep, **{r["id"]: r for r in out}}

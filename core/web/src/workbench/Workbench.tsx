@@ -307,6 +307,8 @@ function Workspace({
       prompt?: string;
       mode?: string;
       min?: number;
+      /** Set when the filters come from the browser history, so the address is not pushed again. */
+      fromHistory?: boolean;
     } = {},
   ) {
     if (inFlight.current || childJobsRef.current > 0) return;
@@ -334,6 +336,8 @@ function Workspace({
           setResult(r.data);
           setSaved(false);
           setApplied(r.data.filters);
+          setDraft(r.data.filters);
+          if (!o.fromHistory) syncAddress(r.data.filters);
           void history();
         } else setError(r.error.detail);
       }
@@ -343,8 +347,15 @@ function Workspace({
     }
   }
   useEffect(() => {
-    void catalog().then(() => analyze());
+    // The view's filters live in the address (?country=…&start=…&end=), so a link reopens the same view and the
+    // browser's back button returns from a country to all countries (v3 G4).
+    const initial = filtersFromAddress();
+    if (filtersKey(initial)) replaceAddress(initial);
+    void catalog().then(() => analyze({ filters: initial, fromHistory: true }));
     void history();
+    const back = () => void analyze({ filters: filtersFromAddress(), fromHistory: true });
+    window.addEventListener("popstate", back);
+    return () => window.removeEventListener("popstate", back);
   }, []);
   // Server-written text (answers, method notes) is rendered in the request locale: refresh it on a switch.
   const firstLocale = useRef(locale);
@@ -363,6 +374,12 @@ function Workspace({
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, []);
+  function clearFilter(key?: keyof Filters) {
+    const next: Filters = key ? { ...applied, [key]: undefined } : {};
+    if (key) delete next[key];
+    setDraft(next);
+    void analyze({ filters: next });
+  }
   function go(s: Section) {
     setSection(s);
     setMenu(false);
@@ -426,6 +443,7 @@ function Workspace({
       setDataset(r.data.recipe.dataset);
       setApplied(r.data.recipe.filters);
       setDraft(r.data.recipe.filters);
+      syncAddress(r.data.recipe.filters);
       setGraphMode(r.data.recipe.graph_mode);
       setMinimum(r.data.recipe.min_shared);
       setQuestion(r.data.recipe.question || "");
@@ -776,6 +794,23 @@ function Workspace({
               )}
             </form>
           )}
+          {section !== "findings" && filtered && (
+            <div className="wb-active-filters" role="region" aria-label={t("Etkin filtreler", "Active filters")}>
+              <span>{t("Etkin filtre:", "Active filters:")}</span>
+              {(["country", "start", "end"] as const).map((k) =>
+                applied[k] ? (
+                  <button key={k} className="wb-filter-chip" disabled={working} onClick={() => clearFilter(k)}
+                    aria-label={t(`${FILTER_NAMES[k][0]} filtresini kaldır`, `Remove ${FILTER_NAMES[k][1]} filter`)}>
+                    {t(FILTER_NAMES[k][0], FILTER_NAMES[k][1])}: <b>{k === "country" ? applied[k] : dateText(applied[k]!)}</b>
+                    <X size={14} />
+                  </button>
+                ) : null,
+              )}
+              <button className="wb-text-btn" disabled={working} onClick={() => clearFilter()}>
+                {t("Tümünü temizle", "Clear all")}
+              </button>
+            </div>
+          )}
           </div>
           {working && (
             <div className="wb-loading-bar" role="status">
@@ -987,13 +1022,19 @@ function Workspace({
                     <div>
                       <h2>{t("Ülkelere göre satış", "Sales by country")}</h2>
                       <p>
-                        {t(
-                          "Aynı tanım, karşılaştırılabilir tutarlar",
-                          "One definition, comparable totals",
-                        )}
+                        {applied.country
+                          ? t(`Yalnız ${applied.country} gösteriliyor`, `Showing ${applied.country} only`)
+                          : t("Aynı tanım, karşılaştırılabilir tutarlar", "One definition, comparable totals")}
                       </p>
                     </div>
-                    <Markets size={20} />
+                    {applied.country ? (
+                      <button className="wb-btn wb-back-all" disabled={working} onClick={() => clearFilter("country")}>
+                        <RotateCcw size={16} />
+                        {t("Tüm ülkelere dön", "Back to all countries")}
+                      </button>
+                    ) : (
+                      <Markets size={20} />
+                    )}
                   </div>
                   <div className="wb-ranking">
                     {result.countries.slice(0, 5).map((c, i) => (
@@ -1026,10 +1067,12 @@ function Workspace({
                     ))}
                   </div>
                   <p className="wb-card-note">
-                    {t(
-                      "Bir ülkeye tıklayarak görünümü filtreleyin.",
-                      "Select a country to filter this view.",
-                    )}
+                    {applied.country
+                      ? t(
+                          "Diğer ülkeleri görmek için “Tüm ülkelere dön”, filtre çipindeki ✕ veya tarayıcının geri tuşu.",
+                          "To see every country again: “Back to all countries”, the ✕ on the filter chip, or the browser's back button.",
+                        )
+                      : t("Bir ülkeye tıklayarak görünümü filtreleyin.", "Select a country to filter this view.")}
                   </p>
                 </section>
               </div>
@@ -2216,6 +2259,46 @@ function readableLabels(
     }
   }
   return shown;
+}
+
+const FILTER_NAMES: Record<keyof Filters, [string, string]> = {
+  country: ["Ülke", "Country"],
+  start: ["Başlangıç", "From"],
+  end: ["Bitiş", "To"],
+};
+const FILTER_KEYS = ["country", "start", "end"] as const;
+function filtersFromAddress(): Filters {
+  const q = new URLSearchParams(window.location.search),
+    out: Filters = {};
+  for (const k of FILTER_KEYS) {
+    const v = q.get(k);
+    if (v && (k === "country" ? v.length <= 80 : /^\d{4}-\d{2}-\d{2}$/.test(v))) out[k] = v;
+  }
+  return out;
+}
+function filtersKey(f: Filters) {
+  return FILTER_KEYS.map((k) => (f[k] ? `${k}=${encodeURIComponent(f[k]!)}` : "")).filter(Boolean).join("&");
+}
+function addressFor(f: Filters) {
+  const q = new URLSearchParams(window.location.search);
+  for (const k of FILTER_KEYS) {
+    if (f[k]) q.set(k, f[k]!);
+    else q.delete(k);
+  }
+  const query = q.toString();
+  return window.location.pathname + (query ? "?" + query : "") + window.location.hash;
+}
+function replaceAddress(f: Filters) {
+  window.history.replaceState(window.history.state, "", addressFor(f));
+}
+/** A new history entry only when the filters actually changed, so back steps through distinct views. */
+function syncAddress(f: Filters) {
+  if (filtersKey(f) !== filtersKey(filtersFromAddress())) window.history.pushState(null, "", addressFor(f));
+}
+/** ISO date (yyyy-mm-dd) as dd.mm.yyyy, matching the date inputs' Turkish order. */
+function dateText(iso: string) {
+  const [y, m, d] = iso.split("-");
+  return y && m && d ? `${d}.${m}.${y}` : iso;
 }
 
 function NetworkView({

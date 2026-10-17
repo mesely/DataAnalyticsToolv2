@@ -5467,3 +5467,41 @@
   stroke-linejoin: round;
   pointer-events: none;
 }
+
+/* v3 G4: applied filters are visible and removable one by one; a filtered country list offers the way back. */
+.wb .wb-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.wb .wb-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.wb .wb-filter-chip b {
+  font-weight: 600;
+}
+.wb .wb-filter-chip:hover,
+.wb .wb-filter-chip:focus-visible {
+  border-color: var(--accent);
+}
+.wb .wb-active-filters .wb-text-btn {
+  min-height: 32px;
+  padding: 4px;
+}
+.wb .wb-back-all {
+  white-space: nowrap;
+}

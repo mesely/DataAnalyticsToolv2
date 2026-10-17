@@ -76,6 +76,7 @@ import { ModelStudio } from "./ModelStudio";
 import { Preparation } from "./Preparation";
 import { TemporalView } from "./TemporalView";
 import { ScopeView } from "./Scope";
+import { RoutingBadge } from "./Routing";
 import { DEFAULT_EDGE_LIMIT, EDGE_LIMITS, edgeScale, neighbourhood, strongest } from "./network";
 import { ExpertTools, CompareRuns } from "./ExpertTools";
 import { LocaleProvider, useLocale } from "./Locale";
@@ -263,8 +264,6 @@ function Workspace({
     [applied, setApplied] = useState<Filters>({}),
     appliedRef = useRef<Filters>({}),
     [question, setQuestion] = useState(""),
-    [useLlm, setUseLlm] = useState(false),
-    [providerReady, setProviderReady] = useState(false),
     // Display name of the configured language model, e.g. "GPT-OSS 20B · Groq"; null when none is configured.
     [providerLabel, setProviderLabel] = useState<string | null>(null),
     [graphMode, setGraphMode] = useState("copurchase"),
@@ -323,9 +322,6 @@ function Workspace({
       }>(BASE + "/catalog");
       if (r.ok) {
         setDatasets(r.data.datasets);
-        setProviderReady(
-          r.data.provider.configured ?? r.data.provider.connected,
-        );
         setProviderLabel(r.data.provider.label ?? null);
       } else setError(r.error.detail);
       const p = await api.get<{ avatar: string }>(BASE + "/profile");
@@ -380,7 +376,6 @@ function Workspace({
           dataset: o.id || dataset,
           filters: o.filters ?? applied,
           question: o.prompt || "",
-          use_llm: !!o.prompt && useLlm,
           graph_mode: o.mode || graphMode,
           min_shared: o.min ?? minimum,
           include_service: o.include ?? includeService,
@@ -1329,7 +1324,6 @@ function Workspace({
                 dataset={dataset}
                 filters={applied}
                 csrf={csrf}
-                providerReady={providerReady}
                 providerLabel={providerLabel}
                 initialPrompt={chartRequest?.text}
                 onExportCode={(spec) => {
@@ -1376,7 +1370,6 @@ function Workspace({
                 dataset={dataset}
                 filters={applied}
                 csrf={csrf}
-                providerReady={providerReady}
                 providerLabel={providerLabel}
                 busy={busy || childJobs > 0}
                 activity={activity}
@@ -1438,17 +1431,7 @@ function Workspace({
                               )}
                         </p>
                       )}
-                    {result.planner?.status === "planned" && (
-                      <p className="wb-plan-receipt">
-                        {t("Model planı", "Model plan")}
-                        {providerLabel ? ` (${providerLabel})` : ""}:{" "}
-                        {result.planner.intent} ·{" "}
-                        {t(
-                          "Sayılar hesap kaydından",
-                          "Figures from calculation record",
-                        )}
-                      </p>
-                    )}
+                    <RoutingBadge routing={result.routing} providerLabel={providerLabel} />
                     <div className="wb-answer-citations">
                       <button onClick={() => setModal("metrics")}>
                         <FileText size={16} />
@@ -1497,25 +1480,6 @@ function Workspace({
                       <ArrowRight size={16} />
                     </button>
                   ))}
-                </div>
-                <div className="wb-analysis-mode">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={useLlm}
-                      disabled={!providerReady || working}
-                      onChange={(e) => setUseLlm(e.target.checked)}
-                    />
-                    {t("Dil modeliyle yorumla", "Interpret with the language model")}
-                  </label>
-                  <span>
-                    {useLlm
-                      ? t(
-                          `Soru sağlayıcıya (${providerLabel ?? "—"}) gönderilir; veri satırları gönderilmez.`,
-                          `Your question is sent to ${providerLabel ?? "the provider"}; data rows stay local.`,
-                        )
-                      : t("Standart analiz", "Standard analysis")}
-                  </span>
                 </div>
                 <form
                   className="wb-composer"

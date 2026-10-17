@@ -1404,31 +1404,46 @@ def chart(request: dict) -> dict:
     base = validate_spec(base, m, locale=locale, warnings=base_warnings) if base is not None else default_spec()
 
     planner: dict
-    if request.get("use_llm") is True and prompt.strip():
-        plan = llm_plan(prompt, base, m, locale=locale)
-        if plan["status"] == "planned":
-            planner = {"source": "model", "status": "planned", "changes": plan["changes"],
-                       "note": t["note_planned"].format(n=len(plan["changes"]),
-                                                       fields=", ".join(t["field_names"].get(c["field"], c["field"])
-                                                                        for c in plan["changes"])),
-                       "telemetry": plan.get("telemetry", {})}
-            spec, plan_warnings = plan["spec"], plan["warnings"]
-        else:
+    from analysis import llm_routing
+
+    # v3 G6: no checkbox. The routing table (held-out measurements) decides per task; policy, budget or a missing
+    # provider keep it local. An explicit `use_llm` (evaluations, scripts) wins: True asks, False stays local.
+    local = local_plan(prompt, base, m, locale)
+    local_ok = local["status"] == "planned" or not prompt.strip()
+    ask_model = bool(prompt.strip()) and (
+        request.get("use_llm") is True
+        or (request.get("use_llm") is not False and llm_routing.use_model("chart_plan", local_ok=local_ok))
+    )
+    plan = None
+    if ask_model:
+        key = llm_routing.cache_key("chart_plan", prompt, base, locale, m.get("sha256"))
+        plan = llm_routing.cache_get(key)
+        if plan is None:
+            plan = llm_plan(prompt, base, m, locale=locale)
+            llm_routing.record_usage(plan.get("telemetry"))
+            if plan["status"] == "planned":
+                llm_routing.cache_put(key, plan)
+    if plan is not None and plan["status"] == "planned":
+        planner = {"source": "model", "status": "planned", "changes": plan["changes"],
+                   "note": t["note_planned"].format(n=len(plan["changes"]),
+                                                   fields=", ".join(t["field_names"].get(c["field"], c["field"])
+                                                                    for c in plan["changes"])),
+                   "telemetry": plan.get("telemetry", {}),
+                   "routing": llm_routing.receipt("chart_plan", "model")}
+        spec, plan_warnings = plan["spec"], plan["warnings"]
+    else:
+        planner = {"source": "local", "status": local["status"], "changes": local["changes"], "note": local["note"]}
+        if plan is not None:
             reason_key = plan["status"] if plan["status"] in t["reason"] else "unavailable"
             if plan.get("error_code") == "not_configured":
                 reason_key = "not_configured"
             elif plan.get("http_status") == 429:
                 reason_key = "rate_limited"
-            local = local_plan(prompt, base, m, locale)
-            planner = {"source": "local", "status": local["status"], "changes": local["changes"],
-                       "note": t["note_fallback"].format(reason=t["reason"][reason_key]) + " " + local["note"],
-                       "fallback": {"status": plan["status"], "error_code": plan.get("error_code")}}
-            if "suggestions" in local:
-                planner["suggestions"] = local["suggestions"]
-            spec, plan_warnings = local["spec"], local["warnings"]
-    else:
-        local = local_plan(prompt, base, m, locale)
-        planner = {"source": "local", "status": local["status"], "changes": local["changes"], "note": local["note"]}
+            planner["note"] = t["note_fallback"].format(reason=t["reason"][reason_key]) + " " + local["note"]
+            planner["fallback"] = {"status": plan["status"], "error_code": plan.get("error_code")}
+        planner["routing"] = llm_routing.receipt(
+            "chart_plan", "local", fallback=(planner.get("fallback") or {}).get("status")
+        )
         if "suggestions" in local:
             planner["suggestions"] = local["suggestions"]
         spec, plan_warnings = local["spec"], local["warnings"]

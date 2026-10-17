@@ -24,6 +24,7 @@ import {
 } from "recharts";
 import { api } from "../api";
 import { useLocale } from "./Locale";
+import { RoutingBadge } from "./Routing";
 import type { ChartResult, ChartSpec, Filters } from "./types";
 import { Mascot } from "./Avatars";
 import { ReasoningTree } from "./Reasoning";
@@ -56,7 +57,6 @@ export function ChartStudio({
   dataset,
   filters,
   csrf,
-  providerReady,
   providerLabel,
   initialPrompt,
   onExportCode,
@@ -64,7 +64,6 @@ export function ChartStudio({
   dataset: string;
   filters: Filters;
   csrf: string | null;
-  providerReady: boolean;
   providerLabel?: string | null;
   initialPrompt?: string;
   onExportCode: (spec: ChartSpec) => void;
@@ -74,7 +73,6 @@ export function ChartStudio({
     [prompt, setPrompt] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [useLlm, setUseLlm] = useState(false),
     [view, setView] = useState<View>("chart");
   const chartRef = useRef<HTMLDivElement>(null);
   const current = steps[steps.length - 1]?.result ?? null;
@@ -91,7 +89,7 @@ export function ChartStudio({
     setError("");
     const r = await api.post<ChartResult>(
       BASE + "/chart",
-      { dataset, filters, locale, prompt: text, base_spec: base, use_llm: useLlm && providerReady },
+      { dataset, filters, locale, prompt: text, base_spec: base },
       csrf,
     );
     setBusy(false);
@@ -241,22 +239,6 @@ export function ChartStudio({
           {t("Uygula", "Apply")}
         </button>
       </form>
-      <div className="wb-studio-options">
-        <label className={"wb-studio-llm" + (providerReady ? "" : " is-off")}>
-          <input type="checkbox" checked={useLlm && providerReady} disabled={!providerReady} onChange={(e) => setUseLlm(e.target.checked)} />
-          {providerLabel
-            ? t(`${providerLabel} ile planla`, `Plan with ${providerLabel}`)
-            : t("Dil modeliyle planla", "Plan with the language model")}
-          <small>
-            {providerReady
-              ? t(
-                  "İstek, ülke listesi ve tarih aralığı sağlayıcıya gider; satırlar ve tutarlar gitmez. Model yalnız planı önerir; plan doğrulanır.",
-                  "Your request, the country list and the date range go to the provider; rows and amounts stay local. The model only proposes the plan, which is validated.",
-                )
-              : t("Sağlayıcı bağlı değil; yerel planlayıcı kullanılır.", "No provider connected; the local planner is used.")}
-          </small>
-        </label>
-      </div>
       <div className="wb-question-chips" aria-label={t("Önerilen istekler", "Suggested requests")}>
         {suggestions.map((s) => (
           <button key={s} type="button" disabled={busy} onClick={() => void ask(s, current?.spec ?? null)}>
@@ -298,12 +280,16 @@ export function ChartStudio({
             </div>
           </header>
           <div className="wb-studio-plan">
-            <span className={"wb-badge " + (current.planner.source === "model" ? "blue" : "")}>
-              <Verified size={16} />
-              {current.planner.source === "model"
-                ? t("Model planladı · sayılar yerelde", "Planned by the model · numbers local")
-                : t("Yerel planlayıcı", "Local planner")}
-            </span>
+            {current.planner.routing ? (
+              <RoutingBadge routing={current.planner.routing} providerLabel={providerLabel} />
+            ) : (
+              <span className={"wb-badge " + (current.planner.source === "model" ? "blue" : "")}>
+                <Verified size={16} />
+                {current.planner.source === "model"
+                  ? t("Model planladı · sayılar yerelde", "Planned by the model · numbers local")
+                  : t("Yerel planlayıcı", "Local planner")}
+              </span>
+            )}
             {steps[steps.length - 1]!.prompt !== "" && current.planner.changes.map((c) => (
               <span key={c.field} className="wb-studio-change">
                 <b>{fieldLabel(c.field)}</b> {show(c.from)} → {show(c.to)}

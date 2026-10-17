@@ -595,16 +595,31 @@ def run(request):
     from analysis.llm import status, plan_question, INTENTS
 
     result["provider"] = status()
-    if request.get("use_llm") is True and request.get("question"):
+    from analysis import llm_routing
+
+    baseline = result["answer"] or {}
+    # v3 G6: the routing table decides (no checkbox). An explicit `use_llm` from an evaluation or a script wins:
+    # True asks the model, False keeps the request local.
+    ask_model = bool(request.get("question")) and (
+        request.get("use_llm") is True
+        or (request.get("use_llm") is not False
+            and llm_routing.use_model("question_route", local_ok=baseline.get("status") == "verified"))
+    )
+    if ask_model:
         # Local refusal takes precedence: never send policy-refused text to a provider.
-        baseline = result["answer"] or {}
         if baseline.get("status") == "refused" or baseline.get("reason") in {
             "unsupported_metric_or_causality",
             "explicit_filter_required",
         }:
             result["planner"] = {"status": "blocked", "intent": "unsupported"}
         else:
-            plan = plan_question(str(request["question"]))
+            key = llm_routing.cache_key("question_route", str(request["question"]))
+            plan = llm_routing.cache_get(key)
+            if plan is None:
+                plan = plan_question(str(request["question"]))
+                llm_routing.record_usage(plan.get("telemetry"))
+                if plan["status"] == "planned":
+                    llm_routing.cache_put(key, plan)
             result["planner"] = plan
             result["provider"]["connected"] = plan["status"] == "planned"
             if plan["status"] == "planned":
@@ -621,6 +636,10 @@ def run(request):
                     }[plan["intent"]]
                 result["answer"] = explain({**request, "question": canonical}, result)
                 result["answer"]["mode"] = "model-plan-verified-facts"
+    if request.get("question"):
+        used = "model" if (result.get("planner") or {}).get("status") == "planned" else "local"
+        fb = (result.get("planner") or {}).get("status") if ask_model and used == "local" else None
+        result["routing"] = llm_routing.receipt("question_route", used, fallback=fb)
     from analysis.fingerprint import fingerprint
 
     result["build"] = fingerprint()
@@ -681,9 +700,26 @@ def handle(request):
     if action == "run":
         return run(request)
     if action == "route":
+        from analysis import llm_routing
+        from analysis.llm import plan_studio
         from analysis.router import route
 
-        return route(request.get("text"), request.get("locale", "tr"))
+        out = route(request.get("text"), request.get("locale", "tr"))
+        used, fallback = "local", None
+        # The local router has no signal on a request without any known word; that is when "local first" asks.
+        if llm_routing.use_model("studio_route", local_ok=out["signal"] != "default"):
+            key = llm_routing.cache_key("studio_route", request["text"])
+            plan = llm_routing.cache_get(key)
+            if plan is None:
+                plan = plan_studio(request["text"])
+                llm_routing.record_usage(plan.get("telemetry"))
+                if plan["status"] == "planned":
+                    llm_routing.cache_put(key, plan)
+            if plan["status"] == "planned":
+                out, used = {**out, "studio": plan["studio"], "signal": "model"}, "model"
+            else:
+                fallback = plan["status"]
+        return {**out, "routing": llm_routing.receipt("studio_route", used, fallback=fallback)}
     if action in {"forecast", "decisions"}:
         from analysis.forecast import forecast
 

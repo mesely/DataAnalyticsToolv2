@@ -5596,6 +5596,50 @@
   }
 }
 
+/* v3 G6: the planner badge replaces the model checkboxes; its details say why that planner was chosen. */
+.wb .wb-routing {
+  display: inline-block;
+  max-width: 100%;
+  font-size: 12px;
+}
+.wb .wb-routing > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.wb .wb-routing > summary::-webkit-details-marker {
+  display: none;
+}
+.wb .wb-routing.is-model > summary {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.wb .wb-routing[open] > div {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--code-bg);
+  color: var(--ink);
+}
+.wb .wb-routing p {
+  margin: 0 0 4px;
+}
+.wb .wb-routing-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
 /* >>> generated: light text contrast (tools/design/contrast_tones.py) */
 .wb[data-theme="light"] {
   --tone-338763: #307e5c;

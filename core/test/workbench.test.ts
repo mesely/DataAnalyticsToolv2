@@ -596,10 +596,11 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
     });
     expect(refined.status).toBe(200);
     expect(refined.json.spec).toMatchObject({ metric: "orders", dimension: "country", top_n: 3 });
-    // A language-model request without a configured provider falls back locally and says so.
+    // v3 G6: a client cannot force the model; the routing table decides, and without a provider it is local.
     const llm = await apiPost(rig, alice, B + "/chart", { dataset: "demo", prompt: "son 3 ay", use_llm: true });
     expect(llm.status).toBe(200);
-    expect((llm.json.planner as { source: string }).source).toBe("local");
+    expect(llm.json.planner).toMatchObject({ source: "local", routing: { task: "chart_plan", used: "local" } });
+    expect((llm.json.planner as { fallback?: unknown }).fallback).toBeUndefined();
   });
   it("AW-16: exports reproducible code for permitted scopes only", async () => {
     const r = await apiPost(rig, alice, B + "/export/code", { dataset: "demo", format: "bundle", locale: "en" });

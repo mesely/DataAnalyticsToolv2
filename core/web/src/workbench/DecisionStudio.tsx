@@ -5,7 +5,8 @@ import { ReasoningTree } from "./Reasoning";
 import { Findings, Database, Spinner } from "./BrandIcons";
 import { api } from "../api";
 import { useLocale } from "./Locale";
-import type { Filters } from "./types";
+import type { Filters, RoutingReceipt } from "./types";
+import { RoutingBadge } from "./Routing";
 import {
   CartesianGrid,
   Line,
@@ -185,6 +186,7 @@ type Statement = {
 };
 type Brief = {
   decision_id: string;
+  routing?: Record<string, RoutingReceipt>;
   objective: string;
   dataset_sha256: string;
   filters: Filters;
@@ -245,7 +247,6 @@ export function DecisionStudio({
   dataset,
   filters,
   csrf,
-  providerReady,
   providerLabel,
   busy,
   activity,
@@ -253,14 +254,12 @@ export function DecisionStudio({
   dataset: string;
   filters: Filters;
   csrf: string | null;
-  providerReady: boolean;
   providerLabel: string | null;
   busy: boolean;
   activity: (n: number) => void;
 }) {
   const { t, locale } = useLocale();
   const [objective, setObjective] = useState("balanced"),
-    [useLlm, setUseLlm] = useState(false),
     [withScenario, setWithScenario] = useState(false),
     [volume, setVolume] = useState("5"),
     [price, setPrice] = useState("0"),
@@ -320,7 +319,6 @@ export function DecisionStudio({
           filters,
           locale,
           objective,
-          use_llm: useLlm && providerReady,
           ...(withScenario
             ? {
                 scenario: {
@@ -587,31 +585,6 @@ export function DecisionStudio({
               </p>
             </fieldset>
           )}
-          <details className="wb-decision-llm">
-            <summary>
-              {t("Dil modeliyle odak seçimi", "Language-model focus selection")}
-            </summary>
-            <label className="wb-decision-check">
-              <input
-                type="checkbox"
-                checked={useLlm && providerReady}
-                disabled={running || busy || !providerReady}
-                onChange={(e) => {
-                  setUseLlm(e.target.checked);
-                  invalidate();
-                }}
-              />
-              {providerLabel
-                ? t(`Bu özet için ${providerLabel} kullan`, `Use ${providerLabel} for this brief`)
-                : t("Sağlayıcı bağlı değil; yerel özet kullanılır.", "No provider connected; the local brief is used.")}
-            </label>
-            <p>
-              {t(
-                "Yalnız sayısal özetler ve yöntem notları dil modeli sağlayıcısına gönderilir. Ham satırlar ve ürün/ülke adları gönderilmez. Model, hesaplanan adaylar arasından odak seçer; puanları ve sayıları değiştiremez.",
-                "Only numerical aggregates and methodology notes are sent to the language-model provider. Raw rows and product/country labels stay local. The model selects focus among computed candidates; it cannot change scores or numbers.",
-              )}
-            </p>
-          </details>
           <button
             className="wb-btn wb-primary"
             disabled={running || busy}
@@ -673,6 +646,12 @@ export function DecisionStudio({
               </button>
             </div>
           </header>
+          {brief.routing && (
+            <div className="wb-routing-row">
+              <RoutingBadge routing={brief.routing.decision_focus} providerLabel={providerLabel} />
+              <RoutingBadge routing={brief.routing.decision_narrative} providerLabel={providerLabel} />
+            </div>
+          )}
           {brief.provider.status !== "not_requested" && (
             <p className="wb-provider-notice" role="status">
               {brief.provider.status === "selected"

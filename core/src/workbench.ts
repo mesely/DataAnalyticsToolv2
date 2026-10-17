@@ -473,7 +473,6 @@ export function registerWorkbench(
       min_shared: b.min_shared || 2,
       locale: b.locale === "en" ? "en" : "tr",
       include_graph: true,
-      use_llm: b.use_llm === true,
       // Product views include postage, fees and adjustments only on request (analysis/scope.py, v3 G5).
       include_service: b.include_service === true,
     };
@@ -534,7 +533,6 @@ export function registerWorkbench(
             locale: b.locale === "en" ? "en" : "tr",
             objective: b.objective || "balanced",
             scenario: b.scenario,
-            use_llm: b.use_llm === true,
           };
           const result = (await analysisWorker({ action, ...recipe })) as Obj;
           if (action === "forecast") {
@@ -668,7 +666,6 @@ export function registerWorkbench(
           locale: b.locale === "en" ? "en" : "tr",
           prompt: b.prompt,
           base_spec: b.base_spec ?? null,
-          use_llm: b.use_llm === true,
         })) as Obj;
         await audit(v.identity.subject, v.identity.roles, "chart", {
           dataset: b.dataset,

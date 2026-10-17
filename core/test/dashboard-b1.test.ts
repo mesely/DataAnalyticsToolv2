@@ -69,6 +69,7 @@ const APP_SOURCES = [
   // v3
   "workbench/network.ts",
   "workbench/Scope.tsx",
+  "workbench/Routing.tsx",
 ];
 
 async function fileRequest(

@@ -72,10 +72,10 @@ def _score(spec, expect):
     return hits == len(expect), hits, len(expect)
 
 
-def run_chart(provider, catalog, probe=None):
+def run_chart(provider, catalog, probe=None, cases=None):
     from analysis.chart_studio import llm_plan, local_plan
     records, blocked = [], None
-    for case in CASES:
+    for case in cases or CASES:
         base = _spec(case.get("base"))
         if provider == "local":
             plan = local_plan(case["prompt"], base, catalog, "tr")

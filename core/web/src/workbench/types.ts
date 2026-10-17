@@ -52,6 +52,19 @@ export interface GraphData {
   source_method: string;
   include_service?: boolean;
 }
+/** v3 G6: which planner ran for a task and why (analysis/llm_routing.py `receipt`). */
+export interface RoutingReceipt {
+  task: string;
+  method: "local" | "model" | "local_then_model";
+  used: "local" | "model";
+  why?: string | null;
+  local_accuracy?: number | null;
+  model_accuracy?: number | null;
+  n?: number | null;
+  measured_at?: string | null;
+  unavailable?: string;
+  fallback?: string | null;
+}
 /** v3 G5: what gross sales leaves out, what product views leave out, and how complete the edge months are. */
 export interface ScopeInfo {
   include_service: boolean;
@@ -103,6 +116,7 @@ export interface AnalysisResult {
     policy: string;
   };
   planner?: { status: string; intent?: string; http_status?: number; error_code?: string };
+  routing?: RoutingReceipt;
   provider: { connected: boolean; note: string; model?: string };
 }
 export interface SavedRun {
@@ -156,6 +170,7 @@ export interface ChartResult {
     changes: { field: string; from: unknown; to: unknown }[];
     note?: string;
     suggestions?: string[];
+    routing?: RoutingReceipt;
   };
   title: string;
   subtitle: string;

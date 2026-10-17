@@ -161,6 +161,10 @@ export function Workbench(p: {
   logout: () => void;
 }) {
   const [locale, setLocale] = useState<Locale>("tr");
+  // Screen readers and native date fields follow the document language, so it tracks the interface language.
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
   return (
     <LocaleProvider value={locale}>
       <Workspace {...p} locale={locale} setLocale={setLocale} />

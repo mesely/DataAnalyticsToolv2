@@ -207,6 +207,8 @@ function Workspace({
     [question, setQuestion] = useState(""),
     [useLlm, setUseLlm] = useState(false),
     [providerReady, setProviderReady] = useState(false),
+    // Display name of the configured language model, e.g. "GPT-OSS 20B · Groq"; null when none is configured.
+    [providerLabel, setProviderLabel] = useState<string | null>(null),
     [graphMode, setGraphMode] = useState("copurchase"),
     [minimum, setMinimum] = useState(2),
     [modal, setModal] = useState<
@@ -261,13 +263,14 @@ function Workspace({
     try {
       const r = await api.get<{
         datasets: Dataset[];
-        provider: { connected: boolean; configured?: boolean };
+        provider: { connected: boolean; configured?: boolean; label?: string | null };
       }>(BASE + "/catalog");
       if (r.ok) {
         setDatasets(r.data.datasets);
         setProviderReady(
           r.data.provider.configured ?? r.data.provider.connected,
         );
+        setProviderLabel(r.data.provider.label ?? null);
       } else setError(r.error.detail);
       const p = await api.get<{ avatar: string }>(BASE + "/profile");
       if (p.ok) setAvatar(p.data.avatar);
@@ -1220,20 +1223,26 @@ function Workspace({
                       result.planner.status !== "planned" &&
                       result.planner.status !== "blocked" && (
                         <p className="wb-provider-notice" role="status">
-                          {result.planner.http_status === 402
+                          {result.planner.http_status === 429
                             ? t(
-                                "Llama kullanılamıyor: Hugging Face hesabında çıkarım kredisi gerekiyor. Standart analiz sonucu gösteriliyor.",
-                                "Llama is unavailable: Hugging Face inference credits are required. Showing the standard analysis.",
+                                "Dil modelinin kullanım sınırı doldu (429). Standart analiz sonucu gösteriliyor.",
+                                "The language model's usage limit was reached (429). Showing the standard analysis.",
+                              )
+                            : result.planner.http_status === 402
+                            ? t(
+                                "Dil modeli kullanılamıyor: sağlayıcı hesabında kredi gerekiyor (402). Standart analiz sonucu gösteriliyor.",
+                                "The language model is unavailable: the provider account needs credits (402). Showing the standard analysis.",
                               )
                             : t(
-                                "Llama planı alınamadı. Standart analiz sonucu gösteriliyor.",
-                                "Llama planning is unavailable. Showing the standard analysis.",
+                                "Dil modeli planı alınamadı. Standart analiz sonucu gösteriliyor.",
+                                "Language-model planning is unavailable. Showing the standard analysis.",
                               )}
                         </p>
                       )}
                     {result.planner?.status === "planned" && (
                       <p className="wb-plan-receipt">
-                        {t("Llama planı", "Llama plan")}:{" "}
+                        {t("Model planı", "Model plan")}
+                        {providerLabel ? ` (${providerLabel})` : ""}:{" "}
                         {result.planner.intent} ·{" "}
                         {t(
                           "Sayılar hesap kaydından",
@@ -1298,13 +1307,13 @@ function Workspace({
                       disabled={!providerReady || working}
                       onChange={(e) => setUseLlm(e.target.checked)}
                     />
-                    {t("Llama ile yorumla", "Interpret with Llama")}
+                    {t("Dil modeliyle yorumla", "Interpret with the language model")}
                   </label>
                   <span>
                     {useLlm
                       ? t(
-                          "Soru Hugging Face'e gönderilir; veri satırları gönderilmez.",
-                          "Your question is sent to Hugging Face; data rows stay local.",
+                          `Soru sağlayıcıya (${providerLabel ?? "—"}) gönderilir; veri satırları gönderilmez.`,
+                          `Your question is sent to ${providerLabel ?? "the provider"}; data rows stay local.`,
                         )
                       : t("Standart analiz", "Standard analysis")}
                   </span>
@@ -1761,6 +1770,7 @@ function Workspace({
               filters={applied}
               csrf={csrf}
               providerReady={providerReady}
+              providerLabel={providerLabel}
               onExportCode={(spec) => {
                 setCodeChart(spec);
                 setModal("code");
@@ -1828,6 +1838,8 @@ function Workspace({
               dataset={dataset}
               filters={applied}
               csrf={csrf}
+              providerReady={providerReady}
+              providerLabel={providerLabel}
               busy={busy || childJobs > 0}
               activity={activity}
             />
@@ -1910,8 +1922,8 @@ function Workspace({
               </p>
               <div className="wb-callout">
                 {t(
-                  "Llama seçeneği soruyu bir analiz planına çevirir. Kâr, dönüşüm, tahmin ve nedensellik için ek veri/yöntem gerekir.",
-                  "Local explanations are active; LLM is not connected. Profit, conversion, forecasting and causality are outside this scope.",
+                  "Dil modeli seçeneği soruyu bir analiz planına çevirir; sayılar yerel hesaplardan gelir. Kâr, dönüşüm, tahmin ve nedensellik için ek veri/yöntem gerekir.",
+                  "The language-model option turns a question into an analysis plan; numbers come from local calculations. Profit, conversion, forecasting and causality need more data or methods.",
                 )}
               </div>
             </>

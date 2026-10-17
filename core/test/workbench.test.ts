@@ -578,7 +578,7 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
     });
     expect(refined.status).toBe(200);
     expect(refined.json.spec).toMatchObject({ metric: "orders", dimension: "country", top_n: 3 });
-    // A Llama request without a configured provider falls back locally and says so.
+    // A language-model request without a configured provider falls back locally and says so.
     const llm = await apiPost(rig, alice, B + "/chart", { dataset: "demo", prompt: "son 3 ay", use_llm: true });
     expect(llm.status).toBe(200);
     expect((llm.json.planner as { source: string }).source).toBe("local");

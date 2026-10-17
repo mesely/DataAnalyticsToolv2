@@ -1,4 +1,6 @@
-"""python -m analysis.llm_eval [--providers scripted-ideal,scripted-adversarial,local,hf] [--out file.json]"""
+"""python -m analysis.llm_eval [--providers scripted-ideal,scripted-adversarial,local,live] [--out file.json]
+
+`live` uses the configured provider (analysis.llm_setup); `hf` is accepted as the v2.2 name for it."""
 import argparse, json, pathlib
 from analysis.llm_eval.evaluate import evaluate, markdown, PROVIDERS
 

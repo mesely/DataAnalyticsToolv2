@@ -3,8 +3,8 @@
 Each case is a request (Turkish or English), an optional base spec (refinements) and the fields the plan must set.
 A case is correct when every expected field matches exactly; field accuracy counts fields individually. The same
 cases score the deterministic local planner, scripted stand-ins (an evaluator self-check, not a model) and the live
-Llama provider. The live provider is probed once; if it cannot answer, the row is BLOCKED and no accuracy is
-reported — a result is never inferred.
+provider (Groq, a self-hosted Llama server or Hugging Face). Every case is a real call; if the provider cannot be
+reached, the row is BLOCKED and no accuracy is reported — a result is never inferred.
 """
 from __future__ import annotations
 
@@ -88,13 +88,17 @@ def run_chart(provider, catalog, probe=None):
             plan = llm_plan(case["prompt"], base, catalog, model=model, locale="tr")
             spec = plan.get("spec") if plan["status"] == "planned" else None
             raw = plan["status"]
-        else:  # live provider; one probe, never fabricated
+        else:  # live provider; never fabricated
             if blocked is None:
                 plan = probe(case, base) if probe else llm_plan(case["prompt"], base, catalog, locale="tr")
-                if plan["status"] == "planned":
-                    spec, raw = plan["spec"], "planned"
-                elif plan["status"] == "invalid_plan":
-                    spec, raw = None, "invalid_plan"
+                if not probe:
+                    from analysis.llm_eval.evaluate import _pause
+                    _pause()
+                if plan["status"] in {"planned", "no_change"}:
+                    spec, raw = plan["spec"], plan["status"]
+                elif plan["status"] in {"invalid_plan", "blocked"} or plan.get("error_code") == "json_validate_failed":
+                    # a rejected, refused or unparseable reply is a wrong answer, not an outage
+                    spec, raw = None, plan.get("error_code") if plan.get("error_code") == "json_validate_failed" else plan["status"]
                 else:
                     blocked = {k: plan.get(k) for k in ("status", "error_code", "http_status")}
             if blocked is not None:
@@ -104,6 +108,9 @@ def run_chart(provider, catalog, probe=None):
         correct, hits, total = _score(spec, case["expect"])
         rec = {"id": case["id"], "prompt": case["prompt"], "raw_status": raw, "correct": correct, "field_hits": hits,
                "fields": total}
+        if provider not in {"local"} and not provider.startswith("scripted"):
+            t = plan.get("telemetry") or {}
+            rec.update(latency_ms=t.get("latency_ms"), total_tokens=t.get("total_tokens"))
         if provider == "scripted-adversarial" and case["id"] in ADVERSARIAL:
             rec["adversarial_rejected"] = raw == "invalid_plan"
         records.append(rec)

@@ -37,7 +37,7 @@ def test_hf_transport_numeric_claims_and_safe_telemetry(monkeypatch):
     result=run({"dataset":"demo","use_llm":True,"include_graph":False,"locale":"en","question":"Which item brings in most revenue?"})
     assert result["planner"]["status"] == "planned"
     assert result["answer"]["status"] == "verified"
-    assert result["answer"]["mode"] == "llama-plan-verified-facts"
+    assert result["answer"]["mode"] == "model-plan-verified-facts"
     assert result["provider"]["connected"] is True
     assert result["planner"]["telemetry"]["total_tokens"] == 197
     assert "fake-test-token" not in json.dumps(result)

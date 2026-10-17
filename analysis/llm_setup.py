@@ -1,14 +1,18 @@
-"""Configure and check the optional Llama provider without a secret ever appearing on screen or in Git.
+"""Configure and check the optional language-model provider without a secret ever appearing on screen or in Git.
 
+    .venv/bin/python -m analysis.llm_setup                    # Groq (default): prompt for the key (hidden), verify, save
+    GROQ_API_KEY=... .venv/bin/python -m analysis.llm_setup   # Groq, key from the environment (CI, servers)
+    .venv/bin/python -m analysis.llm_setup --check            # verify the saved Groq configuration only
     .venv/bin/python -m analysis.llm_setup --endpoint http://127.0.0.1:8080/v1 --model llama-3.1-8b-instruct
-                                                      # self-hosted OpenAI-compatible server (llama.cpp, Ollama, vLLM)
-    .venv/bin/python -m analysis.llm_setup            # Hugging Face: prompt for a token (hidden), verify, save
-    .venv/bin/python -m analysis.llm_setup --check    # verify the saved Hugging Face configuration only
+                                                              # self-hosted OpenAI-compatible server (llama.cpp, Ollama, vLLM)
+    .venv/bin/python -m analysis.llm_setup --provider hf      # Hugging Face Inference Providers
 
-The token is read with getpass, checked against the Hugging Face account API and one minimal chat completion, and
-saved to analysis/.local/hf-provider.json with mode 0600 (ignored by Git). The script reports only the account name,
-the token's permission type and the provider's answer: "ready", or the exact gate (for example HTTP 402, which means
-the account has no Inference Provider credits — a new token does not change that; credits or PRO do).
+Groq: the key is checked against the model list and one minimal JSON completion, then saved to
+analysis/.local/groq-provider.json with mode 0600 (ignored by Git). The default model is openai/gpt-oss-20b.
+The script reports only "ready" or the exact gate (401 key rejected, 404 model not on this account, 429 rate limit).
+
+Hugging Face: the token is checked against the account API and one completion, and saved to
+analysis/.local/hf-provider.json (mode 0600). HTTP 402 means the account has no Inference Provider credits.
 """
 from __future__ import annotations
 
@@ -22,6 +26,7 @@ from pathlib import Path
 import httpx
 
 CONFIG = Path(__file__).resolve().parent / ".local" / "hf-provider.json"
+GROQ_CONFIG = Path(__file__).resolve().parent / ".local" / "groq-provider.json"
 ENDPOINT = Path(__file__).resolve().parent / ".local" / "llama-endpoint.json"
 MODEL = "meta-llama/Llama-3.3-70B-Instruct"
 ROUTER = "https://router.huggingface.co/v1/chat/completions"
@@ -81,20 +86,88 @@ def setup_endpoint(base_url: str, model: str) -> int:
     with os.fdopen(fd, "w") as f:
         json.dump({"base_url": base_url, "model": model, **({"api_key": api_key} if api_key else {})}, f)
     os.chmod(ENDPOINT, 0o600)
-    print("Saved analysis/.local/llama-endpoint.json (mode 0600, ignored by Git); it takes precedence over Hugging Face.")
+    print("Saved analysis/.local/llama-endpoint.json (mode 0600, ignored by Git); it takes precedence over Groq and Hugging Face.")
     if status["ready"]:
-        print("Next: .venv/bin/python -m analysis.llm_eval --providers local,hf --out docs/evidence/verification/llm-eval-live.json")
+        print("Next: .venv/bin/python -m analysis.llm_eval --providers local,live --out docs/evidence/verification/llm-eval-live.json")
+    return 0 if status["ready"] else 2
+
+
+def _save(path: Path, value: dict) -> None:
+    path.parent.mkdir(exist_ok=True)
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as f:
+        json.dump(value, f)
+    os.chmod(path, 0o600)
+
+
+def probe_groq(key: str, model: str) -> dict:
+    """Model availability, then one tiny JSON completion; returns statuses only, never a response body."""
+    from analysis.llm import GROQ_BASE
+
+    headers = {"Authorization": f"Bearer {key}"}
+    try:
+        r = httpx.get(GROQ_BASE + "/models", headers=headers, timeout=20)
+        if r.status_code != 200:
+            return {"ready": False, "http_status": r.status_code,
+                    "reason": "key rejected (wrong or revoked)" if r.status_code == 401 else "provider error"}
+        if model not in {m.get("id") for m in r.json().get("data", [])}:
+            return {"ready": False, "http_status": 404, "reason": f"{model} is not available to this key"}
+        body = {"model": model, "temperature": 0, "max_tokens": 200, "response_format": {"type": "json_object"},
+                "messages": [{"role": "system", "content": 'Return the JSON object {"ok": true}.'},
+                             {"role": "user", "content": "ready?"}]}
+        if model.startswith("openai/gpt-oss-"):
+            body.update(reasoning_effort="low", include_reasoning=False)
+        r = httpx.post(GROQ_BASE + "/chat/completions", headers=headers, json=body, timeout=30)
+    except httpx.HTTPError as exc:
+        return {"ready": False, "reason": f"network error: {type(exc).__name__}"}
+    if r.status_code == 200:
+        return {"ready": True, "http_status": 200}
+    reasons = {401: "key rejected (wrong or revoked)", 429: "rate limited; try again in a minute"}
+    return {"ready": False, "http_status": r.status_code, "reason": reasons.get(r.status_code, "provider error")}
+
+
+def setup_groq(model: str, check: bool) -> int:
+    from analysis.llm import _GROQ_MODEL
+
+    if not _GROQ_MODEL.fullmatch(model):
+        print(f"{model} is not one of the evaluated Groq models (openai/gpt-oss-20b, openai/gpt-oss-120b).")
+        return 1
+    if check:
+        if not GROQ_CONFIG.exists():
+            print("No saved Groq configuration; run without --check.")
+            return 1
+        cfg = json.loads(GROQ_CONFIG.read_text())
+        key, model = cfg.get("api_key", ""), cfg.get("model", model)
+    else:
+        key = os.environ.get("GROQ_API_KEY", "").strip() or getpass.getpass("Groq API key (input hidden): ").strip()
+    if not key.startswith("gsk_"):
+        print("That does not look like a Groq API key (expected the gsk_ prefix).")
+        return 1
+    status = probe_groq(key, model)
+    print(f"Groq · {model}: {'ready' if status['ready'] else 'not ready'}"
+          + (f" (HTTP {status['http_status']})" if status.get("http_status") else "")
+          + (f" — {status['reason']}" if status.get("reason") else ""))
+    if not check and status["ready"]:
+        _save(GROQ_CONFIG, {"api_key": key, "model": model})
+        print("Saved analysis/.local/groq-provider.json (mode 0600, ignored by Git).")
+    if status["ready"]:
+        print("Next: .venv/bin/python -m analysis.llm_eval --providers local,live --out docs/evidence/verification/llm-eval-live.json")
     return 0 if status["ready"] else 2
 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--check", action="store_true", help="verify the saved configuration without asking for a token")
-    ap.add_argument("--model", default=None, help="model id (Hugging Face default: %s)" % MODEL)
+    ap.add_argument("--provider", choices=("groq", "hf"), default="groq", help="hosted provider (default: groq)")
+    ap.add_argument("--check", action="store_true", help="verify the saved configuration without asking for a key")
+    ap.add_argument("--model", default=None, help="model id (Groq default: openai/gpt-oss-20b; Hugging Face: %s)" % MODEL)
     ap.add_argument("--endpoint", default=None, help="self-hosted OpenAI-compatible base URL, e.g. http://127.0.0.1:8080/v1")
     a = ap.parse_args(argv)
     if a.endpoint:
         return setup_endpoint(a.endpoint, a.model or "llama-3.1-8b-instruct")
+    if a.provider == "groq":
+        from analysis.llm import GROQ_DEFAULT_MODEL
+
+        return setup_groq(a.model or os.environ.get("GROQ_MODEL", "") or GROQ_DEFAULT_MODEL, a.check)
     a.model = a.model or os.environ.get("HF_MODEL", MODEL)
     if a.check:
         if not CONFIG.exists():
@@ -125,7 +198,7 @@ def main(argv=None) -> int:
         os.chmod(CONFIG, 0o600)
         print(f"Saved to {CONFIG.relative_to(Path.cwd()) if CONFIG.is_relative_to(Path.cwd()) else CONFIG} (mode 0600, ignored by Git).")
     if status["ready"]:
-        print("Next: .venv/bin/python -m analysis.llm_eval --providers local,hf --out docs/evidence/verification/llm-eval-live.json")
+        print("Next: .venv/bin/python -m analysis.llm_eval --providers local,live --out docs/evidence/verification/llm-eval-live.json")
     return 0 if status["ready"] else 2
 
 

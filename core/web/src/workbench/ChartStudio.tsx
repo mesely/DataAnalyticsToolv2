@@ -1,7 +1,7 @@
 /**
  * Chart Studio (AW-16 §2). The analyst asks for a chart in their own words — "son 6 ay", "Almanya ile Fransa'yı
  * karşılaştır", "%95 güven aralığı ekle" — and refines it step by step. Each request is planned into a validated
- * ChartSpec (by Llama when the analyst opts in and a provider is configured, otherwise by the local planner);
+ * ChartSpec (by the configured language model when the analyst opts in and a provider is configured, otherwise by the local planner);
  * every number, interval and sentence on screen is computed by the local engine. The plan is shown as editable
  * facts (what changed, which planner), never as model prose.
  */
@@ -57,6 +57,7 @@ export function ChartStudio({
   filters,
   csrf,
   providerReady,
+  providerLabel,
   initialPrompt,
   onExportCode,
 }: {
@@ -64,6 +65,7 @@ export function ChartStudio({
   filters: Filters;
   csrf: string | null;
   providerReady: boolean;
+  providerLabel?: string | null;
   initialPrompt?: string;
   onExportCode: (spec: ChartSpec) => void;
 }) {
@@ -242,10 +244,15 @@ export function ChartStudio({
       <div className="wb-studio-options">
         <label className={"wb-studio-llm" + (providerReady ? "" : " is-off")}>
           <input type="checkbox" checked={useLlm && providerReady} disabled={!providerReady} onChange={(e) => setUseLlm(e.target.checked)} />
-          {t("Llama ile planla", "Plan with Llama")}
+          {providerLabel
+            ? t(`${providerLabel} ile planla`, `Plan with ${providerLabel}`)
+            : t("Dil modeliyle planla", "Plan with the language model")}
           <small>
             {providerReady
-              ? t("Model yalnızca planı önerir; doğrulanır.", "The model only proposes the plan; it is validated.")
+              ? t(
+                  "İstek, ülke listesi ve tarih aralığı sağlayıcıya gider; satırlar ve tutarlar gitmez. Model yalnız planı önerir; plan doğrulanır.",
+                  "Your request, the country list and the date range go to the provider; rows and amounts stay local. The model only proposes the plan, which is validated.",
+                )
               : t("Sağlayıcı bağlı değil; yerel planlayıcı kullanılır.", "No provider connected; the local planner is used.")}
           </small>
         </label>
@@ -291,10 +298,10 @@ export function ChartStudio({
             </div>
           </header>
           <div className="wb-studio-plan">
-            <span className={"wb-badge " + (current.planner.source === "llama" ? "blue" : "")}>
+            <span className={"wb-badge " + (current.planner.source === "model" ? "blue" : "")}>
               <Verified size={16} />
-              {current.planner.source === "llama"
-                ? t("Llama planladı · sayılar yerelde", "Planned by Llama · numbers local")
+              {current.planner.source === "model"
+                ? t("Model planladı · sayılar yerelde", "Planned by the model · numbers local")
                 : t("Yerel planlayıcı", "Local planner")}
             </span>
             {steps[steps.length - 1]!.prompt !== "" && current.planner.changes.map((c) => (
@@ -302,7 +309,7 @@ export function ChartStudio({
                 <b>{fieldLabel(c.field)}</b> {show(c.from)} → {show(c.to)}
               </span>
             ))}
-            {steps[steps.length - 1]!.prompt !== "" && current.planner.note && (current.planner.source === "llama" || current.planner.status !== "planned" || "fallback" in current.planner) && (
+            {steps[steps.length - 1]!.prompt !== "" && current.planner.note && (current.planner.source === "model" || current.planner.status !== "planned" || "fallback" in current.planner) && (
               <span className="wb-studio-note">{current.planner.note}</span>
             )}
           </div>

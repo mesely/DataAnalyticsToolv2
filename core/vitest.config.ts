@@ -4,6 +4,8 @@ export default defineConfig({
   test: {
     include: ["test/**/*.test.ts"],
     globalSetup: ["test/global-setup.ts"],
+    // No test may reach a hosted language model with the developer's saved key (see test/no-provider.ts).
+    setupFiles: ["test/no-provider.ts"],
     testTimeout: 60_000,
     hookTimeout: 120_000,
     // Each test file provisions its own throwaway database (see

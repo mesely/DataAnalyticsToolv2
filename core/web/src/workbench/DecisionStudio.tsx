@@ -245,12 +245,16 @@ export function DecisionStudio({
   dataset,
   filters,
   csrf,
+  providerReady,
+  providerLabel,
   busy,
   activity,
 }: {
   dataset: string;
   filters: Filters;
   csrf: string | null;
+  providerReady: boolean;
+  providerLabel: string | null;
   busy: boolean;
   activity: (n: number) => void;
 }) {
@@ -316,7 +320,7 @@ export function DecisionStudio({
           filters,
           locale,
           objective,
-          use_llm: useLlm,
+          use_llm: useLlm && providerReady,
           ...(withScenario
             ? {
                 scenario: {
@@ -585,24 +589,26 @@ export function DecisionStudio({
           )}
           <details className="wb-decision-llm">
             <summary>
-              {t("Llama ile odak seçimi", "Llama focus selection")}
+              {t("Dil modeliyle odak seçimi", "Language-model focus selection")}
             </summary>
             <label className="wb-decision-check">
               <input
                 type="checkbox"
-                checked={useLlm}
-                disabled={running || busy}
+                checked={useLlm && providerReady}
+                disabled={running || busy || !providerReady}
                 onChange={(e) => {
                   setUseLlm(e.target.checked);
                   invalidate();
                 }}
               />
-              {t("Bu özet için Llama kullan", "Use Llama for this brief")}
+              {providerLabel
+                ? t(`Bu özet için ${providerLabel} kullan`, `Use ${providerLabel} for this brief`)
+                : t("Sağlayıcı bağlı değil; yerel özet kullanılır.", "No provider connected; the local brief is used.")}
             </label>
             <p>
               {t(
-                "Yalnız sayısal özetler ve yöntem notları HF sağlayıcısına gönderilir. Ham satırlar ve ürün/ülke adları gönderilmez. Model, hesaplanan adaylar arasından odak seçer; puanları ve sayıları değiştiremez.",
-                "Only numerical aggregates and methodology notes are sent to the HF provider. Raw rows and product/country labels stay local. The model selects focus among computed candidates; it cannot change scores or numbers.",
+                "Yalnız sayısal özetler ve yöntem notları dil modeli sağlayıcısına gönderilir. Ham satırlar ve ürün/ülke adları gönderilmez. Model, hesaplanan adaylar arasından odak seçer; puanları ve sayıları değiştiremez.",
+                "Only numerical aggregates and methodology notes are sent to the language-model provider. Raw rows and product/country labels stay local. The model selects focus among computed candidates; it cannot change scores or numbers.",
               )}
             </p>
           </details>
@@ -671,17 +677,22 @@ export function DecisionStudio({
             <p className="wb-provider-notice" role="status">
               {brief.provider.status === "selected"
                 ? t(
-                    "Llama odakları işaretledi. Sıralama ve puanlar yerel hesaplardan geliyor.",
-                    "Llama focus marked. Local calculations determine scores and ordering.",
+                    "Dil modeli odakları işaretledi. Sıralama ve puanlar yerel hesaplardan geliyor.",
+                    "The language model marked focus items. Local calculations determine scores and ordering.",
                   )
+                : brief.provider.http_status === 429
+                  ? t(
+                      "Dil modelinin kullanım sınırı doldu (429). Aşağıdaki özet yerel hesaplardan üretildi.",
+                      "The language model's usage limit was reached (429). The brief below uses local calculations.",
+                    )
                 : brief.provider.http_status === 402
                   ? t(
-                      "Llama isteği kredi/faturalandırma nedeniyle tamamlanamadı (402). Aşağıdaki özet yerel hesaplardan üretildi.",
-                      "Llama credit/billing gate (402). The brief below uses local calculations.",
+                      "Dil modeli isteği kredi/faturalandırma nedeniyle tamamlanamadı (402). Aşağıdaki özet yerel hesaplardan üretildi.",
+                      "Language-model credit/billing gate (402). The brief below uses local calculations.",
                     )
                   : t(
-                      "Llama seçimi kullanılamadı; yerel karar özeti gösteriliyor.",
-                      "Llama selection unavailable; showing the local decision brief.",
+                      "Dil modeli seçimi kullanılamadı; yerel karar özeti gösteriliyor.",
+                      "Language-model selection unavailable; showing the local decision brief.",
                     )}
             </p>
           )}
@@ -721,22 +732,27 @@ export function DecisionStudio({
                 <p className="wb-provider-notice" role="status">
                   {brief.narrative.provider.status === "accepted"
                     ? t(
-                        "Llama anlatısının biçimi, atıfları, sayıları ve her sayının ölçü ile dönem bağı kontrol edildi. Bu kelime düzeyinde bir kontroldür; yorumların anlamca doğru olduğunu kanıtlamaz, dayanakları inceleyin. Yerel anlatı yukarıda korunur.",
-                        "The Llama narrative's schema, citations, numbers and each number's measure and period were checked. This is a word-level check and does not prove its interpretations are correct; inspect the evidence. The local narrative above is kept.",
+                        "Model anlatısının biçimi, atıfları, sayıları ve her sayının ölçü ile dönem bağı kontrol edildi. Bu kelime düzeyinde bir kontroldür; yorumların anlamca doğru olduğunu kanıtlamaz, dayanakları inceleyin. Yerel anlatı yukarıda korunur.",
+                        "The model narrative's schema, citations, numbers and each number's measure and period were checked. This is a word-level check and does not prove its interpretations are correct; inspect the evidence. The local narrative above is kept.",
                       )
                     : brief.narrative.provider.status === "rejected"
                       ? t(
-                          "Llama anlatısı doğrulamayı geçemedi (bilinmeyen dayanak, desteklenmeyen sayı, yanlış ölçüye ya da döneme bağlanmış değer veya şema); iki denemeden sonra yerel anlatı gösteriliyor.",
-                          "The Llama narrative failed validation (unknown evidence, unsupported number, a value attached to the wrong measure or period, or schema) after two attempts; the local narrative is shown.",
+                          "Model anlatısı doğrulamayı geçemedi (bilinmeyen dayanak, desteklenmeyen sayı, yanlış ölçüye ya da döneme bağlanmış değer veya şema); iki denemeden sonra yerel anlatı gösteriliyor.",
+                          "The model narrative failed validation (unknown evidence, unsupported number, a value attached to the wrong measure or period, or schema) after two attempts; the local narrative is shown.",
                         )
+                      : brief.narrative.provider.http_status === 429
+                        ? t(
+                            "Model anlatısı kullanım sınırı nedeniyle alınamadı (429); yerel anlatı gösteriliyor.",
+                            "Model narrative unavailable: the usage limit was reached (429); the local narrative is shown.",
+                          )
                       : brief.narrative.provider.http_status === 402
                         ? t(
-                            "Llama anlatısı kredi/faturalandırma nedeniyle alınamadı (402); yerel anlatı gösteriliyor.",
-                            "Llama narrative unavailable due to the credit/billing gate (402); the local narrative is shown.",
+                            "Model anlatısı kredi/faturalandırma nedeniyle alınamadı (402); yerel anlatı gösteriliyor.",
+                            "Model narrative unavailable due to the credit/billing gate (402); the local narrative is shown.",
                           )
                         : t(
-                            "Llama anlatısı kullanılamadı; yerel anlatı gösteriliyor.",
-                            "Llama narrative unavailable; the local narrative is shown.",
+                            "Model anlatısı kullanılamadı; yerel anlatı gösteriliyor.",
+                            "Model narrative unavailable; the local narrative is shown.",
                           )}
                 </p>
               )}
@@ -744,8 +760,8 @@ export function DecisionStudio({
                 <details className="wb-narrative-model">
                   <summary>
                     {t(
-                      "Llama yorumu · biçim ve sayı kontrolü",
-                      "Llama interpretation · schema and numbers checked",
+                      "Model yorumu · biçim ve sayı kontrolü",
+                      "Model interpretation · schema and numbers checked",
                     )}{" "}
                     · {brief.narrative.model.length}
                   </summary>
@@ -769,7 +785,7 @@ export function DecisionStudio({
                 </div>
                 {c.model_focus && (
                   <span className="wb-model-focus">
-                    {t("Llama odağı", "Llama focus")}
+                    {t("Model odağı", "Model focus")}
                   </span>
                 )}
                 <p>{c.explanation}</p>

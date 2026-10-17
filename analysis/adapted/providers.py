@@ -106,6 +106,11 @@ class ProviderSettings:
     groq_api_key: str | None = None
     groq_model: str = "llama-3.3-70b-versatile"
     groq_base_url: str = "https://api.groq.com/openai/v1"
+    # Reasoning models on Groq (openai/gpt-oss-*): effort, and whether the reasoning text comes back. It is never
+    # requested; reasoning tokens still count against max_tokens, so callers leave headroom (see analysis.llm).
+    groq_reasoning_effort: str | None = None
+    # Every product prompt asks for one JSON object; JSON mode makes the provider enforce that shape too.
+    json_object: bool = False
     mistral_api_key: str | None = None
     mistral_model: str = "mistral-small-latest"
     mistral_base_url: str = "https://api.mistral.ai/v1"
@@ -156,6 +161,8 @@ class ProviderSettings:
             raise ProviderConfigurationError("LLM_MAX_TOKENS must be positive.")
         if not 0 <= self.temperature <= 2:
             raise ProviderConfigurationError("LLM_TEMPERATURE must be between 0 and 2.")
+        if self.groq_reasoning_effort not in {None, "low", "medium", "high"}:
+            raise ProviderConfigurationError("GROQ_REASONING_EFFORT must be empty, low, medium, or high.")
         if self.openrouter_reasoning_effort not in {"low", "medium", "high"}:
             raise ProviderConfigurationError(
                 "OPENROUTER_REASONING_EFFORT must be low, medium, or high."
@@ -516,6 +523,12 @@ class ReliableProviderChatModel(BaseChatModel):
         }
         if stop:
             payload["stop"] = list(stop)
+        if self.settings.json_object:
+            payload["response_format"] = {"type": "json_object"}
+        if spec.name == "groq" and self.settings.groq_reasoning_effort:
+            payload["reasoning_effort"] = self.settings.groq_reasoning_effort
+            # Reasoning text is never shown, stored or validated; do not let it cross the wire.
+            payload["include_reasoning"] = False
         if spec.name == "openrouter" and self.settings.openrouter_reasoning_enabled:
             payload["reasoning"] = {
                 "enabled": True,
@@ -650,7 +663,7 @@ class ReliableProviderChatModel(BaseChatModel):
                     return response, attempts
 
             exc.attempts = attempts
-            if not exc.retryable or attempts > self.settings.max_retries:
+            if not exc.retryable or attempts > self.settings.max_retries or self._refused_for_longer(response, deadline):
                 raise exc
             delay = min(
                 self._retry_delay(response, attempts),
@@ -658,6 +671,17 @@ class ReliableProviderChatModel(BaseChatModel):
             )
             if delay > 0:
                 self.sleep_fn(delay)
+
+    def _refused_for_longer(self, response: httpx.Response | None, deadline: float) -> bool:
+        """The provider asked for a wait longer than we accept or than the request has left (for example a
+        daily token quota: Retry-After of minutes). Retrying earlier is refused again, so fail now and let the
+        caller fall back instead of holding the analyst for the whole deadline."""
+        retry_after = _retry_after_seconds(response)
+        if retry_after is None:
+            return False
+        return retry_after > self.settings.max_retry_after_seconds or retry_after >= max(
+            deadline - self.clock(), 0.0
+        )
 
     def _open_stream_with_retries(
         self,
@@ -882,7 +906,25 @@ def _error_for_response(provider: str, response: httpx.Response) -> LLMProviderE
         return ProviderUnavailableError(
             provider, "temporarily_unavailable", retryable=True, status_code=status
         )
+    if status == 400 and _provider_error_code(response) == "json_validate_failed":
+        # The model's sampled output was not valid JSON under JSON mode: a generation failure, not a bad request.
+        # Another sample usually succeeds, so it is retried like a transient error.
+        return ProviderRequestError(provider, "json_validate_failed", retryable=True, status_code=status)
     return ProviderRequestError(provider, "invalid_request", retryable=False, status_code=status)
+
+
+# Provider error codes that may be reported (they are fixed identifiers, never echoed request or response text).
+_SAFE_PROVIDER_ERROR_CODES = frozenset({"json_validate_failed", "model_not_found", "context_length_exceeded",
+                                        "rate_limit_exceeded", "invalid_api_key"})
+
+
+def _provider_error_code(response: httpx.Response) -> str | None:
+    try:
+        error = response.json().get("error")
+    except (ValueError, AttributeError):
+        return None
+    code = error.get("code") if isinstance(error, dict) else None
+    return code if code in _SAFE_PROVIDER_ERROR_CODES else None
 
 
 def _safe_json(response: httpx.Response, provider: str) -> dict[str, Any]:

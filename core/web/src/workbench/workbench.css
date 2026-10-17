@@ -4218,7 +4218,7 @@
   max-width: 220px;
 }
 
-/* The analysis-mode row (Llama toggle and mode label) sat flush on the chat card edge and clipped its label. */
+/* The analysis-mode row (language-model toggle and mode label) sat flush on the chat card edge and clipped its label. */
 .wb .wb-analysis-mode {
   padding-left: var(--inset);
   padding-right: var(--inset);

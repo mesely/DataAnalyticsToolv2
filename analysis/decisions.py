@@ -1,16 +1,15 @@
-"""Evidence-bound local recommendations with an optional constrained Llama selector.
+"""Evidence-bound local recommendations with an optional constrained language-model selector.
 The model never writes metrics, evidence scores, actions, SQL or free factual prose.
 """
 
 from __future__ import annotations
 import hashlib, json
 from pathlib import Path
-from dataclasses import replace
 import xml.etree.ElementTree as ET
 from analysis.adapted.lexical import _BM25
 from analysis.context import tokens
 from analysis.adapted.formatting import compact_summary
-from analysis.llm import configuration
+from analysis.llm import configuration, with_budget
 from analysis.forecast import scenario
 from analysis.narrative import local_statements, analysis_context_xml, narrate, VERSION as NARRATIVE_VERSION
 
@@ -142,7 +141,7 @@ def select_actions(brief, model=None):
     try:
         from langchain_core.messages import SystemMessage, HumanMessage
 
-        chat = model or build_chat_model(replace(cfg, max_tokens=500))
+        chat = model or build_chat_model(with_budget(cfg, 500))
         response = chat.invoke(
             [SystemMessage(content=SYSTEM), HumanMessage(content=context_xml(brief))]
         )

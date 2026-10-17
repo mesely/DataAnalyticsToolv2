@@ -136,10 +136,10 @@ _T = {
         "note_none": "İstekte tanınan bir grafik değişikliği yok; tahmin yapılmadı.",
         "note_invalid": "İstek geçerli bir grafiğe dönüşmedi: {error}",
         "note_compare_one": "Karşılaştırma için en az 2 ülke gerekir.",
-        "note_fallback": "Llama planı kullanılamadı ({reason}); yerel planlayıcı kullanıldı.",
+        "note_fallback": "Dil modeli planı kullanılamadı ({reason}); yerel planlayıcı kullanıldı.",
         "reason": {"not_configured": "sağlayıcı yapılandırılmamış", "invalid_plan": "plan şemayı geçemedi",
                    "blocked": "istek güvenlik kontrolünde durduruldu", "no_change": "plan değişiklik içermiyor",
-                   "unavailable": "sağlayıcı yanıt vermedi"},
+                   "unavailable": "sağlayıcı yanıt vermedi", "rate_limited": "sağlayıcının kullanım sınırı doldu"},
     },
     "en": {
         "not_object": "Chart spec must be an object.",
@@ -217,10 +217,10 @@ _T = {
         "note_none": "No chart change recognized in the request; nothing was guessed.",
         "note_invalid": "The request did not produce a valid chart: {error}",
         "note_compare_one": "A comparison needs at least 2 countries.",
-        "note_fallback": "The Llama plan was not used ({reason}); the local planner was used.",
+        "note_fallback": "The language-model plan was not used ({reason}); the local planner was used.",
         "reason": {"not_configured": "provider not configured", "invalid_plan": "plan failed the schema",
                    "blocked": "request stopped by the safety check", "no_change": "plan contained no change",
-                   "unavailable": "provider unavailable"},
+                   "unavailable": "provider unavailable", "rate_limited": "the provider's usage limit was reached"},
     },
 }
 
@@ -1344,7 +1344,7 @@ def _chart_system(base: dict, catalog: dict) -> str:
 
 
 def llm_plan(prompt, base_spec, catalog, *, model=None, locale: str = "tr") -> dict:
-    """Opt-in Llama planner (mirrors analysis.llm.plan_question). The model output must be exactly one
+    """Opt-in language-model planner (mirrors analysis.llm.plan_question). The model output must be exactly one
     ChartSpec JSON object that passes ``validate_spec``; anything else is ``invalid_plan``."""
     from analysis.adapted.guardrails import assess_input
     from analysis import llm
@@ -1361,9 +1361,8 @@ def llm_plan(prompt, base_spec, catalog, *, model=None, locale: str = "tr") -> d
 
     try:
         from langchain_core.messages import HumanMessage, SystemMessage
-        from dataclasses import replace
 
-        chat = model or llm.build_chat_model(replace(cfg, max_tokens=LLM_MAX_TOKENS))
+        chat = model or llm.build_chat_model(llm.with_budget(cfg, LLM_MAX_TOKENS))
         reply = chat.invoke([SystemMessage(content=_chart_system(base, catalog)), HumanMessage(content=str(prompt))])
         content = reply.content
         if not isinstance(content, str) or len(content) > 2000:
@@ -1408,7 +1407,7 @@ def chart(request: dict) -> dict:
     if request.get("use_llm") is True and prompt.strip():
         plan = llm_plan(prompt, base, m, locale=locale)
         if plan["status"] == "planned":
-            planner = {"source": "llama", "status": "planned", "changes": plan["changes"],
+            planner = {"source": "model", "status": "planned", "changes": plan["changes"],
                        "note": t["note_planned"].format(n=len(plan["changes"]),
                                                        fields=", ".join(t["field_names"].get(c["field"], c["field"])
                                                                         for c in plan["changes"])),
@@ -1418,6 +1417,8 @@ def chart(request: dict) -> dict:
             reason_key = plan["status"] if plan["status"] in t["reason"] else "unavailable"
             if plan.get("error_code") == "not_configured":
                 reason_key = "not_configured"
+            elif plan.get("http_status") == 429:
+                reason_key = "rate_limited"
             local = local_plan(prompt, base, m, locale)
             planner = {"source": "local", "status": local["status"], "changes": local["changes"],
                        "note": t["note_fallback"].format(reason=t["reason"][reason_key]) + " " + local["note"],

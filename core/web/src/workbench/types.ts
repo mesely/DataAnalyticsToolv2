@@ -132,7 +132,7 @@ export interface ChartPoint {
 export interface ChartResult {
   spec: ChartSpec;
   planner: {
-    source: "llama" | "local";
+    source: "model" | "local";
     status: string;
     changes: { field: string; from: unknown; to: unknown }[];
     note?: string;

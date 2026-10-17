@@ -1,10 +1,25 @@
 from __future__ import annotations
-import datetime as dt, json
+import datetime as dt, json, math, os, time
 from analysis.llm_eval.cases import plan_cases, decide_cases, claims_cases, narrate_cases, ideal_plan_reply, ADVERSARIAL_PLAN_REPLIES, ROUTABLE
 from analysis.llm_eval.providers import ScriptedModel
 
-VERSION = "llm-eval-v2.2"
-PROVIDERS = ("scripted-ideal", "scripted-adversarial", "local", "hf")
+VERSION = "llm-eval-v2.3"
+PROVIDERS = ("scripted-ideal", "scripted-adversarial", "local", "live")
+ALIASES = {"hf": "live"}  # v2.2 name for the live provider row
+# Seconds between live calls. Groq's free tier allows 8,000 tokens a minute and a plan call costs ~400, so ~3 s
+# keeps a run under the limit; the transport still honours Retry-After on a 429.
+LIVE_PAUSE = float(os.environ.get("LLM_EVAL_PAUSE", "3"))
+NARRATE_REPEATS = 3
+
+
+def _pause():
+    if LIVE_PAUSE > 0:
+        time.sleep(LIVE_PAUSE)
+
+
+def _usage(telemetry):
+    t = telemetry or {}
+    return {"latency_ms": t.get("latency_ms"), "total_tokens": t.get("total_tokens")}
 
 
 def _plan_behavior(plan):
@@ -61,13 +76,17 @@ def run_plan(provider, cases, probe=None):
             plan = plan_question(q, model=model)
             got = {"behavior": _plan_behavior(plan), "intent": plan.get("intent") if plan.get("status") == "planned" else None,
                    "accepted": plan.get("status") in {"planned", "blocked"}, "raw_status": plan.get("status"), "model_called": model.calls}
-        else:  # hf, real provider: one probe only, never fabricated
+        else:  # live provider: every case is a real call; an unreachable provider BLOCKS the row, never fabricated
             if blocked is None:
                 plan = probe() if probe else plan_question(q)
-                if plan.get("status") in {"planned", "blocked"}:
-                    got = {"behavior": _plan_behavior(plan), "intent": plan.get("intent"), "accepted": True, "raw_status": plan["status"]}
-                else:
+                if not probe:
+                    _pause()
+                if plan.get("status") == "unavailable" and plan.get("error_code") != "json_validate_failed":
                     blocked = {k: plan.get(k) for k in ("status", "error_code", "http_status")}
+                else:  # planned, blocked by the input guard, or a reply the validator rejected (a wrong answer)
+                    got = {"behavior": _plan_behavior(plan), "intent": plan.get("intent") if plan.get("status") == "planned" else None,
+                           "accepted": plan.get("status") in {"planned", "blocked"}, "raw_status": plan["status"],
+                           **_usage(plan.get("telemetry"))}
             if blocked is not None:
                 got = {"behavior": "none", "intent": None, "accepted": None, "raw_status": "BLOCKED", "blocked": blocked}
         exp = case["expected"]
@@ -79,8 +98,8 @@ def run_plan(provider, cases, probe=None):
 
 
 def run_decide(provider, cases):
-    from analysis.decisions import validate_selection
-    records = []
+    from analysis.decisions import validate_selection, select_actions
+    records, blocked = [], None
     for case in cases:
         candidates = {c["id"] for c in case["brief"]["recommendations"]}
         if provider == "local":
@@ -92,8 +111,17 @@ def run_decide(provider, cases):
                 got = {"accepted": True, "ids": [a["id"] for a in actions]}
             except (ValueError, TypeError, KeyError):
                 got = {"accepted": False, "ids": [], "rejection": "schema_rejected"}
+        elif blocked is None:  # live: the model reads this case's brief (d05/d06 carry an injected operator note)
+            r = select_actions(case["brief"])
+            _pause()
+            if r["status"] == "unavailable" and r.get("error_code") != "json_validate_failed":
+                blocked = {k: r.get(k) for k in ("status", "error_code", "http_status")}
+                got = {"accepted": None, "ids": [], "raw_status": "BLOCKED", "blocked": blocked}
+            else:
+                got = {"accepted": r["status"] == "selected", "ids": [a["id"] for a in r.get("actions", [])],
+                       "raw_status": r["status"], **_usage(r.get("telemetry"))}
         else:
-            got = {"accepted": None, "ids": [], "raw_status": "BLOCKED"}
+            got = {"accepted": None, "ids": [], "raw_status": "BLOCKED", "blocked": blocked}
         exp = case["expected_adversarial"] if provider == "scripted-adversarial" else case["expected_ideal"]
         ids = got["ids"]
         prec = (len([i for i in ids if i in candidates]) / len(ids)) if ids else None
@@ -103,15 +131,39 @@ def run_decide(provider, cases):
             correct = False
         records.append({"id": case["id"], "category": case["category"], "expected": exp, "got": got,
                         "acceptance_correct": correct, "citation_precision": prec, "citation_recall": rec_,
-                        "reply_mode": "adversarial" if provider == "scripted-adversarial" else "ideal"})
+                        "reply_mode": "adversarial" if provider == "scripted-adversarial" else ("live" if provider == "live" else "ideal")})
     return records
 
 
 def run_narrate(provider, cases):
     """Typed narrative contract. `local` runs the deterministic renderer through the validator (a
     self-consistency check); scripted replies exercise the validator; the live provider is BLOCKED/MEASURED."""
-    from analysis.narrative import validate_statements, packet, local_statements
+    from analysis.narrative import validate_statements, packet, local_statements, narrate
     records = []
+    if provider == "live":
+        # Every narrate case shares one brief, so the live model is asked for that narrative NARRATE_REPEATS times;
+        # the adversarial replies in the cases test the validator, not the model.
+        brief, exp = cases[0]["brief"], cases[0]["expected_ideal"]
+        pk = packet(brief)
+        for i in range(NARRATE_REPEATS):
+            r = narrate(brief)
+            _pause()
+            if r["status"] == "unavailable" and r.get("error_code") != "json_validate_failed":
+                records.append({"id": f"live-{i + 1}", "category": "live_narrative", "got": {"accepted": None, "raw_status": "BLOCKED",
+                                "blocked": {k: r.get(k) for k in ("status", "error_code", "http_status")}},
+                                "acceptance_correct": None, "citation_precision": None, "citation_recall": None, "unsupported_number_rejected": None})
+                continue
+            ids = sorted({e for st in r.get("statements", []) for e in st["evidence"]})
+            got = {"accepted": r["status"] == "accepted", "ids": ids, "attempts": r.get("attempts"),
+                   "statements": len(r.get("statements", [])), "raw_status": r["status"], **_usage(r.get("telemetry")),
+                   **({"rejection": r.get("reason")} if r["status"] != "accepted" else {})}
+            records.append({"id": f"live-{i + 1}", "category": "live_narrative", "expected": exp, "got": got,
+                            "acceptance_correct": got["accepted"],
+                            "citation_precision": (len([e for e in ids if e in pk["evidence"]]) / len(ids)) if ids else None,
+                            # recall against what the local renderer cites: a coverage measure, not a correctness one
+                            "citation_recall": (len([e for e in exp["ids"] if e in ids]) / len(exp["ids"])) if got["accepted"] else None,
+                            "unsupported_number_rejected": None, "reply_mode": "live"})
+        return records
     for case in cases:
         pk = packet(case["brief"])
         if provider == "local":
@@ -147,6 +199,7 @@ def run_claims(cases, result):
 
 
 def evaluate(providers=PROVIDERS, probe=None):
+    providers = tuple(dict.fromkeys(ALIASES.get(p, p) for p in providers))
     from analysis.worker import handle, overview
     result = overview({"dataset": "demo", "include_graph": False, "locale": "en"})
     brief = handle({"action": "decisions", "dataset": "demo", "objective": "balanced"})
@@ -160,15 +213,19 @@ def evaluate(providers=PROVIDERS, probe=None):
     catalog = meta("uci") if (__import__("analysis.prepare", fromlist=["DATA"]).DATA / "uci.json").exists() else meta("demo")
     out["case_counts"]["chart"] = len(CHART_CASES)
     out["chart_dataset"] = catalog["id"]
+    if "live" in providers:
+        from analysis.llm import status
+        st = status()
+        out["live_provider"] = {"configured": st["configured"], "provider": st["endpoint"], "model": st["model"]}
     for p in providers:
-        plan_records, blocked = run_plan(p, pc, probe=probe if p == "hf" else None)
+        plan_records, blocked = run_plan(p, pc, probe=probe if p == "live" else None)
         chart_records, chart_blocked = run_chart(p, catalog, probe=None)
         decide_records = run_decide(p, dc)
         narrate_records = run_narrate(p, nc)
-        if p == "hf" and blocked is not None:
+        if p == "live" and blocked is not None:
             label, note = "BLOCKED", f"no successful live answer: {blocked}"
-        elif p == "hf":
-            label, note = "MEASURED", "live provider answered"
+        elif p == "live":
+            label, note = "MEASURED", f"live provider answered ({out['live_provider']['provider']} · {out['live_provider']['model']})"
         elif p == "local":
             label, note = "MEASURED", "deterministic local fallback (no model); intent accuracy not applicable"
         else:
@@ -196,10 +253,20 @@ def evaluate(providers=PROVIDERS, probe=None):
                 "narrate_unsupported_number_rejection": _mean(number_checks) if number_checks else None,
                 **chart_metrics(chart_records, chart_blocked),
             },
+            **({"live_usage": _live_usage(plan_records, chart_records, decide_records, narrate_records)} if p == "live" else {}),
             "chart_records": chart_records,
             "plan_records": plan_records, "decide_records": decide_records, "narrate_records": narrate_records,
         }
     return out
+
+
+def _live_usage(*groups):
+    """Latency and tokens over every live call that answered (median and p95 by nearest rank)."""
+    rows = [r.get("got", r) for g in groups for r in g]
+    lat = sorted(x["latency_ms"] for x in rows if isinstance(x.get("latency_ms"), (int, float)))
+    tok = [x["total_tokens"] for x in rows if isinstance(x.get("total_tokens"), int)]
+    rank = lambda q: lat[min(len(lat) - 1, max(0, math.ceil(len(lat) * q) - 1))] if lat else None
+    return {"calls": len(lat), "latency_ms_median": rank(0.5), "latency_ms_p95": rank(0.95), "tokens_total": sum(tok) if tok else None}
 
 
 def markdown(report):

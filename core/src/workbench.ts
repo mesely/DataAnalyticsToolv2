@@ -624,7 +624,7 @@ export function registerWorkbench(
       }
     });
   });
-  // AW-16 Chart Studio: a request is planned (Llama when opted in, else locally) into a validated
+  // AW-16 Chart Studio: a request is planned (by the configured language model when opted in, else locally) into a validated
   // ChartSpec; every number is computed by the local engine.
   app.post(BASE + "/chart", async (req, reply) => {
     const v = await viewer(req, reply, true);

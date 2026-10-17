@@ -426,12 +426,12 @@ def test_chart_falls_back_to_local_planner(monkeypatch):
     r = chart({"dataset": "uci", "prompt": "haftalık sipariş", "use_llm": True, "locale": "tr"})
     assert seen["max_tokens"] == 300
     assert r["planner"]["source"] == "local" and r["planner"]["status"] == "planned"
-    assert r["planner"]["fallback"]["status"] == "invalid_plan" and "Llama" in r["planner"]["note"]
+    assert r["planner"]["fallback"]["status"] == "invalid_plan" and "Dil modeli" in r["planner"]["note"]
     assert r["spec"]["dimension"] == "week" and r["spec"]["metric"] == "orders"
 
     monkeypatch.setattr("analysis.llm.build_chat_model", lambda cfg: FakeChat(VALID))
     ok = chart({"dataset": "uci", "prompt": "haftalık sipariş", "use_llm": True})
-    assert ok["planner"]["source"] == "llama" and ok["planner"]["changes"]
+    assert ok["planner"]["source"] == "model" and ok["planner"]["changes"]
     assert ok["output_sha256"] == r["output_sha256"]  # same spec, same locally computed numbers
 
     monkeypatch.setattr("analysis.llm.configuration", lambda: None)

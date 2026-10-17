@@ -571,7 +571,7 @@ def run(request):
                         "clarify": "belirsiz",
                     }[plan["intent"]]
                 result["answer"] = explain({**request, "question": canonical}, result)
-                result["answer"]["mode"] = "llama-plan-verified-facts"
+                result["answer"]["mode"] = "model-plan-verified-facts"
     from analysis.fingerprint import fingerprint
 
     result["build"] = fingerprint()

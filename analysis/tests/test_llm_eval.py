@@ -38,8 +38,8 @@ def test_local_fallback_baseline_is_deterministic_and_weaker_than_ideal():
 
 def test_live_provider_is_labelled_blocked_without_fabricated_metrics():
     probe = lambda: {"status": "unavailable", "error_code": "invalid_request", "http_status": 402}
-    r = evaluate(("hf",), probe=probe)
-    hf = r["providers"]["hf"]
+    r = evaluate(("hf",), probe=probe)  # v2.2 name, now an alias of "live"
+    hf = r["providers"]["live"]
     assert hf["label"] == "BLOCKED" and "402" in hf["note"]
     assert all(v is None for v in hf["metrics"].values())
     text = json.dumps(r)

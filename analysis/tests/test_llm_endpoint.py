@@ -83,7 +83,7 @@ def test_chart_studio_uses_the_endpoint_and_validates(endpoint):
             "countries": [], "split_by_country": False, "top_n": 5, "statistic": "none", "window": 3, "sort": "value_desc"}
     endpoint(lambda body: json.dumps(spec))
     r = chart({"dataset": "demo", "prompt": "ülkelere göre sipariş, ilk 5", "use_llm": True, "locale": "tr"})
-    assert r["planner"]["source"] == "llama"
+    assert r["planner"]["source"] == "model"
     assert r["spec"]["metric"] == "orders" and r["spec"]["top_n"] == 5
 
 

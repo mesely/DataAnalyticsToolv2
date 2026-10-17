@@ -699,6 +699,10 @@ def handle(request):
         }
     if action == "run":
         return run(request)
+    if action in ("table", "table_export", "table_ask"):
+        from analysis import table as data_table
+
+        return {"table": data_table.table, "table_export": data_table.export, "table_ask": data_table.ask}[action](request)
     if action == "route":
         from analysis import llm_routing
         from analysis.llm import plan_studio

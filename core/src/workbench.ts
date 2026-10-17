@@ -436,6 +436,56 @@ export function registerWorkbench(
       }
     });
   });
+  // v3 G3: the overview's data table — rows or a summary, sorted, filtered and paged; downloads; "ask the table".
+  // Column names and operators are validated by analysis/table.py against allowlists; values are bound parameters.
+  const TABLE_KEYS = ["view", "group_by", "filters_table", "sort", "page", "page_size", "include_service"] as const;
+  const tableBody = (b: Obj) =>
+    Object.fromEntries(TABLE_KEYS.filter((k) => b[k] !== undefined).map((k) => [k, b[k]]));
+  for (const [path, action] of [
+    ["/table", "table"],
+    ["/table/export", "table_export"],
+    ["/table/ask", "table_ask"],
+  ] as const) {
+    app.post(BASE + path, async (req, reply) => {
+      const v = await viewer(req, reply, true);
+      if (!v) return;
+      const b = (req.body || {}) as Obj;
+      if (typeof b.dataset !== "string" || !(await permitted(v.identity.subject, b.dataset)))
+        return reply.code(404).send({ error: "not_found" });
+      if (action === "table_ask" && (typeof b.prompt !== "string" || !b.prompt.trim() || b.prompt.length > 500))
+        return reply.code(400).send({ error: "input_limit", detail: "Soru 1–500 karakter olmalı." });
+      return bounded(v.identity.subject, reply, async () => {
+        try {
+          const result = (await analysisWorker(
+            {
+              action,
+              dataset: b.dataset,
+              filters: b.filters || {},
+              locale: b.locale === "en" ? "en" : "tr",
+              ...tableBody(b),
+              ...(action === "table_export"
+                ? { format: b.format, columns: b.columns, labels: b.labels }
+                : {}),
+              ...(action === "table_ask" ? { prompt: b.prompt } : {}),
+            },
+            // A download carries the file as base64 (≤ 500,000 cells).
+            action === "table_export" ? 12_000_000 : 5_000_000,
+          )) as Obj;
+          if (action === "table_export")
+            await audit(v.identity.subject, v.identity.roles, "export_table", {
+              dataset: b.dataset,
+              format: b.format,
+              rows: result.rows,
+              sha256: result.sha256,
+            });
+          return result;
+        } catch (e) {
+          reply.code(400);
+          return { error: "table_refused", detail: (e as Error).message };
+        }
+      });
+    });
+  }
   // v3 G8: one ask box, two studios. Wording only; no dataset is read, so no dataset permission is involved.
   app.post(BASE + "/route", async (req, reply) => {
     const v = await viewer(req, reply, true);

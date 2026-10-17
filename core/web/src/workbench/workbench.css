@@ -5640,6 +5640,161 @@
   margin: 8px 0;
 }
 
+/* v3 G3: the overview's data table. */
+.wb .wb-grid-panel {
+  margin-top: 16px;
+}
+.wb .wb-grid-ask {
+  display: flex;
+  gap: 8px;
+  padding: 0 24px;
+  margin: 0 0 12px;
+}
+.wb .wb-grid-ask input {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.wb .wb-grid-asked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0 24px 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--code-bg);
+  font-size: 14px;
+}
+.wb .wb-grid-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+  padding: 0 24px 12px;
+}
+.wb .wb-grid-toolbar label {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.wb .wb-grid-toolbar select {
+  min-height: 40px;
+}
+.wb .wb-grid-spacer {
+  flex: 1;
+}
+.wb .wb-grid-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+  margin: 0 24px 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.wb .wb-grid-column {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.wb .wb-grid-rename {
+  flex: 1;
+  min-width: 0;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+.wb .wb-grid th button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.wb .wb-grid .is-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.wb .wb-grid-filters td {
+  padding-top: 4px;
+  padding-bottom: 8px;
+}
+.wb .wb-grid-filters input {
+  width: 100%;
+  min-width: 80px;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+}
+.wb .wb-grid-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 24px 16px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.wb .wb-grid-pager .wb-btn {
+  min-width: 40px;
+  justify-content: center;
+}
+.wb .wb-grid-sql {
+  flex-basis: 100%;
+}
+.wb .wb-grid-sql code {
+  display: block;
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--code-bg);
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
+}
+@media (max-width: 760px) {
+  .wb .wb-grid-ask,
+  .wb .wb-grid-toolbar {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .wb .wb-grid-asked,
+  .wb .wb-grid-columns {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+  .wb .wb-grid-pager {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+.wb .wb-table-wrap.wb-grid-wrap {
+  max-height: 640px;
+}
+
 /* >>> generated: light text contrast (tools/design/contrast_tones.py) */
 .wb[data-theme="light"] {
   --tone-338763: #307e5c;

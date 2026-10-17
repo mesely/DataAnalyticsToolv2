@@ -70,6 +70,7 @@ const APP_SOURCES = [
   "workbench/network.ts",
   "workbench/Scope.tsx",
   "workbench/Routing.tsx",
+  "workbench/DataGrid.tsx",
 ];
 
 async function fileRequest(

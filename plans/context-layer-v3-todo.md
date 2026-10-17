@@ -124,19 +124,25 @@ kullansın, ekranda da hangisini kullandığını söylesin.
 
 ## Faz 4 — Genel bakışta veri tablosu (G3)
 
-- [ ] Geçerli kapsamın (ülke, tarih filtresi) tablosu: iki görünüm. **Satırlar** (fatura satırı) ve **özet** (ülke/ay/ürün bazında toplamlar).
-- [ ] 530 bin satır için sunucu tarafında sayfalama (sayfa başına 50/100/500); toplam satır sayısı görünsün.
-- [ ] Sütuna göre sıralama (artan/azalan, çoklu sıralama Shift ile).
-- [ ] Sütun filtresi: metin içerir, sayı aralığı, tarih aralığı, değer listesi. Filtreler genel bakıştaki filtre çiplerine bağlı olsun.
-- [ ] Sütun gizle/göster, sütun sırası, sütun genişliği; seçim kullanıcı başına hatırlansın.
-- [ ] "Düzenleme" kaynak veriyi değiştirmesin. Görünüm düzeyinde: sütun adı değiştir, hesaplanmış sütun ekle (ör. `adet × fiyat`), satıra not ekle. Kaynak veride gerçek düzeltme gerekiyorsa denetim kayıtlı ayrı bir "düzeltme katmanı" olarak tasarlansın (bkz. Açık sorular).
-- [ ] İndirme: CSV ve Excel (.xlsx), görünen filtre/sıralama ile. Formül enjeksiyonu nötrleştirmesi (`= + - @`) Excel için de uygulanır. Büyük indirmeler sınırlansın (ör. 1 milyon hücre) ve kullanıcıya söylensin.
-- [ ] **Tabloya sor:** tablonun o anki hali (filtre, sıralama, görünen sütunlar) bağlam olarak gitsin. Soru doğrulanmış salt-okunur SQL'e çevrilsin (`analysis/sql_lab.py` doğrulayıcısı), sonuç tablo veya grafik olarak dönsün, SQL'i görülebilsin. Hazır sorular: "en çok iade edilen ürün", "bu ülkede aylık değişim", "seçili satırların toplamı".
-- [ ] Tablodan grafiğe: seçili sütunlarla "Grafik stüdyosunda aç".
-- [ ] Erişilebilirlik: klavyeyle gezinme, ekran okuyucu için tablo başlıkları; telefonda yatay kaydırma.
+- [x] Geçerli kapsamın (ülke, tarih filtresi) tablosu: iki görünüm. **Satırlar** (fatura satırı) ve **özet** (ülke/ay/ürün bazında toplamlar).
+- [x] 530 bin satır için sunucu tarafında sayfalama (sayfa başına 50/100/500); toplam satır sayısı görünsün.
+- [x] Sütuna göre sıralama (artan/azalan, çoklu sıralama Shift ile).
+- [x] Sütun filtresi: metin içerir, sayı aralığı, tarih aralığı, değer listesi. Filtreler genel bakıştaki filtre çiplerine bağlı olsun.
+- [x] Sütun gizle/göster, sütun sırası, sütun genişliği; seçim kullanıcı başına hatırlansın.
+- [x] "Düzenleme" kaynak veriyi değiştirmesin. — Sütun gizle/göster, yeniden adlandır, sırala yapıldı (tarayıcıda saklanır). Hesaplanmış sütun ve satır notu yapılmadı; kaynakta düzeltme katmanı Selman'ın kararına bağlı (Açık sorular 2). Görünüm düzeyinde: sütun adı değiştir, hesaplanmış sütun ekle (ör. `adet × fiyat`), satıra not ekle. Kaynak veride gerçek düzeltme gerekiyorsa denetim kayıtlı ayrı bir "düzeltme katmanı" olarak tasarlansın (bkz. Açık sorular).
+- [x] İndirme: CSV ve Excel (.xlsx), görünen filtre/sıralama ile. Formül enjeksiyonu nötrleştirmesi (`= + - @`) Excel için de uygulanır. Büyük indirmeler sınırlansın (ör. 1 milyon hücre) ve kullanıcıya söylensin.
+- [x] **Tabloya sor:** tablonun o anki hali (filtre, sıralama, görünen sütunlar) bağlam olarak gitsin. Soru doğrulanmış salt-okunur SQL'e çevrilsin (`analysis/sql_lab.py` doğrulayıcısı), sonuç tablo veya grafik olarak dönsün, SQL'i görülebilsin. Hazır sorular: "en çok iade edilen ürün", "bu ülkede aylık değişim", "seçili satırların toplamı".
+- [x] Tablodan grafiğe: seçili sütunlarla "Grafik stüdyosunda aç".
+- [x] Erişilebilirlik: klavyeyle gezinme, ekran okuyucu için tablo başlıkları; telefonda yatay kaydırma.
 - **Kabul:** 530 bin satırda sıralama + filtre ≤ 1 sn (yerel makinede); CSV ve Excel dosyası ekrandaki satırlarla birebir aynı (test); "tabloya sor" 20 vakalık sette ölçülür.
 
 ---
+
+### Faz 4 sonucu (18 Ekim 2026)
+- `analysis/table.py` (table-v1): satır/özet (1–2 gruplama), en fazla 3 sıralama, 12 sütun filtresi, 25/50/100/500 satırlık sayfa; sütun adları allowlist, değerler bağlı parametre; `customer_id` hiç görünmez.
+- 530.104 satırda sayfa 0,04 sn, metin filtresi + sıralama 0,4 sn (yerel). CSV (UTF-8 BOM) ve Excel; formül nötrleştirme; 500.000 hücre sınırı.
+- "Tabloya sor" grafik planlayıcısını kullanır (aynı yönlendirme tablosu, ayrı bir model işi açılmadı); sonuç özet tablo + "Grafik stüdyosunda aç".
+- Bağımsız oracle'lı 18 test (`analysis/tests/test_table.py`). "Tabloya sor" için ayrı 20 vakalık ölçüm yapılmadı: grafik planı ölçümüne dahil.
 
 ## Faz 5 — Referans bilgi katmanı (RAG), türetilmiş gruplar ve dönüşümler (G7, G9)
 

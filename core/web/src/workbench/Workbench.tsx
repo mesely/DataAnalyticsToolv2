@@ -77,6 +77,7 @@ import { Preparation } from "./Preparation";
 import { TemporalView } from "./TemporalView";
 import { ScopeView } from "./Scope";
 import { RoutingBadge } from "./Routing";
+import { DataGrid } from "./DataGrid";
 import { DEFAULT_EDGE_LIMIT, EDGE_LIMITS, edgeScale, neighbourhood, strongest } from "./network";
 import { ExpertTools, CompareRuns } from "./ExpertTools";
 import { LocaleProvider, useLocale } from "./Locale";
@@ -1297,6 +1298,20 @@ function Workspace({
                 <ChevronRight size={20} />
               </button>
             </div>
+          )}
+          {section === "overview" && result && (
+            <DataGrid
+              dataset={dataset}
+              filters={applied}
+              csrf={csrf}
+              includeService={includeService}
+              providerLabel={providerLabel}
+              onOpenChart={(prompt) => {
+                go("chart", "chart");
+                setChartRequest({ text: prompt, n: Date.now() });
+                setRouted(t("Tablodaki soru Grafik stüdyosunda açıldı.", "The table question opened in the Chart studio."));
+              }}
+            />
           )}
           {routed && (section === "chart" || section === "decision") && (
             <p className="wb-routed" role="status">

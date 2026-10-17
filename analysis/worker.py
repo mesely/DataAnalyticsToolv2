@@ -680,6 +680,10 @@ def handle(request):
         }
     if action == "run":
         return run(request)
+    if action == "route":
+        from analysis.router import route
+
+        return route(request.get("text"), request.get("locale", "tr"))
     if action in {"forecast", "decisions"}:
         from analysis.forecast import forecast
 

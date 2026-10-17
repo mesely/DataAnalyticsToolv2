@@ -436,6 +436,22 @@ export function registerWorkbench(
       }
     });
   });
+  // v3 G8: one ask box, two studios. Wording only; no dataset is read, so no dataset permission is involved.
+  app.post(BASE + "/route", async (req, reply) => {
+    const v = await viewer(req, reply, true);
+    if (!v) return;
+    const b = (req.body || {}) as Obj;
+    if (typeof b.text !== "string" || !b.text.trim() || b.text.length > 8000)
+      return reply.code(400).send({ error: "input_limit", detail: "İstek 1–8.000 karakter olmalı." });
+    return bounded(v.identity.subject, reply, async () => {
+      try {
+        return await analysisWorker({ action: "route", text: b.text, locale: b.locale === "en" ? "en" : "tr" });
+      } catch (e) {
+        reply.code(400);
+        return { error: "route_failed", detail: (e as Error).message };
+      }
+    });
+  });
   app.post(BASE + "/run", async (req, reply) => {
     const v = await viewer(req, reply, true);
     if (!v) return;

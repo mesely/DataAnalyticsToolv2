@@ -36,33 +36,37 @@ ekran görüntüsü güncel, kabul ölçütü sağlanmış. Yeni kararlar `DECIS
 ## Faz 1 — Hızlı düzeltmeler (okunabilirlik ve gezinme)
 
 ### 1.1 İlişki ağı okunabilirliği (G1)
-- [ ] Kenar kalınlığı ağırlığa göre ölçeklensin: 1–6 px, karekök ölçeği. Böylece birkaç çok güçlü bağ diğerlerini ezmez.
-- [ ] Kenar rengi ve saydamlığı ağırlığı kodlasın: zayıf bağ soluk, güçlü bağ koyu vurgu rengi. Negatif ilişki kesik çizgi ve uyarı rengi olarak kalsın.
-- [ ] Renk tek başına anlam taşımasın: kalınlık + saydamlık + kesik çizgi birlikte kullanılsın (renk körlüğü).
-- [ ] Gösterge (lejant): "ince = zayıf, kalın = güçlü", ağırlık aralığının sayısal değerleri.
-- [ ] Eşik kaydırıcısı: "en güçlü N bağ" veya "ağırlık ≥ x"; varsayılan olarak en güçlü 40 bağ gösterilsin, gerisi isteğe bağlı açılsın.
-- [ ] Bir ürünün üzerine gelince yalnız onun bağları vurgulansın, diğerleri soluklaşsın (karar stüdyosundaki davranışla aynı).
-- [ ] Kenar etiketi (araç ipucu): iki ürün, ağırlık, birlikte alındığı fatura sayısı.
-- [ ] Topluluklar (community) düğüm rengiyle ayrılsın; kenar rengi ağırlığa ayrıldığı için düğüm rengiyle çakışmasın.
-- [ ] Aynı kurallar "Zaman içindeki değişim" ağına da uygulansın (`TemporalView.tsx`).
+- [x] Kenar kalınlığı ağırlığa göre ölçeklensin: 1–6 px, karekök ölçeği. Böylece birkaç çok güçlü bağ diğerlerini ezmez.
+- [x] Kenar rengi ve saydamlığı ağırlığı kodlasın: zayıf bağ soluk, güçlü bağ koyu vurgu rengi. Negatif ilişki kesik çizgi ve uyarı rengi olarak kalsın.
+- [x] Renk tek başına anlam taşımasın: kalınlık + saydamlık + kesik çizgi birlikte kullanılsın (renk körlüğü).
+- [x] Gösterge (lejant): "ince = zayıf, kalın = güçlü", ağırlık aralığının sayısal değerleri.
+- [x] Eşik kaydırıcısı: "en güçlü N bağ" veya "ağırlık ≥ x"; varsayılan olarak en güçlü 40 bağ gösterilsin, gerisi isteğe bağlı açılsın.
+- [x] Bir ürünün üzerine gelince yalnız onun bağları vurgulansın, diğerleri soluklaşsın (karar stüdyosundaki davranışla aynı).
+- [x] Kenar etiketi (araç ipucu): iki ürün, ağırlık, birlikte alındığı fatura sayısı.
+- [x] Topluluklar (community) düğüm rengiyle ayrılsın; kenar rengi ağırlığa ayrıldığı için düğüm rengiyle çakışmasın.
+- [x] Aynı kurallar "Zaman içindeki değişim" ağına da uygulansın (`TemporalView.tsx`). — Bu görünüm ağı çizmiyor, değişen bağları tablo olarak veriyor; çizim kuralı gerekmedi.
 - **Kabul:** varsayılan görünümde kenar sayısı ≤ 40; en güçlü 5 bağ ilk bakışta seçilebilir; tasarım denetimi (`tools/design/audit.js`) ve kontrast kontrolü açık/koyu temada geçer.
 
 ### 1.2 Ülke filtresinden geri dönme (G4)
-- [ ] Ülkeye tıklanınca filtre çubuğunda kaldırılabilir bir çip görünsün: "Ülke: Germany ✕".
-- [ ] "Tüm ülkeler" seçeneği ve "Filtreleri temizle" düğmesi.
-- [ ] Filtre durumu adres çubuğunda tutulsun; tarayıcının geri düğmesi önceki görünüme dönsün.
-- [ ] Aynı davranış grafik stüdyosundaki ülke tıklamalarında ve sıralama listelerinde de olsun.
+- [x] Ülkeye tıklanınca filtre çubuğunda kaldırılabilir bir çip görünsün: "Ülke: Germany ✕".
+- [x] "Tüm ülkeler" seçeneği ve "Filtreleri temizle" düğmesi.
+- [x] Filtre durumu adres çubuğunda tutulsun; tarayıcının geri düğmesi önceki görünüme dönsün.
+- [ ] Aynı davranış grafik stüdyosundaki ülke tıklamalarında ve sıralama listelerinde de olsun. — Grafik stüdyosunda ülkeye tıklama yok; Faz 2'de stüdyolar taşınırken yeniden bakılacak.
 - **Kabul:** ülkeye tıkla → çip görünür → ✕ veya geri düğmesi → kartlar £10.666.684,54'e döner. Uç testi eklenir.
 
 ### 1.3 Dışlamaların denetimi (G5)
-- [ ] Ekranda gösterilen her dışlamanın listesi çıkarılsın: iade/iptal, sıfır ve negatif fiyat, kısmi ay/hafta, "hariç" ülke, gizli `customer_id`.
-- [ ] Her dışlama için doğruluk kontrolü yapılsın: kural doğru mu, sayılar tutuyor mu (11.805 satır, 9.288 iptal…). Yanlış olan düzeltilsin ve testi yazılsın.
-- [ ] Her dışlamanın yanında "neden?" açıklaması: kaç satır ve ne kadar tutar dışarıda kaldı, hangi kurala göre.
-- [ ] Dışlaması geçerli bir seçim olan durumlarda (kısmi dönem, posta/hizmet satırları, hariç ülke) "dahil et" anahtarı olsun. Değişiklik planın değişiklik çiplerinde görünsün.
-- [ ] Veri tanımı gereği zorunlu dışlamalar (iptal ve iade brüt satışa girmez) anahtar almasın, gerekçesi gösterilsin.
+- [x] Ekranda gösterilen her dışlamanın listesi çıkarılsın: iade/iptal, sıfır ve negatif fiyat, kısmi ay/hafta, "hariç" ülke, gizli `customer_id`.
+- [x] Her dışlama için doğruluk kontrolü yapılsın: kural doğru mu, sayılar tutuyor mu (11.805 satır, 9.288 iptal…). Yanlış olan düzeltilsin ve testi yazılsın.
+- [x] Her dışlamanın yanında "neden?" açıklaması: kaç satır ve ne kadar tutar dışarıda kaldı, hangi kurala göre.
+- [x] Dışlaması geçerli bir seçim olan durumlarda "dahil et" anahtarı olsun. — Hizmet satırları için anahtar var. Kısmi dönem için anahtar konmadı: birkaç günlük ayı trende katmak yanıltıcıdır; gerekçe ve kapsanan gün sayısı gösteriliyor. "Hariç" ülke zaten kullanıcının kendi isteği ve değişiklik çipinde görünüyor.
+- [x] Veri tanımı gereği zorunlu dışlamalar (iptal ve iade brüt satışa girmez) anahtar almasın, gerekçesi gösterilsin.
 - **Kabul:** her dışlamanın bir açıklaması ve sayısı var; "dahil et" ile toplamlar beklenen değere değişir ve testle doğrulanır.
 
 ---
+
+### Faz 1 sonucu (18 Ekim 2026)
+- Denetimde bulunan gerçek hata: 2.312 kargo, Manual, ücret ve muhasebe düzeltmesi satırı (£394.565,67) ürün sayılıyordu; "en çok satan ürün" DOTCOM POSTAGE çıkıyordu. Artık REGENCY CAKESTAND 3 TIER (£174.484,74).
+- **Karar bekleyen:** brüt satış toplamı (retail-v1) £11.062,06'lık "Adjust bad debt" ve £13.761,09'luk Amazon ücretini içeriyor. Toplamdan çıkarmak tanım değişikliği (retail-v2) demek; Selman'a soruldu, o zamana kadar ekranda açıkça işaretleniyor.
 
 ## Faz 2 — Sade bilgi mimarisi: iki ana stüdyo (G8)
 
@@ -75,15 +79,21 @@ Hedef: kullanıcı nereye gideceğini düşünmesin. İki ana başlık olsun; he
 | **Karar stüdyosu** | Analiz asistanının soruları, haftalık projeksiyon, senaryo, öneri ve gerekçe ağacı, model stüdyosu ("Tahmin modeli" sekmesi), veri hazırlama |
 | **Bulgularım** | Değişmez |
 
-- [ ] Tek soru kutusu: kullanıcı ne yazarsa yazsın sistem doğru stüdyoya yönlendirsin. Sonuç hangi stüdyoda açıldıysa ekranda yazsın: "Bu bir grafik isteği; Grafik stüdyosunda açıldı".
-- [ ] Analiz asistanı ayrı bir sayfa olmaktan çıksın; soruları ve kanıt paneli Karar stüdyosuna girsin. "Neden bu stüdyo?" bilgisi soru kutusunun altında görünsün.
-- [ ] "Uzman araçları" ve "Model stüdyosu" ana menüden kalksın; ilgili stüdyonun içinde "Gelişmiş" olarak dursun.
-- [ ] Kenar çubuğunda en fazla 4 madde kalsın: Genel bakış, Grafik stüdyosu, Karar stüdyosu, Bulgularım (+ Yönetim yalnız `ops` rolüne).
-- [ ] ⌘K komut paleti yeni yerleri göstersin; eski bağlantılar yeni yerlere yönlendirsin (yer imleri bozulmasın).
-- [ ] Kullanım rehberi ve README yeni yapıya göre yeniden yazılsın.
+- [x] Tek soru kutusu: kullanıcı ne yazarsa yazsın sistem doğru stüdyoya yönlendirsin. Sonuç hangi stüdyoda açıldıysa ekranda yazsın: "Bu bir grafik isteği; Grafik stüdyosunda açıldı".
+- [x] Analiz asistanı ayrı bir sayfa olmaktan çıksın; soruları ve kanıt paneli Karar stüdyosuna girsin. "Neden bu stüdyo?" bilgisi soru kutusunun altında görünsün.
+- [x] "Uzman araçları" ve "Model stüdyosu" ana menüden kalksın; ilgili stüdyonun içinde "Gelişmiş" olarak dursun.
+- [x] Kenar çubuğunda en fazla 4 madde kalsın: Genel bakış, Grafik stüdyosu, Karar stüdyosu, Bulgularım (+ Yönetim yalnız `ops` rolüne).
+- [x] ⌘K komut paleti yeni yerleri göstersin; eski bağlantılar yeni yerlere yönlendirsin (yer imleri bozulmasın).
+- [ ] Kullanım rehberi ve README yeni yapıya göre yeniden yazılsın. — Uygulama içi rehber güncellendi; README ve TEST_GUIDE Faz 7'de.
+- [ ] Veri hazırlama Karar stüdyosuna taşınmadı: başlıktaki "Veri ekle" düğmesinden açılıyor; her iki stüdyonun verisi olduğu için bilerek orada bırakıldı.
 - **Kabul:** ilk kez gelen biri 10 tipik görevin her birini en fazla 2 tıklamayla başlatır. Görev listesi `docs/phases/TEST_GUIDE.md` içinde yazılı olur; yeniden müşteri testi yapılır.
 
 ---
+
+### Faz 2 sonucu (18 Ekim 2026)
+- Kenar çubuğu: Genel bakış · Grafik stüdyosu · Karar stüdyosu · Bulgularım. Stüdyo bölümleri sekme; sayfa ve sekme adreste (`#chart/network`, `#decision/brief`), eski `#analysis` / `#network` bağlantıları yeni yerlere açılıyor.
+- Yönlendirici `analysis/router.py` (studio-router-v1, yerel, 29 vakalık test); `POST /route`. Faz 3'te model seçeneğiyle aynı sette ölçülecek.
+- Genel bakıştaki KPI kartları yalnız genel bakışta; stüdyolarda filtre çubuğu kalıyor.
 
 ## Faz 3 — Elle model seçimini kaldırma: ölçüme dayalı otomatik yönlendirme (G6)
 

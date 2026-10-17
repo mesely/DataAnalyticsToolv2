@@ -39,6 +39,24 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
       ).status,
     ).toBe(403);
   });
+  it("routes one ask box to the two studios behind identity and CSRF (v3 G8)", async () => {
+    expect((await apiPost(rig, alice, B + "/route", { text: "son 6 ay" }, { csrf: null })).status).toBe(403);
+    expect((await apiPost(rig, alice, B + "/route", { text: "Almanya ile Fransa'yı karşılaştır" })).json).toMatchObject({
+      studio: "chart",
+    });
+    expect((await apiPost(rig, alice, B + "/route", { text: "En çok satan ürünler hangileri?" })).json).toMatchObject({
+      studio: "decision",
+    });
+    expect((await apiPost(rig, alice, B + "/route", { text: "" })).status).toBe(400);
+    expect((await apiPost(rig, alice, B + "/route", { text: "x".repeat(8001) })).status).toBe(400);
+  });
+  it("leaves service lines out of product views unless asked, never out of gross sales (v3 G5)", async () => {
+    const off = await apiPost(rig, alice, B + "/run", { dataset: "demo" });
+    const on = await apiPost(rig, alice, B + "/run", { dataset: "demo", include_service: true });
+    expect(off.json.scope).toMatchObject({ include_service: false });
+    expect(on.json.scope).toMatchObject({ include_service: true });
+    expect(on.json.summary.gross_pence).toBe(off.json.summary.gross_pence);
+  });
   it("computes oracle values and saves a version-bound run", async () => {
     const r = await apiPost(rig, alice, B + "/run", {
       dataset: "demo",

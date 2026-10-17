@@ -1,5 +1,8 @@
 export type Locale = "tr" | "en";
-export type Section = "overview" | "analysis" | "network" | "findings";
+export type Section = "overview" | "chart" | "decision" | "findings";
+/** Tabs inside the two studios (v3 G8). */
+export type ChartTab = "chart" | "network" | "temporal" | "sql";
+export type DecisionTab = "ask" | "brief" | "model";
 export interface Dataset {
   id: string;
   title: string;

@@ -5556,3 +5556,109 @@
   margin: 4px 0 8px;
   padding-left: 18px;
 }
+
+/* v3 G8: one ask box on the overview, two studios with their sections as tabs. */
+.wb .wb-ask-form {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+.wb .wb-ask-form input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.wb .wb-ask-form input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.wb .wb-studio-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.wb .wb-studio-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  text-align: left;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.wb .wb-studio-card > span {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+}
+.wb .wb-studio-card small {
+  color: var(--muted);
+  font-size: 13px;
+}
+.wb .wb-studio-card:hover,
+.wb .wb-studio-card:focus-visible {
+  border-color: var(--accent);
+}
+.wb .wb-studio-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 16px 0 12px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  width: max-content;
+  max-width: 100%;
+}
+.wb .wb-studio-tabs button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.wb .wb-studio-tabs button.active {
+  background: var(--accent);
+  color: #fff;
+}
+.wb[data-theme="dark"] .wb-studio-tabs button.active {
+  color: #0f1a2e;
+}
+.wb .wb-studio-page {
+  padding: 24px;
+}
+.wb .wb-routed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+@media (max-width: 760px) {
+  .wb .wb-studio-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .wb .wb-studio-page {
+    padding: 16px;
+  }
+  .wb .wb-studio-tabs {
+    width: 100%;
+  }
+  .wb .wb-studio-tabs button {
+    flex: 1 1 auto;
+  }
+}

@@ -287,7 +287,7 @@ export function Preparation({
           />
         </label>
         <a className="wb-btn" href={BASE + "/sample.csv"}>
-          <Download size={15} />
+          <Download size={16} />
           {t("Örnek CSV", "Sample CSV")}
         </a>
       </div>
@@ -628,7 +628,7 @@ export function Preparation({
                 invalidate();
               }}
             >
-              <RotateCcw size={15} />
+              <RotateCcw size={16} />
               {t("Taslağı sıfırla", "Reset draft")}
             </button>
             <button

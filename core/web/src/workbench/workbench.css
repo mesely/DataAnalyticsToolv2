@@ -663,7 +663,7 @@
 }
 .wb-kpi.primary {
   border-color: var(--tone-dbe1f6);
-  background: linear-gradient(115deg, #fff, var(--tone-f7f8ff));
+  background: linear-gradient(115deg, var(--surface), var(--tone-f7f8ff));
 }
 .wb-kpi.primary i {
   color: var(--tone-7b86d7);
@@ -881,7 +881,7 @@
   justify-content: space-between;
   padding: 24px;
   gap: 16px;
-  background: linear-gradient(120deg, #fff, var(--tone-f8faff));
+  background: linear-gradient(120deg, var(--surface), var(--tone-f8faff));
 }
 .wb-network-teaser h2 {
   max-width: 240px;
@@ -1573,13 +1573,10 @@
   }
 }
 @media (max-width: 1180px) {
+  /* The sidebar keeps its 224px: narrowing it truncated the identity block; the content column adapts instead. */
   .wb-sidebar {
-    width: 200px;
     padding-left: 12px;
     padding-right: 12px;
-  }
-  .wb-frame {
-    margin-left: 200px;
   }
   .wb main {
     padding: 24px 24px 0;
@@ -1660,11 +1657,6 @@
   }
   .wb-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .wb-country .wb-ranking {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 20px;
   }
   .wb-analysis-grid {
     grid-template-columns: 1fr;
@@ -1759,9 +1751,6 @@
     min-height: 36px;
     padding: 8px;
     font-size: 12px;
-  }
-  .wb-heading-actions .wb-btn svg {
-    width: 13px;
   }
   .wb-sourcebar {
     padding: 12px;
@@ -2250,7 +2239,8 @@
   font-size: 12px;
   margin-bottom: 12px;
 }
-@media (max-width: 960px) {
+/* Sized by the content column (main is the container), so a sidebar-plus-tablet width stacks too. */
+@container (max-width: 860px) {
   .wb-expert-grid {
     grid-template-columns: 1fr;
   }
@@ -3623,7 +3613,6 @@
 }
 .wb-decision-llm summary {
   display: flex;
-  gap: 12px;
   align-items: center;
 }
 .wb-decision-llm p {
@@ -4110,8 +4099,11 @@
 .wb .wb-sourcebar {
   padding: 20px var(--inset);
 }
-.wb .wb-panel-head,
-.wb .wb-card-note {
+/* Only a card's own header takes the card inset; section headers inside dialogs align with their content. */
+.wb .wb-panel > .wb-panel-head,
+.wb .wb-panel > .wb-card-note,
+.wb .wb-panel > .wb-ranking,
+.wb .wb-panel > .wb-findings {
   padding-left: var(--inset);
   padding-right: var(--inset);
 }
@@ -4261,8 +4253,34 @@
     overflow-x: auto;
     overscroll-behavior-x: contain;
   }
+  .wb .wb-network-canvas {
+    height: auto;
+    min-height: 0;
+  }
   .wb .wb-network-canvas > svg {
     min-width: 640px;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 750 / 460;
+  }
+  /* Controls and hint leave the scrolling layer: in flow under the graph and pinned to the visible left edge, so
+     they stay reachable at any scroll position. */
+  .wb .wb-network-canvas > .wb-zoom,
+  .wb .wb-network-canvas > .wb-canvas-hint {
+    position: sticky;
+    left: 12px;
+    right: auto;
+    bottom: auto;
+  }
+  .wb .wb-network-canvas > .wb-zoom {
+    display: inline-flex;
+    margin: 0 0 12px;
+  }
+  .wb .wb-network-canvas > .wb-canvas-hint {
+    display: block;
+    width: max-content;
+    max-width: calc(100vw - 72px);
+    margin: 0 0 12px;
   }
 }
 
@@ -4296,6 +4314,132 @@
 .wb .wb-panel-footer button {
   padding: 8px 12px;
   white-space: nowrap;
+}
+
+/* The product mark never shrinks: as a flex child it was squeezed to 34x56 and cropped the artwork. */
+.wb .wb-brandmark {
+  flex: none;
+}
+/* Four KPI cards only when each can hold a 24px GBP amount (about 180px of ink + insets); otherwise 2x2.
+   Sized by the content column, not the window, because the sidebar takes a different share per breakpoint. */
+.wb main {
+  container-type: inline-size;
+}
+@container (max-width: 1000px) {
+  .wb .wb-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* Below ~860px of content the trend panel squeezed its title beside the view switch: stack the pair. */
+@container (max-width: 860px) {
+  .wb .wb-overview-grid,
+  .wb .wb-lower-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@container (min-width: 640px) and (max-width: 860px) {
+  .wb .wb-country .wb-ranking {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 20px;
+  }
+}
+
+/* Sidebar identity: one line each for name and role; a long name truncates (full text in the title). */
+.wb .wb-user > div {
+  min-width: 0;
+}
+.wb .wb-user > div > span,
+.wb .wb-user > div > small {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Narrow content column: the filter title becomes the row's heading, the controls share one line below it. */
+@container (max-width: 1100px) {
+  .wb .wb-scope .wb-filter-title {
+    flex-basis: 100%;
+    min-height: 0;
+    margin: 0;
+  }
+}
+
+/* Network labels that would overprint stay hidden until their node is hovered or focused (readableLabels). */
+.wb .wb-graph-node text.is-quiet {
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.wb .wb-graph-node:hover text.is-quiet,
+.wb .wb-graph-node:focus-visible text.is-quiet {
+  opacity: 1;
+}
+
+/* Guide steps: the browser's 1em list margin (14px) breaks the 4px rhythm. */
+.wb .wb-help-steps {
+  margin: 16px 0;
+}
+
+/* Disclosure has two forms, one each: inline text toggles lead with the chevron (::before, below); section rows
+   end with a chevron glyph pushed to the right edge. Both turn 90deg when open. */
+.wb details > summary > svg.wb-glyph:last-child:not(:first-child) {
+  margin-left: auto;
+  flex: none;
+  transition: transform 0.15s ease;
+}
+.wb details[open] > summary > svg.wb-glyph:last-child:not(:first-child) {
+  transform: rotate(90deg);
+}
+
+/* "About the data": one left edge. Unboxed content sits on the body edge; the official-source link is a text
+   action on that edge (its 44px height stays); the quality block drops the panel inset it uses in the trend card. */
+.wb .wb-dialog-body > .wb-quality {
+  padding-left: 0;
+  padding-right: 0;
+}
+.wb .wb-dialog-body > a.wb-btn {
+  padding-left: 0;
+  padding-right: 0;
+  border-color: transparent;
+  background: transparent;
+}
+
+/* Phone-width scope: a two-column form grid. Country spans the row (its names are the longest), the two dates
+   pair up, and Apply becomes a full-width primary target at the end of the reading order. */
+@container (max-width: 520px) {
+  .wb .wb-scope .wb-filterbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    align-items: end;
+  }
+  .wb .wb-scope .wb-filterbar > .wb-filter-title,
+  .wb .wb-scope .wb-filterbar > label:first-of-type,
+  .wb .wb-scope .wb-filterbar > .wb-apply {
+    grid-column: 1 / -1;
+  }
+  .wb .wb-scope .wb-filterbar :is(select, input) {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+  .wb .wb-scope .wb-filterbar > .wb-apply {
+    justify-content: center;
+  }
+}
+/* A stacked panel head keeps its decorative glyph beside the title instead of on a row of its own. */
+@media (max-width: 480px) {
+  .wb .wb-panel-head:not(:has(.wb-tabs)) {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+/* The canvas hint sits on the dotted grid; its own surface keeps it legible over the pattern. */
+.wb .wb-canvas-hint {
+  background: var(--surface);
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
 /* AW-15 widget glyphs: the browser's stock markers (disclosure triangle, select caret, date-picker icon,
@@ -4334,6 +4478,12 @@
   -webkit-appearance: none;
   appearance: none;
   padding-left: 12px;
+}
+/* The dataset picker is borderless text on the scope card: its value aligns with the eyebrow above it. */
+.wb .wb-source-select select {
+  padding-left: 0;
+}
+.wb select {
   padding-right: 40px !important;
   background-image: var(--select-caret) !important;
   background-repeat: no-repeat !important;

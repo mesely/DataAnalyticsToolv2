@@ -1,4 +1,4 @@
-import { ChevronRight, Download, ShieldCheck } from "./BrandIcons";
+import { ChevronRight, Download, ShieldCheck, Compare } from "./BrandIcons";
 import { TableWrap } from "./TableWrap";
 import { Search, BookOpen, Code2 } from "./BrandIcons";
 import React, { useEffect, useRef, useState } from "react";
@@ -173,7 +173,7 @@ export function ExpertTools({
     <details className="wb-panel wb-expert">
       <summary>
         <span>
-          <Code2 size={19} />
+          <Code2 size={20} />
           <strong>{t("Uzman araçları", "Expert tools")}</strong>
           <small>
             {t(
@@ -182,7 +182,7 @@ export function ExpertTools({
             )}
           </small>
         </span>
-        <ChevronRight size={19} />
+        <ChevronRight size={20} />
       </summary>
       <div className="wb-expert-body">
         <div className="wb-expert-grid">
@@ -229,7 +229,7 @@ export function ExpertTools({
               />
               <div className="wb-sql-actions">
                 <span>
-                  <ShieldCheck size={14} />
+                  <ShieldCheck size={16} />
                   {t("Şema ve güvenlik denetimi", "Schema and safety checks")}
                 </span>
                 <button
@@ -259,7 +259,7 @@ export function ExpertTools({
           </section>
           <aside className="wb-context-search">
             <h2>
-              <BookOpen size={17} /> {t("Bağlamı bulun", "Find context")}
+              <BookOpen size={16} /> {t("Bağlamı bulun", "Find context")}
             </h2>
             <p>
               {t(
@@ -292,7 +292,7 @@ export function ExpertTools({
                   disabled={searching || running || busy || !query.trim()}
                   aria-label={t("Bağlamda ara", "Search context")}
                 >
-                  <Search size={17} />
+                  <Search size={16} />
                 </button>
               </div>
             </form>
@@ -309,7 +309,7 @@ export function ExpertTools({
                       {h.title}
                       <small>{h.kind}</small>
                     </span>
-                    <ChevronRight size={14} />
+                    <ChevronRight size={16} />
                   </summary>
                   <p>{h.body}</p>
                 </details>
@@ -356,7 +356,7 @@ export function ExpertTools({
                   disabled={exporting || running}
                   onClick={() => void exportResult("csv")}
                 >
-                  <Download size={15} />
+                  <Download size={16} />
                   CSV
                 </button>
                 <button
@@ -364,7 +364,7 @@ export function ExpertTools({
                   disabled={exporting || running}
                   onClick={() => void exportResult("xlsx")}
                 >
-                  <Download size={15} />
+                  <Download size={16} />
                   Excel
                 </button>
               </div>
@@ -433,7 +433,7 @@ export function ExpertTools({
                   )
                 }
               >
-                <Download size={15} />
+                <Download size={16} />
                 {t("Kanıt JSON", "Evidence JSON")}
               </button>
             </details>
@@ -539,7 +539,7 @@ export function CompareRuns({
     <details className="wb-panel wb-expert wb-comparison">
       <summary>
         <span>
-          <Code2 size={18} />
+          <Compare size={20} />
           <strong>
             {t("İki analizi karşılaştırın", "Compare two analyses")}
           </strong>
@@ -547,7 +547,7 @@ export function CompareRuns({
             {t("Son 100 kayıt · B − A", "Last 100 records · B − A")}
           </small>
         </span>
-        <ChevronRight size={18} />
+        <ChevronRight size={20} />
       </summary>
       <div className="wb-expert-body">
         <div className="wb-compare-controls">

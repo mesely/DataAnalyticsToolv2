@@ -470,7 +470,7 @@ export function ModelStudio({
             </button>
           </div>
           <label className="wb-upload">
-            <Upload size={23} />
+            <Upload size={24} />
             <strong>
               {name || t("Kendi CSV dosyanızı seçin", "Choose your CSV")}
             </strong>
@@ -768,7 +768,7 @@ export function ModelStudio({
                   >
                     <SavedExperiments size={16} />
                     <span>{s.title}</span>
-                    <ArrowRight size={15} />
+                    <ArrowRight size={16} />
                   </button>
                 ))}
               </div>

@@ -44,6 +44,13 @@ def test_every_named_glyph_exists():
     assert used and used <= set(FAMILY), used - set(FAMILY)
 
 
+def test_glyphs_render_on_the_icon_scale():
+    # 16/20/24/32 keep the 1.75 stroke crisp; 13 or 15 px scale it to fractional, blurry widths.
+    sizes = {int(n) for f in (WEB / "workbench").glob("*.tsx")
+             for n in re.findall(r"<[A-Z][A-Za-z0-9.]* size=\{(\d+)\}", f.read_text())}
+    assert sizes <= {16, 20, 24, 32}, sizes
+
+
 def test_no_stock_icon_package_remains():
     pkg = json.loads((ROOT / "core/package.json").read_text())
     assert not any("lucide" in d for k in ("dependencies", "devDependencies") for d in pkg.get(k, {}))

@@ -445,9 +445,9 @@ export function DecisionStudio({
                       if (refKey === k) reference.current?.focus();
                     }}
                   >
-                    <Database size={13} />
+                    <Database size={16} />
                     {refLabel[k] || k}: {formatRef(k)}
-                    <ArrowRight size={12} />
+                    <ArrowRight size={16} />
                   </button>
                 ))}
               </div>
@@ -598,7 +598,6 @@ export function DecisionStudio({
           <details className="wb-decision-llm">
             <summary>
               {t("Llama ile odak seçimi", "Llama focus selection")}
-              <ChevronRight size={16} />
             </summary>
             <label className="wb-decision-check">
               <input
@@ -627,7 +626,7 @@ export function DecisionStudio({
             {running ? (
               <Spinner className="spin" size={18} />
             ) : (
-              <ArrowRight size={17} />
+              <ArrowRight size={16} />
             )}{" "}
             {t("Karar özeti oluştur", "Build decision brief")}
           </button>
@@ -796,9 +795,9 @@ export function DecisionStudio({
                         if (refKey === k) reference.current?.focus();
                       }}
                     >
-                      <Database size={14} />
+                      <Database size={16} />
                       {refLabel[k] || k}: {formatRef(k)}
-                      <ArrowRight size={13} />
+                      <ArrowRight size={16} />
                     </button>
                   ))}
                 </div>
@@ -986,6 +985,8 @@ export function DecisionStudio({
                         fontSize={12}
                         tick={{ fill: "var(--muted)" }}
                         tickFormatter={(s) => String(s).slice(5)}
+                        interval="preserveStartEnd"
+                        minTickGap={28}
                       />
                       <YAxis
                         width={60}
@@ -1280,8 +1281,9 @@ export function DecisionStudio({
       )}
       <details className="wb-decision-history">
         <summary>
-          <Findings size={18} />
+          <Findings size={20} />
           {t("Karar arşivim", "My decision archive")} · {history.length}
+          <ChevronRight size={20} />
         </summary>
         <ul>
           {history.map((h) => (

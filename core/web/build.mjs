@@ -11,7 +11,7 @@
  */
 
 import { build, context } from "esbuild";
-import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -43,6 +43,9 @@ const css = {
   logLevel: "info",
 };
 
+// Hashed assets accumulate across builds; start each one from an empty assets/ so a removed file (an icon
+// replaced by a generated glyph, say) is no longer served.
+await rm(path.join(out, "assets"), { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 await writeFile(path.join(out,"brand.svg"),(await readFile(path.join(here,"src/workbench/assets/brand.svg"),"utf8")).replaceAll("currentColor","#7d91ee"));
 

@@ -474,9 +474,9 @@ function Workspace({
         </nav>
         <div className="wb-nav-tools">
           <button onClick={() => setAdmin(!admin)} aria-expanded={admin}>
-            <Settings2 size={18} />
+            <Settings2 size={20} />
             {t("Yönetim araçları", "Administration")}
-            <ChevronDown size={15} />
+            <ChevronDown size={16} />
           </button>
           {admin && (
             <div className="wb-admin-list">
@@ -485,7 +485,7 @@ function Workspace({
                 .map((m) => (
                   <button key={m.id} onClick={() => navigate(m.path)}>
                     {m.title}
-                    <ArrowUpRight size={13} />
+                    <ArrowUpRight size={16} />
                   </button>
                 ))}
             </div>
@@ -500,8 +500,8 @@ function Workspace({
             <span className="wb-avatar">
               {(session.display || session.subject).slice(0, 1)}
             </span>
-            <div>
-              {session.display || session.subject}
+            <div title={`${session.display || session.subject} · ${t("Analist oturumu", "Analyst session")}`}>
+              <span>{session.display || session.subject}</span>
               <small>{t("Analist oturumu", "Analyst session")}</small>
             </div>
             <button
@@ -509,7 +509,7 @@ function Workspace({
               onClick={logout}
               aria-label={t("Çıkış yap", "Sign out")}
             >
-              <LogOut size={17} />
+              <LogOut size={16} />
             </button>
           </div>
         </div>
@@ -521,11 +521,11 @@ function Workspace({
             onClick={() => setMenu(!menu)}
             aria-label={t("Menüyü aç", "Open navigation")}
           >
-            <Menu size={22} />
+            <Menu size={20} />
           </button>
           <div className="wb-breadcrumb">
             {t("Çalışma alanı", "Workspace")}
-            <ChevronRight size={14} />
+            <ChevronRight size={16} />
             <strong>{t(...titles[section])}</strong>
           </div>
           <div className="wb-top-actions">
@@ -567,7 +567,7 @@ function Workspace({
               onClick={() => setModal("help")}
               aria-label={t("Yardım", "Help")}
             >
-              <HelpCircle size={19} />
+              <HelpCircle size={20} />
             </button>
           </div>
         </header>
@@ -621,7 +621,7 @@ function Workspace({
           </div>
           {error && (
             <div role="alert" className="wb-alert wb-alert-error">
-              <Info size={18} />
+              <Info size={20} />
               <span>{error}</span>
               <button
                 className="wb-icon"
@@ -634,7 +634,7 @@ function Workspace({
           )}
           {notice && (
             <div role="status" className="wb-alert wb-alert-success">
-              <CheckCircle2 size={18} />
+              <CheckCircle2 size={20} />
               {notice}
             </div>
           )}
@@ -731,7 +731,7 @@ function Workspace({
                 {working ? (
                   <Spinner size={16} className="spin" />
                 ) : (
-                  <SlidersHorizontal size={15} />
+                  <SlidersHorizontal size={16} />
                 )}{" "}
                 {t("Uygula", "Apply")}
               </button>
@@ -883,6 +883,8 @@ function Workspace({
                               axisLine={false}
                               fontSize={12}
                               tickMargin={12}
+                              interval="preserveStartEnd"
+                              minTickGap={28}
                             />
                             <YAxis
                               tickFormatter={(n) =>
@@ -936,7 +938,7 @@ function Workspace({
                   )}
                   <div className="wb-panel-footer">
                     <span>
-                      <ShieldCheck size={14} />
+                      <ShieldCheck size={16} />
                       {t(
                         "Metrik tanımı ve hesap kaydı mevcut",
                         "Metric definition and calculation recorded",
@@ -944,7 +946,7 @@ function Workspace({
                     </span>
                     <button onClick={() => setModal("evidence")}>
                       {t("Kanıtı incele", "Inspect evidence")}
-                      <ArrowRight size={14} />
+                      <ArrowRight size={16} />
                     </button>
                   </div>
                 </section>
@@ -987,7 +989,7 @@ function Workspace({
                             />
                           </div>
                         </div>
-                        <ChevronRight size={15} />
+                        <ChevronRight size={16} />
                       </button>
                     ))}
                   </div>
@@ -1030,7 +1032,7 @@ function Workspace({
                           }}
                         >
                           {q}
-                          <ArrowUpRight size={14} />
+                          <ArrowRight size={16} />
                         </button>
                       ))}
                     </div>
@@ -1057,7 +1059,7 @@ function Workspace({
                       onClick={() => go("network")}
                     >
                       {t("İlişki ağını aç", "Explore network")}
-                      <ArrowRight size={15} />
+                      <ArrowRight size={16} />
                     </button>
                   </div>
                   <img
@@ -1152,7 +1154,7 @@ function Workspace({
                       )}
                     </p>
                   </div>
-                  <ShieldCheck size={21} />
+                  <ShieldCheck size={20} />
                 </div>
                 {result.answer ? (
                   <div className="wb-answer">
@@ -1196,18 +1198,18 @@ function Workspace({
                     )}
                     <div className="wb-answer-citations">
                       <button onClick={() => setModal("metrics")}>
-                        <FileText size={14} />
+                        <FileText size={16} />
                         retail-v1
                       </button>
                       <button onClick={() => setModal("evidence")}>
-                        <Database size={14} />
+                        <Database size={16} />
                         {t("Hesap kaydı", "Calculation record")}
                       </button>
                     </div>
                   </div>
                 ) : (
                   <div className="wb-chat-welcome">
-                    <MessageSquare size={33} />
+                    <MessageSquare size={32} />
                     <h3>
                       {t(
                         "Neyi öğrenmek istersiniz?",
@@ -1243,7 +1245,7 @@ function Workspace({
                       }}
                     >
                       {q}
-                      <ArrowUpRight size={13} />
+                      <ArrowRight size={16} />
                     </button>
                   ))}
                 </div>
@@ -1414,7 +1416,7 @@ function Workspace({
                   </p>
                 </div>
                 <button className="wb-btn" onClick={() => void history()}>
-                  <RotateCcw size={15} />
+                  <RotateCcw size={16} />
                   {t("Yenile", "Refresh")}
                 </button>
               </div>
@@ -1425,7 +1427,7 @@ function Workspace({
                     .map((r) => (
                       <article key={r.run_id}>
                         <span className="wb-finding-icon">
-                          <Findings size={22} />
+                          <Findings size={20} />
                         </span>
                         <div>
                           <h3>{r.title}</h3>
@@ -1447,7 +1449,7 @@ function Workspace({
                           onClick={() => void openRun(r.run_id)}
                         >
                           {t("Aç", "Open")}
-                          <ArrowUpRight size={15} />
+                          <ArrowUpRight size={16} />
                         </button>
                         <button
                           className="wb-btn"
@@ -1500,7 +1502,7 @@ function Workspace({
           {result && section !== "findings" && (
             <div className="wb-bottom-actions">
               <span>
-                <CheckCircle2 size={14} />
+                <CheckCircle2 size={16} />
                 {t("Sonuç kaydı", "Result record")} {result.run_id.slice(0, 8)}{" "}
                 · {result.evidence.duration_ms} ms
               </span>
@@ -1552,7 +1554,7 @@ function Workspace({
               Context Layer <i /> {t("Analytics", "Analytics")}
             </span>
             <span>
-              <ShieldCheck size={13} />
+              <ShieldCheck size={16} />
               {t("Hesap kaydı mevcut", "Calculation record available")}
             </span>
           </footer>
@@ -1595,7 +1597,13 @@ function Workspace({
           )}
           {modal === "source" && selected && (
             <>
-              <span className="wb-badge blue">{selected.source.kind}</span>
+              <span className="wb-badge blue">
+                {selected.source.kind === "public"
+                  ? t("Açık veri", "Public data")
+                  : selected.source.kind === "uploaded"
+                    ? t("Yüklenen veri", "Uploaded data")
+                    : t("Örnek veri", "Sample data")}
+              </span>
               <h3>{selected.title}</h3>
               <p>{selected.source.description}</p>
               <dl className="wb-detail-list">
@@ -1617,7 +1625,7 @@ function Workspace({
                   className="wb-btn"
                 >
                   {t("Resmî kaynak", "Official source")}
-                  <ExternalLink size={15} />
+                  <ExternalLink size={16} />
                 </a>
               )}
               <Quality data={selected} num={num} />
@@ -2001,7 +2009,7 @@ function Quality({ data, num }: { data: Dataset; num: (n: number) => string }) {
   return (
     <div className="wb-quality">
       <div className="wb-quality-score">
-        <ShieldCheck size={25} />
+        <ShieldCheck size={24} />
         <div>
           <strong>
             {t(
@@ -2047,6 +2055,37 @@ function Quality({ data, num }: { data: Dataset; num: (n: number) => string }) {
     </div>
   );
 }
+/** Labels that can be drawn without colliding: most-connected first, each kept only if its box clears every
+ * label already placed and every other node. The rest appear on hover/focus, so no name is lost, only the
+ * overprinting. Positions are in viewBox units, which zoom scales uniformly, so the result is zoom-invariant. */
+function readableLabels(
+  nodes: { id: string; x: number; y: number; degree: number; label: string }[],
+  text: (n: { label: string }) => string,
+  keep?: string,
+): Set<string> {
+  const place = (n: { x: number; y: number }) => ({ cx: 375 + n.x * 270, cy: 230 + n.y * 165 });
+  const radius = (n: { degree: number }) => 15 + Math.min(9, n.degree / 2);
+  const boxes: { l: number; r: number; t: number; b: number }[] = [];
+  const shown = new Set<string>();
+  const order = [...nodes].sort((a, b) => (a.id === keep ? -1 : b.id === keep ? 1 : b.degree - a.degree));
+  for (const n of order) {
+    const { cx, cy } = place(n);
+    const w = text(n).length * 7.2 + 8;
+    const box = { l: cx - w / 2, r: cx + w / 2, t: cy + 25, b: cy + 43 };
+    const hitsLabel = boxes.some((o) => box.l < o.r && box.r > o.l && box.t < o.b && box.b > o.t);
+    const hitsNode = nodes.some((m) => {
+      if (m.id === n.id) return false;
+      const p = place(m), r = radius(m);
+      return p.cx + r > box.l && p.cx - r < box.r && p.cy + r > box.t && p.cy - r < box.b;
+    });
+    if (n.id === keep || (!hitsLabel && !hitsNode)) {
+      boxes.push(box);
+      shown.add(n.id);
+    }
+  }
+  return shown;
+}
+
 function NetworkView({
   result,
   busy,
@@ -2093,8 +2132,19 @@ function NetworkView({
         n.id.toLowerCase().includes(filter.toLowerCase()),
     ),
     ids = new Set(nodes.map((n) => n.id)),
-    edges = g.edges.filter((e) => ids.has(e.source) && ids.has(e.target));
+    edges = g.edges.filter((e) => ids.has(e.source) && ids.has(e.target)),
+    nodeText = (n: { label: string }) =>
+      n.label.length > (nodes.length > 16 ? 12 : 23)
+        ? n.label.slice(0, nodes.length > 16 ? 11 : 21) + "…"
+        : n.label,
+    labelled = readableLabels(nodes, nodeText, selected?.id);
+  const canvasRef = useRef<HTMLDivElement>(null);
   useEffect(() => setSelected(null), [result.run_id]);
+  // On a phone the graph keeps its legible scale and scrolls sideways; open it on the centre, not the left edge.
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (el && el.scrollWidth > el.clientWidth) el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+  }, [result.run_id, table]);
   return (
     <section className="wb-panel">
       <div className="wb-panel-head">
@@ -2111,14 +2161,14 @@ function NetworkView({
             className={!table ? "active" : ""}
             onClick={() => setTable(false)}
           >
-            <Network size={15} />
+            <Network size={16} />
             {t("Ağ", "Graph")}
           </button>
           <button
             className={table ? "active" : ""}
             onClick={() => setTable(true)}
           >
-            <Table2 size={15} />
+            <Table2 size={16} />
             {t("Tablo", "Table")}
           </button>
         </div>
@@ -2161,7 +2211,7 @@ function NetworkView({
           {t("Ağı hesapla", "Compute network")}
         </button>
         <label className="wb-node-search">
-          <Search size={15} />
+          <Search size={16} />
           <input
             aria-label={t("Ürün bul", "Find product")}
             value={filter}
@@ -2239,7 +2289,7 @@ function NetworkView({
         </TableWrap>
       ) : (
         <div className="wb-network-layout">
-          <div className="wb-network-canvas">
+          <div className="wb-network-canvas" ref={canvasRef}>
             <svg
               role="group"
               aria-label={t(
@@ -2282,6 +2332,7 @@ function NetworkView({
                   <g
                     key={n.id}
                     transform={`translate(${375 + n.x * 270},${230 + n.y * 165})`}
+                    data-label={labelled.has(n.id) ? "shown" : "on-hover"}
                     tabIndex={0}
                     role="button"
                     aria-label={`${n.label}, ${n.degree} ${t("bağlantı", "connections")}`}
@@ -2306,10 +2357,8 @@ function NetworkView({
                       stroke={selected?.id === n.id ? "#1e2b57" : "white"}
                       strokeWidth={selected?.id === n.id ? 4 : 3}
                     />
-                    <text y={37} textAnchor="middle">
-                      {n.label.length > (nodes.length > 16 ? 12 : 23)
-                        ? n.label.slice(0, nodes.length > 16 ? 11 : 21) + "…"
-                        : n.label}
+                    <text y={37} textAnchor="middle" className={labelled.has(n.id) ? undefined : "is-quiet"}>
+                      {nodeText(n)}
                     </text>
                   </g>
                 ))}
@@ -2321,14 +2370,14 @@ function NetworkView({
                 aria-label={t("Yakınlaştır", "Zoom in")}
                 onClick={() => setZoom(Math.min(1.8, zoom + 0.2))}
               >
-                <ZoomIn size={18} />
+                <ZoomIn size={20} />
               </button>
               <button
                 className="wb-icon"
                 aria-label={t("Uzaklaştır", "Zoom out")}
                 onClick={() => setZoom(Math.max(0.6, zoom - 0.2))}
               >
-                <ZoomOut size={18} />
+                <ZoomOut size={20} />
               </button>
               <button
                 className="wb-icon"
@@ -2373,15 +2422,19 @@ function NetworkView({
               </>
             ) : (
               <>
-                <Network size={29} />
-                <h3>{t("Ürün ayrıntıları", "Look behind a connection.")}</h3>
+                <Network size={32} />
+                <h3>{t("Ürün ayrıntıları", "Product details")}</h3>
                 <p>
                   {t(
                     "Bir ürünü seçerek satışını ve ağ içindeki yerini inceleyin.",
                     "Select a product to inspect its sales and network position.",
                   )}
                 </p>
-                <p className="wb-small">{g.source_method}</p>
+                <p className="wb-small" title={g.source_method}>
+                  {g.mode === "similarity"
+                    ? t("Benzerlik çekirdeği (PoliEco) · NetworkX yerleşimi, seed 47", "PoliEco similarity kernel · NetworkX layout, seed 47")
+                    : t("Gözlenen fatura birlikteliği · NetworkX yerleşimi, seed 47", "Observed invoice co-occurrence · NetworkX layout, seed 47")}
+                </p>
               </>
             )}
           </aside>

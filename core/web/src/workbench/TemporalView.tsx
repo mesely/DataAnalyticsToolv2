@@ -172,7 +172,7 @@ export function TemporalView({
             )}
           </small>
         </span>
-        <ChevronRight size={19} />
+        <ChevronRight size={20} />
       </summary>
       <div className="wb-expert-body">
         <p>

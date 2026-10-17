@@ -41,10 +41,10 @@ Prompt explicitly requested generous negative space, 1.6px geometry, a small ind
 
 User request: every icon must be original to this product and Gemini-generated; no ready-made icon library.
 Signed-in, user-authorized Gemini web conversation (model "Pro"):
-https://gemini.google.com/app/37d7000c896aba2b — six turns, raw outputs saved unchanged as
-`assets/glyphs/gemini-batch-1.json` … `gemini-batch-6.json`. Each file's canonical JSON SHA-256 was computed in the
+https://gemini.google.com/app/37d7000c896aba2b — seven turns, raw outputs saved unchanged as
+`assets/glyphs/gemini-batch-1.json` … `gemini-batch-7.json`. Each file's canonical JSON SHA-256 was computed in the
 browser from Gemini's code block and matched against the saved file (batch 1 `789103da…`, 2 `2078bbe3…`,
-3 `8432a66d…`, 4 `f4638787…`, 5 `07cd9a7c…`, 6 `cc38be18…`).
+3 `8432a66d…`, 4 `f4638787…`, 5 `07cd9a7c…`, 6 `cc38be18…`, 7 `655dfe24…`).
 
 Grammar given to Gemini (derived from the app icon: open cobalt planes + one brass index sphere): 24×24 grid,
 1.75 stroke, round caps/joins; every closed contour leaves an open top-right corner; exactly one solid
@@ -59,11 +59,12 @@ files as provenance; `tools/design/glyphs.py` takes the latest batch per name, v
 index dot, and writes `glyphs.generated.ts`. `Glyph.tsx` renders them with React.createElement (no innerHTML);
 strokes use currentColor, the index dot uses `--glyph-dot` (brass, tuned per theme).
 
-51 glyphs, one meaning each: overview, assistant, network, findings, admin, guide, workspace, logout, search,
+52 glyphs, one meaning each: overview, assistant, network, findings, admin, guide, workspace, logout, search,
 help, language, theme_light, theme_dark, menu, close, narrow_view, dataset, about_data, upload, download,
 external, open, forward, chevron_right, chevron_down, reset, apply, confirmed, run, spinner, info, save,
 gross_sales, orders, units, average_order, markets, trend, table_view, report, verified, query, send,
-experiment, saved_experiments, period_change, decision, zoom_in, zoom_out, calendar, tick.
+experiment, saved_experiments, period_change, decision, zoom_in, zoom_out, calendar, tick, compare (batch 7: the final visual pass found "compare two analyses"
+borrowing the query glyph).
 
 Browser widgets cannot host a React element, so batch 6 (calendar, tick) and the two chevrons are also emitted
 as CSS data URIs (`glyphs.generated.css`): the disclosure marker of every `<summary>`, the `<select>` caret, the

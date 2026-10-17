@@ -57,6 +57,7 @@ export const GrossSales = glyph("gross_sales"),
   Experiment = glyph("experiment"),
   SavedExperiments = glyph("saved_experiments"),
   PeriodChange = glyph("period_change"),
+  Compare = glyph("compare"),
   Decision = glyph("decision"),
   ZoomIn = glyph("zoom_in"),
   ZoomOut = glyph("zoom_out");

@@ -238,5 +238,10 @@
   "path": "core/web/src/workbench/assets/glyphs/gemini-batch-6.json",
   "sha256": "c2fd9b48f6173501cd3d1924dc581b5492038aa3a851d43fcbd7e1b46af31300",
   "kind": "original-gemini-glyph-source"
+ },
+ {
+  "path": "core/web/src/workbench/assets/glyphs/gemini-batch-7.json",
+  "sha256": "a17b8c6f57701dda5c8d7eea51562d6bb6a16719e1f67ac077ddb6a99107c99b",
+  "kind": "original-gemini-glyph-source"
  }
 ]

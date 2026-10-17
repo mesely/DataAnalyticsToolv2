@@ -33,7 +33,10 @@
   // Contrast of text (own text nodes only)
   const texts = all.filter((e) => [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()));
   let pass = 0, fails = [];
-  for (const e of texts) { const cs = getComputedStyle(e); const fg = parse(cs.color); if (!fg) continue; const bg = bgOf(e); const c = ratio(blend(fg, bg), bg); const large = parseFloat(cs.fontSize) >= 24 || (parseFloat(cs.fontSize) >= 18.66 && +cs.fontWeight >= 700); if (c >= (large ? 3 : 4.5)) pass++; else fails.push(`${e.textContent.trim().slice(0, 30)} ${c.toFixed(2)}`); }
+  // A gradient between the text and the first opaque background is checked at every colour stop (worst case):
+  // a light stop under light text is a failure even when the background colour behind it is dark.
+  const stopsOf = (el) => { for (let x = el; x; x = x.parentElement) { const s = getComputedStyle(x); const img = s.backgroundImage; if (img && img.includes("gradient")) return (img.match(/rgba?\([^)]+\)/g) || []).map(parse).filter((p) => p && p.a > 0.5); const b = parse(s.backgroundColor); if (b && b.a >= 1) return []; } return []; };
+  for (const e of texts) { const cs = getComputedStyle(e); const fg = parse(cs.color); if (!fg) continue; const bg = bgOf(e); const c = Math.min(ratio(blend(fg, bg), bg), ...stopsOf(e).map((s) => ratio(blend(fg, { ...s, a: 1 }), { ...s, a: 1 }))); const large = parseFloat(cs.fontSize) >= 24 || (parseFloat(cs.fontSize) >= 18.66 && +cs.fontWeight >= 700); if (c >= (large ? 3 : 4.5)) pass++; else fails.push(`${e.textContent.trim().slice(0, 30)} ${c.toFixed(2)}`); }
 
   // Icons: non-text contrast (WCAG 1.4.11, 3:1) and provenance
   const icons = all.filter((e) => e.matches(".wb-custom-icon, svg.lucide, svg[class*=lucide], .wb-glyph"));
@@ -45,7 +48,8 @@
   const fontSizes = new Set(texts.map((e) => Math.round(parseFloat(getComputedStyle(e).fontSize) * 2) / 2));
   const weights = new Set(texts.map((e) => getComputedStyle(e).fontWeight));
   const spacing = [];
-  for (const e of all) { const cs = getComputedStyle(e); for (const p of ["paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "marginTop", "marginBottom", "rowGap", "columnGap"]) { const v = parseFloat(cs[p]); if (v > 0) spacing.push(v); } }
+  const offGrid = new Set();
+  for (const e of all) { const cs = getComputedStyle(e); for (const p of ["paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "marginTop", "marginBottom", "rowGap", "columnGap"]) { if (p.startsWith("margin") && e.matches("dialog")) continue; /* auto-centred, not a spacing choice */ const v = parseFloat(cs[p]); if (v > 0) { spacing.push(v); if (Math.abs(v / 4 - Math.round(v / 4)) >= 0.01) offGrid.add(`${e.tagName.toLowerCase()}.${String(e.className.baseVal ?? e.className).split(" ")[0]} ${p} ${cs[p]}`); } } }
   const onGrid = spacing.filter((v) => Math.abs(v / 4 - Math.round(v / 4)) < 0.01).length;
   const distinctSpacing = new Set(spacing.map((v) => Math.round(v))).size;
   const radii = new Set(all.map((e) => getComputedStyle(e).borderTopLeftRadius).filter((r) => r !== "0px"));
@@ -94,7 +98,7 @@
   };
   return { viewport: [innerWidth, innerHeight], targets: { n: sizes.length, ge44: t44, ge24: t24, h_ge40: h40, under44: small.slice(0, 40) },
     text: { n: texts.length, pass, fails: fails.slice(0, 10) }, icons: { n: icons.length, lucide, contrast_pass: iconPass },
-    type: { sizes: [...fontSizes].sort((a, b) => a - b), weights: [...weights] }, spacing: { n: spacing.length, on4: onGrid, distinct: distinctSpacing },
+    type: { sizes: [...fontSizes].sort((a, b) => a - b), weights: [...weights] }, spacing: { n: spacing.length, on4: onGrid, distinct: distinctSpacing, off_grid: [...offGrid].slice(0, 10) },
     radii: [...radii], bordered_boxes: bordered, left_edges: lefts.size, card_insets: [...insets].sort((a, b) => a - b), regions, hick_bits: H, colors, score };
   }
 })();

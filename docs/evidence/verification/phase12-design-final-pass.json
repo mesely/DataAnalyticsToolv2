@@ -1,0 +1,251 @@
+{
+ "producer": "tools/design/audit.js (gradient-aware contrast) + tools/design/layout_lint.js, in-page DOM measurement",
+ "scope": "Final visual pass on the public UCI Online Retail dataset. Heuristic DOM measurements plus screenshot review; not a user study or WCAG certification.",
+ "generated_utc": "2026-10-17T00:34:14+00:00",
+ "base_commit": "d53943a0ca4a994ab3c5e82965da45951cc18cdf",
+ "audit_scores": {
+  "desktop_1440x900": {
+   "dark/overview": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 99,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 16
+   },
+   "dark/analysis": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 98,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 17
+   },
+   "dark/network": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 99,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 16
+   },
+   "dark/findings": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 100,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 9
+   },
+   "light/overview": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 99,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 16
+   },
+   "light/analysis": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 98,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 17
+   },
+   "light/network": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 99,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 16
+   },
+   "light/findings": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 100,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 9
+   }
+  },
+  "mobile_390x844": {
+   "dark/overview": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 99,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 16
+   },
+   "dark/analysis": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 100,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 15
+   },
+   "dark/network": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 99,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 16
+   },
+   "dark/findings": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 100,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 9
+   },
+   "light/overview": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 99,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 16
+   },
+   "light/analysis": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 100,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 15
+   },
+   "light/network": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 99,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 16
+   },
+   "light/findings": {
+    "fitts": 100,
+    "contrast_text": 100,
+    "contrast_icons": 100,
+    "spacing_rhythm": 100,
+    "type_scale": 100,
+    "hick_main": 100,
+    "alignment": 100,
+    "icon_originality": 100,
+    "main_commands": 9
+   }
+  }
+ },
+ "audit_other": {
+  "targets_under_44": 0,
+  "text_below_wcag": 0,
+  "stock_icons": 0,
+  "page_horizontal_scroll": 0
+ },
+ "layout_lint": {
+  "surfaces": [
+   "4 screens",
+   "Uzman SQL laboratuvarı",
+   "Zaman içindeki değişim",
+   "Analizleri karşılaştır",
+   "Veri hazırlama",
+   "Model stüdyosu",
+   "Karar stüdyosu",
+   "Metrik sözlüğü",
+   "Kullanım rehberi",
+   "Hesaplama kanıtı",
+   "Veri hakkında",
+   "Veri ekle"
+  ],
+  "viewports": {
+   "1440x900": "15 surfaces, 0 findings",
+   "1024x760": "15 surfaces, 0 findings",
+   "768x1024": "10 surfaces, 0 findings",
+   "390x844": "10 surfaces, 0 findings"
+  },
+  "checks": [
+   "overflow",
+   "clipped",
+   "glyph_misaligned",
+   "images",
+   "near_miss",
+   "narrow_control",
+   "page_overflow"
+  ]
+ },
+ "defects_found_and_fixed": [
+  "1024px: gross-sales KPI value overflowed its card -> KPI grid 2x2 below 1000px of content (container query)",
+  "sidebar product mark squeezed to 34x56 and cropped -> flex:none",
+  "dark theme: 'Ürün ilişkileri' teaser and primary KPI used a literal #fff gradient (light text on white, 1.2-2.0:1) -> var(--surface); audit now checks gradient stops (previous receipt missed this)",
+  "1024px: filter row orphaned 'Uygula'; sidebar identity wrapped to 3 lines -> filter title row + constant 224px sidebar",
+  "1024px: trend title squeezed beside view switch -> overview pair stacks below 860px of content",
+  "trend x-axis first ticks touched ('2010-12 2011-01') -> minTickGap 28, preserveStartEnd",
+  "glyph sizes 12/13/14/15/17/18/19/21/23/25/29/33 -> 16/20/24/32 only (test enforces)",
+  "question chips used the 'open externally' glyph -> forward",
+  "network labels overprinted in the dense centre -> greedy collision-free labels, rest on hover/focus",
+  "network panel: English method note and mismatched English heading in TR -> localized",
+  "'Veri hakkında': raw 'public' badge in TR -> 'Açık veri'; three left edges (104/113/117) -> one",
+  "Decision Studio: three disclosure patterns -> inline toggles lead with chevron, section rows end with one; 'Karar arşivim' gained its chevron",
+  "decision narrative header 24px indented inside dialogs (design-pass regression) -> card inset only for direct card headers",
+  "country ranking 4px off the card inset; saved-findings list 8px off on phones -> on the inset",
+  "'İki analizi karşılaştırın' borrowed the query glyph -> new Gemini 'compare' glyph (batch 7)",
+  "768px: two-column country ranking wrapped 'United Kingdom' -> two columns only from 640px of content",
+  "390px: country select collapsed to 54px (design-pass regression) -> phone form grid; linter gained narrow_control",
+  "390px: decorative panel glyph fell onto its own row -> stays beside the title",
+  "dataset picker value 12px right of its eyebrow -> aligned",
+  "390px: network opened at its left edge; zoom and hint scrolled away / were clipped -> centred, sticky, auto height",
+  "expert tools: context search input too narrow at 1024 -> stacks by content width",
+  "guide list 14px browser margins; dialog auto margins counted as spacing -> 16px; audit ignores dialog auto margins",
+  "canvas hint over the dotted grid (3.6:1 against dots) -> own surface",
+  "local web/dist kept 41 stale hashed assets (old icons still served) -> build empties assets/ first"
+ ]
+}

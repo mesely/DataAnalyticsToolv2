@@ -3,8 +3,8 @@
 ## ŞİMDİ OKU — AW-15 özgün simge ailesi + tasarım maksimizasyonu (17 Ekim 2026)
 
 İstek: hiçbir simge hazır asset olmayacak; hepsi Gemini üretimi ve ürüne özgü; tasarım/kural puanları 100'e.
-- **Simgeler:** lucide-react paketi ve 36 eski SVG kaldırıldı. Gemini konuşmasında 6 tur → 51 glyph
-  (`core/web/src/workbench/assets/glyphs/gemini-batch-1..6.json`, değiştirilmeden; hash'ler PROVENANCE +
+- **Simgeler:** lucide-react paketi ve 36 eski SVG kaldırıldı. Gemini konuşmasında 7 tur → 52 glyph
+  (`core/web/src/workbench/assets/glyphs/gemini-batch-1..7.json`, değiştirilmeden; hash'ler PROVENANCE +
   ASSET_MANIFEST). `python -m tools.design.glyphs` doğrular ve `glyphs.generated.ts` + `glyphs.generated.css`
   üretir. `Glyph.tsx` React.createElement ile çizer. Tarayıcı işaretleri (summary üçgeni, select oku, takvim,
   checkbox tiki, sayı okları) de aynı aileden.
@@ -17,6 +17,15 @@
 - **Testler:** `tests/test_design_system.py` (58: gramer, üretilmiş TS/CSS güncel, manifest, stok paket yok,
   CSS ölçekleri sabit, rem/vw yok, kontrast bloğu güncel); APP_SOURCES'a `Glyph.tsx` + `glyphs.generated.ts`.
 - **Açık:** Hick 98 (Analiz, 17 komut: üç örnek soru bilinçli tutuldu). Kullanıcı testi/WCAG denetimi yok.
+- **Son görsel geçiş (aynı gün):**
+  - 15 yüzey × 1440/1024/768/390 × iki tema tarandı; 24 kusur bulundu ve düzeltildi
+    (`phase12-design-final-pass.json`).
+  - Önemli düzeltme: koyu temada sabit `#fff` degrade metni okunmaz yapıyordu ve ilk denetim bunu kaçırmıştı;
+    denetim artık degradeleri ölçüyor.
+  - Düzen artık içerik sütununa göre kırılıyor (container query).
+  - Ağ etiketleri çakışmıyor; 7. Gemini turunda `compare` glyph'i eklendi.
+  - Derleme eski asset'leri temizliyor.
+  - Linter: `tools/design/layout_lint.js`.
 
 ## ÖNCEKİ — Opus 5.5 devam turu (16 Ekim 2026 akşam) — son durum
 

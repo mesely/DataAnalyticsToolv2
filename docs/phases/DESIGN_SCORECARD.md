@@ -6,12 +6,13 @@ Fitts / Hick–Hyman gibi kurallar 100 üzerinden puanlanıp en yükseğe çıka
 
 Ölçümler `tools/design/audit.js` ile render edilmiş DOM üzerinde alınır (geçişler dondurulur). Bunlar
 **sezgisel DOM ölçümleridir**: kullanıcı testi, görev süresi ölçümü ya da WCAG sertifikası değildir.
-Ham kayıt: `docs/evidence/verification/phase12-design-audit.json`.
+Ham kayıt: `docs/evidence/verification/phase12-design-audit.json`; son görsel geçiş:
+`docs/evidence/verification/phase12-design-final-pass.json`.
 
 ## Radikal kararlar
 
 1. **Tek glyph dili.** lucide-react kaldırıldı (paket ve 6 bileşen), 36 eski SVG silindi. Yerlerine Gemini ile
-   altı turda üretilmiş 51 glyph geldi (`assets/glyphs/gemini-batch-1..6.json`, değiştirilmeden saklandı,
+   yedi turda üretilmiş 52 glyph geldi (`assets/glyphs/gemini-batch-1..7.json`, değiştirilmeden saklandı,
    SHA-256'ları `PROVENANCE.md` ve `ASSET_MANIFEST.json` içinde). Dil, uygulama simgesinden türetildi:
    24×24 ızgara, 1.75 çizgi, kapalı konturlarda açık sağ üst köşe, anlamın düştüğü noktada tek pirinç "indeks
    noktası", en fazla 6 parça. Her ad tek anlam taşır (ör. `narrow_view` yalnız "Görünümü daralt").
@@ -58,6 +59,40 @@ yerel işaretleri vardı; şimdi sıfır hazır paket ve sıfır yerel işaret v
 Ek: 390px'te 8 ölçümün hepsinde sayfa genişliği 390px (yatay kaydırma yok); 44px altında hedef sayısı 0;
 WCAG eşiğinin altında metin sayısı 0.
 
+## Son görsel geçiş (uçtan uca)
+
+4 ekran + 11 diyalog/uzman yüzeyi; 1440, 1024, 768 ve 390 px; iki tema. Her yüzeyde ekran görüntüsü incelendi ve
+`tools/design/layout_lint.js` çalıştırıldı. Bu araç şunları denetliyor:
+- kart dışına taşma ve kırpılma,
+- simge ile metin arasındaki dikey hiza,
+- bozuk, bozulmuş oranlı veya büyütülmüş görseller,
+- aynı kart içinde 2–8 px'lik "yakın kaçan" sol kenarlar,
+- değerini sığdıramayan kontroller,
+- yatay sayfa kaydırması.
+
+Geçiş 24 kusur buldu, hepsi düzeltildi (liste kayıtta). Önemli olanlar:
+
+- **Önceki karnenin düzeltilmesi:** koyu temada "Ürün ilişkileri" kartı ve birincil KPI sabit `#fff` degrade
+  kullanıyordu; açık zeminde açık renkli metin, 1,2–2,0:1 kontrast. İlk denetim degradeleri görmediği için metin
+  kontrastı 100 çıktı; o puan bu iki kart için yanlıştı. Denetim artık her degrade durağına karşı ölçüyor.
+- **Tasarım geçişinin kendi gerilemeleri:**
+  - kart iç boşluğu diyalog başlıklarına sızıyordu;
+  - 390 px'te ülke seçicisi 54 px'e çöküyordu.
+  Linter'a `narrow_control` ve `near_miss` denetimleri eklendi; ikisi de bu hataları yeniden üretince yakalıyor.
+- **Yeni karar:** düzen pencereye göre değil, içerik sütununun genişliğine göre değişiyor (`main` bir CSS
+  container). KPI ızgarası, genel bakış çifti, uzman araçları ve ülke sıralaması kenar çubuğu açıkken de doğru
+  kırılıyor.
+- **İlişki ağı:** etiketler artık çakışmıyor; önce en çok bağlantılı düğümler etiketleniyor, sığmayanlar üzerine
+  gelince veya odaklanınca görünüyor. Telefonda grafik ortadan açılıyor, kontroller sabit duruyor.
+- **Yeni simge:** "İki analizi karşılaştırın" sorgu simgesini ödünç alıyordu; Gemini'de 7. turda `compare`
+  glyph'i üretildi. Simge boyutları yalnız 16/20/24/32 (test zorunlu kılıyor).
+- **Paketleme:** yerel derleme silinen eski ikonları sunmaya devam ediyordu (41 eski asset). Derleme artık
+  `assets/` klasörünü sıfırdan kuruyor.
+
+Son ölçüm (degradeye duyarlı denetim, 16 ekran/tema/genişlik): Fitts, metin kontrastı, simge kontrastı, boşluk,
+tip, hizalama ve simge özgünlüğü her yerde 100. Hick–Hyman 98–100. Linter 50 yüzey/genişlik ölçümünde 0 bulgu
+verdi.
+
 ## Uzman değerlendirmesi (ölçüm değil, gerekçeli yargı)
 
 | İlke | Puan | Gerekçe / kalan açık |
@@ -79,7 +114,7 @@ WCAG eşiğinin altında metin sayısı 0.
 .venv/bin/python -m pytest tests/test_design_system.py -q
 ```
 
-Tarayıcıda: `tools/design/audit.js` içeriğini sayfada çalıştırın (devtools veya otomasyon). Sonuç, formülleriyle
+Tarayıcıda: `tools/design/audit.js` (puanlar) ve `tools/design/layout_lint.js` (taşma/hiza) içeriğini sayfada çalıştırın (devtools veya otomasyon). Sonuç, formülleriyle
 birlikte alt puanları döndürür.
 
 ## Sınırlar

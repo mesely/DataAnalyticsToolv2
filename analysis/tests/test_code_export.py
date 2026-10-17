@@ -4,6 +4,7 @@ exports are byte-identical, and no customer identifier leaves the workbench."""
 import base64
 import io
 import json
+import math
 import os
 import py_compile
 import re
@@ -292,3 +293,270 @@ def test_uploaded_title_cannot_escape_a_sql_comment_or_heading(monkeypatch):
     assert not any(line.startswith("DROP TABLE") for line in sql.splitlines())
     assert not any(line.startswith("# injected") for line in readme.splitlines())
     assert "Sales DROP TABLE x; --" in sql.splitlines()[1]
+
+
+# ----------------------------------------------------------------- chart statistics in the bundle (amendment)
+
+STAT_CASES = {
+    "ci95": ("en", {"start": "2011-01-01", "end": "2011-11-20"},
+             {"metric": "aov", "statistic": "ci95", "exclude_countries": ["United Kingdom"]}),
+    "ci95_by_country": ("en", {}, {"metric": "aov", "dimension": "country", "statistic": "ci95", "top_n": 5,
+                                   "exclude_countries": ["United Kingdom"]}),
+    "trend": ("en", {"start": "2011-01-01", "end": "2011-11-20"},
+              {"statistic": "trend", "exclude_countries": ["United Kingdom"]}),
+    "trend_aov_gaps": ("tr", {}, {"metric": "aov", "dimension": "week", "statistic": "trend", "countries": ["Norway"]}),
+    "control_band": ("tr", {"country": "Germany"}, {"metric": "orders", "statistic": "control_band"}),
+    "moving_average": ("en", {"end": "2011-06-30"},
+                       {"dimension": "week", "statistic": "moving_average", "window": 4,
+                        "countries": ["Germany", "France"], "split_by_country": True,
+                        "exclude_countries": ["United Kingdom"]}),
+}
+
+
+@pytest.fixture(scope="module", params=sorted(STAT_CASES))
+def stat_bundle(request, tmp_path_factory):
+    from analysis.chart_studio import chart
+
+    locale, filters, spec = STAT_CASES[request.param]
+    result = export_code({"dataset": "uci", "locale": locale, "filters": filters, "chart": spec})
+    folder = tmp_path_factory.mktemp(f"stat_{request.param}")
+    unzip(result, folder)
+    proc = run_script(folder, "--check", "--out", "out")
+    studio = chart({"dataset": "uci", "filters": filters, "base_spec": spec, "locale": locale})
+    expected = json.loads((folder / "expected.json").read_text())["results"]
+    return {"name": request.param, "result": result, "folder": folder, "proc": proc, "studio": studio,
+            "expected": expected, "statistic": studio["spec"]["statistic"]}
+
+
+def _studio_value(row, metric):
+    if metric == "gross_sales":
+        return round(row["pence"] / 100, 2)
+    if metric in ("orders", "units"):
+        return row[metric]
+    return round(row["pence"] / row["orders"] / 100, 2) if row["orders"] else None
+
+
+def test_stat_bundle_check_passes(stat_bundle):
+    proc = stat_bundle["proc"]
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    lines = [line for line in proc.stdout.splitlines() if line[:1] in "✓✗"]
+    assert all(line.startswith("✓") for line in lines)
+    assert any(f" chart_{stat_bundle['statistic']}" in line for line in lines)
+    # the script regenerates the overlay figure byte for byte
+    folder = stat_bundle["folder"]
+    assert (folder / "out" / "figures" / "chart.svg").read_bytes() == (folder / "figures" / "chart.svg").read_bytes()
+
+
+def test_stat_bundle_series_equals_chart_studio(stat_bundle):
+    """Zero-filled periods (missing average order value), exclusions and partial flags exactly as Chart Studio."""
+    studio, rows = stat_bundle["studio"], stat_bundle["expected"]["chart"]
+    metric = studio["spec"]["metric"]
+    assert len(rows) == len(studio["data"])
+    exported = {(row["x"], row["series"]): (_studio_value(row, metric), row.get("partial")) for row in rows}
+    shown = {(d.get("key", d["x"]), d["series"]): (d["value"], d.get("partial")) for d in studio["data"]}
+    assert exported == shown
+    if stat_bundle["name"] == "trend_aov_gaps":
+        assert any(row["orders"] == 0 for row in rows)  # weeks without Norwegian orders: zero rows, missing value
+    assert "United Kingdom" not in {row["x"] for row in rows}
+
+
+def test_stat_bundle_overlay_equals_chart_studio(stat_bundle):
+    from scipy import special
+
+    from analysis.chart_studio import _ols
+
+    studio, expected, statistic = stat_bundle["studio"], stat_bundle["expected"], stat_bundle["statistic"]
+    overlays, metric = studio["overlays"], studio["spec"]["metric"]
+    pence = 0.005 + 1e-9  # values are rounded to whole pence on one side and to 2 decimals on the other
+    if statistic == "ci95":
+        got = {(row["x"], row["series"]): row for row in expected["chart_ci95"]}
+        for d in studio["data"]:
+            row = got[(d.get("key", d["x"]), d["series"])]
+            assert row["n"] == d["n"]
+            if "lower" in d:
+                assert abs(row["lower_pence"] / 100 - d["lower"]) <= pence
+                assert abs(row["upper_pence"] / 100 - d["upper"]) <= pence
+                assert abs(row["mean_pence"] / 100 - d["value"]) <= pence
+            else:
+                assert row["lower_pence"] is None and row["upper_pence"] is None
+    elif statistic == "trend":
+        trend, shown = expected["chart_trend"], overlays["trend"]
+        assert (trend["n"], trend["index_origin"]) == (shown["n"], shown["index_origin"])
+        assert abs(trend["slope_x100"] / 100 - shown["slope"]) <= pence + 5e-5
+        assert abs(trend["intercept_x100"] / 100 - shown["intercept"]) <= pence + 5e-5
+        # R² and p against Chart Studio's own estimator on the same periods, to 1e-6 (stored in millionths)
+        rows = [row for row in expected["chart"] if row["series"] == "all"]
+        points = [(i, v) for i, row in enumerate(rows)
+                  if not row["partial"] and (v := (row["pence"] / row["orders"] / 100 if metric == "aov" and row["orders"]
+                                                   else None if metric == "aov" else row["pence"] / 100)) is not None]
+        fit = _ols([x for x, _ in points], [y for _, y in points], special)
+        assert abs(trend["r2_x1e6"] / 1e6 - fit["r2"]) <= 5e-7 + 1e-12
+        assert abs(trend["p_value_x1e6"] / 1e6 - fit["p_value"]) <= 5e-7 + 1e-12
+        assert abs(trend["r2_x1e6"] / 1e6 - shown["r2"]) <= 5e-5 + 1e-6
+        assert trend["p_value_x1e6"] / 1e6 == pytest.approx(shown["p_value"], abs=1e-6)
+    elif statistic == "control_band":
+        band, shown = expected["chart_control_band"], overlays["control"]
+        assert band["n"] == shown["n"] and band["outside"] == shown["outside"]
+        for key in ("mean", "sd", "lower", "upper"):
+            assert abs(band[f"{key}_x100"] / 100 - shown[key]) <= pence + 5e-5, key
+    else:
+        got = [(p["x"], p["series"], p["value_x100"] / 100) for p in expected["chart_moving_average"]]
+        shown = overlays["moving_average"]["points"]
+        assert [(x, s) for x, s, _ in got] == [(p["x"], p["series"]) for p in shown]
+        # An average of 4 pence values often ends in exactly half a penny; Chart Studio's round(x, 2) and the
+        # export's whole-pence round() can then break the tie differently, so the bound here is one penny.
+        assert all(abs(value - p["value"]) <= 0.01 + 1e-9 for (_, _, value), p in zip(got, shown))
+        assert {s for _, s, _ in got} == {"Germany", "France"}
+
+
+def test_stat_sql_file_reproduces_statistics(stat_bundle, monkeypatch):
+    """analysis.sql (regr_*, AVG/STDDEV_SAMP, window functions) agrees with analysis.py's expected.json."""
+    expected, statistic = stat_bundle["expected"], stat_bundle["statistic"]
+    got = run_sql(stat_bundle["folder"], monkeypatch)
+    assert got["chart"] == expected["chart"]
+    near = lambda value, scaled, scale=100: abs(round(value * scale) - scaled) <= 1  # noqa: E731
+    if statistic == "ci95":
+        for sql_row, row in zip(got["chart_ci95"], expected["chart_ci95"]):
+            assert (sql_row["x"], sql_row["series"], sql_row["n"]) == (row["x"], row["series"], row["n"])
+            if row["mean_pence"] is not None:
+                assert near(sql_row["mean_pence"], row["mean_pence"], 1)
+            if row["sd_pence"] is not None:
+                assert near(sql_row["sd_pence"], row["sd_pence"], 1)
+    elif statistic == "trend":
+        (sql_row,), trend = got["chart_trend"], expected["chart_trend"]
+        assert sql_row["n"] == trend["n"]
+        assert near(sql_row["slope"], trend["slope_x100"]) and near(sql_row["intercept"], trend["intercept_x100"])
+        assert near(sql_row["r2"], trend["r2_x1e6"], 1_000_000)
+    elif statistic == "control_band":
+        (sql_row,), band = got["chart_control_band"], expected["chart_control_band"]
+        assert sql_row["n"] == band["n"] and sql_row["outside"] == band["outside"]
+        for key in ("mean", "sd", "lower", "upper"):
+            assert near(sql_row[key], band[f"{key}_x100"]), key
+    else:
+        rows = expected["chart_moving_average"]
+        assert [(r["x"], r["series"]) for r in got["chart_moving_average"]] == [(r["x"], r["series"]) for r in rows]
+        assert all(near(a["value"], b["value_x100"]) for a, b in zip(got["chart_moving_average"], rows))
+
+
+def test_stat_bundle_figure_readme_and_code(stat_bundle):
+    folder, statistic, name = stat_bundle["folder"], stat_bundle["statistic"], stat_bundle["name"]
+    tr = STAT_CASES[name][0] == "tr"
+    svg = (folder / "figures" / "chart.svg").read_text()
+    root = ET.fromstring(svg)
+    desc = root.find("{http://www.w3.org/2000/svg}desc").text
+    marks = {"ci95": 'stroke="#172238" stroke-width="1.2"', "trend": 'stroke-dasharray="6 4"',
+             "moving_average": 'stroke-dasharray="6 4"', "control_band": 'fill-opacity="0.14"'}
+    assert marks[statistic] in svg
+    assert {"ci95": "güven aralığı" if tr else "confidence interval", "trend": "trend",
+            "control_band": "Kontrol bandı" if tr else "Control band",
+            "moving_average": "moving average"}[statistic] in desc
+    if statistic == "ci95":
+        whiskers = sum(1 for row in stat_bundle["expected"]["chart_ci95"] if row["lower_pence"] is not None)
+        assert svg.count('stroke="#172238" stroke-width="1.2"') >= 3 * whiskers  # a bar and two caps each
+    readme = (folder / "README.md").read_text()
+    assert ("#### İstatistik:" if tr else "#### Statistic:") in readme
+    for needle in (["**Varsayım:**", "**Nasıl değiştirilir:**"] if tr else ["**Assumption:**", "**How to change it:**"]):
+        assert needle in readme
+    source = (folder / "analysis.py").read_text()
+    assert f"def chart_{statistic}(" in source and "def chart_overlay(" in source and "def write_chart_figure(" in source
+    imports = {line.split()[1] for line in source.splitlines() if line.startswith(("import ", "from "))}
+    assert imports <= {"__future__", "argparse", "csv", "json", "math", "sys", "dataclasses", "pathlib", "typing",
+                       "duckdb", "charts", "stats"}
+    needs_stats = statistic in ("ci95", "trend")
+    assert (folder / "stats.py").exists() == needs_stats and ("import stats" in source) == needs_stats
+    sql = (folder / "analysis.sql").read_text()
+    for marker in {"trend": ["regr_slope(", "regr_intercept(", "regr_r2("], "control_band": ["AVG(value)", "STDDEV_SAMP(value)"],
+                   "moving_average": ["ROWS BETWEEN 3 PRECEDING AND CURRENT ROW", "WHERE NOT partial"],
+                   "ci95": ["pence_squared"]}[statistic]:
+        assert marker in sql
+    if STAT_CASES[name][2].get("exclude_countries"):
+        assert "NOT IN ('United Kingdom')" in sql
+    for path in [folder / "analysis.py", folder / "charts.py", *([folder / "stats.py"] if needs_stats else [])]:
+        py_compile.compile(str(path), doraise=True)
+        text = path.read_text()
+        assert all(len(line) <= 120 or not line.lstrip().startswith(("#", "--")) for line in text.splitlines())
+    if tr:  # comments of the generated chart code follow the locale
+        assert "Kapsam için tüm sorguları" in source and "# series in chart order" not in source
+        assert "uçlu bıyıklar" in (folder / "charts.py").read_text() and "whiskers with caps" not in (folder / "charts.py").read_text()
+
+
+def _stats_module(locale="en"):
+    return code_export._load_module("stats", code_export._stats_source(locale), "stats.py")
+
+
+def test_stats_module_matches_scipy():
+    """stats.py (dependency-free Student-t) against scipy.special.stdtr / stdtrit, to 1e-9 relative."""
+    from scipy import special
+
+    stats = _stats_module()
+    for df in [1, 2, 3, 4, 5, 7, 10, 19, 30, 57, 100, 250, 1000, 2500, 10_000, 50_000]:
+        for t in [-80, -30, -10, -5, -3, -2.5, -1.96, -1, -0.3, -0.01, 0, 0.01, 0.3, 1, 2, 4, 9, 40]:
+            want = float(special.stdtr(df, t))
+            if want > 1e-290:
+                assert stats.t_cdf(t, df) == pytest.approx(want, rel=1e-9, abs=0), (df, t)
+            two_sided = float(2 * special.stdtr(df, -abs(t)))
+            if two_sided > 1e-290:
+                assert stats.t_two_sided_p(t, df) == pytest.approx(two_sided, rel=1e-9, abs=0), (df, t)
+        for p in [1e-12, 1e-6, 0.001, 0.025, 0.05, 0.1, 0.2, 0.8, 0.9, 0.95, 0.975, 0.99, 0.995, 0.999, 0.9999]:
+            assert stats.t_quantile(p, df) == pytest.approx(float(special.stdtrit(df, p)), rel=1e-9, abs=0), (df, p)
+    for x in [1e-8, 0.01, 0.3, 0.5, 0.7, 0.99, 1 - 1e-9]:
+        for a in [0.5, 1, 2.5, 10, 300]:
+            for b in [0.5, 1, 3, 40]:
+                assert stats.regularized_incomplete_beta(x, a, b) == pytest.approx(
+                    float(special.betainc(a, b, x)), rel=1e-9, abs=1e-300)
+    # exact identities: Cauchy (df = 1) and the symmetry of the distribution
+    assert stats.t_cdf(1.0, 1) == pytest.approx(0.75, rel=1e-14)
+    assert stats.t_quantile(0.5, 7) == 0.0 and stats.t_quantile(0.025, 7) == -stats.t_quantile(0.975, 7)
+    assert stats.t_cdf(1e-9, 1) == pytest.approx(0.5 + 1e-9 / math.pi, rel=1e-15)  # scipy rounds this to 0.5
+    with pytest.raises(ValueError):
+        stats.t_quantile(1.0, 5)
+    tr = _stats_module("tr")
+    assert tr.t_quantile(0.975, 12) == stats.t_quantile(0.975, 12) and "Bağımlılıksız" in tr.__doc__
+
+
+def test_stat_exports_are_byte_identical():
+    locale, filters, spec = STAT_CASES["trend"]
+    request = {"dataset": "uci", "locale": locale, "filters": filters, "chart": spec}
+    assert export_code(dict(request))["sha256"] == export_code(dict(request))["sha256"]
+
+
+def test_hostile_country_name_stays_a_literal_in_exported_code(monkeypatch, tmp_path):
+    """Uploaded data can name a country anything. An excluded country with quotes, backslashes and a newline must stay
+    a string literal in analysis.py and analysis.sql: the bundle still parses, runs and passes its own check."""
+    import analysis.chart_studio as cs
+    import analysis.code_export as ce
+
+    hostile = 'Nowhere"""); import os  # \\x41 \'\n-- DROP ```'
+    real_meta = ce.meta
+
+    def with_hostile(dataset):
+        m = dict(real_meta(dataset))
+        m["countries"] = [*m["countries"], hostile]
+        return m
+
+    monkeypatch.setattr(ce, "meta", with_hostile)
+    monkeypatch.setattr(cs, "meta", with_hostile)
+    result = ce.export_code({"dataset": "demo", "locale": "en", "format": "bundle",
+                             "chart": {"dimension": "country", "exclude_countries": [hostile]}})
+    unzip(result, tmp_path)
+    source = (tmp_path / "analysis.py").read_text()
+    import warnings
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")  # an unescaped backslash would be a SyntaxWarning and change the SQL text
+        tree = compile(source, "analysis.py", "exec", flags=__import__("ast").PyCF_ONLY_AST)
+    import ast
+
+    # The script imports only what the template imports; the hostile text is data, not a statement.
+    imported = {a.name for node in ast.walk(tree) if isinstance(node, (ast.Import, ast.ImportFrom)) for a in node.names}
+    assert "os" not in imported
+    # The SQL the script runs equals the SQL file's text: the name survived both files unchanged.
+    view = next(ast.literal_eval(node.value) for node in tree.body
+                if isinstance(node, ast.Assign) and getattr(node.targets[0], "id", "") == "CHART_VIEW_SQL")
+    assert view.strip() + ";" in (tmp_path / "analysis.sql").read_text()
+    assert hostile.replace("'", "''") in view
+    readme = (tmp_path / "README.md").read_text()
+    assert not any(line.startswith("-- DROP") for line in readme.splitlines())
+    assert sum(line.startswith("```") for line in readme.splitlines()) % 2 == 0 and "\\`\\`\\`" in readme and "DROP \\u0060\\u0060\\u0060" in readme
+    proc = run_script(tmp_path, "--check", "--out", "out")
+    assert proc.returncode == 0, proc.stdout + proc.stderr

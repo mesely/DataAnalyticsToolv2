@@ -204,9 +204,81 @@ How to modify
         "d_countries": "Countries ranked by gross sales (ties broken by name).",
         "d_products": "Products ranked by gross sales. The label is MIN(product) per product_id.",
         "d_pairs": "Product pairs bought on the same invoice.\n\n    Only the `candidates` best-selling products are considered; a pair needs at least\n    `min_shared` shared invoices. This is co-occurrence, not causation.\n    ",
-        "d_chart": "The Chart Studio chart that was exported with this bundle.\n\n    One row per bucket (and country when the chart compares countries) with integer totals:\n    pence (gross sales), orders (distinct invoices) and units. Periods without rows are absent\n    here; Chart Studio shows them as zero.\n    ",
-        "d_chart_points": "Turn chart rows into (label, value) points per series for the figure.",
-        "c_chart": "Chart Studio ChartSpec v1 exported with this bundle (for reference; chart() implements it).",
+        "d_chart": "Chart rows: one per bucket (period × series, or ranked category) with integer totals.\n\n    pence = gross sales in GBP pence, orders = distinct invoices, units = SUM(quantity). On a month or\n    week axis every period of the chart scope is present: a period without rows has zeros (average\n    order value is then missing), and `partial` marks a first/last period the scope does not fully\n    cover. These are exactly the values Chart Studio plots.\n    ",
+        "d_chart_points": "Turn chart rows into (label, value) points per series for the figure; None is a gap.",
+        "c_chart": "Chart Studio ChartSpec v1 exported with this bundle. CHART_VIEW_SQL is generated from it (countries, exclusions and top N are written into the SQL); the Python functions read the metric and the window from here.",
+        "c_chart_scope": "Chart scope: the overlap of the dataset's date range, the --start/--end filters and the chart's own dates. analysis.sql runs the same two statements.",
+        "c_chart_view": "One row per chart bucket; every chart query reads this view. Same SQL as in analysis.sql.",
+        "d_prepare_chart": "Set the chart scope variables and create the `chart_buckets` view on top of `sales`.",
+        "d_metric_value": "The plotted value of a chart row in the metric's unit (GBP or a count), as in Chart Studio.\n\n    Average order value is missing (None) for a bucket without orders, never zero.\n    ",
+        "d_to_int": "value × scale rounded to an integer for expected.json (halves to even); None stays None.",
+        "d_chart_label": "Axis label of a chart row: weekday name, product name or the bucket key.",
+        "d_chart_intervals": "Interval bounds in GBP per chart row (aligned with results['chart']); None where there is none.",
+        "d_chart_figure": "Write chart.svg: the chart rows with the statistic drawn over them (see chart_overlay).",
+        "c_bar_order": "Bar layout: rows arrive in rank or calendar order; the ChartSpec sort is applied as in Chart Studio.",
+        "d_overlay_none": "The exported chart has no statistic, so nothing is drawn over the data.",
+        "d_overlay_ci95": "Interval whiskers per bucket (lower and upper bound in GBP).",
+        "d_overlay_trend": "The fitted trend line, drawn dashed over the complete periods it was fitted on.",
+        "d_overlay_band": "The control band: shaded from the lower to the upper limit, with the mean as a dashed line.",
+        "d_overlay_ma": "The moving average of each series, drawn dashed in the series colour.",
+        "c_ci_level": "Confidence level of the interval. 0.99 gives a 99% interval (expected.json then no longer matches).",
+        "d_ci95": "t-based confidence interval of the mean order value per bucket.\n\n    For each bucket with n >= 2 orders: mean ± t(0.5 + level/2, n − 1) · sd / √n, where mean and sd\n    (sample standard deviation) are over the bucket's order totals in pence and t is the Student-t\n    quantile from stats.py. The SQL derives mean and sd from exact integer sums, so the result does not\n    depend on floating-point summation order and is identical on every run. Values are integer pence.\n    Assumes independent order totals and a roughly normal mean; skewed totals and small n can mislead.\n    ",
+        "c_stat_scale": "Statistic values are stored ×100 as integers: pence for GBP metrics, hundredths for counts.",
+        "c_fraction_scale": "R² and the p-value are stored ×1,000,000 (six decimals) as integers.",
+        "d_trend": "Ordinary least-squares trend y = intercept + slope · i over the complete periods.\n\n    i is the period's position in the chart scope (0 = index_origin): partial first/last periods keep\n    their place but are not fitted, and periods without a value (average order value with no orders)\n    are skipped. R² = Sxy² / (Sxx · Syy); the two-sided p-value of the slope uses a t test with n − 2\n    degrees of freedom (stats.py). Needs at least 3 periods. Same estimator as Chart Studio and\n    scipy.stats.linregress. The trend describes the past; it is not a forecast.\n    ",
+        "c_p_value": "a perfect fit (R² = 1) has no residual variance; its p-value is reported as 0",
+        "c_sigmas": "Width of the control band in standard deviations (3.0 gives the classic 3-sigma limits).",
+        "d_band": "Control band: mean ± sigmas · sd of the metric over the complete periods.\n\n    sd is the sample standard deviation (n − 1). Periods outside the band are listed in `outside`;\n    they may lie outside ordinary variation, but the cause cannot be read from this data. Needs at\n    least 3 complete periods.\n    ",
+        "d_ma": "Trailing moving average of `window` complete periods, per series.\n\n    Partial periods are removed before the window is applied, so they never enter an average; a point\n    is produced only when the window holds `window` consecutive periods that all have a value. The\n    point is labelled with the window's last period.\n    ",
+        "c_ma_skip": "a gap or a missing value inside the window: no point (as in Chart Studio)",
+        "overlay": {"none": "", "ci95": "95% confidence interval", "trend": "Linear trend",
+                    "control_band": "Control band (mean ± 2 sd)", "moving_average": "{w}-period moving average"},
+        "d_overlay": "A statistic drawn over a chart, in the chart's unit.\n\n    intervals  {series: [(label, lower, upper)]}  whiskers with caps (confidence interval)\n    lines      {series: [(label, value)]}         dashed lines (trend, moving average)\n    band       (lower, mean, upper)               shaded band with a dashed mean (control band)\n    label      legend text\n    ",
+        "d_segments": "Split a polyline at missing values (None): a gap is drawn as a gap, never as zero.",
+        "c_axis_height": "Everything that is drawn sets the height of the value axis, so whiskers and bands are never cut off.",
+        "c_clip": "Values below zero (a lower bound can be negative) are cut at the axis; the data keeps them.",
+        "c_band_back": "shaded band behind everything else",
+        "c_grid_h": "horizontal grid with value labels",
+        "c_grid_v": "vertical grid with value labels",
+        "c_labels": "at most ~12 period labels; the last one is always shown",
+        "c_whiskers": "whiskers with caps",
+        "c_dashed": "dashed statistic lines on top of the data",
+        "c_bar_legend": "legend under the title: a whisker sample and what it shows",
+        "c_series_order": "series in chart order",
+        "stats_doc": """Student-t distribution without dependencies: CDF, two-sided p-value and quantile.
+
+analysis.py uses t_quantile() for the confidence interval and t_two_sided_p() for the p-value of the
+trend slope. Results agree with scipy.special.stdtr / stdtrit to better than 1e-9 relative error.
+
+Method
+    For t > 0 with ν degrees of freedom and x = ν / (ν + t²):
+        P(T > t)     = ½ · I_x(ν/2, ½)
+        P(0 < T < t) = ½ · I_{1−x}(½, ν/2)
+    where I is the regularized incomplete beta function. Both parts come from the continued fraction of
+    I (modified Lentz's method, as betacf in Numerical Recipes, 3rd ed., §6.4), evaluated on the side
+    where it converges fast and with 1 − x formed exactly, so tiny tails and t close to 0 keep full
+    precision. The quantile brackets the root, bisects to about six digits, then polishes it with
+    Newton steps on the density.
+""",
+        "c_stats_constants": "Accuracy target of the continued fraction, a floor that keeps Lentz's method away from division by zero, and an iteration cap.",
+        "d_log_beta": "log B(a, b) via log-gamma.",
+        "d_betacf": "Continued fraction of the incomplete beta function (Numerical Recipes betacf, modified Lentz).\n\n    Converges quickly for x < (a + 1) / (a + b + 2); otherwise callers use the symmetry\n    I_x(a, b) = 1 − I_{1−x}(b, a).\n    ",
+        "c_even_step": "even step d_{2m} of the fraction",
+        "c_odd_step": "odd step d_{2m+1}; stop when the update no longer changes the value",
+        "d_pair": "(I_x(a, b), I_y(b, a)) with y = 1 − x passed separately, so neither loses precision.\n\n    The two values add up to 1: the smaller one is computed from the continued fraction, the other\n    as its complement.\n    ",
+        "c_symmetry": "evaluate the fraction on the side where it converges fast",
+        "d_betainc": "Regularized incomplete beta function I_x(a, b) (same as scipy.special.betainc(a, b, x)).",
+        "d_split": "(P(T > |t|), P(0 < T < |t|)) for a Student-t variable with df degrees of freedom; they add up to ½.",
+        "c_split": "x = df / (df + t²) and 1 − x = t² / (df + t²) are both formed directly",
+        "d_cdf": "P(T ≤ t) for a Student-t variable with df degrees of freedom (scipy.special.stdtr(df, t)).",
+        "d_two_sided": "Two-sided p-value P(|T| ≥ |t|), as in the slope test of a linear regression.",
+        "d_pdf": "Density of the Student-t distribution (used by the Newton steps of t_quantile).",
+        "d_quantile": "The t with P(T ≤ t) = p (scipy.special.stdtrit(df, p)); 0 < p < 1 and df > 0.",
+        "c_target": "solve on the tail for extreme p and on the centre near ½, where each is accurate",
+        "d_gap": "Increasing in t and zero at the quantile.",
+        "c_bracket": "double the upper end until it lies beyond the quantile",
+        "c_bisect": "bisection to about six significant digits",
+        "c_newton": "Newton steps on the density, kept inside the bracket",
         "d_collect": "Run every query for the scope and return the results by name.",
         "d_csv": "Write rows to a CSV file with a header row; returns the path.",
         "d_outputs": "Write one CSV per result and the SVG figures into out_dir.",
@@ -238,8 +310,8 @@ accessible <title> and <desc>. Colours follow the Context Layer palette on white
         "d_format": "Format a number for axis and value labels (thousands separators, optional £).",
         "d_ticks": "Round axis ticks from zero up to at least `maximum`.",
         "d_coord": "Coordinates with one decimal keep the SVG small and stable.",
-        "d_line": "SVG text for a line chart. `points` is [(label, value)] or {series: [(label, value)]}.",
-        "d_bar": "SVG text for a horizontal bar chart of [(label, value)] items, in the given order.",
+        "d_line": "SVG text for a line chart.\n\n    `points` is [(label, value)] or {series: [(label, value)]}; a None value is a gap. `overlay`\n    draws a statistic (interval whiskers, dashed lines, a shaded band) over the data.\n    ",
+        "d_bar": "SVG text for a horizontal bar chart of [(label, value)] items, in the given order.\n\n    `intervals` adds a (lower, upper) whisker per item; `interval_label` explains it in a legend.\n    ",
         "d_write_line": "Write a line chart to `path` and return the path.",
         "d_write_bar": "Write a bar chart to `path` and return the path.",
         "desc_line": "{n} points from {first} to {last}. Highest: {top_label} ({top_value}).",
@@ -259,7 +331,29 @@ accessible <title> and <desc>. Colours follow the Context Layer palette on white
             "top_countries": "Countries ranked by gross sales; ties broken by name.",
             "top_products": "Products ranked by gross sales; label = MIN(product) per product_id.",
             "copurchase_pairs": "Pairs of the 24 best-selling products that share at least 2 invoices. Co-occurrence, not causation.",
-            "chart": "The exported Chart Studio chart: integer totals per bucket.",
+            "chart": "The exported Chart Studio chart: integer totals per bucket (periods without rows are zeros; `partial` marks incomplete periods).",
+            "chart_ci95": "95% interval inputs per bucket: n, mean and sample sd of the order totals (pence). Bounds = mean ± t·sd/√n; DuckDB has no Student-t quantile, so analysis.py computes t with stats.py.",
+            "chart_trend": "Linear trend over complete periods (y = metric value, x = period index). The slope's p-value needs the Student-t distribution and is computed in analysis.py (stats.py).",
+            "chart_control_band": "Control band over complete periods: mean ± 2 sample standard deviations; `outside` lists the periods beyond it.",
+            "chart_moving_average": "Trailing {w}-period moving average. WHERE NOT partial runs before the window, so partial periods never enter an average; QUALIFY keeps only full windows of consecutive periods with a value.",
+        },
+        "sql_chart_scope": "3) Chart Studio chart scope: the overlap of the dataset's date range, the filters above and the chart's own dates.",
+        "sql_chart_view": "4) The chart's buckets. Every chart query below reads this view.",
+        "v": {
+            "periods": "Every {per} of the chart scope, so a {per} without rows still appears (as a zero), as in Chart Studio.",
+            "per": {"month": "month", "week": "week"},
+            "series_all": "One series for the whole scope.",
+            "series_split": "One series per compared country, in the chart's order.",
+            "orders": "One row per order (invoice) per bucket and series inside the chart scope.",
+            "totals": "Bucket totals; pence_squared (exact HUGEINT) gives the standard deviation of order totals without rounding.",
+            "partial": "A period the scope does not fully cover (first/last) is partial: shown, but left out of statistics.",
+            "value": "Plotted value: {what}.",
+            "what": {"gross_sales": "gross sales in GBP", "orders": "distinct orders", "units": "units sold",
+                     "aov": "average order value in GBP; NULL without orders"},
+            "rank": "Rank by the metric (ties by key) and keep the top {n}.",
+            "weekday": "Weekday order (1 = Monday).",
+            "complete": "complete periods only",
+            "no_value": "average order value is NULL in a period without orders",
         },
     },
     "tr": {
@@ -303,9 +397,81 @@ Nasıl değiştirilir
         "d_countries": "Brüt satışa göre sıralı ülkeler (eşitlikte ada göre).",
         "d_products": "Brüt satışa göre sıralı ürünler. Etiket, product_id başına MIN(product).",
         "d_pairs": "Aynı faturada birlikte alınan ürün çiftleri.\n\n    Yalnız en çok satan `candidates` ürün dikkate alınır; bir çift için en az `min_shared`\n    ortak fatura gerekir. Bu birlikte görülmedir, nedensellik değildir.\n    ",
-        "d_chart": "Bu paketle dışa aktarılan Chart Studio grafiği.\n\n    Dilim başına (ülke karşılaştırmasında ülke başına da) tam sayı toplamlar: pence (brüt\n    satış), orders (benzersiz fatura) ve units. Satırı olmayan dönemler burada yer almaz;\n    Chart Studio bunları sıfır olarak gösterir.\n    ",
-        "d_chart_points": "Grafik satırlarını şekil için seri başına (etiket, değer) noktalarına çevirir.",
-        "c_chart": "Bu paketle dışa aktarılan Chart Studio ChartSpec v1 (başvuru için; chart() bunu uygular).",
+        "d_chart": "Grafik satırları: dilim başına (dönem × seri ya da sıralı kategori) bir satır, tam sayı toplamlarla.\n\n    pence = GBP kuruş cinsinden brüt satış, orders = benzersiz fatura, units = SUM(quantity). Aylık veya\n    haftalık eksende grafik kapsamının her dönemi yer alır: satırı olmayan dönem sıfırdır (ortalama\n    sipariş tutarı o zaman eksiktir); `partial`, kapsamın tam kapsamadığı ilk/son dönemi işaretler.\n    Bunlar Chart Studio'nun çizdiği değerlerin aynısıdır.\n    ",
+        "d_chart_points": "Grafik satırlarını şekil için seri başına (etiket, değer) noktalarına çevirir; None bir boşluktur.",
+        "c_chart": "Bu paketle dışa aktarılan Chart Studio ChartSpec v1. CHART_VIEW_SQL bundan üretildi (ülkeler, hariç tutulanlar ve ilk N SQL'e yazılıdır); Python fonksiyonları ölçüyü ve pencereyi buradan okur.",
+        "c_chart_scope": "Grafik kapsamı: veri setinin tarih aralığı, --start/--end filtreleri ve grafiğin kendi tarihlerinin kesişimi. analysis.sql aynı iki ifadeyi çalıştırır.",
+        "c_chart_view": "Grafik dilimi başına bir satır; tüm grafik sorguları bu görünümü okur. analysis.sql'deki SQL'in aynısı.",
+        "d_prepare_chart": "Grafik kapsamı değişkenlerini ayarlar ve `sales` üzerine `chart_buckets` görünümünü oluşturur.",
+        "d_metric_value": "Bir grafik satırının çizilen değeri, ölçünün biriminde (GBP ya da sayım), Chart Studio'daki gibi.\n\n    Siparişi olmayan dilimde ortalama sipariş tutarı sıfır değil, eksiktir (None).\n    ",
+        "d_to_int": "expected.json için değer × ölçek, tam sayıya yuvarlanmış (yarımlar çift sayıya); None aynen kalır.",
+        "d_chart_label": "Grafik satırının eksen etiketi: hafta günü adı, ürün adı ya da dilim anahtarı.",
+        "d_chart_intervals": "Grafik satırı başına GBP cinsinden aralık sınırları (results['chart'] ile hizalı); aralık yoksa None.",
+        "d_chart_figure": "chart.svg'yi yazar: grafik satırları ve üzerlerine çizilen istatistik (bkz. chart_overlay).",
+        "c_bar_order": "Çubuk düzeni: satırlar sıra ya da takvim düzeninde gelir; ChartSpec sıralaması Chart Studio'daki gibi uygulanır.",
+        "d_overlay_none": "Dışa aktarılan grafikte istatistik yok; verinin üzerine bir şey çizilmez.",
+        "d_overlay_ci95": "Dilim başına aralık bıyıkları (GBP cinsinden alt ve üst sınır).",
+        "d_overlay_trend": "Uydurulan trend doğrusu; uydurulduğu tam dönemlerin üzerinde kesikli çizilir.",
+        "d_overlay_band": "Kontrol bandı: alt sınırdan üst sınıra gölgeli, ortalama kesikli çizgi.",
+        "d_overlay_ma": "Her serinin hareketli ortalaması, serinin renginde kesikli çizilir.",
+        "c_ci_level": "Aralığın güven düzeyi. 0.99 %99'luk aralık verir (o zaman expected.json artık eşleşmez).",
+        "d_ci95": "Dilim başına ortalama sipariş tutarının t tabanlı güven aralığı.\n\n    En az 2 siparişi olan her dilim için: ortalama ± t(0,5 + düzey/2, n − 1) · ss / √n; ortalama ve ss\n    (örneklem standart sapması) dilimin kuruş cinsinden sipariş toplamları üzerindendir, t ise\n    stats.py'deki Student-t kantilidir. SQL ortalama ve ss'yi kesin tam sayı toplamlarından türetir;\n    sonuç kayan nokta toplama sırasına bağlı değildir ve her çalıştırmada aynıdır. Değerler tam sayı\n    kuruştur. Sipariş tutarlarının bağımsız, ortalamanın yaklaşık normal olduğunu varsayar; çarpık\n    tutarlar ve küçük n yanıltabilir.\n    ",
+        "c_stat_scale": "İstatistik değerleri ×100 tam sayı olarak saklanır: GBP ölçülerinde kuruş, sayımlarda yüzde birler.",
+        "c_fraction_scale": "R² ve p-değeri ×1.000.000 (altı ondalık) tam sayı olarak saklanır.",
+        "d_trend": "Tam dönemler üzerinde en küçük kareler trendi: y = kesişim + eğim · i.\n\n    i, dönemin grafik kapsamındaki sırasıdır (0 = index_origin): kısmi ilk/son dönemler yerini korur\n    ama uydurmaya girmez; değeri olmayan dönemler (siparişsiz dönemde ortalama sipariş tutarı)\n    atlanır. R² = Sxy² / (Sxx · Syy); eğimin çift yönlü p-değeri n − 2 serbestlik dereceli t testiyle\n    hesaplanır (stats.py). En az 3 dönem gerekir. Chart Studio ve scipy.stats.linregress ile aynı\n    tahmin edicidir. Trend geçmişi betimler; tahmin değildir.\n    ",
+        "c_p_value": "kusursuz uyumda (R² = 1) artık varyansı yoktur; p-değeri 0 olarak verilir",
+        "c_sigmas": "Kontrol bandının standart sapma cinsinden genişliği (3.0 klasik 3-sigma sınırlarını verir).",
+        "d_band": "Kontrol bandı: tam dönemlerde ölçünün ortalaması ± sigma · ss.\n\n    ss örneklem standart sapmasıdır (n − 1). Bandın dışındaki dönemler `outside` içinde listelenir;\n    olağan değişimin dışında olabilirler ama nedenleri bu veriden okunamaz. En az 3 tam dönem gerekir.\n    ",
+        "d_ma": "Seri başına `window` tam dönemlik geriye dönük hareketli ortalama.\n\n    Kısmi dönemler pencere uygulanmadan önce çıkarılır, bu yüzden hiçbir ortalamaya girmez; bir nokta\n    yalnız pencerede değeri olan `window` ardışık dönem varsa üretilir. Nokta, pencerenin son\n    dönemiyle etiketlenir.\n    ",
+        "c_ma_skip": "pencerede boşluk ya da eksik değer var: nokta yok (Chart Studio'daki gibi)",
+        "overlay": {"none": "", "ci95": "%95 güven aralığı", "trend": "Doğrusal trend",
+                    "control_band": "Kontrol bandı (ortalama ± 2 ss)", "moving_average": "{w} dönemlik hareketli ortalama"},
+        "d_overlay": "Grafiğin üzerine, grafiğin biriminde çizilen istatistik.\n\n    intervals  {seri: [(etiket, alt, üst)]}   uçlu bıyıklar (güven aralığı)\n    lines      {seri: [(etiket, değer)]}       kesikli çizgiler (trend, hareketli ortalama)\n    band       (alt, ortalama, üst)            kesikli ortalamalı gölgeli bant (kontrol bandı)\n    label      gösterge metni\n    ",
+        "d_segments": "Çoklu çizgiyi eksik değerlerde (None) böler: boşluk sıfır olarak değil, boşluk olarak çizilir.",
+        "c_axis_height": "Çizilen her şey değer ekseninin yüksekliğini belirler; böylece bıyıklar ve bantlar kesilmez.",
+        "c_clip": "Sıfırın altındaki değerler (alt sınır negatif olabilir) eksende kesilir; veri bunları korur.",
+        "c_band_back": "gölgeli bant her şeyin arkasında",
+        "c_grid_h": "değer etiketli yatay ızgara",
+        "c_grid_v": "değer etiketli dikey ızgara",
+        "c_labels": "en fazla ~12 dönem etiketi; sonuncusu her zaman gösterilir",
+        "c_whiskers": "uçlu bıyıklar",
+        "c_dashed": "verinin üzerinde kesikli istatistik çizgileri",
+        "c_bar_legend": "başlığın altında gösterge: bir bıyık örneği ve ne gösterdiği",
+        "c_series_order": "seriler grafikteki sırayla",
+        "stats_doc": """Bağımlılıksız Student-t dağılımı: dağılım fonksiyonu, çift yönlü p-değeri ve kantil.
+
+analysis.py güven aralığı için t_quantile(), trend eğiminin p-değeri için t_two_sided_p() kullanır.
+Sonuçlar scipy.special.stdtr / stdtrit ile 1e-9'dan küçük göreli hatayla örtüşür.
+
+Yöntem
+    ν serbestlik derecesi, t > 0 ve x = ν / (ν + t²) için:
+        P(T > t)     = ½ · I_x(ν/2, ½)
+        P(0 < T < t) = ½ · I_{1−x}(½, ν/2)
+    Burada I düzenlenmiş eksik beta fonksiyonudur. İki parça da I'nın sürekli kesirinden hesaplanır
+    (değiştirilmiş Lentz yöntemi; Numerical Recipes 3. baskı §6.4'teki betacf gibi). Kesir hızlı
+    yakınsadığı tarafta değerlendirilir ve 1 − x doğrudan oluşturulur; böylece çok küçük kuyruklar ve
+    0'a yakın t tam hassasiyetini korur. Kantil, kökü önce bir aralığa alır, yaklaşık altı haneye kadar
+    ikiye böler, sonra yoğunlukla Newton adımları atarak inceltir.
+""",
+        "c_stats_constants": "Sürekli kesirin doğruluk hedefi, Lentz yöntemini sıfıra bölmeden koruyan taban değer ve yineleme sınırı.",
+        "d_log_beta": "log B(a, b), log-gamma ile.",
+        "d_betacf": "Eksik beta fonksiyonunun sürekli kesiri (Numerical Recipes betacf, değiştirilmiş Lentz).\n\n    x < (a + 1) / (a + b + 2) için hızlı yakınsar; aksi halde çağıranlar\n    I_x(a, b) = 1 − I_{1−x}(b, a) simetrisini kullanır.\n    ",
+        "c_even_step": "kesirin çift adımı d_{2m}",
+        "c_odd_step": "tek adım d_{2m+1}; güncelleme değeri artık değiştirmiyorsa dur",
+        "d_pair": "y = 1 − x ayrı verildiğinde (I_x(a, b), I_y(b, a)); böylece ikisi de hassasiyet kaybetmez.\n\n    İki değerin toplamı 1'dir: küçük olan sürekli kesirden, diğeri onun tümleyeni olarak hesaplanır.\n    ",
+        "c_symmetry": "kesiri hızlı yakınsadığı tarafta değerlendir",
+        "d_betainc": "Düzenlenmiş eksik beta fonksiyonu I_x(a, b) (scipy.special.betainc(a, b, x) ile aynı).",
+        "d_split": "df serbestlik dereceli bir Student-t değişkeni için (P(T > |t|), P(0 < T < |t|)); toplamları ½'dir.",
+        "c_split": "x = df / (df + t²) ve 1 − x = t² / (df + t²) ikisi de doğrudan oluşturulur",
+        "d_cdf": "df serbestlik dereceli bir Student-t değişkeni için P(T ≤ t) (scipy.special.stdtr(df, t)).",
+        "d_two_sided": "Çift yönlü p-değeri P(|T| ≥ |t|); doğrusal regresyonda eğim testindeki gibi.",
+        "d_pdf": "Student-t dağılımının yoğunluğu (t_quantile'ın Newton adımlarında kullanılır).",
+        "d_quantile": "P(T ≤ t) = p olan t (scipy.special.stdtrit(df, p)); 0 < p < 1 ve df > 0.",
+        "c_target": "uç p için kuyrukta, ½ yakınında merkezde çöz; her biri kendi bölgesinde doğrudur",
+        "d_gap": "t'de artan ve kantilde sıfır olan fark.",
+        "c_bracket": "üst ucu kantilin ötesine geçene kadar ikiye katla",
+        "c_bisect": "yaklaşık altı anlamlı haneye kadar ikiye bölme",
+        "c_newton": "yoğunlukla Newton adımları, aralığın içinde tutularak",
         "d_collect": "Kapsam için tüm sorguları çalıştırır, sonuçları adlarıyla döndürür.",
         "d_csv": "Satırları başlıklı bir CSV dosyasına yazar; yolu döndürür.",
         "d_outputs": "Her sonuç için bir CSV ve SVG şekilleri out_dir altına yazar.",
@@ -337,8 +503,8 @@ bir <title> ve <desc> taşır. Renkler beyaz zemin üzerinde Context Layer palet
         "d_format": "Eksen ve değer etiketleri için sayı biçimler (binlik ayırıcı, isteğe bağlı £).",
         "d_ticks": "Sıfırdan en az `maximum` değerine kadar yuvarlak eksen işaretleri.",
         "d_coord": "Tek ondalıklı koordinatlar SVG'yi küçük ve kararlı tutar.",
-        "d_line": "Çizgi grafik SVG metni. `points` [(etiket, değer)] ya da {seri: [(etiket, değer)]} olabilir.",
-        "d_bar": "[(etiket, değer)] öğeleri için verilen sırayla yatay çubuk grafik SVG metni.",
+        "d_line": "Çizgi grafik SVG metni.\n\n    `points` [(etiket, değer)] ya da {seri: [(etiket, değer)]} olabilir; None değer bir boşluktur.\n    `overlay` verinin üzerine bir istatistik çizer (aralık bıyıkları, kesikli çizgiler, gölgeli bant).\n    ",
+        "d_bar": "[(etiket, değer)] öğeleri için verilen sırayla yatay çubuk grafik SVG metni.\n\n    `intervals` öğe başına (alt, üst) bir bıyık ekler; `interval_label` bunu bir göstergede açıklar.\n    ",
         "d_write_line": "Çizgi grafiği `path` yoluna yazar ve yolu döndürür.",
         "d_write_bar": "Çubuk grafiği `path` yoluna yazar ve yolu döndürür.",
         "desc_line": "{first} – {last} arası {n} nokta. En yüksek: {top_label} ({top_value}).",
@@ -358,7 +524,29 @@ bir <title> ve <desc> taşır. Renkler beyaz zemin üzerinde Context Layer palet
             "top_countries": "Brüt satışa göre ülkeler; eşitlikte ada göre.",
             "top_products": "Brüt satışa göre ürünler; etiket = product_id başına MIN(product).",
             "copurchase_pairs": "En çok satan 24 ürün arasında en az 2 ortak faturası olan çiftler. Birlikte görülme, nedensellik değil.",
-            "chart": "Dışa aktarılan Chart Studio grafiği: dilim başına tam sayı toplamlar.",
+            "chart": "Dışa aktarılan Chart Studio grafiği: dilim başına tam sayı toplamlar (satırı olmayan dönemler sıfır; `partial` eksik dönemleri işaretler).",
+            "chart_ci95": "%95 aralığın girdileri: dilim başına n, sipariş toplamlarının ortalaması ve örneklem ss'si (kuruş). Sınırlar = ortalama ± t·ss/√n; DuckDB'de Student-t kantili yok, t'yi analysis.py stats.py ile hesaplar.",
+            "chart_trend": "Tam dönemlerde doğrusal trend (y = ölçü değeri, x = dönem sırası). Eğimin p-değeri Student-t dağılımı gerektirir; analysis.py içinde (stats.py) hesaplanır.",
+            "chart_control_band": "Tam dönemlerde kontrol bandı: ortalama ± 2 örneklem standart sapması; `outside` bandın dışındaki dönemleri listeler.",
+            "chart_moving_average": "Geriye dönük {w} dönemlik hareketli ortalama. WHERE NOT partial pencereden önce çalışır, bu yüzden kısmi dönemler hiçbir ortalamaya girmez; QUALIFY yalnız değeri olan ardışık dönemlerden oluşan tam pencereleri tutar.",
+        },
+        "sql_chart_scope": "3) Chart Studio grafik kapsamı: veri setinin tarih aralığı, yukarıdaki filtreler ve grafiğin kendi tarihlerinin kesişimi.",
+        "sql_chart_view": "4) Grafiğin dilimleri. Aşağıdaki tüm grafik sorguları bu görünümü okur.",
+        "v": {
+            "periods": "Grafik kapsamındaki her {per}; satırı olmayan bir {per} de (sıfır olarak) yer alır, Chart Studio'daki gibi.",
+            "per": {"month": "ay", "week": "hafta"},
+            "series_all": "Tüm kapsam için tek seri.",
+            "series_split": "Karşılaştırılan her ülke için bir seri, grafikteki sırayla.",
+            "orders": "Grafik kapsamında dilim ve seri başına, sipariş (fatura) başına bir satır.",
+            "totals": "Dilim toplamları; pence_squared (kesin HUGEINT) sipariş tutarlarının standart sapmasını yuvarlamasız verir.",
+            "partial": "Kapsamın tam kapsamadığı dönem (ilk/son) kısmidir: gösterilir ama istatistiklere girmez.",
+            "value": "Çizilen değer: {what}.",
+            "what": {"gross_sales": "GBP cinsinden brüt satış", "orders": "benzersiz sipariş", "units": "satılan adet",
+                     "aov": "GBP cinsinden ortalama sipariş tutarı; siparişsiz dilimde NULL"},
+            "rank": "Ölçüye göre sırala (eşitlikte anahtara göre) ve ilk {n} dilimi tut.",
+            "weekday": "Hafta günü sırası (1 = pazartesi).",
+            "complete": "yalnız tam dönemler",
+            "no_value": "siparişsiz dönemde ortalama sipariş tutarı NULL'dır",
         },
     },
 }
@@ -371,6 +559,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field
 from html import escape
 from pathlib import Path
 
@@ -390,7 +579,18 @@ DESC_LINE = "@@desc_line@@"
 DESC_BAR = "@@desc_bar@@"
 DESC_EMPTY = "@@desc_empty@@"
 
-Point = tuple[str, float]
+Point = tuple[str, float | None]
+Interval = tuple[str, float, float]
+
+
+@dataclass(frozen=True)
+class Overlay:
+    """@@d_overlay@@"""
+
+    label: str
+    intervals: Mapping[str, Sequence[Interval]] = field(default_factory=dict)
+    lines: Mapping[str, Sequence[Point]] = field(default_factory=dict)
+    band: tuple[float, float, float] | None = None
 
 
 def format_number(value: float, unit: str = "") -> str:
@@ -441,99 +641,322 @@ def _short(label: str, limit: int = 34) -> str:
     return label if len(label) <= limit else label[: limit - 1] + "…"
 
 
+def _segments(coords: Sequence[tuple[float, float | None]]) -> list[list[tuple[float, float]]]:
+    """@@d_segments@@"""
+    runs: list[list[tuple[float, float]]] = [[]]
+    for x, y in coords:
+        if y is None:
+            if runs[-1]:
+                runs.append([])
+        else:
+            runs[-1].append((x, y))
+    return [run for run in runs if run]
+
+
 def line_svg(points: Sequence[Point] | Mapping[str, Sequence[Point]], title: str, unit: str,
-             *, width: int = 760, height: int = 380) -> str:
+             *, overlay: Overlay | None = None, width: int = 760, height: int = 380) -> str:
     """@@d_line@@"""
     series = {name: list(values) for name, values in points.items()} if isinstance(points, Mapping) else {"": list(points)}
     labels = list(dict.fromkeys(label for values in series.values() for label, _ in values))
-    values = [value for items in series.values() for _, value in items]
-    if not values:
+    known = [(label, value) for items in series.values() for label, value in items if value is not None]
+    if not known:
         return "\\n".join(_header(width, height, title, DESC_EMPTY) + ["</svg>", ""])
-    top_label, top_value = max(((label, value) for items in series.values() for label, value in items),
-                               key=lambda item: item[1])
+    top_label, top_value = max(known, key=lambda item: item[1])
     desc = DESC_LINE.format(n=len(labels), first=labels[0], last=labels[-1], top_label=top_label,
                             top_value=format_number(top_value, unit))
-    legend = len(series) > 1
+    # @@c_axis_height@@
+    tops = [value for _, value in known]
+    if overlay is not None:
+        desc += f" {overlay.label}."
+        tops += [upper for items in overlay.intervals.values() for _, _, upper in items]
+        tops += [value for items in overlay.lines.values() for _, value in items if value is not None]
+        tops += [overlay.band[2]] if overlay.band else []
+    legend = len(series) > 1 or overlay is not None
     left, right, top, bottom = 88, 24, 72 if legend else 56, 56
     plot_w, plot_h = width - left - right, height - top - bottom
-    ticks = nice_ticks(max(values))
+    ticks = nice_ticks(max(tops))
     y_max = ticks[-1]
     position = {label: i for i, label in enumerate(labels)}
+    colors = {name: SERIES_COLORS[i % len(SERIES_COLORS)] for i, name in enumerate(series)}
 
     def x_of(label: str) -> float:
         return left + (plot_w * position[label] / (len(labels) - 1) if len(labels) > 1 else plot_w / 2)
 
     def y_of(value: float) -> float:
-        return top + plot_h - plot_h * value / y_max
+        # @@c_clip@@
+        return top + plot_h - plot_h * min(max(value, 0.0), y_max) / y_max
+
+    def overlay_color(name: str) -> str:
+        return colors[name] if len(series) > 1 and name in colors else BRASS
 
     out = _header(width, height, title, desc)
-    for tick in ticks:  # horizontal grid with value labels
+    if overlay is not None and overlay.band:  # @@c_band_back@@
+        lower, mean, upper = overlay.band
+        out.append(f'  <rect x="{left}" y="{_f(y_of(upper))}" width="{plot_w}" '
+                   f'height="{_f(y_of(lower) - y_of(upper))}" fill="{BRASS}" fill-opacity="0.14"/>')
+        out.append(f'  <line x1="{left}" y1="{_f(y_of(mean))}" x2="{width - right}" y2="{_f(y_of(mean))}" '
+                   f'stroke="{BRASS}" stroke-width="1.5" stroke-dasharray="6 4"/>')
+    for tick in ticks:  # @@c_grid_h@@
         y = y_of(tick)
         out.append(f'  <line x1="{left}" y1="{_f(y)}" x2="{width - right}" y2="{_f(y)}" stroke="{GRID}" stroke-width="1"/>')
         out.append(_text(left - 8, y + 4, format_number(tick, unit), anchor="end"))
     out.append(f'  <line x1="{left}" y1="{top + plot_h}" x2="{width - right}" y2="{top + plot_h}" stroke="{MUTED}" stroke-width="1"/>')
-    step = max(1, math.ceil(len(labels) / 12))  # at most ~12 period labels
+    step = max(1, math.ceil(len(labels) / 12))  # @@c_labels@@
     for i, label in enumerate(labels):
-        if i % step == 0 or i == len(labels) - 1:
+        if (i % step == 0 and len(labels) - 1 - i >= step) or i == len(labels) - 1:
             out.append(_text(x_of(label), top + plot_h + 20, label, anchor="middle"))
-    for index, (name, items) in enumerate(series.items()):
-        color = SERIES_COLORS[index % len(SERIES_COLORS)]
-        coords = " ".join(f"{_f(x_of(label))},{_f(y_of(value))}" for label, value in items)
-        out.append(f'  <polyline points="{coords}" fill="none" stroke="{color}" stroke-width="2" '
-                   'stroke-linejoin="round" stroke-linecap="round"/>')
+    if overlay is not None:
+        for name, items in overlay.intervals.items():  # @@c_whiskers@@
+            color = colors.get(name, NAVY) if len(series) > 1 else NAVY
+            for label, lower, upper in items:
+                x = x_of(label)
+                y1, y2 = y_of(lower), y_of(upper)
+                stroke = f'stroke="{color}" stroke-width="1.2"'
+                out.append(f'  <line x1="{_f(x)}" y1="{_f(y1)}" x2="{_f(x)}" y2="{_f(y2)}" {stroke}/>')
+                for y in (y1, y2):
+                    out.append(f'  <line x1="{_f(x - 4)}" y1="{_f(y)}" x2="{_f(x + 4)}" y2="{_f(y)}" {stroke}/>')
+    for name, items in series.items():
+        color = colors[name]
+        for run in _segments([(x_of(label), None if value is None else y_of(value)) for label, value in items]):
+            coords = " ".join(f"{_f(x)},{_f(y)}" for x, y in run)
+            out.append(f'  <polyline points="{coords}" fill="none" stroke="{color}" stroke-width="2" '
+                       'stroke-linejoin="round" stroke-linecap="round"/>')
         for label, value in items:
-            out.append(f'  <circle cx="{_f(x_of(label))}" cy="{_f(y_of(value))}" r="3" fill="{color}"/>')
-        if legend:
-            lx = left + index * 150
-            out.append(f'  <rect x="{lx}" y="46" width="12" height="12" rx="2" fill="{color}"/>')
-            out.append(_text(lx + 18, 56, _short(name, 20), size=12, color=NAVY))
+            if value is not None:
+                out.append(f'  <circle cx="{_f(x_of(label))}" cy="{_f(y_of(value))}" r="3" fill="{color}"/>')
+    if overlay is not None:
+        for name, items in overlay.lines.items():  # @@c_dashed@@
+            for run in _segments([(x_of(label), None if value is None else y_of(value)) for label, value in items]):
+                coords = " ".join(f"{_f(x)},{_f(y)}" for x, y in run)
+                out.append(f'  <polyline points="{coords}" fill="none" stroke="{overlay_color(name)}" '
+                           'stroke-width="2" stroke-dasharray="6 4" stroke-linejoin="round" stroke-linecap="round"/>')
+    if legend:
+        lx = left
+        if len(series) > 1:
+            for name in series:
+                out.append(f'  <rect x="{lx}" y="46" width="12" height="12" rx="2" fill="{colors[name]}"/>')
+                out.append(_text(lx + 18, 56, _short(name, 20), size=12, color=NAVY))
+                lx += 150
+        if overlay is not None:
+            if overlay.band:
+                out.append(f'  <rect x="{lx}" y="46" width="22" height="12" fill="{BRASS}" fill-opacity="0.14"/>')
+            if overlay.band or overlay.lines:
+                out.append(f'  <line x1="{lx}" y1="52" x2="{lx + 22}" y2="52" stroke="{BRASS}" stroke-width="2" '
+                           'stroke-dasharray="6 4"/>')
+            else:
+                out.append(f'  <line x1="{lx + 11}" y1="45" x2="{lx + 11}" y2="59" stroke="{NAVY}" stroke-width="1.2"/>')
+            out.append(_text(lx + 28, 56, _short(overlay.label, 60), size=12, color=NAVY))
     out += ["</svg>", ""]
     return "\\n".join(out)
 
 
-def bar_svg(items: Sequence[Point], title: str, unit: str, *, width: int = 760) -> str:
+def bar_svg(items: Sequence[Point], title: str, unit: str, *,
+            intervals: Sequence[tuple[float, float] | None] | None = None, interval_label: str = "",
+            width: int = 760) -> str:
     """@@d_bar@@"""
     items = list(items)
-    row, top, bottom, label_w, value_w = 28, 56, 40, 250, 96
+    whiskers = list(intervals) if intervals is not None else [None] * len(items)
+    row, top, bottom, label_w, value_w = 28, 72 if interval_label else 56, 40, 250, 96
     height = top + row * max(len(items), 1) + bottom
-    if not items:
+    known = [(label, value) for label, value in items if value is not None]
+    if not known:
         return "\\n".join(_header(width, height, title, DESC_EMPTY) + ["</svg>", ""])
-    top_label, top_value = max(items, key=lambda item: item[1])
+    top_label, top_value = max(known, key=lambda item: item[1])
     desc = DESC_BAR.format(n=len(items), top_label=top_label, top_value=format_number(top_value, unit))
+    if interval_label:
+        desc += f" {interval_label}."
     left = 24 + label_w
     plot_w = width - left - value_w
-    ticks = nice_ticks(max(value for _, value in items))
+    ticks = nice_ticks(max([value for _, value in known] + [bounds[1] for bounds in whiskers if bounds]))
     x_max = ticks[-1]
+
+    def x_of(value: float) -> float:
+        # @@c_clip@@
+        return left + plot_w * min(max(value, 0.0), x_max) / x_max
+
     out = _header(width, height, title, desc)
+    if interval_label:  # @@c_bar_legend@@
+        out.append(f'  <line x1="24" y1="52" x2="46" y2="52" stroke="{NAVY}" stroke-width="1.2"/>')
+        for x in (24, 46):
+            out.append(f'  <line x1="{x}" y1="47" x2="{x}" y2="57" stroke="{NAVY}" stroke-width="1.2"/>')
+        out.append(_text(52, 56, interval_label, size=12, color=NAVY))
     base = top + row * len(items)
-    for tick in ticks:  # vertical grid with value labels
-        x = left + plot_w * tick / x_max
+    for tick in ticks:  # @@c_grid_v@@
+        x = x_of(tick)
         out.append(f'  <line x1="{_f(x)}" y1="{top - 6}" x2="{_f(x)}" y2="{base}" stroke="{GRID}" stroke-width="1"/>')
         out.append(_text(x, base + 18, format_number(tick, unit), anchor="middle"))
-    for i, (label, value) in enumerate(items):
+    for i, ((label, value), bounds) in enumerate(zip(items, whiskers)):
         y = top + row * i
-        bar = plot_w * value / x_max
         out.append(_text(left - 10, y + 15, _short(label), anchor="end", size=12, color=NAVY))
-        out.append(f'  <rect x="{left}" y="{_f(y + 3)}" width="{_f(bar)}" height="18" rx="2" fill="{COBALT}"/>')
-        out.append(_text(left + bar + 6, y + 16, format_number(value, unit)))
+        end = left
+        if value is not None:
+            end = x_of(value)
+            out.append(f'  <rect x="{left}" y="{_f(y + 3)}" width="{_f(end - left)}" height="18" rx="2" fill="{COBALT}"/>')
+        if bounds:
+            x1, x2 = x_of(bounds[0]), x_of(bounds[1])
+            stroke = f'stroke="{NAVY}" stroke-width="1.2"'
+            out.append(f'  <line x1="{_f(x1)}" y1="{_f(y + 12)}" x2="{_f(x2)}" y2="{_f(y + 12)}" {stroke}/>')
+            for x in (x1, x2):
+                out.append(f'  <line x1="{_f(x)}" y1="{_f(y + 7)}" x2="{_f(x)}" y2="{_f(y + 17)}" {stroke}/>')
+            end = max(end, x2)
+        out.append(_text(end + 6, y + 16, "—" if value is None else format_number(value, unit)))
     out += ["</svg>", ""]
     return "\\n".join(out)
 
 
-def line_chart(points: Sequence[Point] | Mapping[str, Sequence[Point]], title: str, unit: str, path: Path) -> Path:
+def line_chart(points: Sequence[Point] | Mapping[str, Sequence[Point]], title: str, unit: str, path: Path,
+               *, overlay: Overlay | None = None) -> Path:
     """@@d_write_line@@"""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(line_svg(points, title, unit), encoding="utf-8", newline="\\n")
+    path.write_text(line_svg(points, title, unit, overlay=overlay), encoding="utf-8", newline="\\n")
     return path
 
 
-def bar_chart(items: Sequence[Point], title: str, unit: str, path: Path) -> Path:
+def bar_chart(items: Sequence[Point], title: str, unit: str, path: Path, *,
+              intervals: Sequence[tuple[float, float] | None] | None = None, interval_label: str = "") -> Path:
     """@@d_write_bar@@"""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(bar_svg(items, title, unit), encoding="utf-8", newline="\\n")
+    path.write_text(bar_svg(items, title, unit, intervals=intervals, interval_label=interval_label),
+                    encoding="utf-8", newline="\\n")
     return path
+'''
+
+STATS_TEMPLATE = '''"""@@stats_doc@@"""
+
+from __future__ import annotations
+
+import math
+
+# @@c_stats_constants@@
+EPSILON = 1e-15
+TINY = 1e-300
+MAX_ITERATIONS = 10_000
+
+
+def _log_beta(a: float, b: float) -> float:
+    """@@d_log_beta@@"""
+    return math.lgamma(a) + math.lgamma(b) - math.lgamma(a + b)
+
+
+def _beta_continued_fraction(a: float, b: float, x: float) -> float:
+    """@@d_betacf@@"""
+    qab, qap, qam = a + b, a + 1.0, a - 1.0
+    c = 1.0
+    d = 1.0 - qab * x / qap
+    d = 1.0 / (d if abs(d) > TINY else TINY)
+    h = d
+    for m in range(1, MAX_ITERATIONS + 1):
+        m2 = 2 * m
+        # @@c_even_step@@
+        aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+        d = 1.0 + aa * d
+        d = 1.0 / (d if abs(d) > TINY else TINY)
+        c = 1.0 + aa / c
+        c = c if abs(c) > TINY else TINY
+        h *= d * c
+        # @@c_odd_step@@
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+        d = 1.0 + aa * d
+        d = 1.0 / (d if abs(d) > TINY else TINY)
+        c = 1.0 + aa / c
+        c = c if abs(c) > TINY else TINY
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < EPSILON:
+            return h
+    raise ArithmeticError("incomplete beta: continued fraction did not converge")
+
+
+def _incomplete_beta_pair(x: float, y: float, a: float, b: float) -> tuple[float, float]:
+    """@@d_pair@@"""
+    if x <= 0.0:
+        return 0.0, 1.0
+    if y <= 0.0:
+        return 1.0, 0.0
+    front = math.exp(a * math.log(x) + b * math.log(y) - _log_beta(a, b))
+    # @@c_symmetry@@
+    if x < (a + 1.0) / (a + b + 2.0):
+        lower = front * _beta_continued_fraction(a, b, x) / a
+        return lower, 1.0 - lower
+    upper = front * _beta_continued_fraction(b, a, y) / b
+    return 1.0 - upper, upper
+
+
+def regularized_incomplete_beta(x: float, a: float, b: float) -> float:
+    """@@d_betainc@@"""
+    if not 0.0 <= x <= 1.0 or a <= 0 or b <= 0:
+        raise ValueError("regularized_incomplete_beta needs 0 <= x <= 1 and a, b > 0")
+    return _incomplete_beta_pair(x, 1.0 - x, a, b)[0]
+
+
+def _t_tail_and_centre(t: float, df: float) -> tuple[float, float]:
+    """@@d_split@@"""
+    if df <= 0:
+        raise ValueError("df must be positive")
+    tt = t * t
+    if tt == 0.0:
+        return 0.5, 0.0
+    if math.isinf(tt):
+        return 0.0, 0.5
+    # @@c_split@@
+    tail_twice, centre_twice = _incomplete_beta_pair(df / (df + tt), tt / (df + tt), df / 2.0, 0.5)
+    return 0.5 * tail_twice, 0.5 * centre_twice
+
+
+def t_cdf(t: float, df: float) -> float:
+    """@@d_cdf@@"""
+    tail, centre = _t_tail_and_centre(t, df)
+    return tail if t < 0 else 0.5 + centre
+
+
+def t_two_sided_p(t: float, df: float) -> float:
+    """@@d_two_sided@@"""
+    return 2.0 * _t_tail_and_centre(t, df)[0]
+
+
+def t_pdf(t: float, df: float) -> float:
+    """@@d_pdf@@"""
+    log_density = (math.lgamma((df + 1.0) / 2.0) - math.lgamma(df / 2.0) - 0.5 * math.log(df * math.pi)
+                   - (df + 1.0) / 2.0 * math.log1p(t * t / df))
+    return math.exp(log_density)
+
+
+def t_quantile(p: float, df: float) -> float:
+    """@@d_quantile@@"""
+    if not 0.0 < p < 1.0:
+        raise ValueError("p must be strictly between 0 and 1")
+    if p == 0.5:
+        return 0.0
+    sign = 1.0 if p > 0.5 else -1.0
+    tail_target = 1.0 - p if p > 0.5 else p
+    centre_target = p - 0.5 if p > 0.5 else 0.5 - p
+    # @@c_target@@
+    use_tail = tail_target < 0.25
+
+    def gap(t: float) -> float:
+        """@@d_gap@@"""
+        tail, centre = _t_tail_and_centre(t, df)
+        return tail_target - tail if use_tail else centre - centre_target
+
+    lo, hi = 0.0, 1.0
+    while gap(hi) < 0.0:  # @@c_bracket@@
+        lo, hi = hi, hi * 2.0
+    while hi - lo > 1e-6 * hi:  # @@c_bisect@@
+        mid = 0.5 * (lo + hi)
+        if gap(mid) < 0.0:
+            lo = mid
+        else:
+            hi = mid
+    t = 0.5 * (lo + hi)
+    for _ in range(50):  # @@c_newton@@
+        t_next = min(max(t - gap(t) / t_pdf(t, df), lo), hi)
+        if abs(t_next - t) <= 4.0 * EPSILON * t:
+            t = t_next
+            break
+        t = t_next
+    return sign * t
 '''
 
 ANALYSIS_TEMPLATE = '''#!/usr/bin/env python3
@@ -544,7 +967,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import sys
+@@MATH_IMPORT@@import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -552,7 +975,7 @@ from typing import Any
 import duckdb
 
 import charts
-
+@@STATS_IMPORT@@
 HERE = Path(__file__).resolve().parent
 DEFAULT_DATA = HERE / "data" / "transactions.parquet"
 EXPECTED_PATH = HERE / "expected.json"
@@ -753,9 +1176,27 @@ if __name__ == "__main__":
 
 CHART_BLOCK = '''
 
+
+# ------------------------------------------------------------------------------------------------
 # @@c_chart@@
 CHART_SPEC: dict[str, Any] = @@CHART_SPEC@@
-CHART_PARAMS: list[Any] = @@CHART_PARAMS@@
+OVERLAY_LABEL = @@OVERLAY_LABEL@@
+@@STAT_CONSTANTS@@
+# @@c_chart_scope@@
+CHART_SCOPE_SQL = """
+@@CHART_SCOPE@@
+"""
+
+# @@c_chart_view@@
+CHART_VIEW_SQL = """
+@@CHART_VIEW@@
+"""
+
+
+def prepare_chart(con: duckdb.DuckDBPyConnection) -> None:
+    """@@d_prepare_chart@@"""
+    con.execute(CHART_SCOPE_SQL)
+    con.execute(CHART_VIEW_SQL)
 
 
 def chart(con: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
@@ -763,39 +1204,250 @@ def chart(con: duckdb.DuckDBPyConnection) -> list[dict[str, Any]]:
     sql = """
 @@SQL_chart@@
     """
-    return _rows(con, sql, CHART_PARAMS)
+    return _rows(con, sql)
 
 
-def chart_points(rows: list[dict[str, Any]]) -> dict[str, list[tuple[str, float]]]:
-    """@@d_chart_points@@"""
+def metric_value(row: dict[str, Any]) -> float | None:
+    """@@d_metric_value@@"""
     metric = CHART_SPEC["metric"]
-    series: dict[str, list[tuple[str, float]]] = {}
+    if metric == "gross_sales":
+        return row["pence"] / 100
+    if metric in ("orders", "units"):
+        return float(row[metric])
+    return row["pence"] / row["orders"] / 100 if row["orders"] else None
+
+
+def to_int(value: float | None, scale: float = 1) -> int | None:
+    """@@d_to_int@@"""
+    return None if value is None else round(value * scale)
+@@STAT_FUNCTIONS@@
+
+def chart_label(row: dict[str, Any]) -> str:
+    """@@d_chart_label@@"""
+    if CHART_SPEC["dimension"] == "weekday":
+        return WEEKDAYS[int(row["x"]) - 1]
+    return str(row.get("label") or row["x"])
+
+
+def chart_points(rows: list[dict[str, Any]]) -> dict[str, list[tuple[str, float | None]]]:
+    """@@d_chart_points@@"""
+    series: dict[str, list[tuple[str, float | None]]] = {}
     for row in rows:
-        if metric == "gross_sales":
-            value = row["pence"] / 100
-        elif metric == "aov":
-            value = row["pence"] / row["orders"] / 100 if row["orders"] else 0.0
-        else:
-            value = float(row[metric])
-        if CHART_SPEC["dimension"] == "weekday":
-            label = WEEKDAYS[int(row["x"]) - 1]
-        else:
-            label = str(row.get("label") or row["x"])
-        series.setdefault(str(row["series"]), []).append((label, value))
+        series.setdefault(str(row["series"]), []).append((chart_label(row), metric_value(row)))
     return series
+
+
+def chart_intervals(results: dict[str, Any]) -> list[tuple[float, float] | None]:
+    """@@d_chart_intervals@@"""
+    intervals = results.get("chart_ci95") or [{} for _ in results["chart"]]
+    return [(row["lower_pence"] / 100, row["upper_pence"] / 100) if row.get("lower_pence") is not None else None
+            for row in intervals]
+@@OVERLAY_FUNCTION@@
+
+def write_chart_figure(results: dict[str, Any], path: Path) -> Path:
+    """@@d_chart_figure@@"""
+    unit = "GBP" if CHART_SPEC["metric"] in ("gross_sales", "aov") else ""
+    points = chart_points(results["chart"])
+    overlay = chart_overlay(results)
+    title = FIGURE_TITLES["chart"]
+    time_axis = CHART_SPEC["dimension"] in ("month", "week")
+    drawn_over_time = overlay is not None and bool(overlay.lines or overlay.band)
+    if time_axis and (CHART_SPEC["chart"] != "bar" or len(points) > 1 or drawn_over_time):
+        series = points if len(points) > 1 else points.get("all", [])
+        return charts.line_chart(series, title, unit, path, overlay=overlay)
+    # @@c_bar_order@@
+    bounds_per_row = chart_intervals(results)
+    items = [(label, value, bounds) for (label, value), bounds in zip(points.get("all", []), bounds_per_row)]
+    if CHART_SPEC["dimension"] in ("country", "product"):
+        if CHART_SPEC["sort"] == "value_asc":
+            items.reverse()
+    elif CHART_SPEC["sort"] != "natural":
+        sign = -1 if CHART_SPEC["sort"] == "value_desc" else 1
+        items.sort(key=lambda item: (item[1] is None, sign * (item[1] or 0.0), item[0]))
+    return charts.bar_chart([(label, value) for label, value, _ in items], title, unit, path,
+                            intervals=[bounds for _, _, bounds in items],
+                            interval_label=OVERLAY_LABEL if CHART_SPEC["statistic"] == "ci95" else "")
 '''
 CHART_COLLECT = '''
-        results["chart"] = chart(con)'''
+        prepare_chart(con)
+        results["chart"] = chart(con)@@STAT_COLLECT@@'''
 CHART_FIGURE = '''
     if "chart" in results:
-        points = chart_points(results["chart"])
-        unit = "GBP" if CHART_SPEC["metric"] in ("gross_sales", "aov") else ""
-        path = figures_dir / "chart.svg"
-        if CHART_SPEC["dimension"] in ("month", "week") and (CHART_SPEC["chart"] != "bar" or len(points) > 1):
-            paths.append(charts.line_chart(points if len(points) > 1 else points.get("all", []),
-                                           FIGURE_TITLES["chart"], unit, path))
-        else:
-            paths.append(charts.bar_chart(points.get("all", []), FIGURE_TITLES["chart"], unit, path))'''
+        paths.append(write_chart_figure(results, figures_dir / "chart.svg"))'''
+
+# One block per statistic: constants, the function(s) that compute it and the overlay drawn on chart.svg.
+STAT_BLOCKS = {
+    "none": {
+        "constants": "",
+        "functions": "",
+        "collect": "",
+        "overlay": '''
+
+def chart_overlay(results: dict[str, Any]) -> charts.Overlay | None:
+    """@@d_overlay_none@@"""
+    return None
+''',
+    },
+    "ci95": {
+        "constants": '''# @@c_ci_level@@
+CI_LEVEL = 0.95
+''',
+        "functions": '''
+
+def chart_ci95(con: duckdb.DuckDBPyConnection, level: float = CI_LEVEL) -> list[dict[str, Any]]:
+    """@@d_ci95@@"""
+    sql = """
+@@SQL_chart_ci95@@
+    """
+    quantile = 0.5 + level / 2
+    out = []
+    for row in _rows(con, sql):
+        n, mean, sd = row["n"], row["mean_pence"], row["sd_pence"]
+        lower = upper = None
+        if n >= 2 and sd is not None:
+            half = stats.t_quantile(quantile, n - 1) * sd / math.sqrt(n)
+            lower, upper = mean - half, mean + half
+        out.append({"x": row["x"], "series": row["series"], "n": n, "mean_pence": to_int(mean),
+                    "sd_pence": to_int(sd), "lower_pence": to_int(lower), "upper_pence": to_int(upper)})
+    return out
+''',
+        "collect": '''
+        results["chart_ci95"] = chart_ci95(con)''',
+        "overlay": '''
+
+def chart_overlay(results: dict[str, Any]) -> charts.Overlay | None:
+    """@@d_overlay_ci95@@"""
+    intervals: dict[str, list[tuple[str, float, float]]] = {}
+    for row, bounds in zip(results["chart"], chart_intervals(results)):
+        if bounds is not None:
+            intervals.setdefault(str(row["series"]), []).append((chart_label(row), *bounds))
+    return charts.Overlay(label=OVERLAY_LABEL, intervals=intervals)
+''',
+    },
+    "trend": {
+        "constants": '''# @@c_stat_scale@@
+STAT_SCALE = 100
+# @@c_fraction_scale@@
+FRACTION_SCALE = 1_000_000
+''',
+        "functions": '''
+
+def chart_trend(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """@@d_trend@@"""
+    periods = [row for row in rows if row["series"] == "all"]
+    points = [(float(index), value) for index, row in enumerate(periods)
+              if not row["partial"] and (value := metric_value(row)) is not None]
+    result: dict[str, Any] = {"index_origin": periods[0]["x"] if periods else None, "n": len(points),
+                              "slope_x100": None, "intercept_x100": None, "r2_x1e6": None, "p_value_x1e6": None}
+    if len(points) < 3:
+        return result
+    n = len(points)
+    mean_x = sum(x for x, _ in points) / n
+    mean_y = sum(y for _, y in points) / n
+    sxx = sum((x - mean_x) ** 2 for x, _ in points)
+    syy = sum((y - mean_y) ** 2 for _, y in points)
+    sxy = sum((x - mean_x) * (y - mean_y) for x, y in points)
+    slope = sxy / sxx
+    intercept = mean_y - slope * mean_x
+    r2 = sxy * sxy / (sxx * syy) if syy > 0 else 1.0
+    p_value = 0.0
+    if r2 < 1.0:  # @@c_p_value@@
+        standard_error = math.sqrt((1 - r2) * syy / (n - 2) / sxx)
+        p_value = stats.t_two_sided_p(slope / standard_error, n - 2)
+    result.update(slope_x100=to_int(slope, STAT_SCALE), intercept_x100=to_int(intercept, STAT_SCALE),
+                  r2_x1e6=to_int(r2, FRACTION_SCALE), p_value_x1e6=to_int(p_value, FRACTION_SCALE))
+    return result
+''',
+        "collect": '''
+        results["chart_trend"] = chart_trend(results["chart"])''',
+        "overlay": '''
+
+def chart_overlay(results: dict[str, Any]) -> charts.Overlay | None:
+    """@@d_overlay_trend@@"""
+    trend = results["chart_trend"]
+    if trend["slope_x100"] is None:
+        return None
+    slope, intercept = trend["slope_x100"] / STAT_SCALE, trend["intercept_x100"] / STAT_SCALE
+    periods = [row for row in results["chart"] if row["series"] == "all"]
+    line = [(chart_label(row), intercept + slope * index) for index, row in enumerate(periods)
+            if not row["partial"] and metric_value(row) is not None]
+    return charts.Overlay(label=OVERLAY_LABEL, lines={"all": line})
+''',
+    },
+    "control_band": {
+        "constants": '''# @@c_stat_scale@@
+STAT_SCALE = 100
+# @@c_sigmas@@
+CONTROL_SIGMAS = 2.0
+''',
+        "functions": '''
+
+def chart_control_band(rows: list[dict[str, Any]], sigmas: float = CONTROL_SIGMAS) -> dict[str, Any]:
+    """@@d_band@@"""
+    points = [(row["x"], value) for row in rows
+              if row["series"] == "all" and not row["partial"] and (value := metric_value(row)) is not None]
+    result: dict[str, Any] = {"n": len(points), "mean_x100": None, "sd_x100": None, "lower_x100": None,
+                              "upper_x100": None, "outside": []}
+    if len(points) < 3:
+        return result
+    values = [value for _, value in points]
+    mean = sum(values) / len(values)
+    sd = math.sqrt(sum((value - mean) ** 2 for value in values) / (len(values) - 1))
+    lower, upper = mean - sigmas * sd, mean + sigmas * sd
+    result.update(mean_x100=to_int(mean, STAT_SCALE), sd_x100=to_int(sd, STAT_SCALE),
+                  lower_x100=to_int(lower, STAT_SCALE), upper_x100=to_int(upper, STAT_SCALE),
+                  outside=[x for x, value in points if value < lower or value > upper])
+    return result
+''',
+        "collect": '''
+        results["chart_control_band"] = chart_control_band(results["chart"])''',
+        "overlay": '''
+
+def chart_overlay(results: dict[str, Any]) -> charts.Overlay | None:
+    """@@d_overlay_band@@"""
+    band = results["chart_control_band"]
+    if band["mean_x100"] is None:
+        return None
+    return charts.Overlay(label=OVERLAY_LABEL, band=(band["lower_x100"] / STAT_SCALE, band["mean_x100"] / STAT_SCALE,
+                                                     band["upper_x100"] / STAT_SCALE))
+''',
+    },
+    "moving_average": {
+        "constants": '''# @@c_stat_scale@@
+STAT_SCALE = 100
+''',
+        "functions": '''
+
+def chart_moving_average(rows: list[dict[str, Any]], window: int = CHART_SPEC["window"]) -> list[dict[str, Any]]:
+    """@@d_ma@@"""
+    out = []
+    for name in dict.fromkeys(row["series"] for row in rows):  # @@c_series_order@@
+        periods = [row for row in rows if row["series"] == name]
+        complete = [(index, row) for index, row in enumerate(periods) if not row["partial"]]
+        for end in range(window - 1, len(complete)):
+            frame = complete[end - window + 1:end + 1]
+            values = [metric_value(row) for _, row in frame]
+            if None in values or frame[-1][0] - frame[0][0] != window - 1:
+                continue  # @@c_ma_skip@@
+            average = sum(values) / window
+            out.append({"x": frame[-1][1]["x"], "series": name, "value_x100": to_int(average, STAT_SCALE)})
+    return out
+''',
+        "collect": '''
+        results["chart_moving_average"] = chart_moving_average(results["chart"])''',
+        "overlay": '''
+
+def chart_overlay(results: dict[str, Any]) -> charts.Overlay | None:
+    """@@d_overlay_ma@@"""
+    labels = {(row["x"], row["series"]): chart_label(row) for row in results["chart"]}
+    lines: dict[str, list[tuple[str, float | None]]] = {}
+    for point in results["chart_moving_average"]:
+        lines.setdefault(str(point["series"]), []).append(
+            (labels[(point["x"], point["series"])], point["value_x100"] / STAT_SCALE))
+    return charts.Overlay(label=OVERLAY_LABEL, lines=lines) if lines else None
+''',
+    },
+}
 
 
 def _fill(template: str, values: dict[str, str]) -> str:
@@ -814,15 +1466,49 @@ def _py_literal(value: dict) -> str:
     return "\n".join(lines)
 
 
+_COMMENT_LINE = re.compile(r"^(\s*)(#|--) (.*)$")
+
+
+def _wrap_comments(source: str, width: int = 110) -> str:
+    """Wrap full-line comments (# in Python, -- in SQL) longer than ``width``, keeping their indentation."""
+    out = []
+    for line in source.split("\n"):
+        match = _COMMENT_LINE.match(line)
+        if match and len(line) > width:
+            indent, mark, text = match.groups()
+            prefix = f"{indent}{mark} "
+            out += textwrap.wrap(text, width=width, initial_indent=prefix, subsequent_indent=prefix,
+                                 break_long_words=False, break_on_hyphens=False)
+        else:
+            out.append(line)
+    return "\n".join(out)
+
+
+def _py_text(text: str) -> str:
+    """Text for a triple-quoted literal in the generated Python. SQL can carry values from uploaded data (a country
+    named with backslashes or quotes): backslashes are doubled and every run of three double quotes is escaped, so
+    the Python value is exactly the SQL text and the literal cannot be closed early."""
+    return text.replace("\\", "\\\\").replace('"""', '\\"\\"\\"')
+
+
 def _indent_sql(sql: str) -> str:
-    return textwrap.indent(sql, "        ")
+    return textwrap.indent(_py_text(sql), "        ")
 
 
 def _charts_source(locale: str) -> str:
     t = L[locale]
-    keys = ["charts_doc", "c_palette", "d_format", "d_ticks", "d_coord", "d_line", "d_bar", "d_write_line",
-            "d_write_bar", "desc_line", "desc_bar", "desc_empty"]
-    return _fill(CHARTS_TEMPLATE, {"LOCALE": locale, **{k: t[k] for k in keys}})
+    texts = {k: v for k, v in t.items() if isinstance(v, str)}
+    return _wrap_comments(_fill(CHARTS_TEMPLATE, {"LOCALE": locale, **texts}))
+
+
+def _stats_source(locale: str) -> str:
+    """stats.py: dependency-free Student-t CDF and quantile (shipped when the chart needs a t distribution)."""
+    t = L[locale]
+    return _wrap_comments(_fill(STATS_TEMPLATE, {k: v for k, v in t.items() if isinstance(v, str)}))
+
+
+def _needs_stats(chart: dict | None) -> bool:
+    return bool(chart) and chart["spec"]["statistic"] in ("ci95", "trend")
 
 
 def _analysis_source(locale: str, filters: dict, chart: dict | None) -> str:
@@ -838,6 +1524,8 @@ def _analysis_source(locale: str, filters: dict, chart: dict | None) -> str:
         "FIGURE_TITLES": _py_literal({**t["fig"], **({"chart": chart["title"]} if chart else {})}),
         "WEEKDAYS": repr(t["weekdays"]),
         "SALES_VIEW": SALES_VIEW,
+        "MATH_IMPORT": "import math\n" if chart and chart["spec"]["statistic"] in ("ci95", "trend", "control_band") else "",
+        "STATS_IMPORT": "import stats\n" if _needs_stats(chart) else "",
     })
     for name in QUERY_ORDER:
         sql, names = _python_sql(name)
@@ -847,17 +1535,24 @@ def _analysis_source(locale: str, filters: dict, chart: dict | None) -> str:
         for key, default in DEFAULTS.get(name, {}).items():
             values[f"D_{name}_{key}"] = str(default)
     if chart:
+        statistic = chart["spec"]["statistic"]
+        block = STAT_BLOCKS[statistic]
+        pieces = {**values, **{f"SQL_{name}": _indent_sql(sql) for name, sql in chart["queries"].items()}}
         values["CHART_BLOCK"] = _fill(CHART_BLOCK, {
+            **pieces,
             "CHART_SPEC": _py_literal(chart["spec"]),
-            "CHART_PARAMS": repr(chart["params"]),
-            "SQL_chart": _indent_sql(chart["sql"]),
-            "d_chart": t["d_chart"], "d_chart_points": t["d_chart_points"], "c_chart": t["c_chart"],
+            "OVERLAY_LABEL": repr(chart["overlay_label"]),
+            "CHART_SCOPE": _py_text(chart["scope"]),
+            "CHART_VIEW": _py_text(chart["view"]),
+            "STAT_CONSTANTS": _fill(block["constants"], pieces),
+            "STAT_FUNCTIONS": _fill(block["functions"], pieces),
+            "OVERLAY_FUNCTION": _fill(block["overlay"], pieces),
         })
-        values["CHART_COLLECT"] = CHART_COLLECT
+        values["CHART_COLLECT"] = _fill(CHART_COLLECT, {"STAT_COLLECT": block["collect"]})
         values["CHART_FIGURE"] = CHART_FIGURE
     else:
         values["CHART_BLOCK"] = values["CHART_COLLECT"] = values["CHART_FIGURE"] = ""
-    return _fill(ANALYSIS_TEMPLATE, values)
+    return _wrap_comments(_fill(ANALYSIS_TEMPLATE, values))
 
 
 def _sql_source(locale: str, m: dict, filters: dict, chart: dict | None, engine: str) -> str:
@@ -881,17 +1576,27 @@ def _sql_source(locale: str, m: dict, filters: dict, chart: dict | None, engine:
         f"-- {t['sql_view']}",
         SALES_VIEW + ";",
     ]
+    if chart:
+        head += ["", f"-- {t['sql_chart_scope']}", chart["scope"] + ";", "", f"-- {t['sql_chart_view']}",
+                 chart["view"] + ";"]
     blocks = []
     for name in QUERY_ORDER:
         sql, names = _python_sql(name)
         params = [DEFAULTS[name][n] for n in names]
         blocks += ["", f"-- name: {name}", f"-- {t['sql_q'][name]}", _inline(sql, params) + ";"]
-    if chart:
-        blocks += ["", "-- name: chart", f"-- {t['sql_q']['chart']}", _inline(chart["sql"], chart["params"]) + ";"]
-    return "\n".join(head + blocks) + "\n"
+    for name, sql in (chart or {}).get("queries", {}).items():
+        note = t["sql_q"][name].format(w=chart["spec"]["window"])
+        blocks += ["", f"-- name: {name}", f"-- {note}", sql + ";"]
+    return _wrap_comments("\n".join(head + blocks)) + "\n"
 
 
 # ------------------------------------------------------------------------------------------- README
+
+
+def _md_text(value) -> str:
+    """User-derived text inside Markdown prose (a chart title naming uploaded countries): one line, with the
+    characters that start emphasis, code, links or HTML escaped."""
+    return re.sub(r"([\\`*_\[\]<>#|])", r"\\\1", _one_line(value))
 
 
 def _md_escape(value) -> str:
@@ -929,6 +1634,7 @@ R = {
             "analysis.sql": "the same queries as DuckDB SQL", "charts.py": "dependency-free SVG chart writer",
             "expected.json": "results at export time (integers), used by --check",
             "requirements.txt": "pinned DuckDB version", "data/": "filtered rows (Parquet)",
+            "stats.py": "dependency-free Student-t distribution (interval, p-value)",
             "figures/": "pre-rendered SVG figures",
         },
         "scope": "Scope",
@@ -962,7 +1668,67 @@ R = {
         "pairs": "Strongest co-purchase pairs",
         "pair_head": "| Product A | Product B | Shared orders |",
         "chart": "Chart Studio chart",
-        "chart_text": "Exported ChartSpec (`CHART_SPEC` in `analysis.py`, query `chart` in `analysis.sql`): **{title}** — {rows} rows.",
+        "chart_text": ("Exported ChartSpec (`CHART_SPEC` in `analysis.py`; the `chart_buckets` view and the `chart*` queries in "
+                       "`analysis.sql`): **{title}** — {rows} rows. On a month or week axis every period of the chart scope "
+                       "is listed: periods without rows are zeros (average order value: missing) and a first/last period the "
+                       "scope does not fully cover is marked `partial`, exactly as in Chart Studio."),
+        "stat": "Statistic: {name}",
+        "stat_none": ("The chart has no statistic. Ask Chart Studio for one (95% interval, trend, control band or moving "
+                      "average) and export again to get its code."),
+        "stat_text": {
+            "ci95": [
+                "**What it is:** for every bucket with at least 2 orders, the 95% confidence interval of the mean order "
+                "value: mean ± t(0.975, n − 1) · sd / √n over the bucket's order totals. The Student-t quantile comes "
+                "from `stats.py` (no SciPy needed).",
+                "**Assumption:** order totals are independent and their mean is roughly normal. With skewed totals and "
+                "small n the interval can mislead; buckets with fewer than 2 orders have no interval.",
+                "**Where:** `chart_ci95()` in `analysis.py` (integer pence: `mean_pence`, `sd_pence`, `lower_pence`, "
+                "`upper_pence`); the `chart_ci95` query in `analysis.sql` returns n, mean and sd — DuckDB has no t "
+                "quantile, so the bounds are computed in Python.",
+                "**How to change it:** set `CI_LEVEL = 0.99` in `analysis.py` for a 99% interval. `--check` compares "
+                "with the exported 95% values and will then report the difference.",
+            ],
+            "trend": [
+                "**What it is:** an ordinary least-squares line y = intercept + slope · i over the complete periods, "
+                "where i counts periods from `index_origin`; with R² and the two-sided p-value of the slope (t test, "
+                "n − 2 degrees of freedom, via `stats.py`).",
+                "**Assumption:** the trend describes the past; it is not a forecast. The p-value assumes independent, "
+                "roughly normal residuals; consecutive periods are often correlated, which makes it optimistic.",
+                "**Where:** `chart_trend()` in `analysis.py` (`slope_x100` and `intercept_x100` ×100, `r2_x1e6` and "
+                "`p_value_x1e6` in millionths); the `chart_trend` query in `analysis.sql` uses DuckDB's `regr_slope`, "
+                "`regr_intercept` and `regr_r2` (the p-value needs the t distribution and is computed in Python).",
+                "**How to change it:** partial first/last periods are left out by `not row[\"partial\"]` in "
+                "`chart_trend()` and `NOT partial` in the SQL; remove both to fit every period.",
+            ],
+            "control_band": [
+                "**What it is:** the mean of the complete periods ± 2 sample standard deviations; periods outside the "
+                "band are listed.",
+                "**Assumption:** the periods vary around a stable level. The band flags unusual periods but cannot tell "
+                "why they are unusual; a trend or seasonality widens it.",
+                "**Where:** `chart_control_band()` in `analysis.py` (`mean_x100`, `sd_x100`, `lower_x100`, `upper_x100`); "
+                "the `chart_control_band` query in `analysis.sql` (`AVG` and `STDDEV_SAMP`).",
+                "**How to change it:** `CONTROL_SIGMAS = 3.0` in `analysis.py` (and `3 *` instead of `2 *` in the SQL) "
+                "gives classic 3-sigma limits.",
+            ],
+            "moving_average": [
+                "**What it is:** a trailing average of the last {w} complete periods per series, labelled with the "
+                "window's last period.",
+                "**Assumption:** partial periods would pull the average down, so they are removed before the window is "
+                "applied (`WHERE NOT partial` runs before the window function); a point needs {w} consecutive periods "
+                "with a value.",
+                "**Where:** `chart_moving_average()` in `analysis.py` (`value_x100`); the `chart_moving_average` query "
+                "in `analysis.sql` (`AVG(value) OVER (... ROWS BETWEEN {w1} PRECEDING AND CURRENT ROW)`).",
+                "**How to change it:** set `CHART_SPEC[\"window\"]` in `analysis.py`, and `{w1} PRECEDING`, `= {w}` and "
+                "`= {w1}` in `analysis.sql`, to the new window.",
+            ],
+        },
+        "stat_head": {
+            "ci95": "| Bucket | n | Mean | Lower | Upper |",
+            "trend": "| n | Slope per {per} | Intercept | R² | p-value | Index origin |",
+            "control_band": "| n | Mean | SD | Lower | Upper | Outside |",
+            "moving_average": "| Period | Series | Moving average |",
+        },
+        "stat_more": "{n} more rows in `expected.json`.",
         "figures": "Figures",
         "fig_alt": {"monthly_gross_sales": "Monthly gross sales", "top_countries": "Top countries",
                     "top_products": "Top products", "chart": "Chart Studio chart"},
@@ -1028,6 +1794,7 @@ R = {
             "analysis.sql": "aynı sorgular, DuckDB SQL olarak", "charts.py": "bağımlılıksız SVG grafik yazıcısı",
             "expected.json": "dışa aktarım anındaki sonuçlar (tam sayı), --check kullanır",
             "requirements.txt": "sabitlenmiş DuckDB sürümü", "data/": "filtreli satırlar (Parquet)",
+            "stats.py": "bağımlılıksız Student-t dağılımı (aralık, p-değeri)",
             "figures/": "önceden üretilmiş SVG şekiller",
         },
         "scope": "Kapsam",
@@ -1061,7 +1828,67 @@ R = {
         "pairs": "En güçlü birlikte alım çiftleri",
         "pair_head": "| Ürün A | Ürün B | Ortak sipariş |",
         "chart": "Chart Studio grafiği",
-        "chart_text": "Dışa aktarılan ChartSpec (`analysis.py` içinde `CHART_SPEC`, `analysis.sql` içinde `chart` sorgusu): **{title}** — {rows} satır.",
+        "chart_text": ("Dışa aktarılan ChartSpec (`analysis.py` içinde `CHART_SPEC`; `analysis.sql` içinde `chart_buckets` "
+                       "görünümü ve `chart*` sorguları): **{title}** — {rows} satır. Aylık veya haftalık eksende grafik "
+                       "kapsamının her dönemi listelenir: satırı olmayan dönemler sıfırdır (ortalama sipariş tutarı: eksik), "
+                       "kapsamın tam kapsamadığı ilk/son dönem `partial` olarak işaretlenir; Chart Studio'daki gibi."),
+        "stat": "İstatistik: {name}",
+        "stat_none": ("Grafikte istatistik yok. Chart Studio'dan bir istatistik isteyin (%95 aralık, trend, kontrol bandı "
+                      "veya hareketli ortalama) ve kodunu almak için yeniden dışa aktarın."),
+        "stat_text": {
+            "ci95": [
+                "**Nedir:** en az 2 siparişi olan her dilim için ortalama sipariş tutarının %95 güven aralığı: "
+                "ortalama ± t(0,975, n − 1) · ss / √n, dilimin sipariş toplamları üzerinden. Student-t kantili "
+                "`stats.py`'den gelir (SciPy gerekmez).",
+                "**Varsayım:** sipariş tutarları bağımsızdır ve ortalamaları yaklaşık normaldir. Çarpık tutarlar ve küçük "
+                "n ile aralık yanıltabilir; 2'den az siparişi olan dilimlerde aralık yoktur.",
+                "**Nerede:** `analysis.py` içinde `chart_ci95()` (tam sayı kuruş: `mean_pence`, `sd_pence`, "
+                "`lower_pence`, `upper_pence`); `analysis.sql` içindeki `chart_ci95` sorgusu n, ortalama ve ss döndürür "
+                "— DuckDB'de t kantili olmadığından sınırlar Python'da hesaplanır.",
+                "**Nasıl değiştirilir:** %99'luk aralık için `analysis.py` içinde `CI_LEVEL = 0.99` yapın. `--check` "
+                "dışa aktarılan %95 değerlerle karşılaştırır ve farkı raporlar.",
+            ],
+            "trend": [
+                "**Nedir:** tam dönemler üzerinde en küçük kareler doğrusu y = kesişim + eğim · i; i, dönemleri "
+                "`index_origin`'den sayar. R² ve eğimin çift yönlü p-değeri (t testi, n − 2 serbestlik derecesi, "
+                "`stats.py` ile) verilir.",
+                "**Varsayım:** trend geçmişi betimler; tahmin değildir. p-değeri bağımsız ve yaklaşık normal artıklar "
+                "varsayar; ardışık dönemler çoğu zaman ilişkilidir ve bu p-değerini iyimser yapar.",
+                "**Nerede:** `analysis.py` içinde `chart_trend()` (`slope_x100` ve `intercept_x100` ×100, `r2_x1e6` ve "
+                "`p_value_x1e6` milyonda bir); `analysis.sql` içindeki `chart_trend` sorgusu DuckDB'nin `regr_slope`, "
+                "`regr_intercept` ve `regr_r2` fonksiyonlarını kullanır (p-değeri t dağılımı gerektirir, Python'da "
+                "hesaplanır).",
+                "**Nasıl değiştirilir:** kısmi ilk/son dönemler `chart_trend()` içinde `not row[\"partial\"]`, SQL'de "
+                "`NOT partial` ile dışarıda bırakılır; tüm dönemlere uydurmak için ikisini de kaldırın.",
+            ],
+            "control_band": [
+                "**Nedir:** tam dönemlerin ortalaması ± 2 örneklem standart sapması; bandın dışındaki dönemler listelenir.",
+                "**Varsayım:** dönemler sabit bir düzey etrafında dalgalanır. Bant olağandışı dönemleri işaretler ama "
+                "nedenini söyleyemez; trend veya mevsimsellik bandı genişletir.",
+                "**Nerede:** `analysis.py` içinde `chart_control_band()` (`mean_x100`, `sd_x100`, `lower_x100`, "
+                "`upper_x100`); `analysis.sql` içindeki `chart_control_band` sorgusu (`AVG` ve `STDDEV_SAMP`).",
+                "**Nasıl değiştirilir:** `analysis.py` içinde `CONTROL_SIGMAS = 3.0` (SQL'de de `2 *` yerine `3 *`) "
+                "klasik 3-sigma sınırlarını verir.",
+            ],
+            "moving_average": [
+                "**Nedir:** seri başına son {w} tam dönemin geriye dönük ortalaması; pencerenin son dönemiyle "
+                "etiketlenir.",
+                "**Varsayım:** kısmi dönemler ortalamayı aşağı çekerdi; bu yüzden pencere uygulanmadan önce çıkarılır "
+                "(`WHERE NOT partial` pencere fonksiyonundan önce çalışır); bir nokta için değeri olan {w} ardışık "
+                "dönem gerekir.",
+                "**Nerede:** `analysis.py` içinde `chart_moving_average()` (`value_x100`); `analysis.sql` içindeki "
+                "`chart_moving_average` sorgusu (`AVG(value) OVER (... ROWS BETWEEN {w1} PRECEDING AND CURRENT ROW)`).",
+                "**Nasıl değiştirilir:** `analysis.py` içinde `CHART_SPEC[\"window\"]` ve `analysis.sql` içinde "
+                "`{w1} PRECEDING`, `= {w}` ve `= {w1}` değerlerini yeni pencereye göre ayarlayın.",
+            ],
+        },
+        "stat_head": {
+            "ci95": "| Dilim | n | Ortalama | Alt | Üst |",
+            "trend": "| n | {per} başına eğim | Kesişim | R² | p-değeri | Sıra başlangıcı |",
+            "control_band": "| n | Ortalama | SS | Alt | Üst | Dışarıda |",
+            "moving_average": "| Dönem | Seri | Hareketli ortalama |",
+        },
+        "stat_more": "`expected.json` içinde {n} satır daha.",
         "figures": "Şekiller",
         "fig_alt": {"monthly_gross_sales": "Aylık brüt satış", "top_countries": "İlk ülkeler",
                     "top_products": "İlk ürünler", "chart": "Chart Studio grafiği"},
@@ -1111,6 +1938,61 @@ R = {
         "generated": "Context Layer tarafından üretildi ({recipe}).",
     },
 }
+
+
+def _decimal(value: float, decimals: int, locale: str) -> str:
+    text = f"{value:,.{decimals}f}"
+    return text.translate(str.maketrans(",.", ".,")) if locale == "tr" else text
+
+
+def _scaled_text(value: int | None, metric: str, locale: str) -> str:
+    """A ×100 statistic value from expected.json as display text (pence → £ for money metrics)."""
+    if value is None:
+        return "—"
+    return _gbp(value, locale) if metric in ("gross_sales", "aov") else _decimal(value / 100, 2, locale)
+
+
+def _readme_statistic(locale: str, chart: dict, res: dict) -> list[str]:
+    """README section for the chart's statistic: what it is, its assumption, where it lives, how to change it,
+    and its exported values."""
+    r = R[locale]
+    spec = chart["spec"]
+    statistic, metric = spec["statistic"], spec["metric"]
+    if statistic == "none":
+        return [r["stat_none"]]
+    w = spec["window"]
+    out = [f"#### {r['stat'].format(name=chart['overlay_label'])}", ""]
+    out += [f"- {line.format(w=w, w1=w - 1)}" for line in r["stat_text"][statistic]] + [""]
+    per = {"month": ("month", "ay"), "week": ("week", "hafta")}.get(spec["dimension"], ("", ""))[locale == "tr"]
+    head = r["stat_head"][statistic].format(per=per)
+    out += [head, "|" + "|".join("---:" if i else "---" for i in range(head.count("|") - 1)) + "|"]
+    limit = 24
+    if statistic == "ci95":
+        rows = res["chart_ci95"]
+        for row in rows[:limit]:
+            label = row["x"] if row["series"] == "all" else f"{row['x']} · {row['series']}"
+            out.append(f"| {_md_escape(label)} | {_int(row['n'], locale)} | {_scaled_text(row['mean_pence'], 'aov', locale)} | "
+                       f"{_scaled_text(row['lower_pence'], 'aov', locale)} | {_scaled_text(row['upper_pence'], 'aov', locale)} |")
+    elif statistic == "trend":
+        rows = [res["chart_trend"]]
+        tr = res["chart_trend"]
+        fraction = lambda v: "—" if v is None else _decimal(v / 1_000_000, 6, locale)  # noqa: E731
+        out.append(f"| {tr['n']} | {_scaled_text(tr['slope_x100'], metric, locale)} | "
+                   f"{_scaled_text(tr['intercept_x100'], metric, locale)} | {fraction(tr['r2_x1e6'])} | "
+                   f"{fraction(tr['p_value_x1e6'])} | {tr['index_origin'] or '—'} |")
+    elif statistic == "control_band":
+        rows = [res["chart_control_band"]]
+        band = res["chart_control_band"]
+        out.append(f"| {band['n']} | " + " | ".join(_scaled_text(band[k], metric, locale) for k in
+                                                     ("mean_x100", "sd_x100", "lower_x100", "upper_x100"))
+                   + f" | {', '.join(band['outside']) or '—'} |")
+    else:
+        rows = res["chart_moving_average"]
+        for row in rows[-limit:]:
+            out.append(f"| {row['x']} | {_md_escape(row['series'])} | {_scaled_text(row['value_x100'], metric, locale)} |")
+    if len(rows) > limit:
+        out += ["", r["stat_more"].format(n=len(rows) - limit)]
+    return out
 
 
 def _attribution(source: dict, title: str, locale: str) -> list[str]:
@@ -1193,8 +2075,11 @@ def _readme(locale: str, m: dict, filters: dict, expected: dict, column_types: d
             out.append(f"| {_md_escape(row['product_a_name'])} | {_md_escape(row['product_b_name'])} | "
                        f"{_int(row['shared_orders'], locale)} |")
     if chart:
-        out += ["", f"### {r['chart']}", "", r["chart_text"].format(title=chart["title"], rows=len(res["chart"])), "",
-                "```json", json.dumps(chart["spec"], ensure_ascii=False, indent=2), "```"]
+        out += ["", f"### {r['chart']}", "", r["chart_text"].format(title=_md_text(chart["title"]), rows=len(res["chart"])), "",
+                # Country names can come from uploaded data: a backtick is written as its JSON escape so it can
+                # never close the fence.
+                "```json", json.dumps(chart["spec"], ensure_ascii=False, indent=2).replace("`", "\\u0060"), "```", ""]
+        out += _readme_statistic(locale, chart, res)
     out += ["", f"## {r['figures']}", ""]
     for name in ["monthly_gross_sales", "top_countries", "top_products"] + (["chart"] if chart else []):
         out += [f"![{r['fig_alt'][name]}](figures/{name}.svg)", ""]
@@ -1254,16 +2139,207 @@ def _zip(files: dict[str, bytes]) -> bytes:
     return buffer.getvalue()
 
 
-def _chart_bundle(spec_obj, m: dict, locale: str) -> dict:
-    from analysis.chart_studio import compile_query, validate_spec, _T as chart_text
+def _chart_sql(spec: dict, m: dict, locale: str) -> dict:
+    """SQL for an exported chart, shared verbatim by analysis.py and analysis.sql.
+
+    ``scope`` sets the chart's date window from the dataset range, the --start/--end filters and the spec;
+    ``view`` creates ``chart_buckets`` (one row per bucket; on a month/week axis every period is present and
+    flagged ``partial`` as in Chart Studio); ``queries`` holds the chart rows and the statistic's query. Values
+    come from the validated ChartSpec and catalog (allowlisted names, ISO dates) and are written as literals.
+    """
+    from analysis.chart_studio import _BUCKET, _BUCKET_NOTE, _BUCKET_NOTE_TR, _RANK
+
+    v = L[locale]["v"]
+    dim, metric, statistic = spec["dimension"], spec["metric"], spec["statistic"]
+    time_axis = dim in ("month", "week")
+    starts = [f"DATE {_literal(m['start'])}", "getvariable('start_date')::DATE"]
+    ends = [f"DATE {_literal(m['end'])}", "getvariable('end_date')::DATE"]
+    starts += [f"DATE {_literal(spec['start'])}"] if spec["start"] else []
+    ends += [f"DATE {_literal(spec['end'])}"] if spec["end"] else []
+    scope = (f"SET VARIABLE chart_start = greatest({', '.join(starts)});\n"
+             f"SET VARIABLE chart_end = least({', '.join(ends)})")
+
+    where = ["order_date BETWEEN getvariable('chart_start') AND getvariable('chart_end')"]
+    if spec["countries"]:
+        where.append("country IN (" + ", ".join(_literal(c) for c in spec["countries"]) + ")")
+    if spec["exclude_countries"]:
+        where.append("country NOT IN (" + ", ".join(_literal(c) for c in spec["exclude_countries"]) + ")")
+    series = "country" if spec["split_by_country"] else "'all'"
+    product = dim == "product"
+    note = (_BUCKET_NOTE_TR if locale == "tr" else _BUCKET_NOTE)[dim]
+    order_totals = (
+        f"    -- {v['orders']}\n"
+        "    SELECT\n"
+        f"        {_BUCKET[dim]} AS x,  -- {note}\n"
+        f"        {series} AS series,\n"
+        "        invoice,\n"
+        + ("        MIN(product) AS label,\n" if product else "")
+        + "        SUM(line_pence) AS order_pence,\n"
+        "        SUM(quantity) AS order_units\n"
+        "    FROM sales\n"
+        "    WHERE " + "\n      AND ".join(where) + "\n"
+        "    GROUP BY x, series, invoice"
+    )
+    value_note = f"  -- {v['value'].format(what=v['what'][metric])}"
+    if time_axis:
+        value = {"gross_sales": "COALESCE(t.pence, 0) / 100.0", "orders": "COALESCE(t.orders, 0)::DOUBLE",
+                 "units": "COALESCE(t.units, 0)::DOUBLE", "aov": "t.pence / t.orders / 100.0"}[metric]
+        label = "strftime(first_day, '%Y-%m')" if dim == "month" else "strftime(first_day, '%Y-%m-%d')"
+        period_end = "last_day(first_day)::DATE" if dim == "month" else "(first_day + INTERVAL 6 DAY)::DATE"
+        step = "INTERVAL 1 MONTH" if dim == "month" else "INTERVAL 7 DAY"
+        names = spec["countries"] if spec["split_by_country"] else ["all"]
+        series_rows = ", ".join(f"({i}, {_literal(name)})" for i, name in enumerate(names, 1))
+        view = (
+            "CREATE OR REPLACE TEMP VIEW chart_buckets AS\n"
+            "WITH periods AS (\n"
+            f"    -- {v['periods'].format(per=v['per'][dim])}\n"
+            "    SELECT\n"
+            "        row_number() OVER (ORDER BY first_day) - 1 AS period_index,\n"
+            f"        {label} AS x,\n"
+            "        first_day::DATE AS period_start,\n"
+            f"        {period_end} AS period_end\n"
+            "    FROM generate_series(\n"
+            f"        date_trunc('{dim}', getvariable('chart_start')), getvariable('chart_end'), {step}\n"
+            "    ) AS g(first_day)\n"
+            "),\n"
+            "series AS (\n"
+            f"    -- {v['series_split'] if spec['split_by_country'] else v['series_all']}\n"
+            f"    SELECT * FROM (VALUES {series_rows}) AS s(series_order, series)\n"
+            "),\n"
+            "order_totals AS (\n" + order_totals + "\n),\n"
+            "totals AS (\n"
+            f"    -- {v['totals']}\n"
+            "    SELECT\n"
+            "        x,\n"
+            "        series,\n"
+            "        SUM(order_pence)::BIGINT AS pence,\n"
+            "        COUNT(*)::BIGINT AS orders,\n"
+            "        SUM(order_units)::BIGINT AS units,\n"
+            "        SUM(order_pence::HUGEINT * order_pence) AS pence_squared\n"
+            "    FROM order_totals\n"
+            "    GROUP BY x, series\n"
+            ")\n"
+            "SELECT\n"
+            "    p.period_index,\n"
+            "    s.series_order,\n"
+            "    p.x,\n"
+            "    s.series,\n"
+            f"    -- {v['partial']}\n"
+            "    (p.period_start < getvariable('chart_start') OR p.period_end > getvariable('chart_end')) AS partial,\n"
+            "    COALESCE(t.pence, 0)::BIGINT AS pence,\n"
+            "    COALESCE(t.orders, 0)::BIGINT AS orders,\n"
+            "    COALESCE(t.units, 0)::BIGINT AS units,\n"
+            "    COALESCE(t.pence_squared, 0)::HUGEINT AS pence_squared,\n"
+            f"    {value} AS value{value_note}\n"
+            "FROM periods AS p\n"
+            "CROSS JOIN series AS s\n"
+            "LEFT JOIN totals AS t ON t.x = p.x AND t.series = s.series"
+        )
+        order = "period_index, series_order"
+        chart_sql = f"SELECT x, series, partial, pence, orders, units\nFROM chart_buckets\nORDER BY {order}"
+    else:
+        value = {"gross_sales": "SUM(order_pence) / 100.0", "orders": "COUNT(*)::DOUBLE",
+                 "units": "SUM(order_units)::DOUBLE", "aov": "SUM(order_pence) / COUNT(*) / 100.0"}[metric]
+        ranked = dim in ("country", "product")
+        rank = f"{_RANK[metric]} DESC, x" if ranked else "x"
+        view = (
+            "CREATE OR REPLACE TEMP VIEW chart_buckets AS\n"
+            "WITH order_totals AS (\n" + order_totals + "\n)\n"
+            "SELECT\n"
+            f"    row_number() OVER (ORDER BY {rank}) AS bucket_order,  -- "
+            + (v["rank"].format(n=spec["top_n"]) if ranked else v["weekday"]) + "\n"
+            "    x,\n"
+            "    series,\n"
+            + ("    MIN(label) AS label,\n" if product else "")
+            + "    SUM(order_pence)::BIGINT AS pence,\n"
+            "    COUNT(*)::BIGINT AS orders,\n"
+            "    SUM(order_units)::BIGINT AS units,\n"
+            "    SUM(order_pence::HUGEINT * order_pence) AS pence_squared,\n"
+            f"    {value} AS value{value_note}\n"
+            "FROM order_totals\n"
+            "GROUP BY x, series"
+            + (f"\nQUALIFY bucket_order <= {int(spec['top_n'])}" if ranked else "")
+        )
+        order = "bucket_order"
+        columns = "x, series, label, pence, orders, units" if product else "x, series, pence, orders, units"
+        chart_sql = f"SELECT {columns}\nFROM chart_buckets\nORDER BY {order}"
+
+    queries = {"chart": chart_sql}
+    if statistic == "ci95":
+        queries["chart_ci95"] = (
+            "SELECT\n"
+            "    x,\n"
+            "    series,\n"
+            "    orders AS n,\n"
+            "    pence / NULLIF(orders, 0) AS mean_pence,\n"
+            "    CASE WHEN orders >= 2\n"
+            "         THEN sqrt((orders * pence_squared - pence::HUGEINT * pence)::DOUBLE / (orders * (orders - 1)))\n"
+            "    END AS sd_pence\n"
+            "FROM chart_buckets\n"
+            f"ORDER BY {order}"
+        )
+    elif statistic == "trend":
+        queries["chart_trend"] = (
+            "SELECT\n"
+            "    regr_count(value, period_index)::BIGINT AS n,\n"
+            "    regr_slope(value, period_index) AS slope,\n"
+            "    regr_intercept(value, period_index) AS intercept,\n"
+            "    regr_r2(value, period_index) AS r2\n"
+            "FROM chart_buckets\n"
+            f"-- {v['complete']}; {v['no_value']}\n"
+            "WHERE series = 'all' AND NOT partial AND value IS NOT NULL"
+        )
+    elif statistic == "control_band":
+        queries["chart_control_band"] = (
+            "WITH complete AS (\n"
+            "    SELECT period_index, x, value\n"
+            "    FROM chart_buckets\n"
+            f"    WHERE series = 'all' AND NOT partial AND value IS NOT NULL  -- {v['complete']}\n"
+            "),\n"
+            "band AS (\n"
+            "    SELECT COUNT(*)::BIGINT AS n, AVG(value) AS mean, STDDEV_SAMP(value) AS sd\n"
+            "    FROM complete\n"
+            ")\n"
+            "SELECT\n"
+            "    n,\n"
+            "    mean,\n"
+            "    sd,\n"
+            "    mean - 2 * sd AS lower,\n"
+            "    mean + 2 * sd AS upper,\n"
+            "    (SELECT list(x ORDER BY period_index) FROM complete\n"
+            "     WHERE value < band.mean - 2 * band.sd OR value > band.mean + 2 * band.sd) AS outside\n"
+            "FROM band"
+        )
+    elif statistic == "moving_average":
+        w = int(spec["window"])
+        queries["chart_moving_average"] = (
+            "SELECT\n"
+            "    x,\n"
+            "    series,\n"
+            "    AVG(value) OVER recent AS value\n"
+            "FROM chart_buckets\n"
+            f"WHERE NOT partial  -- {v['complete']}\n"
+            f"WINDOW recent AS (PARTITION BY series ORDER BY period_index ROWS BETWEEN {w - 1} PRECEDING AND CURRENT ROW)\n"
+            f"QUALIFY COUNT(value) OVER recent = {w}\n"
+            f"    AND period_index - MIN(period_index) OVER recent = {w - 1}\n"
+            "ORDER BY series_order, period_index"
+        )
+    return {"scope": scope, "view": view, "queries": queries}
+
+
+def _chart_bundle(spec_obj, m: dict, locale: str, filters: dict) -> dict:
+    from analysis.chart_studio import scope_text, validate_spec, _T as chart_text
 
     warnings: list[str] = []
     spec = validate_spec(spec_obj, m, locale=locale, warnings=warnings)
-    sql, params = compile_query(spec, start=spec["start"], end=spec["end"], source="sales", with_sd=False,
-                                locale=locale)
     title = chart_text[locale]["title"][spec["dimension"]].format(m=chart_text[locale]["metric"][spec["metric"]],
                                                                   n=spec["top_n"])
-    return {"spec": spec, "sql": sql, "params": params, "title": title[:1].upper() + title[1:], "warnings": warnings}
+    title = title[:1].upper() + title[1:]
+    if spec["countries"] or spec["exclude_countries"]:
+        title += " · " + scope_text(spec, filters.get("country"), locale)
+    overlay_label = L[locale]["overlay"][spec["statistic"]].format(w=spec["window"])
+    return {"spec": spec, "title": title, "overlay_label": overlay_label, "warnings": warnings,
+            **_chart_sql(spec, m, locale)}
 
 
 def export_code(request: dict) -> dict:
@@ -1274,7 +2350,7 @@ def export_code(request: dict) -> dict:
     kind = request.get("format", "bundle")
     if kind not in FORMATS:
         raise ValueError("Geçersiz dışa aktarım biçimi." if locale == "tr" else "Invalid export format.")
-    chart = _chart_bundle(request["chart"], m, locale) if request.get("chart") is not None else None
+    chart = _chart_bundle(request["chart"], m, locale, clean) if request.get("chart") is not None else None
     engine = duckdb.__version__
     analysis_py = _analysis_source(locale, clean, chart)
     analysis_sql = _sql_source(locale, m, clean, chart, engine)
@@ -1312,7 +2388,10 @@ def export_code(request: dict) -> dict:
             raise ValueError("customer_id must not be exported")
 
         charts_module = _load_module("charts", charts_py, "charts.py")
-        script = _load_module("context_layer_export_analysis", analysis_py, "analysis.py", {"charts": charts_module})
+        helpers = {"charts": charts_module}
+        if _needs_stats(chart):
+            helpers["stats"] = _load_module("stats", _stats_source(locale), "stats.py")
+        script = _load_module("context_layer_export_analysis", analysis_py, "analysis.py", helpers)
         scope = script.Scope(data=parquet, start=clean.get("start"), end=clean.get("end"), country=clean.get("country"))
         results = json.loads(json.dumps(script.collect(scope), default=str))
         _cross_check(request, clean, results)
@@ -1333,6 +2412,7 @@ def export_code(request: dict) -> dict:
             "analysis.py": analysis_py.encode("utf-8"),
             "analysis.sql": analysis_sql.encode("utf-8"),
             "charts.py": charts_py.encode("utf-8"),
+            **({"stats.py": _stats_source(locale).encode("utf-8")} if _needs_stats(chart) else {}),
             "expected.json": (json.dumps(expected, ensure_ascii=False, indent=2) + "\n").encode("utf-8"),
             "requirements.txt": f"duckdb=={engine}\n".encode(),
         }

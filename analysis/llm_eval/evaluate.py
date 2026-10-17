@@ -3,7 +3,7 @@ import datetime as dt, json
 from analysis.llm_eval.cases import plan_cases, decide_cases, claims_cases, narrate_cases, ideal_plan_reply, ADVERSARIAL_PLAN_REPLIES, ROUTABLE
 from analysis.llm_eval.providers import ScriptedModel
 
-VERSION = "llm-eval-v2.1"
+VERSION = "llm-eval-v2.2"
 PROVIDERS = ("scripted-ideal", "scripted-adversarial", "local", "hf")
 
 
@@ -155,8 +155,14 @@ def evaluate(providers=PROVIDERS, probe=None):
            "dataset": "demo (synthetic, seed 47)", "case_counts": {"plan": len(pc), "decide": len(dc), "claims": len(cc), "narrate": len(nc)},
            "claims_verifier": {"accuracy": _mean([r["correct"] for r in run_claims(cc, result)]), "label": "MEASURED", "records": run_claims(cc, result)},
            "providers": {}}
+    from analysis.llm_eval.chart import CASES as CHART_CASES, chart_metrics, run_chart
+    from analysis.worker import meta
+    catalog = meta("uci") if (__import__("analysis.prepare", fromlist=["DATA"]).DATA / "uci.json").exists() else meta("demo")
+    out["case_counts"]["chart"] = len(CHART_CASES)
+    out["chart_dataset"] = catalog["id"]
     for p in providers:
         plan_records, blocked = run_plan(p, pc, probe=probe if p == "hf" else None)
+        chart_records, chart_blocked = run_chart(p, catalog, probe=None)
         decide_records = run_decide(p, dc)
         narrate_records = run_narrate(p, nc)
         if p == "hf" and blocked is not None:
@@ -188,7 +194,9 @@ def evaluate(providers=PROVIDERS, probe=None):
                 "narrate_citation_precision": _mean([r["citation_precision"] for r in narrate_records if r["citation_precision"] is not None]) or None,
                 "narrate_citation_recall": _mean([r["citation_recall"] for r in narrate_records if r["citation_recall"] is not None]) or None,
                 "narrate_unsupported_number_rejection": _mean(number_checks) if number_checks else None,
+                **chart_metrics(chart_records, chart_blocked),
             },
+            "chart_records": chart_records,
             "plan_records": plan_records, "decide_records": decide_records, "narrate_records": narrate_records,
         }
     return out
@@ -200,5 +208,10 @@ def markdown(report):
     for p, r in report["providers"].items():
         m = r["metrics"]
         rows.append(f"| {p} | {r['label']} | {f(m['plan_behavior_accuracy'])} | {f(m['plan_intent_accuracy'])} | {f(m['plan_abstention_correctness'])} | {f(m['plan_injection_refusal_rate'])} | {f(m['plan_output_schema_validity'])} | {f(m['decide_acceptance_correctness'])} | {f(m['decide_citation_precision'])} / {f(m['decide_citation_recall'])} | {f(m.get('narrate_acceptance_correctness'))} | {f(m.get('narrate_citation_precision'))} / {f(m.get('narrate_citation_recall'))} | {f(m.get('narrate_unsupported_number_rejection'))} |")
+    rows.append("\n| provider | chart spec accuracy | chart field accuracy | adversarial plan rejection |")
+    rows.append("|---|---|---|---|")
+    for p, r in report["providers"].items():
+        m = r["metrics"]
+        rows.append(f"| {p} | {f(m.get('chart_spec_accuracy'))} | {f(m.get('chart_field_accuracy'))} | {f(m.get('chart_adversarial_rejection'))} |")
     rows.append(f"\nClaims verifier accuracy (deterministic, {len(report['claims_verifier']['records'])} cases): {f(report['claims_verifier']['accuracy'])} — MEASURED")
     return "\n".join(rows)

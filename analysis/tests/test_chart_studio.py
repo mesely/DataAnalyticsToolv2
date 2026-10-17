@@ -458,3 +458,196 @@ def test_prompt_limit_determinism_and_dispatch():
     nochange = handle({"action": "chart", "dataset": "demo", "prompt": "lorem ipsum", "base_spec": a["spec"]})
     assert nochange["planner"]["status"] == "no_change" and nochange["spec"] == a["spec"]
     assert len(nochange["planner"]["suggestions"]) == 3
+
+
+# ------------------------------------------------------------------------------- exclusions (amendment)
+
+EXCLUSION_CASES = [
+    # (prompt, locale, base spec changes, expected countries, expected exclude_countries, other expectations)
+    ("İngiltere hariç", "tr", {}, [], ["United Kingdom"], {}),
+    ("İngiltere haricinde aylık satış", "tr", {}, [], ["United Kingdom"], {"dimension": "month"}),
+    ("Birleşik Krallık dışındaki ülkeler", "tr", {}, [], ["United Kingdom"], {"dimension": "month"}),
+    ("ülkelere göre sipariş, İngiltere hariç", "tr", {}, [], ["United Kingdom"],
+     {"dimension": "country", "metric": "orders"}),
+    ("İngiltere'yi hariç tut", "tr", {}, [], ["United Kingdom"], {}),
+    ("Almanya ve İrlanda olmadan", "tr", {}, [], ["Germany", "EIRE"], {}),
+    ("trend çizgisi, İngiltere hariç", "tr", {}, [], ["United Kingdom"], {"statistic": "trend"}),
+    ("Almanya'yı çıkar", "tr", {}, [], ["Germany"], {}),  # removal word, Germany not in countries → excluded
+    ("Almanya'yı çıkar", "tr", {"countries": ["Germany", "France"], "split_by_country": True},
+     ["France"], [], {"split_by_country": False}),  # removal word, Germany in countries → dropped there
+    ("Fransa'yı karşılaştırmadan çıkar", "tr", {"countries": ["Germany", "France", "Spain"], "split_by_country": True},
+     ["Germany", "Spain"], [], {"split_by_country": True}),
+    ("Almanya hariç", "tr", {"countries": ["Germany", "France"]}, ["France"], ["Germany"], {}),  # later request wins
+    ("all countries except United Kingdom and EIRE", "en", {"countries": ["France"]}, [],
+     ["United Kingdom", "EIRE"], {}),
+    ("without Germany", "en", {}, [], ["Germany"], {}),
+    ("excluding the UK", "en", {}, [], ["United Kingdom"], {}),
+    ("other than United Kingdom", "en", {}, [], ["United Kingdom"], {}),
+    ("leave out Germany", "en", {}, [], ["Germany"], {}),
+    ("remove France from the comparison", "en", {"countries": ["Germany", "France"], "split_by_country": True},
+     ["Germany"], [], {"split_by_country": False}),
+    ("compare Germany and France excluding the UK", "en", {}, ["Germany", "France"], ["United Kingdom"],
+     {"split_by_country": True}),
+    ("İngiltere satışları", "tr", {"exclude_countries": ["United Kingdom"]}, ["United Kingdom"], [], {}),
+    ("tüm ülkeler", "tr", {"countries": ["France"], "exclude_countries": ["United Kingdom"]}, [], [], {}),
+    # Adding an excluded country back to an all-countries chart lifts the exclusion; it does not narrow the chart.
+    ("İngiltere'yi geri ekle", "tr", {"exclude_countries": ["United Kingdom", "EIRE"]}, [], ["EIRE"], {}),
+    ("add the United Kingdom back", "en", {"exclude_countries": ["United Kingdom"]}, [], [], {}),
+    ("Almanya ekle", "tr", {"exclude_countries": ["United Kingdom"]}, ["Germany"], ["United Kingdom"], {}),
+]
+
+
+@pytest.mark.parametrize("prompt,locale,base,countries,excluded,others", EXCLUSION_CASES)
+def test_local_plan_exclusion_vs_removal(prompt, locale, base, countries, excluded, others):
+    result = local_plan(prompt, spec(**base) if base else None, UCI, locale)
+    assert result["status"] == "planned", result
+    s = result["spec"]
+    assert (s["countries"], s["exclude_countries"]) == (countries, excluded), s
+    for key, value in others.items():
+        assert s[key] == value, (key, s)
+    assert not set(s["countries"]) & set(s["exclude_countries"])
+    assert validate_spec(s, UCI) == s
+
+
+def test_exclusion_moves_are_warned_and_statistic_removal_is_kept():
+    r = local_plan("Almanya hariç", spec(countries=["Germany", "France"]), UCI, "tr")
+    assert r["warnings"] and "son istek geçerli" in r["warnings"][0]
+    r = local_plan("Germany sales", spec(exclude_countries=["Germany"]), UCI, "en")
+    assert r["spec"]["countries"] == ["Germany"] and r["spec"]["exclude_countries"] == []
+    assert any("included again" in w for w in r["warnings"])
+    # removal words attached to a statistic keep their meaning; no country is excluded
+    r = local_plan("güven aralığını kaldır", spec(metric="aov", statistic="ci95"), UCI, "tr")
+    assert r["spec"]["statistic"] == "none" and r["spec"]["exclude_countries"] == []
+    r = local_plan("remove the trend", spec(statistic="trend", exclude_countries=["EIRE"]), UCI, "en")
+    assert r["spec"]["statistic"] == "none" and r["spec"]["exclude_countries"] == ["EIRE"]
+    # an exclusion phrase is not also read as a statistic removal
+    r = local_plan("trend line without Germany", None, UCI, "en")
+    assert r["spec"]["statistic"] == "trend" and r["spec"]["exclude_countries"] == ["Germany"]
+
+
+def test_validate_spec_exclusions():
+    assert validate_spec({}, UCI)["exclude_countries"] == []
+    legacy = {k: v for k, v in default_spec().items() if k != "exclude_countries"}
+    assert validate_spec(legacy, UCI) == default_spec()  # a spec written before the key stays valid
+    w = []
+    s = validate_spec({"countries": ["France", "Germany"], "exclude_countries": ["France"]}, UCI, warnings=w)
+    assert s["countries"] == ["Germany"] and s["exclude_countries"] == ["France"] and len(w) == 1
+    w = []
+    s = validate_spec({"countries": ["France"], "exclude_countries": ["France"]}, UCI, warnings=w,
+                      previous=spec(exclude_countries=["France"]))
+    assert s["countries"] == ["France"] and s["exclude_countries"] == [] and len(w) == 1  # newly re-included
+    w = []
+    s = validate_spec({"countries": ["France"], "exclude_countries": ["France"]}, UCI, warnings=w,
+                      previous=spec(countries=["France"]))
+    assert s["countries"] == [] and s["exclude_countries"] == ["France"] and w  # newly excluded
+    assert validate_spec({"exclude_countries": ["EIRE", "EIRE"]}, UCI)["exclude_countries"] == ["EIRE"]
+    for bad in [{"exclude_countries": "France"}, {"exclude_countries": ["Atlantis"]}, {"exclude_countries": [1]},
+                {"exclude_countries": ["France", "Germany", "Spain", "Italy", "Belgium", "Norway"]}]:
+        with pytest.raises(ValueError):
+            validate_spec(bad, UCI)
+
+
+def test_exclusion_engine_matches_pandas(uci):
+    rest = uci[~uci.country.isin(["United Kingdom", "EIRE"])]
+    r = run("uci", spec(exclude_countries=["United Kingdom", "EIRE"]))
+    expected = rest.groupby("month")["line_pence"].sum()
+    assert [(d["x"], d["value"]) for d in r["data"]] == [(m, round(v / 100, 2)) for m, v in expected.items()]
+    assert "country NOT IN (?, ?)" in r["sql"] and r["params"][-2:] == ["United Kingdom", "EIRE"]
+    assert "United Kingdom" not in r["sql"]
+    assert r["subtitle"].startswith("All countries except United Kingdom and EIRE · ")
+    assert r["scope"]["exclude_countries"] == ["United Kingdom", "EIRE"]
+    tr = run("uci", spec(exclude_countries=["United Kingdom"]), locale="tr")
+    assert tr["subtitle"].startswith("Tüm ülkeler, Birleşik Krallık hariç · ")
+    # top-k share uses the same scope: the total excludes the same countries
+    r = run("uci", spec(dimension="country", chart="bar", top_n=5, exclude_countries=["United Kingdom"]))
+    rest_uk = uci[uci.country != "United Kingdom"]
+    ranked = rest_uk.groupby("country")["line_pence"].sum().sort_values(ascending=False).head(5)
+    assert [d["x"] for d in r["data"]] == list(ranked.index)
+    share = ranked.sum() / rest_uk.line_pence.sum()
+    assert any(f"{share * 100:.1f}%" in s["text"] for s in r["statements"])
+    # with a split comparison the excluded countries never appear as series
+    r = run("uci", spec(countries=["Germany", "France"], split_by_country=True, exclude_countries=["United Kingdom"]))
+    assert {d["series"] for d in r["data"]} == {"Germany", "France"}
+    # an app country filter that the chart excludes leaves no data and says so
+    r = run("uci", spec(exclude_countries=["France"]), filters={"country": "France"})
+    assert all(d["value"] == 0 for d in r["data"]) and any("excluded" in w for w in r["warnings"])
+
+
+def test_llm_plan_exclusions():
+    ok = FakeChat(json.dumps({**default_spec(), "exclude_countries": ["United Kingdom"]}))
+    r = llm_plan("İngiltere hariç", None, UCI, model=ok)
+    assert r["status"] == "planned" and r["spec"]["exclude_countries"] == ["United Kingdom"]
+    assert [c["field"] for c in r["changes"]] == ["exclude_countries"]
+    assert '"exclude_countries":[...]' in ok.calls[0][0].content and "İngiltere hariç" in ok.calls[0][0].content
+    bad = FakeChat(json.dumps({**default_spec(), "exclude_countries": ["Atlantis"]}))
+    assert llm_plan("Atlantis hariç", None, UCI, model=bad)["status"] == "invalid_plan"
+    bad = FakeChat(json.dumps({**default_spec(), "exclude_countries": "United Kingdom"}))
+    assert llm_plan("UK hariç", None, UCI, model=bad)["status"] == "invalid_plan"
+    # the original 12-key shape (without the additive key) is still a valid plan
+    legacy = FakeChat(json.dumps({k: v for k, v in {**default_spec(), "metric": "orders"}.items()
+                                  if k != "exclude_countries"}))
+    assert llm_plan("sipariş", None, UCI, model=legacy)["status"] == "planned"
+    # a conflicting plan is resolved against the base: re-including an excluded country wins
+    both = FakeChat(json.dumps({**default_spec(), "countries": ["France"], "exclude_countries": ["France"]}))
+    r = llm_plan("Fransa", spec(exclude_countries=["France"]), UCI, model=both)
+    assert r["status"] == "planned" and (r["spec"]["countries"], r["spec"]["exclude_countries"]) == (["France"], [])
+    assert r["warnings"]
+
+
+# ---------------------------------------------------------------------------- statement evidence keys
+
+EVIDENCE_SPECS = [
+    spec(),
+    spec(statistic="trend"),
+    spec(statistic="control_band", metric="orders"),
+    spec(statistic="moving_average", window=3),
+    spec(metric="aov", statistic="ci95"),
+    spec(metric="aov", statistic="ci95", dimension="week", countries=["Norway"]),
+    spec(countries=["Germany", "France"], split_by_country=True, statistic="moving_average", window=2),
+    spec(countries=["Germany", "France"], split_by_country=True, metric="orders"),
+    spec(dimension="country", chart="bar", top_n=5),
+    spec(dimension="product", chart="bar", metric="orders", top_n=5),
+    spec(dimension="weekday", chart="bar"),
+    spec(metric="aov", dimension="country", chart="bar", statistic="ci95", exclude_countries=["United Kingdom"]),
+]
+
+
+@pytest.mark.parametrize("chart_spec", EVIDENCE_SPECS)
+def test_every_statement_has_evidence_linked_to_facts(chart_spec):
+    r = run("uci", chart_spec)
+    series = {d["series"] for d in r["data"]}
+    allowed = {"trend", "ci", "band", "ma", "partial", "share", "metric"} | {f"values:{s}" for s in series | {"all"}}
+    facts = [set(s["evidence"]) for s in r["statements"] if s["type"] == "fact"]
+    for statement in r["statements"]:
+        assert set(statement) == {"type", "text", "evidence"}
+        assert statement["evidence"] and set(statement["evidence"]) <= allowed, statement
+        if statement["type"] == "calculation" and facts:
+            assert any(set(statement["evidence"]) & fact for fact in facts), statement
+
+
+def test_empty_scope_statement_has_evidence():
+    r = run("uci", spec(exclude_countries=["France"]), filters={"country": "France"})
+    assert r["statements"][0] == {"type": "fact", "text": "No sales rows in this scope.", "evidence": ["values:all"]}
+
+
+def test_evidence_keys_per_statement_kind():
+    def keyed(r):
+        return [(s["type"], s["evidence"]) for s in r["statements"]]
+
+    r = run("uci", spec(statistic="trend"))
+    assert keyed(r) == [
+        ("fact", ["values:all"]), ("calculation", ["values:all"]), ("calculation", ["values:all", "trend"]),
+        ("limitation", ["trend"]), ("limitation", ["values:all", "partial"]), ("limitation", ["metric"]),
+    ]
+    r = run("uci", spec(metric="aov", statistic="ci95"))
+    assert ("calculation", ["values:all", "ci"]) in keyed(r) and ("limitation", ["ci"]) in keyed(r)
+    r = run("uci", spec(statistic="control_band", metric="orders"))
+    assert ("calculation", ["values:all", "band"]) in keyed(r)
+    r = run("uci", spec(countries=["Germany", "France"], split_by_country=True, statistic="moving_average", window=2))
+    assert ("calculation", ["values:Germany", "ma"]) in keyed(r) and ("calculation", ["values:France", "ma"]) in keyed(r)
+    assert ("limitation", ["values:Germany", "values:France", "partial"]) in keyed(r)
+    r = run("uci", spec(dimension="country", chart="bar", top_n=5))
+    assert ("calculation", ["values:all", "share"]) in keyed(r)
+    # evidence never changes the type or text of a statement
+    plain = run("uci", spec(statistic="trend"), locale="tr")
+    assert [s["text"] for s in plain["statements"]][0].startswith("Tam dönemler içinde en yüksek brüt satış")

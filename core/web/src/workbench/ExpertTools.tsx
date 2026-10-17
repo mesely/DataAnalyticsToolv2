@@ -272,8 +272,8 @@ export function ExpertTools({
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={t(
-                    "brüt satış, sipariş, country…",
-                    "gross sales, orders, country…",
+                    "ör. brüt satış",
+                    "e.g. gross sales",
                   )}
                 />
                 <button

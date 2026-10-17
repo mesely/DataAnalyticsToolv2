@@ -5250,6 +5250,77 @@
   cursor: not-allowed;
 }
 
+/* Mascot (AW-16): one character in four poses, transparent PNGs at 2x. Decorative: alt="", never a target. */
+.wb .wb-mascot {
+  display: block;
+  flex: none;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+/* Sidebar brand: the mascot hangs from the top edge of the sidebar, paws on the edge, beside the wordmark. */
+.wb .wb-brandmark.is-hanging {
+  width: 88px;
+  height: 88px;
+  margin: -28px -12px 0 -16px;
+  align-self: flex-start;
+  /* a faint periwinkle glow keeps the navy hoodie apart from the navy sidebar */
+  background: radial-gradient(closest-side at 50% 60%, rgb(125 145 238 / 0.24), transparent);
+  border-radius: 0;
+  overflow: visible;
+}
+.wb .wb-brandmark.is-hanging .wb-mascot {
+  width: 88px;
+  height: 88px;
+  transform-origin: 50% 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .wb .wb-brand:hover .wb-mascot-hanging {
+    animation: wb-mascot-sway 1.6s ease-in-out;
+  }
+}
+@keyframes wb-mascot-sway {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(5deg);
+  }
+  65% {
+    transform: rotate(-4deg);
+  }
+}
+.wb .wb-model-entry-art.wb-mascot {
+  border-radius: 0;
+  object-fit: contain;
+}
+.wb .wb-empty-art.wb-mascot {
+  border-radius: 0;
+  margin: 0 auto 12px;
+}
+.wb .wb-help-mascot {
+  margin: 0 auto 8px;
+}
+
+/* Final pass (AW-16): when a label wraps on a narrow screen its icon stays on the first line, and blocks inside
+   cards follow the card inset so their edge lines up with the panel heading. */
+.wb .wb-panel-footer span,
+.wb .wb-evidence-links button {
+  align-items: flex-start;
+  line-height: 24px;
+}
+.wb .wb-panel-footer span svg,
+.wb .wb-evidence-links button svg {
+  flex: none;
+  margin-top: 4px;
+}
+.wb .wb-quality,
+.wb .wb-empty {
+  padding-left: var(--inset);
+  padding-right: var(--inset);
+}
+
 /* >>> generated: light text contrast (tools/design/contrast_tones.py) */
 .wb[data-theme="light"] {
   --tone-338763: #307e5c;

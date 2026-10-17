@@ -39,7 +39,9 @@ def darken(h, target=4.6):
 def render(css):
     """Return workbench.css with the generated block (re)computed; render(render(x)) == render(x)."""
     if BEGIN in css:
-        css = css[:css.index(BEGIN)].rstrip() + "\n"
+        # Rules appended after the generated block are kept (moved above it), never dropped.
+        after = css[css.index(END) + len(END):] if END in css else ""
+        css = css[:css.index(BEGIN)].rstrip() + "\n" + (("\n" + after.strip() + "\n") if after.strip() else "")
     base = css.split('.wb[data-theme="dark"] {')[0]
     light = dict(re.findall(r"--tone-([0-9a-f]{6}):\s*#([0-9a-f]{6});", base))
     uses, nav = {}, set()

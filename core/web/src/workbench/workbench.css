@@ -5795,6 +5795,23 @@
   max-height: 640px;
 }
 
+/* v3 G7: country-group charts — share next to each bar, the membership table under the chart data. */
+.wb .wb-bar-share {
+  fill: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+.wb .wb-group-members {
+  margin-top: 16px;
+}
+.wb .wb-group-members caption {
+  caption-side: top;
+  text-align: left;
+  padding: 8px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 /* >>> generated: light text contrast (tools/design/contrast_tones.py) */
 .wb[data-theme="light"] {
   --tone-338763: #307e5c;

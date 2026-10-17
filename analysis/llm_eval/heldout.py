@@ -149,3 +149,23 @@ def studio_cases():
     return [{"id": "s-" + c["id"], "text": c["prompt"], "expect": "chart"} for c in CHART_CASES] + [
         {"id": "s-" + i, "text": q, "expect": "decision"} for i, _, q, _, _ in QUESTION_CASES
     ]
+
+
+# v3.1 (18 Oct 2026, written with the country_group capability, AW-19): requests that need a reference group. They
+# are a separate set — the local planner gained group parsing in the same change — and are reported on their own.
+BASE_NATO = {"dimension": "country_group", "group": "nato", "group_as_of": "period_end", "chart": "bar", "sort": "value_desc"}
+GROUP_CASES = [
+    {"id": "g01", "prompt": "ülkeleri nato ülkeleri veya nato dışı diye sınıflandırıp satışlarımızı incele % kaçı nato ülkeleri % kaçı dışında onu bir grafik yap",
+     "expect": {"dimension": "country_group", "group": "nato", "group_as_of": "period_end"}},
+    {"id": "g02", "prompt": "NATO üyesi olan ve olmayan ülkelerin sipariş payı", "expect": {"dimension": "country_group", "group": "nato", "metric": "orders"}},
+    {"id": "g03", "prompt": "share of sales from NATO members, using today's membership", "expect": {"dimension": "country_group", "group": "nato", "group_as_of": "today"}},
+    {"id": "g04", "prompt": "AB içi ve AB dışı satış", "expect": {"dimension": "country_group", "group": "eu"}},
+    {"id": "g05", "prompt": "EU vs non-EU revenue", "expect": {"dimension": "country_group", "group": "eu"}},
+    {"id": "g06", "prompt": "euro bölgesindeki müşterilerden gelen ciro payı", "expect": {"dimension": "country_group", "group": "eurozone"}},
+    {"id": "g07", "prompt": "how much comes from the euro area", "expect": {"dimension": "country_group", "group": "eurozone"}},
+    {"id": "g08", "prompt": "G7 ülkeleri ve diğerleri", "expect": {"dimension": "country_group", "group": "g7"}},
+    {"id": "g09", "prompt": "OECD members versus others, units sold", "expect": {"dimension": "country_group", "group": "oecd", "metric": "units"}},
+    {"id": "g10", "prompt": "kıtalara göre satış dağılımı", "expect": {"dimension": "country_group", "group": "continent"}},
+    {"id": "g11", "prompt": "bugünkü üyeliğe göre göster", "base": BASE_NATO, "expect": {"group": "nato", "group_as_of": "today"}},
+    {"id": "g12", "prompt": "AB'ye göre yap", "base": BASE_NATO, "expect": {"dimension": "country_group", "group": "eu"}},
+]

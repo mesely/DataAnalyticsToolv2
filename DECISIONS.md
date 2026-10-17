@@ -7941,3 +7941,29 @@ where the model does, use the model."
   - The API no longer forwards `use_llm`, so a client cannot force a provider call past the policy or the budget.
 - **Consequence.** Questions and the ask box send their text to the provider by default when one is configured.
   Data rows and amounts never leave; the badge says what was sent.
+
+## AW-19 — Reference knowledge and country groups in Chart Studio
+
+18 Oct 2026, v3 customer walkthrough (G7, G9): "classify the countries as NATO or not and chart the share"
+failed, because the planner had no grouping and no outside knowledge.
+
+- **Reference tables, not model memory.** `analysis/reference/` holds versioned tables with a source, a version and
+  a SHA-256; `reference.catalog()` lists them as cards (id, label, source) — the only outside knowledge a planner
+  may name. The first table, `country_groups.json`, is authored from the organisations' public member lists
+  (NATO, EU, euro area, G7, OECD with accession/exit dates; continents) and maps every dataset country name
+  ("EIRE", "RSA", ...). Region labels and territories ("European Community", "Unspecified", "West Indies",
+  "Channel Islands", "Bermuda") are **unmatched**, never guessed, and listed on screen.
+- **ChartSpec (additive).** Dimension `country_group` with `group` (nato | eu | eurozone | g7 | oecd | continent) and
+  `group_as_of` (`period_end`, the default, or `today`). The keys exist only on such a chart, so every earlier spec,
+  digest and export is unchanged. Membership is bound as a parameterised VALUES table; each bucket carries its
+  share; the Data tab lists every country with its bucket, amount and note.
+- **Membership date matters.** With the data period (to 2011-12-09) Sweden and Finland are outside NATO (NATO
+  93.6 % of gross sales); with today's membership NATO is 94.2 %. The screen states the date and the rule.
+- **Code export.** The bundle writes the membership as literals, fixed at export time, and its `--check`
+  reproduces the workspace.
+- **Product views, consistently.** A Chart Studio product breakdown and the exported product ranking and
+  co-purchase candidates leave service lines out unless included (AW-18 follow-up of v3 G5).
+- **Measured.** Group requests are a separate set (`GROUP_CASES`, llm-eval-v3.1, 12 cases): local 12/12, not
+  independent (written with the capability); the model row is pending Groq's daily quota.
+- **Not yet.** Currency, inflation and gold series (G9) need downloaded data; sources and licences are an open
+  question for the user (plan, open question 3).

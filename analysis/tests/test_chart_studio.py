@@ -108,7 +108,9 @@ def test_validate_spec_coercions_and_warnings():
     assert validate_spec({"chart": "bar", "sort": "value_desc"}, UCI)["sort"] == "value_desc"
     assert validate_spec({}, UCI) == default_spec()
     assert validate_spec({"countries": ["France", "France"]}, UCI)["countries"] == ["France"]
-    assert list(validate_spec({}, UCI)) == list(SPEC_KEYS)
+    # group/group_as_of exist only on a country_group chart (AW-19); every other spec has the v1 keys in order.
+    assert list(validate_spec({}, UCI)) == [k for k in SPEC_KEYS if k not in ("group", "group_as_of")]
+    assert list(validate_spec({"dimension": "country_group"}, UCI)) == list(SPEC_KEYS)
 
 
 # ------------------------------------------------------------------------------------------ planner

@@ -140,8 +140,11 @@ export interface SavedRun {
 export interface ChartSpec {
   version: 1;
   metric: "gross_sales" | "orders" | "units" | "aov";
-  dimension: "month" | "week" | "weekday" | "country" | "product";
+  dimension: "month" | "week" | "weekday" | "country" | "product" | "country_group";
   chart: "line" | "area" | "bar";
+  /** v3 AW-19 (additive): reference group and membership date of a country_group chart. */
+  group?: "nato" | "eu" | "eurozone" | "g7" | "oecd" | "continent";
+  group_as_of?: "period_end" | "today";
   start?: string | null;
   end?: string | null;
   countries: string[];
@@ -161,6 +164,8 @@ export interface ChartPoint {
   upper?: number | null;
   n?: number | null;
   partial?: boolean;
+  /** country_group charts: the bucket's part of the scope (0–1). */
+  share?: number | null;
 }
 export interface ChartResult {
   spec: ChartSpec;
@@ -186,6 +191,15 @@ export interface ChartResult {
   params: unknown[];
   warnings: string[];
   output_sha256: string;
+  /** country_group charts: which country fell in which bucket, at which date, from which reference table. */
+  groups?: {
+    group: string;
+    label: string;
+    as_of: string;
+    as_of_rule: "period_end" | "today";
+    card: { source: string; version: string; sha256: string };
+    countries: { country: string; display: string; bucket: string; bucket_label: string; iso3: string | null; note: string | null; pence: number }[];
+  };
 }
 /** AW-16 developer code export (§1). */
 export interface CodeExportResult {

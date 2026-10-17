@@ -19,7 +19,7 @@ import datetime as dt
 import json
 import pathlib
 
-from analysis.llm_eval.heldout import CHART_CASES, question_cases, studio_cases
+from analysis.llm_eval.heldout import CHART_CASES, GROUP_CASES, question_cases, studio_cases
 
 VERSION = "llm-eval-v3.0"
 MARGIN = 0.05
@@ -27,7 +27,7 @@ RESCUE_RATE = 0.60
 RESCUE_MIN = 3
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 TABLE = ROOT / "analysis" / "llm_routing.json"
-TASKS = ("chart_plan", "question_route", "studio_route")
+TASKS = ("chart_plan", "question_route", "studio_route", "chart_groups")
 
 
 def _catalog():
@@ -43,14 +43,14 @@ def _done(prior, task, provider):
     return {r["id"]: r for r in rows if r.get("raw_status") != "BLOCKED" and r.get("correct") is not None}
 
 
-def _chart(provider, prior):
+def _chart(provider, prior, task="chart_plan", cases=CHART_CASES):
     from analysis.llm_eval.chart import run_chart
 
-    keep = _done(prior, "chart_plan", provider)
-    todo = [c for c in CHART_CASES if c["id"] not in keep]
+    keep = _done(prior, task, provider)
+    todo = [c for c in cases if c["id"] not in keep]
     records, blocked = run_chart(provider, _catalog(), cases=todo) if todo else ([], None)
     by = {**keep, **{r["id"]: r for r in records}}
-    return [by[c["id"]] for c in CHART_CASES if c["id"] in by], blocked
+    return [by[c["id"]] for c in cases if c["id"] in by], blocked
 
 
 def _questions(provider, prior):
@@ -98,7 +98,9 @@ def _studios(provider, prior):
     return records, blocked
 
 
-RUNNERS = {"chart_plan": _chart, "question_route": _questions, "studio_route": _studios}
+RUNNERS = {"chart_plan": _chart, "question_route": _questions, "studio_route": _studios,
+           # Reported on its own (v3.1); it does not change the chart_plan row of the table.
+           "chart_groups": lambda p, prior: _chart(p, prior, "chart_groups", GROUP_CASES)}
 
 
 def summarize(records):
@@ -148,6 +150,8 @@ def table(receipts):
     model = None
     for r in receipts:
         for task, rows in r["tasks"].items():
+            if task not in ("chart_plan", "question_route", "studio_route"):
+                continue
             tasks[task] = decide(task, rows["local"], rows["live"])
             tasks[task]["receipt"] = r["_path"]
             tasks[task]["measured_at"] = r["generated_at"]

@@ -13,6 +13,7 @@ import {
   Cell,
   ComposedChart,
   ErrorBar,
+  LabelList,
   Legend,
   Line,
   ReferenceArea,
@@ -141,6 +142,9 @@ export function ChartStudio({
         }
         row.n = d.n;
         row.partial = d.partial;
+        // A country_group bar carries its share ("NATO 93,6 %") next to the bar.
+        if (d.share != null)
+          row.shareLabel = new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-GB", { style: "percent", maximumFractionDigits: 1 }).format(d.share);
       }
       byX.set(d.x, row);
     });
@@ -154,7 +158,7 @@ export function ChartStudio({
       if (row) row.trend = p.value;
     });
     return [...byX.values()];
-  }, [current]);
+  }, [current, locale]);
 
   const unit = current?.unit ?? "GBP";
   const control = current?.overlays.control;
@@ -172,6 +176,8 @@ export function ChartStudio({
       statistic: t("İstatistik", "Statistic"),
       window: t("Pencere", "Window"),
       sort: t("Sıralama", "Sort"),
+      group: t("Grup", "Group"),
+      group_as_of: t("Üyelik tarihi", "Membership date"),
     })[k] ?? k;
   const VALUE_LABELS: Record<string, [string, string]> = {
     gross_sales: ["brüt satış", "gross sales"],
@@ -183,6 +189,15 @@ export function ChartStudio({
     weekday: ["haftanın günü", "weekday"],
     country: ["ülke", "country"],
     product: ["ürün", "product"],
+    country_group: ["ülke grubu", "country group"],
+    nato: ["NATO", "NATO"],
+    eu: ["AB", "EU"],
+    eurozone: ["Euro bölgesi", "euro area"],
+    g7: ["G7", "G7"],
+    oecd: ["OECD", "OECD"],
+    continent: ["kıta", "continent"],
+    period_end: ["dönem sonu", "period end"],
+    today: ["bugün", "today"],
     line: ["çizgi", "line"],
     area: ["alan", "area"],
     bar: ["çubuk", "bar"],
@@ -318,7 +333,7 @@ export function ChartStudio({
                   <ComposedChart
                     data={rows}
                     layout={isTime ? "horizontal" : "vertical"}
-                    margin={{ top: 12, right: 24, bottom: 8, left: 8 }}
+                    margin={{ top: 12, right: rows.some((r) => r.shareLabel) ? 64 : 24, bottom: 8, left: 8 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={!isTime} horizontal={isTime} />
                     {isTime ? (
@@ -365,6 +380,7 @@ export function ChartStudio({
                       ])
                     ) : spec.chart === "bar" ? (
                       <Bar dataKey="value" name={current.title} fill={SERIES[0]} radius={isTime ? [6, 6, 0, 0] : [0, 6, 6, 0]} maxBarSize={36}>
+                        {rows.some((r) => r.shareLabel) && <LabelList dataKey="shareLabel" position="right" className="wb-bar-share" />}
                         {rows.map((r, i) => (
                           <Cell key={i} fillOpacity={r.partial ? 0.45 : 1} />
                         ))}
@@ -425,6 +441,7 @@ export function ChartStudio({
                     <th>{fieldLabel("dimension")}</th>
                     {seriesNames.length > 0 && <th>{t("Seri", "Series")}</th>}
                     <th>{t("Değer", "Value")}</th>
+                    {current.data.some((d) => d.share != null) && <th>{t("Pay", "Share")}</th>}
                     {spec.statistic === "ci95" && <th>%95 GA</th>}
                     {spec.statistic === "ci95" && <th>n</th>}
                   </tr>
@@ -438,6 +455,9 @@ export function ChartStudio({
                       </td>
                       {seriesNames.length > 0 && <td>{d.series}</td>}
                       <td className="num">{fmt(unit, d.value)}</td>
+                      {current.data.some((x) => x.share != null) && (
+                        <td className="num">{d.share != null ? new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-GB", { style: "percent", maximumFractionDigits: 1 }).format(d.share) : "—"}</td>
+                      )}
                       {spec.statistic === "ci95" && (
                         <td className="num">{d.lower != null && d.upper != null ? `${fmt(unit, d.lower)} – ${fmt(unit, d.upper)}` : "—"}</td>
                       )}
@@ -446,6 +466,34 @@ export function ChartStudio({
                   ))}
                 </tbody>
               </table>
+              {current.groups && (
+                <table className="wb-group-members">
+                  <caption>
+                    {t(
+                      `${current.groups.label} üyeliği · ${current.groups.as_of} (${current.groups.as_of_rule === "today" ? "bugün" : "dönem sonu"}) · referans ${current.groups.card.version}`,
+                      `${current.groups.label} membership · ${current.groups.as_of} (${current.groups.as_of_rule === "today" ? "today" : "period end"}) · reference ${current.groups.card.version}`,
+                    )}
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th>{t("Ülke", "Country")}</th>
+                      <th>{t("Grup", "Group")}</th>
+                      <th>{t("Brüt satış", "Gross sales")}</th>
+                      <th>{t("Not", "Note")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {current.groups.countries.map((g) => (
+                      <tr key={g.country}>
+                        <td>{g.display}</td>
+                        <td>{g.bucket_label}</td>
+                        <td className="num">{fmt("GBP", g.pence / 100)}</td>
+                        <td>{g.note ?? ""}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
           {view === "sql" && (

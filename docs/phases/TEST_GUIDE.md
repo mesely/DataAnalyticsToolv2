@@ -39,7 +39,7 @@ UCI Online Retail, Daqing Chen, DOI 10.24432/C5BW33, CC BY 4.0: https://archive.
 
 ## Aşama 2 — uzman araçlarını test etme
 
-1. Demo / tüm ülkeler. Analiz asistanı → **Uzman araçları** → Ülke satışları → Sorguyu çalıştır. Germany 7502.9, France 7031.1, United Kingdom 6871 GBP; her biri 60 sipariş. Kolon sırası SQL ile aynı olmalı.
+1. Demo / tüm ülkeler. Analiz asistanı → **Uzman araçları** (ayrı diyalog açılır; ⌘K → "Uzman SQL laboratuvarı" da açar) → Ülke satışları → Sorguyu çalıştır. Germany 7502.9, France 7031.1, United Kingdom 6871 GBP; her biri 60 sipariş. Kolon sırası SQL ile aynı olmalı.
 2. France filtresini uygulayıp aynı SQL'i çalıştırın: yalnız France / 7031.1 / 60. Ekran filtreleri SQL view'una da uygulanır. 2030 tarih aralığında boş sonuç, export'ta yine kolon başlıkları.
 3. Aylık trend ve Ürünler örneklerini deneyin. `COUNT(*)` 540 ürün satırı, `COUNT(DISTINCT invoice)` 180 sipariş. Distinct sipariş sayısı ürün grupları arasında her zaman toplamsal değildir.
 4. `DROP TABLE transactions`, `SELECT customer_id FROM transactions`, `SELECT * FROM read_csv_auto('/etc/passwd')` reddedilir. Join, recursive CTE ve dış erişim bu yerel laboratuvarda kapalıdır.
@@ -50,7 +50,7 @@ UCI Online Retail, Daqing Chen, DOI 10.24432/C5BW33, CC BY 4.0: https://archive.
 
 ## Aşama 3 — dönem ve ağ analizi
 
-1. Demo → İlişki ağı → **Zaman içindeki değişim**. Odak ay 2025-02, pencere 1, ortak sipariş eşiği 2. Dönemleri karşılaştır.
+1. Demo → İlişki ağı → **Zaman içindeki değişim** (ayrı diyalog). Odak ay 2025-02, pencere 1, ortak sipariş eşiği 2. Dönemleri karşılaştır.
 2. Ocak £7.054,30 / Şubat £7.295,60 / Mart £7.055,10; her dönem 60 sipariş. Mart 27/31 takvim günüyle kısmi tarih kapsamı göstermeli. Bu, ara günlerin eksiksiz kaydedildiğini kanıtlamaz.
 3. Aynı 8 ürün üzerinde önce 26 / odak 27 / sonra 26 kenar; önce/sonra Jaccard yaklaşık %85,71; 2 yeni ve 2 kaybolan ilişki. Tablo en büyük 15 ağırlık değişimini listeler.
 4. AOV yanında %95 betimleyici invoice bootstrap aralığı var: seed 47/200 tekrar. Bu iid varsayımı müşteri veya zaman bağımlılığını kapsamaz; tahmin/etki testi değildir. 20'den az veya 50.000'den fazla siparişte aralık hesaplanmaz, açık neden gösterilir.
@@ -235,3 +235,21 @@ Test: `analysis/tests/test_online_retail_ii.py` (son test yalnız uci2 hazırlan
 3. **Portre.** Kenar çubuğundaki portreye tıklayıp bir sektör seçin. Sayfayı yeniden yükleyince seçim korunmalı.
    Başka bir hesabın seçimi bundan bağımsız olmalı.
 4. **Dil.** TR ↔ EN geçişinde analiz yeniden çalışır; ağ notu ve cevaplar seçilen dilde gelir.
+
+## AW-16 devamı — dışlama, betikte katmanlar, dayanak ağacı, son UI geçişi (17 Ekim 2026)
+
+1. **Dışlama.** Grafik stüdyosunda "ülkelere göre brüt satış, İngiltere hariç" yazın. Plan çipinde "Hariç:
+   United Kingdom" görünmeli, grafikte UK olmamalı; SQL sekmesinde `country NOT IN (?)` ve bağlı parametre görünmeli.
+   "orders by country except United Kingdom and EIRE" iki ülkeyi birden dışlamalı. Ardından "İngiltere'yi geri ekle"
+   veya "tüm ülkeler" dışlamayı kaldırmalı.
+2. **Betikte katmanlar.** "aylık ortalama sepet, %95 güven aralığı" ve "aylık brüt satış, trend çizgisi ekle"
+   grafiklerini sırayla "Koda aktar" ile indirin. Ayrı klasörde `python analysis.py --check` aralık, trend (eğim, R²,
+   p) ve bant değerlerini de `expected.json` ile karşılaştırmalı; `figures/` altındaki SVG'de katman çizilmiş olmalı.
+3. **Dayanak ağacı.** Karar stüdyosu → Karar özeti oluştur. İfadeler tür başına numaralı olmalı (O1, H1, Ç1, Ö1, S1);
+   hesaplar dayandıkları olgunun altında, sınırlar niteledikleri adımın altında durmalı. Bir ifadenin üzerine
+   gelince zinciri dışındaki ifadeler soluklaşmalı. Grafik stüdyosu yorumu aynı ağaçla gösterilir.
+4. **Portreler.** Profil görseli diyaloğunda 10 seçenek (beş sütun, iki satır) ve tek kelimelik adlar görünmeli.
+5. **Odaklı diyaloglar.** Analiz asistanı → Uzman araçları ve İlişki ağı → Zaman içindeki değişim artık ayrı
+   diyalogda açılır. Metrik tanımları, "Kanıtı incele" diyaloğunda SQL'in altında ve ⌘K → "Metrik sözlüğü"nde.
+6. **Oturum bitti ekranı.** Oturum düşünce sayfa Türkçe (tarayıcı İngilizceyse İngilizce) "Giriş yap" düğmesi
+   gösterir; sunucunun hata kodu "Teknik ayrıntı" altında.

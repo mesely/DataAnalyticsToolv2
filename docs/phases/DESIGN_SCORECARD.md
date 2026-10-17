@@ -121,3 +121,73 @@ birlikte alt puanları döndürür.
 
 Puanlar DOM sezgileridir. Gerçek kullanıcıyla görev süresi/hata çalışması, ekran okuyucu matrisi ve tam WCAG
 denetimi yapılmadı. Glyph'ler kullanıcının yönlendirmesiyle Gemini'de üretildi; marka/tescil taraması değildir.
+
+## AW-16 son geçiş — her ekran, her diyalog (17 Ekim 2026)
+
+Kapsam: 19 farklı ekran ve diyalog. Altı ana ekran (Genel bakış, Analiz asistanı, İlişki ağı, Bulgularım,
+Yönetim araçları, Kullanım rehberi) ve 13 diyalog/görünüm:
+
+- SQL laboratuvarı
+- metrik sözlüğü
+- zaman içindeki değişim
+- analizleri karşılaştır
+- kanıt
+- veri hazırlama
+- model stüdyosu
+- oluşturulmuş bir karar özeti
+- Grafik stüdyosu
+- kod dışa aktarma
+- veri kalitesi
+- yardım
+- profil portresi
+
+Her sahne 1440×900, 1024×768, 768×1024 ve 390×844'te, koyu ve açık temada ölçüldü: toplam **160 ölçüm**. Metrik sözlüğü taramada iki adla (metrics, glossary) iki kez ölçüldü; bu yüzden 19 × 8 = 152 değil 160. Araçlar
+headless Chrome üzerinden sayfada çalıştı, geçişler donduruldu. Ham kayıt:
+`docs/evidence/verification/phase12-aw16-design-sweep.json`.
+
+| Ölçüt | Formül (özet) | En düşük puan (160 ölçüm) |
+|---|---|---:|
+| Fitts (hedef boyutu) | %60·≥44px + %40·≥24px | 100 |
+| Metin kontrastı (WCAG 1.4.3) | eşiği geçen metin oranı | 100 |
+| Simge kontrastı (WCAG 1.4.11) | ≥3:1 simge oranı | 100 |
+| Boşluk ritmi | 4px ızgarasındaki boşluk oranı | 100 |
+| Tip ölçeği | 100 − 8·max(0, boyut − 6) | 100 |
+| Hizalama | 100 − 15·(kart içerik hattı − 1) | 100 |
+| Hick–Hyman (etkin bölge) | 100 − 12·max(0, log2(n+1) − 4) | 100 |
+| Simge özgünlüğü | hazır paket dışı simge oranı | 100 |
+| Layout lint bulgusu | taşma, kırpma, simge hizası, yakın kaçan kenar, dar kontrol, yatay kaydırma | 0 |
+
+Etkin bölgede en çok 15 komut var (log2(16) = 4 bit, puan 100). AW-15'te Hick–Hyman 98–100 aralığındaydı.
+
+**Ölçüm aracı düzeltildi.** Açık bir modal diyalog arkasındaki sayfayı etkisiz kılar. Eski denetim bu durumda
+diyaloğu değil arkadaki sayfayı ölçüyordu; artık açık modal varsa onu ölçüyor. Lint'in simge kontrolü de etiketi
+kendi içinde taşıyan bir span'deki simgeyi yandaki form alanıyla eşleştiriyordu (yanlış pozitif); bu düzeltildi.
+
+**Bulunup düzeltilen kusurlar:**
+
+1. *Fazla seçenek.*
+   - SQL laboratuvarı ve "zaman içindeki değişim" sayfa içinde açılıyor ve ana bölgeyi 23 ve 18 komuta
+     çıkarıyordu. İkisi de kendi odaklı diyaloğuna taşındı.
+   - Metrik sözlüğü düğmesi kanıt diyaloğuna (SQL'in yanına) taşındı.
+   - Genel bakışta tek, asistan ekranında iki örnek soru kaldı.
+2. *Hizalama.*
+   - 768 ve 390 px'te sarılan alt bilgi ve kanıt etiketlerinde simge ikinci satırın ortasına düşüyordu; artık
+     ilk satırda.
+   - Kalite ve boş durum blokları kart kenarından 8 px içerideydi; artık kart iç boşluğunu izliyor.
+3. *Dar kontrol.* Bağlam arama alanının örnek metni 390 px'te sığmıyordu; kısaltıldı.
+4. *Görsel ritim.*
+   - Tahmin tanılama listesi tablo kenarından 4 px kaymıştı; madde imi kaldırıldı.
+   - "Kullanılabilir kolonlar" etiketi okundan uzağa, sağa yaslanmıştı; sola alındı.
+5. *Araç hatası.*
+   - `contrast_tones.py` kendi üretilmiş bloğundan sonra yazılan CSS kurallarını siliyordu; maskot stilleri bu
+     yüzden bir ara kayboldu.
+   - Araç artık bu kuralları koruyor; idempotent kalması test edildi.
+6. *Dil.* Sayfanın `lang` özniteliği arayüz Türkçeyken de "en" kalıyordu. Ekran okuyucular yanlış dilde
+   okuyordu; artık arayüz diliyle değişiyor.
+
+**Maskot yerleşimi puanları bozmadı.** Dört poz da dekoratif (`alt=""`, `pointer-events: none`). Kontrol veya
+odak noktası eklemiyor ve 2× çözünürlükte sunuluyor (lint'in büyütme kontrolü temiz). Kenar çubuğundaki asılı
+maskot, kartların iç hattına girmediği için hizalama ölçütünü etkilemiyor.
+
+Bilinen bir tarayıcı sınırı kaldı: yerel tarih ve ay alanları (`gg.aa.yyyy`, "Haziran 2011") işletim sisteminin
+dilini izliyor; sayfanın diline bakmıyor. İngilizce ekran görüntülerinde bu yüzden Türkçe görünüyorlar.

@@ -1,6 +1,38 @@
 # Context Layer / Analytics — tek giriş ve devir rehberi
 
-## ŞİMDİ OKU — AW-16: kod dışa aktarma, Grafik stüdyosu, analist portreleri, tanıtım README (17 Ekim 2026)
+## ŞİMDİ OKU — AW-16 devamı: dışlama, betikte katmanlar, dayanak ağacı, maskot, son UI geçişi (17 Ekim 2026)
+
+- **Dışlama** ("İngiltere hariç", "except UK and EIRE"): ChartSpec'e eklemeli anahtar `exclude_countries` geldi
+  (spec A1). Planlayıcı Türkçe ve İngilizce anlıyor; geri ekleme dışlamayı kaldırıyor. SQL'de `NOT IN (?)`.
+- **Betikte katmanlar:** dışa aktarılan grafik aralık, trend, bant ve hareketli ortalamayı yeniden hesaplıyor
+  (`stats.py`, bağımlılıksız Student-t). `--check` bunları da karşılaştırıyor (spec A3).
+- **Güvenlik düzeltmesi:** dışa aktarılan Python'a gömülen SQL artık kaçışlı. Yüklenen veriden gelen ülke adı
+  `"""` veya ters bölü içerse de literali kapatamıyor; bunu bir test doğruluyor.
+- **Dayanak ağacı** (`Reasoning.tsx`): ifadeler tür başına numaralı (O1, H1, Ç1…) ve kanıt paylaşımına göre iç içe.
+  Seçim beş seçeneğin puanlanmasıyla yapıldı (UX_DECISIONS).
+- **Portreler ve maskot:**
+  - 10 portre var: iki insan analist dahil ve tek kelimelik adlarla.
+  - Maskot dört pozda (asılı, tablet, el sallama, büyüteç), aynı Gemini konuşmasında üretildi.
+  - Kullanıldığı yerler: kenar çubuğu markası, giriş sayfası, oturum bitti ekranı, rehber, Grafik stüdyosu, boş
+    durumlar.
+- **Son UI geçişi:**
+  - SQL laboratuvarı ve zaman değişimi ayrı diyaloglarda açılıyor.
+  - Metrik tanımları Kanıt diyaloğunda.
+  - Ana bölge ve diyaloglarda en çok 15 komut var.
+  - Denetim: 19 ekran/diyalog × 4 genişlik × 2 tema (160 ölçüm, hepsi 100, lint bulgusu 0) (`docs/evidence/verification/phase12-aw16-design-sweep.json`).
+- **Llama:**
+  - Kendi barındırılan OpenAI uyumlu uç nokta desteği eklendi (`python -m analysis.llm_setup --endpoint …`;
+    llama.cpp, Ollama, vLLM).
+  - Hugging Face 402 döndürüyor (kredi yok).
+  - Drive'daki model bu makinede çalıştırılamadı: 8 GB RAM, 2,4 GB boş disk. Canlı doğruluk ölçülmedi.
+- **README:** baştan yazıldı. Sade anlatım, 20 aşamalı uçtan uca teknik tablo, tekrar üretim adımları, 18 ekran
+  görüntüsü ve GIF.
+- **Açık:**
+  - Canlı Llama ölçümü (erişilebilir bir sunucu gerekiyor).
+  - Kullanıcı görev testi.
+  - Docker gerektiren core testleri yalnız CI'da koşuyor.
+
+## ÖNCEKİ — AW-16: kod dışa aktarma, Grafik stüdyosu, analist portreleri, tanıtım README (17 Ekim 2026)
 
 - **Kod dışa aktarma** (`analysis/code_export.py`, `POST /export/code`, `CodeExport.tsx`). Dışa aktar menüsü, komut paleti ve Grafik stüdyosundaki "Koda aktar" bu diyaloğu açar.
   - Paket içeriği: README, yorumlu `analysis.py` (tek bağımlılık duckdb, `--check`), `analysis.sql` (SET VARIABLE), `charts.py`, Parquet veri, `expected.json` ve SVG figürler.

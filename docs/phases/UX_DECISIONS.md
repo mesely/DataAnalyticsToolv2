@@ -36,3 +36,38 @@ Kapsam (veri seti + filtre) tek kartta, dışa aktarma tek menüde, tip/boşluk/
 Puanlar, formüller ve sınırlar: `DESIGN_SCORECARD.md`; ham ölçüm `evidence/verification/phase12-design-audit.json`.
 Bunlar DOM sezgileridir, kullanıcı testi değildir.
 
+
+## 17 Ekim — AW-16: olgu ↔ hesap bağının gösterimi (dayanak ağacı)
+
+Sorun: karar özetindeki ve Grafik stüdyosu yorumundaki ifadeler iki sütunlu bir listede (tür | metin) duruyordu.
+Hangi hesabın hangi olguya, hangi önerinin hangi çıkarıma dayandığı yalnızca kanıt düğmelerinin metni
+karşılaştırılarak anlaşılabiliyordu; aynı türden birden fazla ifade de numarasızdı.
+
+Beş seçenek aynı ölçütlerle puanlandı (0–100, ağırlıklı toplam). Puanlar ekran taslakları ve çalışan prototip
+üzerinde verilmiş tasarım yargısıdır; kullanıcı testi değildir.
+
+| Seçenek | İzlenebilirlik (30) | Okunurluk (20) | Hick, ek kontrol yok (10) | 390px uyumu (15) | Erişilebilirlik (15) | Belirlenimcilik ve risk (10) | Toplam |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| A. Klasik tablo (tür, metin, kanıt) | 30 | 70 | 100 | 50 | 80 | 100 | 62,5 |
+| B. Numaralı düz liste, "dayanır: O1, H2" | 65 | 80 | 100 | 90 | 90 | 95 | 82,0 |
+| C. Numaralı iç içe ağaç, sınırlar ilgili adımın altında | 90 | 85 | 95 | 85 | 90 | 90 | **88,8** |
+| D. Düğüm-bağ grafiği (tuval) | 95 | 55 | 70 | 35 | 40 | 50 | 62,8 |
+| E. Katman sütunları (olgu → hesap → çıkarım → öneri) | 85 | 65 | 90 | 40 | 70 | 70 | 71,0 |
+
+Karar: **C**, B'nin "Ayrıca dayanır" satırıyla birlikte. Gerekçe:
+
+- Bağ, modelin yargısı değil veriden türetilir: bir ifade, kendisinden bir alt katmanda olup aynı kanıt kimliğini
+  paylaşan en yakın ifadelere dayanır (olgu/varsayım → hesap → çıkarım → öneri). Kanıt paylaşmayan ifade kök
+  olarak kalır; bağ tahmin edilmez.
+- Her ifade tür başına numaralanır (O1, O2, H1, Ç1, Ö1, S1; İngilizcede F, A, C, I, R, L). Birden fazla dayanağı olan
+  ifade ilkinin altında durur, diğerleri "Ayrıca dayanır: O2" satırında adıyla yazılır.
+- Sınırlar, nitelediği en derin adımın altında pirinç kenarlı bir blokta; hiçbir adımla kanıt paylaşmayanlar
+  "Tüm sonuç için sınırlar" grubunda.
+- Fareyle bir ifadenin üzerine gelindiğinde dayandığı ve ona dayanan zincir dışındaki her şey soluklaşır. Bu ek bir
+  kontrol değildir (Hick yükü yok); klavye ve ekran okuyucu için yapı iç içe `ol` listeleri ve kimlik etiketleriyle
+  zaten okunur.
+- D (grafik) en yüksek izlenebilirliği verdi ama 390px'te okunmuyor, klavye ile gezilemiyor ve düzen her
+  çalıştırmada aynı kalmıyor. E masaüstünde iyi, mobilde yatay kaydırma gerektiriyor.
+
+Uygulama: `core/web/src/workbench/Reasoning.tsx` (`buildReasoning`, `ReasoningTree`), Karar stüdyosu ve Grafik
+stüdyosu aynı bileşeni kullanır; kurallar `core/test/workbench-reasoning.test.ts` ile sabitlenir.

@@ -280,81 +280,6 @@
   "kind": "original-gemini-avatar"
  },
  {
-  "path": "docs/showcase/01-overview-dark.jpg",
-  "sha256": "52fc645698bd7a99f401cb49a021f1c6e0a70bd33737f1fac337c8655fd89c35",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/02-overview-light.jpg",
-  "sha256": "f4c91e667f4a00d5a6ae0cce52cd916093b482cc18b69744fab54fd378f9e3b0",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/03-chart-studio-compare.jpg",
-  "sha256": "d59977eaa5cc4b2e7947a3271e6f6cdd71f11b05f89b75970a2f99d6feda6942",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/04-chart-studio-interval.jpg",
-  "sha256": "915218462eae4c3ae055b666265880c629a325b35cd5d1ffb0e075623a1833ca",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/05-chart-studio-trend.jpg",
-  "sha256": "a5e3b831c9bd3755c5bf7d0cbad7043ec4f0849f8880a9e63dd51e718338ec8b",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/06-code-export-readme.jpg",
-  "sha256": "350504dace05f7cfb15d51cece4dd044936536cebe5bad171215d8e56a0b3b68",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/07-code-export-python.jpg",
-  "sha256": "1037844ed63da4547bbe5ec49a19ca2683c0c50d1cb57cdce299964f273478de",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/08-analyst-portraits.jpg",
-  "sha256": "608ca3eef17da1cbd2724ca6a923869ef60832058b099ece681a21daa6c3baf1",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/09-analysis-assistant.jpg",
-  "sha256": "8927509914b54ae9d87b21149cd7da9359142958aa5ddbc4939d4767d466fd69",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/10-network.jpg",
-  "sha256": "008c2698564f888d4a11c37e66ff95443d0ab2abbb4d5a1f5a29a3c1de7cda2f",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/11-decision-brief.jpg",
-  "sha256": "9b8f82ce4c1c13b6917027b52f6add40279bbb2225e2a30bfb07523a4524e9e6",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/12-decision-forecast.jpg",
-  "sha256": "50b03bd3930163ec368e2b11c1a9006845ae86e0635a18ab47d2d5342c0fd44c",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/13-mobile-overview.jpg",
-  "sha256": "4f40a0417f188fb1eefecf9323b9781d03938403b9133adf0fe56ddaf06acb89",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/14-mobile-chart-studio.jpg",
-  "sha256": "ab66dc8e93cce13c568f17aa9f6bffe03533c3358496a91ed1e18eb43cf43037",
-  "kind": "showcase-capture"
- },
- {
-  "path": "docs/showcase/chart-studio.gif",
-  "sha256": "9c6d5f21fddb180c105407452fd71a0cfdafcc69e400ca5c8f079fca228ead51",
-  "kind": "showcase-capture"
- },
- {
   "path": "core/web/src/workbench/assets/avatars/analyst-analyst.jpg",
   "sha256": "cd14e6f8d7e437589284d74f5a71f8a7757752f97d7918683446f445ee5e0080",
   "kind": "original-gemini-avatar"
@@ -383,5 +308,110 @@
   "path": "core/web/src/workbench/assets/mascot/mascot-searching.png",
   "sha256": "affbb6569c27a273e9d9d8dbc796c845f5401ee14f9a176fbbe574e93a68dc91",
   "kind": "image"
+ },
+ {
+  "path": "docs/showcase/01-overview-dark.jpg",
+  "sha256": "b409675624600469eb9f213c1853779b3c348a6142da857f1ecf1e4e4a38c9e2",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/02-overview-light.jpg",
+  "sha256": "94ab9ff00fa61d0ae56f85c26db569dbe09a1229e547169b6aedcf24c7beca28",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/03-chart-studio-compare.jpg",
+  "sha256": "e70973eaa7521f55a1358b2ba2d88b4f8c4354e1d21f5b99296b94995d3ec702",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/04-chart-studio-interval.jpg",
+  "sha256": "21651ef69b6d0104b2d30c1d6cc41b241ebc3b601d90a916464e56c64ceb7760",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/05-chart-studio-exclusion.jpg",
+  "sha256": "a4469d096452d4b9498c5d7809c656ba90634fac9e55d3f2d19fb80f53200283",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/06-chart-studio-trend.jpg",
+  "sha256": "bac9304fd0d74b72ecfd95d1f6bbfd9114bb1d90e65b954ce510887e94e5f632",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/07-reasoning-tree.jpg",
+  "sha256": "223940a18eff5b65dc123b2964c465b9443aa4252c2cc3d3162716f8e96f39e0",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/08-decision-forecast.jpg",
+  "sha256": "628fe9f703be048bc9b6382ddbb0df6f7c956f39390333ab219e0c5b9723ce5e",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/09-code-export-readme.jpg",
+  "sha256": "cf4dd44f362f595442418783c5c5e25d6c667c5dcc9dc6b4412fdc70366a993b",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/10-code-export-python.jpg",
+  "sha256": "a47e061417eefcd35a09d5df6b46fbdc635bd96e35c06cd0e596387116a691bd",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/11-analysis-assistant.jpg",
+  "sha256": "07d4f35e67b3046bb75500ea06fe815b9e23e39d3b8189eef28ef0a2ce85f109",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/12-network.jpg",
+  "sha256": "80a32fee712f5f9ac5b177445ebeab18b05d769b28971ce74f9f6834157febef",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/13-temporal.jpg",
+  "sha256": "b1a99e3deb38a943ed179ee76c6eeec91383cc3c7147e065783ce2f3a13a288d",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/14-sql-lab.jpg",
+  "sha256": "87e1f3861db5679a4fb7999a1b0a58b6fe8bad703d97afb2777323b669800c38",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/15-data-preparation.jpg",
+  "sha256": "c5de5341acb7219d76823262c756b08b2fbb0b75a0638871ca618169d5ba0cd2",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/16-model-studio.jpg",
+  "sha256": "1d11bddbd138eeda569e92bffc3a084b630bc84696300ca982028c12d9004e8e",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/17-mobile-overview.jpg",
+  "sha256": "38cdc35c8cedb319ae725e27a8289503abfc7c6143ef96fcf33a0938e7c0ff27",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/18-mobile-chart-studio.jpg",
+  "sha256": "45246306faa4c216494e734b76931b9a3b8ed3dd2d082dba2b7aa1656aa5895b",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/19-sign-in.jpg",
+  "sha256": "64c12aafa4ace6f4a2a7edd351f50a4bc4a38de6aafefc634bb4df315899e75f",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/20-empty-findings.jpg",
+  "sha256": "02be3d5cb16fdf17e5186d0bf7af8d5d191d954ae3f3fc5b37d565f2c6994835",
+  "kind": "screenshot"
+ },
+ {
+  "path": "docs/showcase/chart-studio.gif",
+  "sha256": "0dde85070d300a69e0489a35f2bf86b2d69fb13b750ff7a04dec4c223b9064ca",
+  "kind": "screenshot"
  }
 ]

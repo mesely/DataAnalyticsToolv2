@@ -5505,3 +5505,54 @@
 .wb .wb-back-all {
   white-space: nowrap;
 }
+
+/* v3 G5: "Why?" opens the scope and exclusions panel from the number it qualifies. */
+.wb .wb-why {
+  display: inline;
+  margin-left: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.wb .wb-scope-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+.wb .wb-scope-panel > section {
+  min-width: 0;
+}
+.wb .wb-scope-panel h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+.wb .wb-scope-panel td {
+  white-space: normal;
+  vertical-align: top;
+}
+.wb .wb-scope-panel tfoot td {
+  font-weight: 600;
+}
+.wb .wb-scope-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  font-weight: 600;
+}
+.wb .wb-scope-toggle input {
+  margin-top: 3px;
+}
+.wb .wb-scope-flag {
+  margin-top: 12px;
+}
+.wb .wb-scope-periods {
+  margin: 4px 0 8px;
+  padding-left: 18px;
+}

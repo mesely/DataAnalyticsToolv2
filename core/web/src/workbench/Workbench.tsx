@@ -73,6 +73,7 @@ import { DecisionStudio } from "./DecisionStudio";
 import { ModelStudio } from "./ModelStudio";
 import { Preparation } from "./Preparation";
 import { TemporalView } from "./TemporalView";
+import { ScopeView } from "./Scope";
 import { DEFAULT_EDGE_LIMIT, EDGE_LIMITS, edgeScale, neighbourhood, strongest } from "./network";
 import { ExpertTools, CompareRuns } from "./ExpertTools";
 import { LocaleProvider, useLocale } from "./Locale";
@@ -211,6 +212,8 @@ function Workspace({
     // Display name of the configured language model, e.g. "GPT-OSS 20B · Groq"; null when none is configured.
     [providerLabel, setProviderLabel] = useState<string | null>(null),
     [graphMode, setGraphMode] = useState("copurchase"),
+    // Whether postage, fees and adjustments count as products in product views (v3 G5).
+    [includeService, setIncludeService] = useState(false),
     [minimum, setMinimum] = useState(2),
     [modal, setModal] = useState<
       | "help"
@@ -227,6 +230,7 @@ function Workspace({
       | "code"
       | "sql"
       | "temporal"
+      | "scope"
       | null
     >(null),
     [codeChart, setCodeChart] = useState<ChartSpec | null>(null),
@@ -309,6 +313,7 @@ function Workspace({
       min?: number;
       /** Set when the filters come from the browser history, so the address is not pushed again. */
       fromHistory?: boolean;
+      include?: boolean;
     } = {},
   ) {
     if (inFlight.current || childJobsRef.current > 0) return;
@@ -327,6 +332,7 @@ function Workspace({
           use_llm: !!o.prompt && useLlm,
           graph_mode: o.mode || graphMode,
           min_shared: o.min ?? minimum,
+          include_service: o.include ?? includeService,
           locale,
         },
         csrf,
@@ -337,6 +343,7 @@ function Workspace({
           setSaved(false);
           setApplied(r.data.filters);
           setDraft(r.data.filters);
+          if (r.data.scope) setIncludeService(r.data.scope.include_service);
           if (!o.fromHistory) syncAddress(r.data.filters);
           void history();
         } else setError(r.error.detail);
@@ -446,6 +453,7 @@ function Workspace({
       syncAddress(r.data.recipe.filters);
       setGraphMode(r.data.recipe.graph_mode);
       setMinimum(r.data.recipe.min_shared);
+      setIncludeService(r.data.recipe.include_service === true);
       setQuestion(r.data.recipe.question || "");
       setSaved(r.data.saved);
       go("analysis");
@@ -831,6 +839,13 @@ function Workspace({
                 )}
                 icon={<GrossSales size={20} />}
                 primary
+                action={
+                  result?.scope ? (
+                    <button className="wb-why" onClick={() => setModal("scope")}>
+                      {t("Neden? Ne dışarıda?", "Why? What is left out?")}
+                    </button>
+                  ) : undefined
+                }
               />
               <Kpi
                 title={t("Sipariş", "Orders")}
@@ -1480,6 +1495,7 @@ function Workspace({
               }}
               onRecalculate={() => void analyze({ min: minimum })}
               money={money}
+              onScope={() => setModal("scope")}
             />
           )}
           {section === "findings" && (
@@ -1665,7 +1681,7 @@ function Workspace({
       </div>
       {modal && (
         <Modal
-          wide={modal === "decisions" || modal === "chart" || modal === "code" || modal === "sql" || modal === "temporal"}
+          wide={modal === "decisions" || modal === "chart" || modal === "code" || modal === "sql" || modal === "temporal" || modal === "scope"}
           title={
             modal === "source"
               ? t("Verinin kaynağı ve sınırları", "Data provenance and limits")
@@ -1689,6 +1705,8 @@ function Workspace({
                               ? t("Uzman araçları", "Expert tools")
                             : modal === "temporal"
                               ? t("Zaman içindeki değişim", "Change over time")
+                            : modal === "scope"
+                              ? t("Kapsam ve dışlamalar", "Scope and exclusions")
                         : modal === "import"
                           ? t("Veri hazırlama", "Prepare data")
                           : modal === "search"
@@ -1802,6 +1820,7 @@ function Workspace({
               csrf={csrf}
               busy={working}
               minimum={minimum}
+              includeService={includeService}
               asDialog
             />
           )}
@@ -1837,6 +1856,18 @@ function Workspace({
                   setModal(null);
                   setNotice(t("Profil görseli güncellendi.", "Profile portrait updated."));
                 } else setError(r.error.detail || t("Profil görseli kaydedilemedi.", "Could not save the portrait."));
+              }}
+            />
+          )}
+          {modal === "scope" && result?.scope && (
+            <ScopeView
+              scope={result.scope}
+              money={money}
+              num={num}
+              busy={working}
+              onIncludeService={(v) => {
+                setIncludeService(v);
+                void analyze({ include: v });
               }}
             />
           )}
@@ -2119,12 +2150,15 @@ function Kpi({
   subtitle,
   icon,
   primary = false,
+  action,
 }: {
   title: string;
   value: string;
   subtitle: string;
   icon: React.ReactNode;
   primary?: boolean;
+  /** A small control after the subtitle, e.g. "Why?" for what the number leaves out. */
+  action?: React.ReactNode;
 }) {
   return (
     <section className={"wb-kpi" + (primary ? " primary" : "")}>
@@ -2138,7 +2172,10 @@ function Kpi({
       >
         {value}
       </strong>
-      <p>{subtitle}</p>
+      <p>
+        {subtitle}
+        {action}
+      </p>
     </section>
   );
 }
@@ -2310,6 +2347,7 @@ function NetworkView({
   onMode,
   onRecalculate,
   money,
+  onScope,
 }: {
   result: AnalysisResult;
   busy: boolean;
@@ -2319,6 +2357,7 @@ function NetworkView({
   onMode: (m: string) => void;
   onRecalculate: () => void;
   money: (n: number) => string;
+  onScope: () => void;
 }) {
   const { t } = useLocale();
   const [selected, setSelected] = useState<GraphNode | null>(null),
@@ -2460,7 +2499,25 @@ function NetworkView({
       </div>
       <div className="wb-callout wb-graph-note">
         <Info size={16} />
-        {g.note}
+        <span>
+          {g.note}{" "}
+          {result.scope?.service.lines ? (
+            <>
+              {g.include_service
+                ? t(
+                    `Kargo, ücret ve düzeltme kalemleri ürün olarak dahil (${result.scope.service.lines} satır).`,
+                    `Postage, fees and adjustments are counted as products (${result.scope.service.lines} lines).`,
+                  )
+                : t(
+                    `Kargo, ücret ve düzeltme kalemleri ürün sayılmadı (${result.scope.service.lines} satır, ${money(result.scope.service.pence / 100)}).`,
+                    `Postage, fees and adjustments are not counted as products (${result.scope.service.lines} lines, ${money(result.scope.service.pence / 100)}).`,
+                  )}{" "}
+              <button className="wb-why" onClick={onScope}>
+                {t("Neden? Değiştir", "Why? Change")}
+              </button>
+            </>
+          ) : null}
+        </span>
       </div>
       {table ? (
         <TableWrap>

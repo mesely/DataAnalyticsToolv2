@@ -101,9 +101,15 @@ def analyze_temporal(request, metadata, where, args, data_dir):
             + ")"
         )
 
+    from analysis.scope import include_service, product_clause
+
+    # Product universe, concentration and networks leave service lines out unless included (analysis/scope.py);
+    # the window's sales and order value keep every gross-sales line.
+    products_only = "" if include_service(request) else " AND " + product_clause()
     selected = rows(
         "SELECT product_id,MIN(product) AS label,SUM(line_pence)::BIGINT AS p FROM transactions"
         + clause(all_months)
+        + products_only
         + " GROUP BY 1 ORDER BY 3 DESC,1 LIMIT 24",
         [*args, *all_months],
     )
@@ -140,18 +146,15 @@ def analyze_temporal(request, metadata, where, args, data_dir):
             product_sales = rows(
                 "SELECT product_id,SUM(line_pence)::BIGINT AS p FROM transactions"
                 + scope
+                + products_only
                 + " GROUP BY 1 ORDER BY 1",
                 params,
             )
+            # Shares of the lines counted as products, so they sum to 1 whether or not service lines are included.
+            product_total = sum(r["p"] for r in product_sales)
             shares = (
-                pd.DataFrame(
-                    {
-                        "agenda_share": [
-                            r["p"] / summary["gross_pence"] for r in product_sales
-                        ]
-                    }
-                )
-                if summary["gross_pence"]
+                pd.DataFrame({"agenda_share": [r["p"] / product_total for r in product_sales]})
+                if product_total
                 else pd.DataFrame()
             )
             summary["product_hhi"] = finite(owner_concentration_hhi(shares))
@@ -218,7 +221,11 @@ def analyze_temporal(request, metadata, where, args, data_dir):
         "graph_comparison": change,
         "notes": [
             "Dönem toplamları farklı gün/ay sayıları içerir; kapsam eksikliği ve mevsimsellik farkları açıklayabilir.",
-            "HHI bütün ürün/fatura kalemlerinin brüt satış paylarının kareleri toplamıdır (0–1). Hizmet/kargo/Manual kalemleri varsa korunur; fiziksel ürünler ayrıca ayrıştırılmadı.",
+            (
+                "HHI ürün kalemlerinin brüt satış paylarının kareleri toplamıdır (0–1). Kargo, Manual, ücret ve düzeltme kalemleri dahil edildi."
+                if include_service(request)
+                else "HHI ürün kalemlerinin brüt satış paylarının kareleri toplamıdır (0–1). Kargo, Manual, ücret ve düzeltme kalemleri ürün sayılmadı; dönem satışı ve AOV bunları içerir."
+            ),
             "Ağlar seçilen dönemlerin birleşiminde en yüksek satışlı en fazla24 ürünü aynı evrende tutar. Aynı faturada birlikte alım karşılaştırılır; tüm ürün ağı değildir.",
             "Negatif profil benzerliği payı gözlenmiş olumsuz etkileşim veya birlikte alınmama değildir; tek ülkede hesaplanmaz.",
             "AOV aralığı 200 tekrar/seed47 invoice bootstrap ile betimleyicidir; bağımsız fatura varsayımı zaman/müşteri bağımlılığını kapsamaz. Tahmin, etki testi veya nedensellik değildir.",

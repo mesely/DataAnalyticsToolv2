@@ -302,6 +302,7 @@ export function registerWorkbench(
           month: b.month,
           window: b.window ?? 1,
           min_shared: b.min_shared ?? 2,
+          include_service: b.include_service === true,
         });
         await audit(v.identity.subject, v.identity.roles, "temporal", {
           dataset: b.dataset,
@@ -457,6 +458,8 @@ export function registerWorkbench(
       locale: b.locale === "en" ? "en" : "tr",
       include_graph: true,
       use_llm: b.use_llm === true,
+      // Product views include postage, fees and adjustments only on request (analysis/scope.py, v3 G5).
+      include_service: b.include_service === true,
     };
     return bounded(subject, reply, async () => {
       try {

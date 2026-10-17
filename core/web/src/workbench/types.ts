@@ -47,6 +47,20 @@ export interface GraphData {
   communities: number;
   components: number;
   source_method: string;
+  include_service?: boolean;
+}
+/** v3 G5: what gross sales leaves out, what product views leave out, and how complete the edge months are. */
+export interface ScopeInfo {
+  include_service: boolean;
+  service: {
+    lines: number;
+    pence: number;
+    groups: { kind: string; label: string; lines: number; pence: number; codes: { code: string; label: string; lines: number; pence: number }[] }[];
+  };
+  exclusions: { reason: string; rows: number; pence: number }[] | null;
+  raw_rows?: number;
+  excluded_rows?: number;
+  periods: { edge: "first" | "last" | "only"; month: string; date: string; covered_days: number; month_days: number; partial: boolean }[];
 }
 export interface AnalysisResult {
   run_id: string;
@@ -69,6 +83,7 @@ export interface AnalysisResult {
     pence: number;
     units: number;
   }[];
+  scope?: ScopeInfo;
   preview: Record<string, string | number>[];
   metrics: { id: string; title: string; formula: string; note: string }[];
   graph: GraphData;
@@ -99,6 +114,7 @@ export interface SavedRun {
     question: string;
     graph_mode: string;
     min_shared: number;
+    include_service?: boolean;
   };
   summary: AnalysisResult["summary"];
 }

@@ -1,7 +1,22 @@
-"""Shared test isolation: no test may read the developer's saved provider keys or provider environment."""
+"""Shared test isolation: no test may read the developer's saved provider keys or provider environment.
+
+Isolation starts at session scope: module- and session-scoped fixtures (e.g. a shared demo run) are set up before
+function fixtures, and since the routing table may send questions to the model (AW-18), an unisolated fixture would
+reach the developer's provider with a real key.
+"""
 import pytest
 
 PROVIDER_ENV = ("GROQ_API_KEY", "GROQ_MODEL", "HF_TOKEN", "HF_MODEL", "LLAMA_BASE_URL", "LLAMA_MODEL", "LLAMA_API_KEY")
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _no_saved_provider_session(tmp_path_factory):
+    mp = pytest.MonkeyPatch()
+    mp.setattr("analysis.llm.LOCAL", tmp_path_factory.mktemp("llm-session"))
+    for name in PROVIDER_ENV:
+        mp.delenv(name, raising=False)
+    yield
+    mp.undo()
 
 
 @pytest.fixture(autouse=True)

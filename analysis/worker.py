@@ -69,7 +69,7 @@ def meta(dataset):
     if dataset in ("uci", "uci2"):
         value[
             "definition"
-        ] += " Kargo, hizmet ve Manual gibi pozitif fatura kalemleri korunur; fiziksel ürün satışı olarak ayrıca sınıflandırılmamıştır."
+        ] += " Kargo, hizmet, Manual, ücret ve muhasebe düzeltmesi gibi pozitif fatura kalemleri toplamda korunur; ürün sıralaması ve ilişki ağı bunları varsayılan olarak dışarıda bırakır."
     return value
 
 
@@ -96,6 +96,32 @@ def filters_for(request, m):
         args.append(f["country"])
         clean["country"] = f["country"]
     return (" WHERE " + " AND ".join(clauses) if clauses else ""), args, clean
+
+
+def period_coverage(con, where, args):
+    """How much of the first and last month the scope spans, against the days in those months (v3 G5).
+
+    Trends, averages and moving averages leave out a partial month; this says which month and why.
+    """
+    row = con.execute(
+        "SELECT MIN(order_date)::VARCHAR, MAX(order_date)::VARCHAR FROM transactions" + where, args
+    ).fetchone()
+    if not row or not row[0]:
+        return []
+    import calendar
+
+    out = []
+    for edge, iso in (("first", row[0]), ("last", row[1])):
+        d = date.fromisoformat(iso)
+        days = calendar.monthrange(d.year, d.month)[1]
+        covered = (days - d.day + 1) if edge == "first" else d.day
+        out.append({"edge": edge, "month": iso[:7], "date": iso, "covered_days": covered, "month_days": days,
+                    "partial": covered < days})
+    if out[0]["month"] == out[1]["month"]:
+        first, last = date.fromisoformat(row[0]), date.fromisoformat(row[1])
+        out = [{**out[0], "edge": "only", "covered_days": (last - first).days + 1,
+                "partial": (last - first).days + 1 < out[0]["month_days"]}]
+    return out
 
 
 def query(con, sql, params=()):
@@ -131,13 +157,23 @@ def overview(request):
         + " GROUP BY 1 ORDER BY 2 DESC,1 LIMIT 10",
         args,
     )
+    from analysis.scope import include_service, service_lines, with_products_only
+
     products = query(
         con,
         "SELECT product_id,MIN(product) AS label,SUM(line_pence)::BIGINT pence,SUM(quantity)::BIGINT units FROM transactions"
-        + where
+        + with_products_only(where, request)
         + " GROUP BY 1 ORDER BY 3 DESC,1 LIMIT 12",
         args,
     )
+    scope = {
+        "include_service": include_service(request),
+        "service": service_lines(con, where, args, request.get("locale", "tr")),
+        "exclusions": (m.get("quality") or {}).get("exclusions"),
+        "raw_rows": (m.get("quality") or {}).get("raw_rows"),
+        "excluded_rows": (m.get("quality") or {}).get("excluded_rows"),
+        "periods": period_coverage(con, where, args),
+    }
     # Stable row sampling; raw customer identifiers are not displayed or exported.
     preview = query(
         con,
@@ -154,6 +190,7 @@ def overview(request):
         "series": series,
         "countries": countries,
         "products": products,
+        "scope": scope,
         "preview": preview,
         "metrics": METRICS,
         "sql": sql,
@@ -167,8 +204,12 @@ def graph(request):
     import networkx as nx
     from analysis.adapted.networks import build_sparse_signed_graph
 
+    from analysis.scope import include_service, with_products_only
+
     m = meta(request["dataset"])
     where, args, f = filters_for(request, m)
+    # Product views leave postage, fees and adjustments out unless the analyst includes them (analysis/scope.py).
+    where = with_products_only(where, request)
     con = duckdb.connect(str(DATA / (m["id"] + ".duckdb")), read_only=True)
     top = query(
         con,
@@ -199,9 +240,9 @@ def graph(request):
         edge_sql = f"""WITH selected AS (SELECT DISTINCT invoice,product_id FROM transactions{where}{' AND ' if where else ' WHERE '}product_id IN ({slots})) SELECT a.product_id AS source,b.product_id AS target,COUNT(*)::BIGINT weight FROM selected a JOIN selected b ON a.invoice=b.invoice AND a.product_id<b.product_id GROUP BY 1,2 HAVING COUNT(*)>=? ORDER BY 3 DESC,1,2 LIMIT 150"""
         edges = query(con, edge_sql, [*args, *ids, minimum])
         note = (
-            "Edge weight: the number of orders in which both products appear on the same invoice. The top 24 products and at most the 150 strongest links are shown; centralities describe this visible subnetwork. Service and postage lines can remain among the product codes. This is not the full network."
+            "Edge weight: the number of orders in which both products appear on the same invoice. The top 24 products and at most the 150 strongest links are shown; centralities describe this visible subnetwork. This is not the full network."
             if request.get("locale") == "en"
-            else "Kenar ağırlığı: iki ürünün aynı faturada birlikte görüldüğü sipariş sayısı. İlk 24 ürün ve en güçlü en fazla 150 ilişki gösterilir; merkeziyetler bu görünür alt ağ içindir. Fatura hizmet/kargo kalemleri de ürün kodları arasında kalabilir. Tüm veri ağı değildir."
+            else "Kenar ağırlığı: iki ürünün aynı faturada birlikte görüldüğü sipariş sayısı. İlk 24 ürün ve en güçlü en fazla 150 ilişki gösterilir; merkeziyetler bu görünür alt ağ içindir. Tüm veri ağı değildir."
         )
     else:
         matrix = query(
@@ -278,6 +319,7 @@ def graph(request):
             else "Observed invoice co-occurrence + NetworkX seed=47"
         ),
         "min_shared": minimum,
+        "include_service": include_service(request),
         "filters": f,
     }
 
@@ -503,6 +545,13 @@ def explain(request, result):
             text = f"{first['label']} ranks first by gross sales at {amount(first['pence']/100)} in the selected scope. This is a sales-value ranking, not profit or causality."
         else:
             text = f"Selected data: {money} gross sales across {s['orders']:,} orders and {s['units']:,} units. Average order value: {amount(s['aov'])}. Returns/cancellations are excluded; this is not net revenue."
+    scope = result.get("scope") or {}
+    if "product_id" in (claims[0].get("scope") or {}) and not scope.get("include_service") and (scope.get("service") or {}).get("lines"):
+        text += (
+            " Postage, fees and accounting adjustments are not counted as products."
+            if en
+            else " Kargo, ücret ve muhasebe düzeltmesi kalemleri ürün sayılmadı."
+        )
     from analysis.claims import verify_numeric_claims
 
     supported = verify_numeric_claims(claims, result)
@@ -546,16 +595,31 @@ def run(request):
     from analysis.llm import status, plan_question, INTENTS
 
     result["provider"] = status()
-    if request.get("use_llm") is True and request.get("question"):
+    from analysis import llm_routing
+
+    baseline = result["answer"] or {}
+    # v3 G6: the routing table decides (no checkbox). An explicit `use_llm` from an evaluation or a script wins:
+    # True asks the model, False keeps the request local.
+    ask_model = bool(request.get("question")) and (
+        request.get("use_llm") is True
+        or (request.get("use_llm") is not False
+            and llm_routing.use_model("question_route", local_ok=baseline.get("status") == "verified"))
+    )
+    if ask_model:
         # Local refusal takes precedence: never send policy-refused text to a provider.
-        baseline = result["answer"] or {}
         if baseline.get("status") == "refused" or baseline.get("reason") in {
             "unsupported_metric_or_causality",
             "explicit_filter_required",
         }:
             result["planner"] = {"status": "blocked", "intent": "unsupported"}
         else:
-            plan = plan_question(str(request["question"]))
+            key = llm_routing.cache_key("question_route", str(request["question"]))
+            plan = llm_routing.cache_get(key)
+            if plan is None:
+                plan = plan_question(str(request["question"]))
+                llm_routing.record_usage(plan.get("telemetry"))
+                if plan["status"] == "planned":
+                    llm_routing.cache_put(key, plan)
             result["planner"] = plan
             result["provider"]["connected"] = plan["status"] == "planned"
             if plan["status"] == "planned":
@@ -572,6 +636,10 @@ def run(request):
                     }[plan["intent"]]
                 result["answer"] = explain({**request, "question": canonical}, result)
                 result["answer"]["mode"] = "model-plan-verified-facts"
+    if request.get("question"):
+        used = "model" if (result.get("planner") or {}).get("status") == "planned" else "local"
+        fb = (result.get("planner") or {}).get("status") if ask_model and used == "local" else None
+        result["routing"] = llm_routing.receipt("question_route", used, fallback=fb)
     from analysis.fingerprint import fingerprint
 
     result["build"] = fingerprint()
@@ -631,6 +699,35 @@ def handle(request):
         }
     if action == "run":
         return run(request)
+    if action == "network_ask":
+        from analysis.network_qa import answer
+
+        return answer(request)
+    if action in ("table", "table_export", "table_ask"):
+        from analysis import table as data_table
+
+        return {"table": data_table.table, "table_export": data_table.export, "table_ask": data_table.ask}[action](request)
+    if action == "route":
+        from analysis import llm_routing
+        from analysis.llm import plan_studio
+        from analysis.router import route
+
+        out = route(request.get("text"), request.get("locale", "tr"))
+        used, fallback = "local", None
+        # The local router has no signal on a request without any known word; that is when "local first" asks.
+        if llm_routing.use_model("studio_route", local_ok=out["signal"] != "default"):
+            key = llm_routing.cache_key("studio_route", request["text"])
+            plan = llm_routing.cache_get(key)
+            if plan is None:
+                plan = plan_studio(request["text"])
+                llm_routing.record_usage(plan.get("telemetry"))
+                if plan["status"] == "planned":
+                    llm_routing.cache_put(key, plan)
+            if plan["status"] == "planned":
+                out, used = {**out, "studio": plan["studio"], "signal": "model"}, "model"
+            else:
+                fallback = plan["status"]
+        return {**out, "routing": llm_routing.receipt("studio_route", used, fallback=fallback)}
     if action in {"forecast", "decisions"}:
         from analysis.forecast import forecast
 

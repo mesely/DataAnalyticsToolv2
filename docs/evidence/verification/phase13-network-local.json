@@ -1,0 +1,409 @@
+{
+ "version": "llm-eval-v3.0",
+ "generated_at": "2026-10-17T22:00:45Z",
+ "model": "GPT-OSS 20B · Groq",
+ "tasks": {
+  "network_question": {
+   "local": {
+    "label": "MEASURED",
+    "blocked": null,
+    "summary": {
+     "n": 25,
+     "answered": 25,
+     "correct": 22,
+     "accuracy": 0.88,
+     "tokens": null,
+     "median_latency_ms": null
+    },
+    "records": [
+     {
+      "id": "n01",
+      "q": "En güçlü 5 ürün çifti hangisi?",
+      "expect": {
+       "query": "strongest_pairs",
+       "k": 5
+      },
+      "got": {
+       "query": "strongest_pairs",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n02",
+      "q": "which 3 pairs are bought together most often",
+      "expect": {
+       "query": "strongest_pairs",
+       "k": 3
+      },
+      "got": {
+       "query": "strongest_pairs",
+       "k": 3,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n03",
+      "q": "en sık birlikte alınan ürün çiftleri",
+      "expect": {
+       "query": "strongest_pairs"
+      },
+      "got": {
+       "query": "clarify",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": false
+     },
+     {
+      "id": "n04",
+      "q": "REGENCY CAKESTAND 3 TIER ile en çok birlikte alınanlar?",
+      "expect": {
+       "query": "neighbors",
+       "product": "22423",
+       "k": 5
+      },
+      "got": {
+       "query": "neighbors",
+       "k": 5,
+       "product": "22423",
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n05",
+      "q": "what sells with jumbo bag red retrospot",
+      "expect": {
+       "query": "neighbors",
+       "product": "85099B"
+      },
+      "got": {
+       "query": "neighbors",
+       "k": 5,
+       "product": "85099B",
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n06",
+      "q": "PARTY BUNTING'in yanında ne alınıyor",
+      "expect": {
+       "query": "neighbors",
+       "product": "47566"
+      },
+      "got": {
+       "query": "neighbors",
+       "k": 5,
+       "product": "47566",
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n07",
+      "q": "top 3 products bought with the white hanging heart t-light holder",
+      "expect": {
+       "query": "neighbors",
+       "k": 3
+      },
+      "got": {
+       "query": "clarify",
+       "k": 3,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": false
+     },
+     {
+      "id": "n08",
+      "q": "Kaç topluluk var?",
+      "expect": {
+       "query": "communities"
+      },
+      "got": {
+       "query": "communities",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n09",
+      "q": "show me the product clusters",
+      "expect": {
+       "query": "communities"
+      },
+      "got": {
+       "query": "communities",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n10",
+      "q": "ürün grupları neler, her birinin öne çıkanı",
+      "expect": {
+       "query": "communities"
+      },
+      "got": {
+       "query": "communities",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n11",
+      "q": "Hangi ürün köprü görevi görüyor?",
+      "expect": {
+       "query": "bridges"
+      },
+      "got": {
+       "query": "bridges",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n12",
+      "q": "which products connect the groups",
+      "expect": {
+       "query": "bridges"
+      },
+      "got": {
+       "query": "communities",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": false
+     },
+     {
+      "id": "n13",
+      "q": "betweenness en yüksek 3 ürün",
+      "expect": {
+       "query": "bridges",
+       "k": 3
+      },
+      "got": {
+       "query": "bridges",
+       "k": 3,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n14",
+      "q": "En çok bağlantısı olan ürünler",
+      "expect": {
+       "query": "hubs"
+      },
+      "got": {
+       "query": "hubs",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n15",
+      "q": "most connected products",
+      "expect": {
+       "query": "hubs"
+      },
+      "got": {
+       "query": "hubs",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n16",
+      "q": "ağın merkezindeki ürünler",
+      "expect": {
+       "query": "hubs"
+      },
+      "got": {
+       "query": "hubs",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n17",
+      "q": "2011-11'de hangi bağlar oluştu veya koptu?",
+      "expect": {
+       "query": "changes",
+       "month": "2011-11"
+      },
+      "got": {
+       "query": "changes",
+       "k": 5,
+       "product": null,
+       "month": "2011-11"
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n18",
+      "q": "Mart 2011'de değişen bağlar",
+      "expect": {
+       "query": "changes",
+       "month": "2011-03"
+      },
+      "got": {
+       "query": "changes",
+       "k": 5,
+       "product": null,
+       "month": "2011-03"
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n19",
+      "q": "which links appeared in September 2011",
+      "expect": {
+       "query": "changes",
+       "month": "2011-09"
+      },
+      "got": {
+       "query": "changes",
+       "k": 5,
+       "product": null,
+       "month": "2011-09"
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n20",
+      "q": "Son ayda hangi bağlar oluştu veya koptu?",
+      "expect": {
+       "query": "changes"
+      },
+      "got": {
+       "query": "changes",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n21",
+      "q": "Bu ürünü alan müşteri neden aldı?",
+      "expect": {
+       "query": "unsupported"
+      },
+      "got": {
+       "query": "unsupported",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n22",
+      "q": "why do people buy these together",
+      "expect": {
+       "query": "unsupported"
+      },
+      "got": {
+       "query": "unsupported",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n23",
+      "q": "hangi ürün çifti en kârlı",
+      "expect": {
+       "query": "unsupported"
+      },
+      "got": {
+       "query": "unsupported",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n24",
+      "q": "bunu açıkla",
+      "expect": {
+       "query": "clarify"
+      },
+      "got": {
+       "query": "clarify",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     },
+     {
+      "id": "n25",
+      "q": "what is bought with it",
+      "expect": {
+       "query": "clarify"
+      },
+      "got": {
+       "query": "clarify",
+       "k": 5,
+       "product": null,
+       "month": null
+      },
+      "raw_status": "planned",
+      "correct": true
+     }
+    ]
+   }
+  }
+ }
+}

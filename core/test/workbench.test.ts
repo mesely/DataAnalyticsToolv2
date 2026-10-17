@@ -39,6 +39,39 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
       ).status,
     ).toBe(403);
   });
+  it("routes one ask box to the two studios behind identity and CSRF (v3 G8)", async () => {
+    expect((await apiPost(rig, alice, B + "/route", { text: "son 6 ay" }, { csrf: null })).status).toBe(403);
+    expect((await apiPost(rig, alice, B + "/route", { text: "Almanya ile Fransa'yı karşılaştır" })).json).toMatchObject({
+      studio: "chart",
+    });
+    expect((await apiPost(rig, alice, B + "/route", { text: "En çok satan ürünler hangileri?" })).json).toMatchObject({
+      studio: "decision",
+    });
+    expect((await apiPost(rig, alice, B + "/route", { text: "" })).status).toBe(400);
+    expect((await apiPost(rig, alice, B + "/route", { text: "x".repeat(8001) })).status).toBe(400);
+  });
+  it("answers questions about the network and the data table behind identity and dataset permission (v3 G2, G3)", async () => {
+    const q = await apiPost(rig, alice, B + "/network/ask", { dataset: "demo", question: "en güçlü 3 çift" });
+    expect(q.status).toBe(200);
+    expect(q.json.plan).toMatchObject({ query: "strongest_pairs", k: 3 });
+    expect((await apiPost(rig, alice, B + "/network/ask", { dataset: "demo", question: "" })).status).toBe(400);
+    expect((await apiPost(rig, alice, B + "/network/ask", { dataset: "demo", question: "x" }, { csrf: null })).status).toBe(403);
+    const tb = await apiPost(rig, alice, B + "/table", { dataset: "demo", view: "summary", group_by: ["country"], page_size: 25 });
+    expect(tb.status).toBe(200);
+    expect(tb.json.total).toBe(3);
+    const bad = await apiPost(rig, alice, B + "/table", { dataset: "demo", view: "rows", filters_table: [{ column: "customer_id", op: "eq", value: "x" }] });
+    expect(bad.status).toBe(400);
+    const csv = await apiPost(rig, alice, B + "/table/export", { dataset: "demo", view: "summary", group_by: ["country"], format: "csv" });
+    expect(csv.status).toBe(200);
+    expect(Buffer.from(String(csv.json.base64), "base64").toString("utf-8")).toContain("Germany");
+  });
+  it("leaves service lines out of product views unless asked, never out of gross sales (v3 G5)", async () => {
+    const off = await apiPost(rig, alice, B + "/run", { dataset: "demo" });
+    const on = await apiPost(rig, alice, B + "/run", { dataset: "demo", include_service: true });
+    expect(off.json.scope).toMatchObject({ include_service: false });
+    expect(on.json.scope).toMatchObject({ include_service: true });
+    expect(on.json.summary.gross_pence).toBe(off.json.summary.gross_pence);
+  });
   it("computes oracle values and saves a version-bound run", async () => {
     const r = await apiPost(rig, alice, B + "/run", {
       dataset: "demo",
@@ -578,10 +611,11 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
     });
     expect(refined.status).toBe(200);
     expect(refined.json.spec).toMatchObject({ metric: "orders", dimension: "country", top_n: 3 });
-    // A language-model request without a configured provider falls back locally and says so.
+    // v3 G6: a client cannot force the model; the routing table decides, and without a provider it is local.
     const llm = await apiPost(rig, alice, B + "/chart", { dataset: "demo", prompt: "son 3 ay", use_llm: true });
     expect(llm.status).toBe(200);
-    expect((llm.json.planner as { source: string }).source).toBe("local");
+    expect(llm.json.planner).toMatchObject({ source: "local", routing: { task: "chart_plan", used: "local" } });
+    expect((llm.json.planner as { fallback?: unknown }).fallback).toBeUndefined();
   });
   it("AW-16: exports reproducible code for permitted scopes only", async () => {
     const r = await apiPost(rig, alice, B + "/export/code", { dataset: "demo", format: "bundle", locale: "en" });

@@ -1,5 +1,8 @@
 export type Locale = "tr" | "en";
-export type Section = "overview" | "analysis" | "network" | "findings";
+export type Section = "overview" | "chart" | "decision" | "findings";
+/** Tabs inside the two studios (v3 G8). */
+export type ChartTab = "chart" | "network" | "temporal" | "sql";
+export type DecisionTab = "ask" | "brief" | "model";
 export interface Dataset {
   id: string;
   title: string;
@@ -47,6 +50,43 @@ export interface GraphData {
   communities: number;
   components: number;
   source_method: string;
+  include_service?: boolean;
+}
+/** v3 G2: an answer about the relationship network (analysis/network_qa.py). */
+export interface NetworkAnswer {
+  question: string;
+  plan: { query: string; k: number; product: string | null; month: string | null };
+  planner: "local" | "model";
+  status: "answered" | "refused";
+  answer: string;
+  highlight: { nodes: string[]; edges: [string, string][] };
+  routing?: RoutingReceipt;
+}
+/** v3 G6: which planner ran for a task and why (analysis/llm_routing.py `receipt`). */
+export interface RoutingReceipt {
+  task: string;
+  method: "local" | "model" | "local_then_model";
+  used: "local" | "model";
+  why?: string | null;
+  local_accuracy?: number | null;
+  model_accuracy?: number | null;
+  n?: number | null;
+  measured_at?: string | null;
+  unavailable?: string;
+  fallback?: string | null;
+}
+/** v3 G5: what gross sales leaves out, what product views leave out, and how complete the edge months are. */
+export interface ScopeInfo {
+  include_service: boolean;
+  service: {
+    lines: number;
+    pence: number;
+    groups: { kind: string; label: string; lines: number; pence: number; codes: { code: string; label: string; lines: number; pence: number }[] }[];
+  };
+  exclusions: { reason: string; rows: number; pence: number }[] | null;
+  raw_rows?: number;
+  excluded_rows?: number;
+  periods: { edge: "first" | "last" | "only"; month: string; date: string; covered_days: number; month_days: number; partial: boolean }[];
 }
 export interface AnalysisResult {
   run_id: string;
@@ -69,6 +109,7 @@ export interface AnalysisResult {
     pence: number;
     units: number;
   }[];
+  scope?: ScopeInfo;
   preview: Record<string, string | number>[];
   metrics: { id: string; title: string; formula: string; note: string }[];
   graph: GraphData;
@@ -85,6 +126,7 @@ export interface AnalysisResult {
     policy: string;
   };
   planner?: { status: string; intent?: string; http_status?: number; error_code?: string };
+  routing?: RoutingReceipt;
   provider: { connected: boolean; note: string; model?: string };
 }
 export interface SavedRun {
@@ -99,6 +141,7 @@ export interface SavedRun {
     question: string;
     graph_mode: string;
     min_shared: number;
+    include_service?: boolean;
   };
   summary: AnalysisResult["summary"];
 }
@@ -107,8 +150,11 @@ export interface SavedRun {
 export interface ChartSpec {
   version: 1;
   metric: "gross_sales" | "orders" | "units" | "aov";
-  dimension: "month" | "week" | "weekday" | "country" | "product";
+  dimension: "month" | "week" | "weekday" | "country" | "product" | "country_group";
   chart: "line" | "area" | "bar";
+  /** v3 AW-19 (additive): reference group and membership date of a country_group chart. */
+  group?: "nato" | "eu" | "eurozone" | "g7" | "oecd" | "continent";
+  group_as_of?: "period_end" | "today";
   start?: string | null;
   end?: string | null;
   countries: string[];
@@ -128,6 +174,8 @@ export interface ChartPoint {
   upper?: number | null;
   n?: number | null;
   partial?: boolean;
+  /** country_group charts: the bucket's part of the scope (0–1). */
+  share?: number | null;
 }
 export interface ChartResult {
   spec: ChartSpec;
@@ -137,6 +185,7 @@ export interface ChartResult {
     changes: { field: string; from: unknown; to: unknown }[];
     note?: string;
     suggestions?: string[];
+    routing?: RoutingReceipt;
   };
   title: string;
   subtitle: string;
@@ -152,6 +201,15 @@ export interface ChartResult {
   params: unknown[];
   warnings: string[];
   output_sha256: string;
+  /** country_group charts: which country fell in which bucket, at which date, from which reference table. */
+  groups?: {
+    group: string;
+    label: string;
+    as_of: string;
+    as_of_rule: "period_end" | "today";
+    card: { source: string; version: string; sha256: string };
+    countries: { country: string; display: string; bucket: string; bucket_label: string; iso3: string | null; note: string | null; pence: number }[];
+  };
 }
 /** AW-16 developer code export (§1). */
 export interface CodeExportResult {

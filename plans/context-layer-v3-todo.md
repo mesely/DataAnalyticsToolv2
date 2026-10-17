@@ -1,0 +1,242 @@
+# Context Layer v3 — yapılacaklar listesi
+
+Kaynak: 17 Ekim 2026 müşteri gözüyle yapılan uçtan uca test (Selman). Bu liste analitik çalışma alanını
+(`core/web/src/workbench/`, `analysis/`) kapsar; platform kilometre taşları (CP-7, M1/M2 demoları) ayrı izlenir.
+
+Her madde bitti sayılmadan önce: birim/uç testleri yeşil, CI'deki 5 kontrol yeşil, TR ve EN metinleri var,
+ekran görüntüsü güncel, kabul ölçütü sağlanmış. Yeni kararlar `DECISIONS.md` içine AW-18'den başlayarak yazılır.
+
+## Geri bildirimin özeti
+
+| # | Geri bildirim | Kod tarafındaki karşılığı |
+|---|---|---|
+| G1 | İlişki ağında çizgiler çok ve kalınlıkları aynı; okunmuyor. | Kenarlar ağırlıktan bağımsız `strokeWidth={1.2}` ile çiziliyor (`Workbench.tsx` `NetworkView`). |
+| G2 | İlişki ağı hakkında modelle soru sorulabilsin; hazır ve açık uçlu sorular. | Ağ sayfasında soru alanı yok. |
+| G3 | Genel bakışta veriyi tablo olarak görmek: düzenleme, filtre, sıralama, CSV/Excel indirme; tabloya soru sormak. | Genel bakışta yalnız kartlar ve grafikler var; tablo yok. |
+| G4 | Ülkeye tıklayınca filtre uygulanıyor ama tüm ülkelere geri dönülemiyor. | `filters: { ...applied, country }` uygulanıyor, geri alma yolu yok. |
+| G5 | "Niye dışlamış?" Dışlama doğruysa gerekçesi gösterilsin, yanlışsa düzeltilsin. | Kısmi dönem, iade/iptal, sıfır/negatif fiyat ve "hariç" ülke dışlamaları var. Hangi ekran kastedildiği netleşmeli (bkz. Açık sorular). |
+| G6 | "Groq ile planla / modelle yorumla" tikleri kalksın; ölçümde hangisi iyiyse sistem onu kullansın. | Üç yerde elle seçilen kutu var: Grafik stüdyosu, asistan, karar stüdyosu. |
+| G7 | Model, "ülkeleri NATO / NATO dışı diye sınıfla, satışın yüzde kaçı, grafik yap" sorusunu yapamadı. | ChartSpec v1'de türetilmiş grup boyutu yok; dış bilgi (üyelik listesi) yok; soru "unsupported" diye kapanıyor. |
+| G8 | Asistan karışık: karar stüdyosu mu, grafik stüdyosu mu, uzman araçları mı, model stüdyosu mu? İki ana başlık olsun, analizler onların içinde. | Analiz asistanı sayfasında 4 ayrı giriş noktası var. |
+| G9 | Gerekirse referans bilgiyle (RAG) beslensin: tutarları TL'ye çevir, enflasyona veya altına göre normalize et. | Yalnız GBP; kur, enflasyon ve altın serileri yok. |
+
+## Ölçümle belirlenen başlangıç noktası (G6 için)
+
+`docs/evidence/verification/phase12-llm-eval-groq.json`:
+
+| İş | Model (GPT-OSS 20B, Groq) | Yerel yöntem | Bugünkü karar |
+|---|---:|---:|---|
+| Soruyu doğru analize yönlendirme | 19/19 | 15/19 | Model daha iyi |
+| Grafik isteğini planlama | 19/24 | 24/24 | Yerel daha iyi (ancak yerel bu 24 vakaya göre yazıldı; bağımsız sonuç değil) |
+| Karar anlatısı | 1/3 doğrulayıcıdan geçti | her zaman | Yerel |
+| Yetersiz soruda çekimser kalma, saldırı reddi | 6/6, 2/2 | 6/6, 2/2 | Eşit; yerel ucuz olduğu için yerel |
+
+---
+
+## Faz 1 — Hızlı düzeltmeler (okunabilirlik ve gezinme)
+
+### 1.1 İlişki ağı okunabilirliği (G1)
+- [x] Kenar kalınlığı ağırlığa göre ölçeklensin: 1–6 px, karekök ölçeği. Böylece birkaç çok güçlü bağ diğerlerini ezmez.
+- [x] Kenar rengi ve saydamlığı ağırlığı kodlasın: zayıf bağ soluk, güçlü bağ koyu vurgu rengi. Negatif ilişki kesik çizgi ve uyarı rengi olarak kalsın.
+- [x] Renk tek başına anlam taşımasın: kalınlık + saydamlık + kesik çizgi birlikte kullanılsın (renk körlüğü).
+- [x] Gösterge (lejant): "ince = zayıf, kalın = güçlü", ağırlık aralığının sayısal değerleri.
+- [x] Eşik kaydırıcısı: "en güçlü N bağ" veya "ağırlık ≥ x"; varsayılan olarak en güçlü 40 bağ gösterilsin, gerisi isteğe bağlı açılsın.
+- [x] Bir ürünün üzerine gelince yalnız onun bağları vurgulansın, diğerleri soluklaşsın (karar stüdyosundaki davranışla aynı).
+- [x] Kenar etiketi (araç ipucu): iki ürün, ağırlık, birlikte alındığı fatura sayısı.
+- [x] Topluluklar (community) düğüm rengiyle ayrılsın; kenar rengi ağırlığa ayrıldığı için düğüm rengiyle çakışmasın.
+- [x] Aynı kurallar "Zaman içindeki değişim" ağına da uygulansın (`TemporalView.tsx`). — Bu görünüm ağı çizmiyor, değişen bağları tablo olarak veriyor; çizim kuralı gerekmedi.
+- **Kabul:** varsayılan görünümde kenar sayısı ≤ 40; en güçlü 5 bağ ilk bakışta seçilebilir; tasarım denetimi (`tools/design/audit.js`) ve kontrast kontrolü açık/koyu temada geçer.
+
+### 1.2 Ülke filtresinden geri dönme (G4)
+- [x] Ülkeye tıklanınca filtre çubuğunda kaldırılabilir bir çip görünsün: "Ülke: Germany ✕".
+- [x] "Tüm ülkeler" seçeneği ve "Filtreleri temizle" düğmesi.
+- [x] Filtre durumu adres çubuğunda tutulsun; tarayıcının geri düğmesi önceki görünüme dönsün.
+- [ ] Aynı davranış grafik stüdyosundaki ülke tıklamalarında ve sıralama listelerinde de olsun. — Grafik stüdyosunda ülkeye tıklama yok; Faz 2'de stüdyolar taşınırken yeniden bakılacak.
+- **Kabul:** ülkeye tıkla → çip görünür → ✕ veya geri düğmesi → kartlar £10.666.684,54'e döner. Uç testi eklenir.
+
+### 1.3 Dışlamaların denetimi (G5)
+- [x] Ekranda gösterilen her dışlamanın listesi çıkarılsın: iade/iptal, sıfır ve negatif fiyat, kısmi ay/hafta, "hariç" ülke, gizli `customer_id`.
+- [x] Her dışlama için doğruluk kontrolü yapılsın: kural doğru mu, sayılar tutuyor mu (11.805 satır, 9.288 iptal…). Yanlış olan düzeltilsin ve testi yazılsın.
+- [x] Her dışlamanın yanında "neden?" açıklaması: kaç satır ve ne kadar tutar dışarıda kaldı, hangi kurala göre.
+- [x] Dışlaması geçerli bir seçim olan durumlarda "dahil et" anahtarı olsun. — Hizmet satırları için anahtar var. Kısmi dönem için anahtar konmadı: birkaç günlük ayı trende katmak yanıltıcıdır; gerekçe ve kapsanan gün sayısı gösteriliyor. "Hariç" ülke zaten kullanıcının kendi isteği ve değişiklik çipinde görünüyor.
+- [x] Veri tanımı gereği zorunlu dışlamalar (iptal ve iade brüt satışa girmez) anahtar almasın, gerekçesi gösterilsin.
+- **Kabul:** her dışlamanın bir açıklaması ve sayısı var; "dahil et" ile toplamlar beklenen değere değişir ve testle doğrulanır.
+
+---
+
+### Faz 1 sonucu (18 Ekim 2026)
+- Denetimde bulunan gerçek hata: 2.312 kargo, Manual, ücret ve muhasebe düzeltmesi satırı (£394.565,67) ürün sayılıyordu; "en çok satan ürün" DOTCOM POSTAGE çıkıyordu. Artık REGENCY CAKESTAND 3 TIER (£174.484,74).
+- **Karar bekleyen:** brüt satış toplamı (retail-v1) £11.062,06'lık "Adjust bad debt" ve £13.761,09'luk Amazon ücretini içeriyor. Toplamdan çıkarmak tanım değişikliği (retail-v2) demek; Selman'a soruldu, o zamana kadar ekranda açıkça işaretleniyor.
+
+## Faz 2 — Sade bilgi mimarisi: iki ana stüdyo (G8)
+
+Hedef: kullanıcı nereye gideceğini düşünmesin. İki ana başlık olsun; her analiz bunlardan birinin içinde bulunsun.
+
+| Yeni yer | İçine taşınan |
+|---|---|
+| **Genel bakış** (ana sayfa) | Kartlar, grafikler, veri tablosu (Faz 4), tek soru kutusu |
+| **Grafik stüdyosu** | Grafik isteği, ilişki ağı, zaman içindeki değişim, SQL laboratuvarı ("Gelişmiş" sekmesi), koda aktar |
+| **Karar stüdyosu** | Analiz asistanının soruları, haftalık projeksiyon, senaryo, öneri ve gerekçe ağacı, model stüdyosu ("Tahmin modeli" sekmesi), veri hazırlama |
+| **Bulgularım** | Değişmez |
+
+- [x] Tek soru kutusu: kullanıcı ne yazarsa yazsın sistem doğru stüdyoya yönlendirsin. Sonuç hangi stüdyoda açıldıysa ekranda yazsın: "Bu bir grafik isteği; Grafik stüdyosunda açıldı".
+- [x] Analiz asistanı ayrı bir sayfa olmaktan çıksın; soruları ve kanıt paneli Karar stüdyosuna girsin. "Neden bu stüdyo?" bilgisi soru kutusunun altında görünsün.
+- [x] "Uzman araçları" ve "Model stüdyosu" ana menüden kalksın; ilgili stüdyonun içinde "Gelişmiş" olarak dursun.
+- [x] Kenar çubuğunda en fazla 4 madde kalsın: Genel bakış, Grafik stüdyosu, Karar stüdyosu, Bulgularım (+ Yönetim yalnız `ops` rolüne).
+- [x] ⌘K komut paleti yeni yerleri göstersin; eski bağlantılar yeni yerlere yönlendirsin (yer imleri bozulmasın).
+- [ ] Kullanım rehberi ve README yeni yapıya göre yeniden yazılsın. — Uygulama içi rehber güncellendi; README ve TEST_GUIDE Faz 7'de.
+- [ ] Veri hazırlama Karar stüdyosuna taşınmadı: başlıktaki "Veri ekle" düğmesinden açılıyor; her iki stüdyonun verisi olduğu için bilerek orada bırakıldı.
+- **Kabul:** ilk kez gelen biri 10 tipik görevin her birini en fazla 2 tıklamayla başlatır. Görev listesi `docs/phases/TEST_GUIDE.md` içinde yazılı olur; yeniden müşteri testi yapılır.
+
+---
+
+### Faz 2 sonucu (18 Ekim 2026)
+- Kenar çubuğu: Genel bakış · Grafik stüdyosu · Karar stüdyosu · Bulgularım. Stüdyo bölümleri sekme; sayfa ve sekme adreste (`#chart/network`, `#decision/brief`), eski `#analysis` / `#network` bağlantıları yeni yerlere açılıyor.
+- Yönlendirici `analysis/router.py` (studio-router-v1, yerel, 29 vakalık test); `POST /route`. Faz 3'te model seçeneğiyle aynı sette ölçülecek.
+- Genel bakıştaki KPI kartları yalnız genel bakışta; stüdyolarda filtre çubuğu kalıyor.
+
+## Faz 3 — Elle model seçimini kaldırma: ölçüme dayalı otomatik yönlendirme (G6)
+
+Hedef: "Groq ile planla / modelle yorumla" kutuları kalksın. Her iş için ölçümde hangi yöntem iyiyse sistem onu
+kullansın, ekranda da hangisini kullandığını söylesin.
+
+- [x] Bağımsız (held-out) değerlendirme seti: yerel planlayıcının yazılırken görmediği en az 60 yeni grafik isteği ve 40 yeni soru (TR+EN, yazım hatalı, açık uçlu, NATO tipi). Yerel ve model aynı setle ölçülsün.
+- [x] İş bazında yönlendirme tablosu `analysis/llm_routing.json`: her iş için (yönlendirme, grafik planı, anlatı, ağ soruları, tablo soruları) seçilen yöntem, ölçüm dosyası, ölçüm tarihi ve eşik değerleri yazılsın. Tablo elle değil, değerlendirme komutuyla üretilsin.
+- [x] Karar kuralı: model, yereli iş bazında en az 5 puan geçmiyorsa yerel kullanılsın (yerel ücretsiz, hızlı ve çevrimdışı çalışır). Eşitlikte yerel kazanır.
+- [x] Karma yol: yerel planlayıcı "anlamadım / desteklenmiyor" derse ve model o iş için güvenilirse modele sorulsun (NATO sorusu buradan geçer). Model geçersiz yanıt verirse yerel sonuç gösterilsin.
+- [x] Tikler yerine bilgi rozeti: "Planlayan: yerel yöntem" / "Planlayan: dil modeli (GPT-OSS 20B · Groq)". Üstüne gelince neden o yöntemin seçildiği (ölçüm sonucu) görünsün.
+- [x] Gizlilik: sağlayıcıya ne gönderildiği rozetin yanında yazmaya devam etsin. Yönetici "dış modele hiç gönderme" ayarını açabilsin; bu ayar her şeyi yerele zorlar.
+- [x] Kota: Groq günlük ücretsiz kotası (200.000 token) otomatik kullanımda yetmez. Yanıt önbelleği (aynı istek + aynı veri sürümü), günlük bütçe sayacı ve kota dolunca sessizce yerele düşme eklenmeli. Ücretli plana geçiş kararı ayrıca verilir. — Önbellek ve günlük bütçe (150.000) yapıldı; ücretli plan kararı Selman'da.
+- [ ] Değerlendirme CI'de çevrimdışı (kayıtlı yanıtlarla) koşsun; canlı ölçüm haftalık elle tetiklensin ve yönlendirme tablosunu güncellesin.
+- [x] DECISIONS AW-18: otomatik yönlendirme politikası.
+- **Kabul:** arayüzde model seçme kutusu kalmaz; her sonuçta planlayan rozeti vardır; yönlendirme tablosu son ölçümle tutarlıdır (test); kota bitince ekran donmaz ve yerel sonuç gelir.
+
+---
+
+### Faz 3 sonucu (18 Ekim 2026)
+| İş | Yerel | Model (GPT-OSS 20B) | Seçilen |
+|---|---:|---:|---|
+| Stüdyo yönlendirme (100) | 62 | 94 | model |
+| Soru yönlendirme (40) | 21 | 34 | model |
+| Grafik planı (60) | 49 | 10/19 (günlük kota doldu; aynı 19'da yerel 13) | yerel |
+| Karar anlatısı | — | 1/3 kabul | yerel |
+- Açık: grafik planının kalan 41 vakası kota açılınca ölçülecek (`--resume`); CI'de kayıtlı yanıtlarla çevrimdışı koşu eklenecek.
+
+## Faz 4 — Genel bakışta veri tablosu (G3)
+
+- [x] Geçerli kapsamın (ülke, tarih filtresi) tablosu: iki görünüm. **Satırlar** (fatura satırı) ve **özet** (ülke/ay/ürün bazında toplamlar).
+- [x] 530 bin satır için sunucu tarafında sayfalama (sayfa başına 50/100/500); toplam satır sayısı görünsün.
+- [x] Sütuna göre sıralama (artan/azalan, çoklu sıralama Shift ile).
+- [x] Sütun filtresi: metin içerir, sayı aralığı, tarih aralığı, değer listesi. Filtreler genel bakıştaki filtre çiplerine bağlı olsun.
+- [x] Sütun gizle/göster, sütun sırası (genişlik yok); seçim oturum boyunca bellekte tutulur — tarayıcıda kalıcı depolama yasak (D-103.1).
+- [x] "Düzenleme" kaynak veriyi değiştirmesin. — Sütun gizle/göster, yeniden adlandır, sırala yapıldı (tarayıcıda saklanır). Hesaplanmış sütun ve satır notu yapılmadı; kaynakta düzeltme katmanı Selman'ın kararına bağlı (Açık sorular 2). Görünüm düzeyinde: sütun adı değiştir, hesaplanmış sütun ekle (ör. `adet × fiyat`), satıra not ekle. Kaynak veride gerçek düzeltme gerekiyorsa denetim kayıtlı ayrı bir "düzeltme katmanı" olarak tasarlansın (bkz. Açık sorular).
+- [x] İndirme: CSV ve Excel (.xlsx), görünen filtre/sıralama ile. Formül enjeksiyonu nötrleştirmesi (`= + - @`) Excel için de uygulanır. Büyük indirmeler sınırlansın (ör. 1 milyon hücre) ve kullanıcıya söylensin.
+- [x] **Tabloya sor:** tablonun o anki hali (filtre, sıralama, görünen sütunlar) bağlam olarak gitsin. Soru doğrulanmış salt-okunur SQL'e çevrilsin (`analysis/sql_lab.py` doğrulayıcısı), sonuç tablo veya grafik olarak dönsün, SQL'i görülebilsin. Hazır sorular: "en çok iade edilen ürün", "bu ülkede aylık değişim", "seçili satırların toplamı".
+- [x] Tablodan grafiğe: seçili sütunlarla "Grafik stüdyosunda aç".
+- [x] Erişilebilirlik: klavyeyle gezinme, ekran okuyucu için tablo başlıkları; telefonda yatay kaydırma.
+- **Kabul:** 530 bin satırda sıralama + filtre ≤ 1 sn (yerel makinede); CSV ve Excel dosyası ekrandaki satırlarla birebir aynı (test); "tabloya sor" 20 vakalık sette ölçülür.
+
+---
+
+### Faz 4 sonucu (18 Ekim 2026)
+- `analysis/table.py` (table-v1): satır/özet (1–2 gruplama), en fazla 3 sıralama, 12 sütun filtresi, 25/50/100/500 satırlık sayfa; sütun adları allowlist, değerler bağlı parametre; `customer_id` hiç görünmez.
+- 530.104 satırda sayfa 0,04 sn, metin filtresi + sıralama 0,4 sn (yerel). CSV (UTF-8 BOM) ve Excel; formül nötrleştirme; 500.000 hücre sınırı.
+- "Tabloya sor" grafik planlayıcısını kullanır (aynı yönlendirme tablosu, ayrı bir model işi açılmadı); sonuç özet tablo + "Grafik stüdyosunda aç".
+- Bağımsız oracle'lı 18 test (`analysis/tests/test_table.py`). "Tabloya sor" için ayrı 20 vakalık ölçüm yapılmadı: grafik planı ölçümüne dahil.
+
+## Faz 5 — Referans bilgi katmanı (RAG), türetilmiş gruplar ve dönüşümler (G7, G9)
+
+Hedef: dış bilgi gerektiren sorular (NATO üyeliği, döviz kuru, enflasyon, altın) çözülsün. Kural değişmez:
+model yalnız plan önerir; sayılar her zaman yerelde, kaynağı ve tarihi belli referans verisiyle hesaplanır.
+
+### 5.1 Referans veri deposu
+- [x] `analysis/reference/` altında sürümlü referans tabloları: her tabloda kaynak URL, lisans, çekiliş tarihi, geçerlilik aralığı ve SHA-256.
+- [ ] İlk tablolar:
+  - [x] Ülke grupları: NATO (katılış tarihleriyle), AB, Euro bölgesi, G7, OECD, kıtalar. Veri setindeki ad farklılıkları eşlensin: "EIRE", "RSA", "Channel Islands", "European Community", "Unspecified".
+  - [ ] Döviz kurları: GBP/TRY, GBP/USD, GBP/EUR günlük (ör. TCMB / ECB).
+  - [ ] Enflasyon: İngiltere TÜFE (ONS), Türkiye TÜFE (TÜİK), aylık.
+  - [ ] Altın fiyatı: GBP/ons, günlük (lisansı uygun bir kaynak seçilmeli).
+- [ ] Çevrimdışı çalışma: referans tabloları depoyla birlikte gelsin; güncelleme komutu ayrı ve elle çalıştırılsın.
+- [x] Bilgi erişimi (RAG): model, soruya göre hangi referans tablosunun gerektiğini bu depodaki tablo kartlarından seçsin; serbest metinden sayı uydurmasın. Gerekli tablo yoksa "bu bilgi yok, şu kaynak eklenebilir" desin.
+
+### 5.2 ChartSpec v2: türetilmiş grup boyutu (NATO sorusu)
+- [x] Yeni alan `group_by`: referans grup tablosuna göre ülkeleri "grupta / grup dışı" sınıflasın. Hesap yerelde yapılsın.
+- [x] "Hangi tarihteki üyelik?" seçimi: verinin dönemi (2010–2011) ya da bugün. Varsayılan verinin dönemi; ekranda yazsın. Örneğin bugün NATO üyesi olan Finlandiya ve İsveç, 2011'de üye değildi.
+- [x] Sonuç: grup başına tutar ve yüzde, pasta veya yığılmış çubuk grafik, hangi ülkenin hangi grupta sayıldığını gösteren tablo, eşleşmeyen ülkeler ayrı satırda.
+- [x] NATO sorusu ve benzerleri (AB/AB dışı, Euro bölgesi, kıta) değerlendirme setine eklensin.
+- **Kabul:** "ülkeleri NATO / NATO dışı diye sınıfla, yüzdesini grafik yap" sorusu TR ve EN olarak doğru grafiği üretir; yüzdeler bağımsız bir Decimal hesabıyla tutar; eşleşmeyen ülkeler listelenir.
+
+### 5.3 ChartSpec v2: dönüşümler (TL, enflasyon, altın)
+- [ ] Yeni alan `transform`, sırayla uygulanan adımlar:
+  - [ ] `convert_currency`: işlem tarihindeki kurla (dönem ortalaması değil) TL/USD/EUR'ya çevir.
+  - [ ] `deflate`: TÜFE'ye göre seçilen baz aya sabitle ("2011 Ocak fiyatlarıyla").
+  - [ ] `in_gold`: tutarı altın onsu cinsinden göster.
+  - [ ] `index_100`: ilk dönem = 100.
+- [ ] Aynı grafik üzerinde "şimdi TL'ye çevir", "enflasyona göre düzelt", "altına göre göster" adım adım çalışsın; her adım değişiklik çipinde görünsün ve geri alınabilsin.
+- [ ] Hangi kur, hangi TÜFE serisi ve hangi baz ayın kullanıldığı grafiğin altında yazsın; Veri sekmesinde ham ve dönüştürülmüş değerler yan yana olsun.
+- [ ] Koda aktar paketi dönüşümleri ve referans tablolarını da içersin; `--check` yine eşleşsin.
+- [ ] Sınır: kâr veya marj gibi verinin desteklemediği şeyler dönüşümle "üretilmesin"; çekimser kalma kuralları korunsun.
+- **Kabul:** brüt satışın TL karşılığı, kurun gün bazında uygulanmasıyla bağımsız oracle'la birebir tutar; enflasyon ve altın dönüşümleri için ayrı testler var; koda aktar `--check` geçer.
+
+### 5.4 Karar
+- [x] DECISIONS AW-19 (referans veri katmanı ve ülke grupları). AW-20 (dönüşümler) veri kaynakları onaylanınca.
+
+---
+
+### Faz 5 durumu (18 Ekim 2026)
+- Yapıldı: ülke grupları referans tablosu (NATO, AB, euro bölgesi, G7, OECD, kıtalar; katılış/ayrılış tarihleri, eşleşmeyenler açık), `country_group` boyutu, tarih kuralı (dönem sonu / bugün), pay etiketleri, üyelik tablosu, kod paketi desteği. NATO sorusu: veri dönemine göre %93,6, bugünkü üyelikle %94,2.
+- Bekleyen: 5.1'deki döviz, enflasyon ve altın serileri ve 5.3 dönüşümleri. Bunlar dış kaynaktan veri indirmeyi gerektiriyor; kaynak ve lisans seçimi Selman'da (Açık sorular 3).
+
+## Faz 6 — İlişki ağı için soru-cevap (G2)
+
+- [x] Ağ sayfasında (Grafik stüdyosu içinde) soru kutusu.
+- [x] Hazır sorular:
+  - [x] "En güçlü 5 ürün çifti hangisi?"
+  - [x] "Şu ürünle en çok birlikte alınanlar?"
+  - [x] "Kaç topluluk var, her birinin öne çıkan ürünü ne?"
+  - [x] "Hangi ürün köprü görevi görüyor?" (aradalık merkeziliği)
+  - [x] "Seçili ay ile önceki ay arasında hangi bağlar koptu veya oluştu?"
+- [x] Açık uçlu sorular Faz 3'teki otomatik yönlendirmeyle cevaplansın. Model yalnız ağ sorgu planını önerir (hangi düğüm, hangi ölçüt, kaç sonuç); hesap yerelde ağ verisi üzerinden yapılır.
+- [x] Cevap ağı da güncellesin: ilgili düğüm ve kenarlar vurgulansın, geri kalan soluklaşsın.
+- [x] Ağın desteklemediği sorular (ör. "bu ürünü alan müşteri neden aldı?") çekimserlikle yanıtlansın.
+- [x] 25 vakalık ağ soruları değerlendirme seti; yerel ölçüldü (22/25, bağımsız değil). Modelin ölçümü Groq günlük kotası açılınca; o zamana kadar tabloda yerel.
+- **Kabul:** 5 hazır soru da doğru ve vurgulu cevap verir; açık uçlu sette ölçülmüş doğruluk rapora yazılır.
+
+---
+
+### Faz 6 sonucu (18 Ekim 2026)
+- `analysis/network_qa.py` (network-qa-v1): en güçlü çiftler, bir ürünün komşuları, topluluklar, köprü ürünler, en çok bağlantılılar, bir ay ile önceki ay arasında oluşan/kopan bağlar; desteklenmeyen (neden, müşteri, kâr, tahmin) ve belirsiz sorular tahmin edilmez.
+- Cevabın düğüm ve bağları ağda yanar (en güçlü N sınırının altındaki cevap bağları da çizilir), değerleri bağın ortasında yazılır.
+- `POST /network/ask`; model karşılığı `plan_network` (doğrulanmış JSON), tabloda yerel.
+
+## Faz 7 — Doğrulama ve teslim
+
+- [ ] Tüm testler, CI'deki 5 kontrol, tasarım denetimi (160 ölçüm) yeşil.
+- [ ] Canlı Groq ölçümü yeni setlerle yeniden koşsun; makbuz `docs/evidence/verification/` altına.
+- [ ] README, kullanım rehberi, ekran görüntüleri ve GIF yeni yapıya göre yenilensin; manifest hash'leri güncellensin.
+- [ ] Müşteri testi tekrarı: aynı kişi aynı senaryoyu yeni yapıyla yapsın; G1–G9'un her biri "çözüldü / kısmen / çözülmedi" olarak işaretlensin.
+- [ ] Groq anahtarı yenilensin (sohbet geçmişinde göründü).
+- [ ] v3 etiketi ve sürüm notu.
+
+---
+
+## Açık sorular (Selman'a)
+
+1. **G5:** "Niye dışlamış?" derken hangi ekran ve hangi dışlama kastedildi? Grafikteki kısmi dönem mi, iade/iptaller mi, yoksa önerilen "İngiltere hariç" isteği mi? Bir ekran görüntüsü yeterli.
+2. **G3 düzenleme:** tablodaki düzenleme görünüm düzeyinde mi kalsın (sütun adı, hesaplanmış sütun, not), yoksa kaynak veride gerçek düzeltme mi isteniyor? İkincisi denetim ve geri alma gerektirir.
+3. **G9 kaynakları:** TL kuru için TCMB mi, ECB mi? Altın için hangi kaynak kabul edilir? Lisans uygun olmalı.
+4. **G7 tarih:** grup üyeliği varsayılan olarak verinin dönemine göre mi (2011), bugüne göre mi hesaplansın?
+5. **G6 maliyet:** otomatik kullanım ücretsiz Groq kotasını aşar. Ücretli plana geçilecek mi, yoksa günlük bütçe sınırıyla mı çalışılsın?
+6. **G8:** ilişki ağı Grafik stüdyosu içinde mi dursun, yoksa Genel bakıştan doğrudan erişilen ayrı bir görünüm mü olsun?
+
+## Önerilen sıra ve kabaca büyüklük
+
+| Faz | Büyüklük | Neden bu sırada |
+|---|---|---|
+| 1 Hızlı düzeltmeler | Küçük | Müşterinin hemen gördüğü sorunlar |
+| 2 İki stüdyo | Orta–büyük | Yeni özellikler son yerlerine eklensin, sonradan taşınmasın |
+| 3 Otomatik yönlendirme | Orta | Faz 4–6'daki soru kutularının hepsi bunu kullanır |
+| 4 Veri tablosu | Orta | Faz 3'ün yönlendirmesini "tabloya sor" için kullanır |
+| 5 Referans veri ve dönüşümler | Büyük | Yeni veri kaynakları, lisans ve oracle testleri gerektirir |
+| 6 Ağ soruları | Orta | Faz 3 ve 1.1 üzerine kurulur |
+| 7 Teslim | Küçük | — |

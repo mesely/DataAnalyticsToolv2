@@ -1,0 +1,61 @@
+{
+ "scope": "Full local worker subprocess per request (interpreter start + imports + DuckDB + JSON), warm OS cache, public UCI data, 1 thread. No HTTP/OIDC/PG/browser. Small sample; not an SLA.",
+ "generated_utc": "2026-10-17T01:54:33+00:00",
+ "git_head": "aa063ad3bda912a2c42a12e4247c5a083bec929b",
+ "machine": "arm64",
+ "python": "3.12.9",
+ "observations": {
+  "chart_default_uci": {
+   "samples": 7,
+   "p50_ms": 355.2,
+   "max_ms": 772.9,
+   "failures": 0,
+   "response_bytes": 3345
+  },
+  "chart_compare_uci": {
+   "samples": 7,
+   "p50_ms": 345.8,
+   "max_ms": 355.1,
+   "failures": 0,
+   "response_bytes": 3845
+  },
+  "chart_ci95_country_uci": {
+   "samples": 7,
+   "p50_ms": 612.0,
+   "max_ms": 718.5,
+   "failures": 0,
+   "response_bytes": 3440,
+   "note": "after scipy.stats -> scipy.special (was p50 1507.8 / 1486.9 ms)"
+  },
+  "chart_trend_week_uci": {
+   "samples": 7,
+   "p50_ms": 614.7,
+   "max_ms": 628.4,
+   "failures": 0,
+   "response_bytes": 9097,
+   "note": "after scipy.stats -> scipy.special (was p50 1507.8 / 1486.9 ms)"
+  },
+  "code_bundle_uci_full": {
+   "samples": 7,
+   "p50_ms": 742.3,
+   "max_ms": 777.9,
+   "failures": 0,
+   "response_bytes": 4352461
+  },
+  "code_bundle_uci_france": {
+   "samples": 7,
+   "p50_ms": 404.0,
+   "max_ms": 421.7,
+   "failures": 0,
+   "response_bytes": 148791
+  },
+  "code_python_uci": {
+   "samples": 7,
+   "p50_ms": 104.2,
+   "max_ms": 109.3,
+   "failures": 0,
+   "response_bytes": 31890
+  }
+ },
+ "git_head_note": "ci95/trend rows re-measured after the scipy.special change (uncommitted at measurement time)"
+}

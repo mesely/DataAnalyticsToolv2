@@ -212,3 +212,26 @@ Tarayıcı: 390×844 ve masaüstü; açık/koyu; Cmd-K → `karar` → Tab → E
    mean8 naiften kötüydü — iki sezonla mevsimsel aday kayda girer.
 4. 2010-12-01 sonrası kısım UCI ile aynıdır; tek fark 2011-12-09'daki bir POST satırı (£18,00), tam hafta dışında.
 Test: `analysis/tests/test_online_retail_ii.py` (son test yalnız uci2 hazırlanmış makinede koşar).
+## AW-16 — kod dışa aktarma, Grafik stüdyosu, portreler (17 Ekim 2026)
+
+1. **Grafik stüdyosu.** Genel bakış → trend panelinde "Stüdyoda düzenle" (veya ⌘K → "Grafik stüdyosu"). Sırayla
+   şunları yazın:
+   - "son 6 ay"
+   - "Almanya ile Fransa'yı karşılaştır"
+   - "2 dönemlik hareketli ortalama ekle"
+   - "tüm ülkeler, ülkelere göre ortalama sepet, ilk 8, %95 güven aralığı"
+   - "aylık brüt satış, trend çizgisi ekle"
+
+   Her adımda değişen alanların çip olarak göründüğünü, "Yerel planlayıcı" rozetini ve sayılara bağlı
+   olgu/hesap/sınır cümlelerini kontrol edin. Ayrıca:
+   - Sıfırın altına inen aralıklar eksende kesilmeli ve dipnot görünmeli.
+   - Kısmi dönem içi boş nokta olarak gösterilmeli.
+   - "Geri al" önceki adıma dönmeli.
+2. **Kod olarak dışa aktar.** Stüdyoda "Koda aktar" düğmesine basın (veya Dışa aktar → "Python, SQL ve README").
+   - README, `analysis.py` ve `analysis.sql` önizlemelerini kontrol edin; zip'i indirin.
+   - Ayrı bir klasörde şunları çalıştırın: `pip install -r requirements.txt` ve `python analysis.py --check`.
+     Tüm satırlar ✓ olmalı.
+   - `duckdb < analysis.sql` aynı KPI'ları vermeli.
+3. **Portre.** Kenar çubuğundaki portreye tıklayıp bir sektör seçin. Sayfayı yeniden yükleyince seçim korunmalı.
+   Başka bir hesabın seçimi bundan bağımsız olmalı.
+4. **Dil.** TR ↔ EN geçişinde analiz yeniden çalışır; ağ notu ve cevaplar seçilen dilde gelir.

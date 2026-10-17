@@ -1,6 +1,34 @@
 # Context Layer / Analytics — tek giriş ve devir rehberi
 
-## ŞİMDİ OKU — AW-15 özgün simge ailesi + tasarım maksimizasyonu (17 Ekim 2026)
+## ŞİMDİ OKU — AW-16: kod dışa aktarma, Grafik stüdyosu, analist portreleri, tanıtım README (17 Ekim 2026)
+
+- **Kod dışa aktarma** (`analysis/code_export.py`, `POST /export/code`, `CodeExport.tsx`). Dışa aktar menüsü, komut paleti ve Grafik stüdyosundaki "Koda aktar" bu diyaloğu açar.
+  - Paket içeriği: README, yorumlu `analysis.py` (tek bağımlılık duckdb, `--check`), `analysis.sql` (SET VARIABLE), `charts.py`, Parquet veri, `expected.json` ve SVG figürler.
+  - Deterministik: aynı kapsam iki kez dışa aktarılınca byte'ı byte'ına aynı zip çıkar.
+  - Paket repo dışında `--check` ile 11/11 yeşil.
+- **Grafik stüdyosu** (`analysis/chart_studio.py`, `POST /chart`, `ChartStudio.tsx`).
+  - Serbest metin istek ve adım adım iyileştirme: dönem, ülke karşılaştırma, ilk N, %95 GA (yalnız ortalamalar), OLS trend, ±2σ bant, hareketli ortalama.
+  - Llama yalnızca ChartSpec planlar; geçersiz veya erişilemez plan → yerel planlayıcı (ekranda yazar).
+  - scipy.stats → scipy.special: aralık/trend isteklerinde p50 1,51 s → 0,61 s.
+- **Portreler:** 8 Gemini portresi + yeni ürün işareti (maskot) + favicon.
+  - Seçim sunucuda: `workbench_profiles`, geçiş 0022, `GET/PUT /profile`.
+  - Harf avatarı kaldırıldı.
+  - **İnsan portreleri üretilemedi:** otomatik izin denetimi engelledi; kullanıcıya soruldu.
+- **README** ürün tanıtımı olarak yeniden yazıldı.
+  - Görseller `docs/showcase/` altında: 14 ekran görüntüsü + GIF, headless Chrome ile 1440×900 @2x.
+  - İçerik: mimari, ölçülmüş süreler, kategori karşılaştırması ve "neyin yerini tutmaz" bölümü.
+- **Karneler:** `docs/phases/AW16_FEATURE_SCORECARD.md` (kod 96, grafik 91, portre 88). Spec: `specs/analyst-workspace-phase12.md` (sonuçlar dahil).
+- **Diğer düzeltmeler:**
+  - Ağ notu yerelleştirildi; dil değişince analiz yeniden çalışıyor.
+  - Anlatı etiket sütunu 136 px oldu.
+  - Derleme `dist/assets` klasörünü her seferinde temizliyor.
+- **Açık:**
+  - Canlı Llama (402).
+  - Dışa aktarılan grafik betiğinde istatistik katmanları yok.
+  - Dışlama istekleri ("X hariç") desteklenmiyor.
+  - Kullanıcı görev testi yapılmadı.
+
+## ÖNCEKİ — AW-15 özgün simge ailesi + tasarım maksimizasyonu (17 Ekim 2026)
 
 İstek: hiçbir simge hazır asset olmayacak; hepsi Gemini üretimi ve ürüne özgü; tasarım/kural puanları 100'e.
 - **Simgeler:** lucide-react paketi ve 36 eski SVG kaldırıldı. Gemini konuşmasında 7 tur → 52 glyph

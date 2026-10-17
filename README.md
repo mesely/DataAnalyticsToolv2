@@ -1,200 +1,243 @@
-<p align="center"><img src="core/web/src/workbench/assets/app-icon.jpeg" width="112" alt="Context Layer brand artwork"></p>
+<p align="center"><img src="core/web/src/workbench/assets/avatars/app-mark.jpg" width="120" alt="Context Layer mascot"></p>
 <h1 align="center">Context Layer</h1>
-<p align="center">A workspace for exploring data, testing models and making evidence-led decisions.</p>
+<p align="center"><b>Ask for any chart. Get the numbers, the evidence and the code.</b><br>
+An analytics workspace where every figure is computed, checked and reproducible — and where a model may plan, but never invents a number.</p>
+<p align="center"><a href="https://github.com/mesely/DataAnalyticsToolv2/actions/workflows/tests.yml"><img src="https://github.com/mesely/DataAnalyticsToolv2/actions/workflows/tests.yml/badge.svg" alt="CI"></a></p>
 
-Context Layer brings CSV preparation, dataset exploration, governed SQL, product networks, bounded machine learning experiments, weekly sales projections and evidence-linked decision briefs into one authenticated workspace. It builds on Alper Çamlı's metadata and governance platform, with adapted retrieval, safety and export components from adviSU and network methods from PoliEcoTRNetSci.
+<p align="center"><img src="docs/showcase/chart-studio.gif" width="880" alt="Chart Studio: a chart refined step by step — last 6 months, Germany vs France, moving average, 95% intervals by country, linear trend"></p>
 
-![Dark sales workspace on the UCI Online Retail dataset](docs/evidence/phase10/01-dark-overview.jpeg)
+Context Layer brings data preparation, dataset exploration, governed SQL, product networks, bounded machine-learning
+experiments, backtested forecasts, scenario briefs, a free-text **Chart Studio** and a **developer code hand-off**
+into one authenticated workspace. It builds on Alper Çamlı's metadata and governance platform, with adapted retrieval,
+safety and export components from adviSU and network methods from PoliEcoTRNetSci.
 
+---
+
+## Why it is different
+
+| | What it means in practice | How it is enforced |
+|---|---|---|
+| **Numbers never come from a model** | Ask in your own words. A model (Llama 3.3 70B, opt-in) may only *plan* the analysis as a strict JSON spec; every number, interval and sentence is computed by the local engine. | Plans are schema-validated (enums, catalog countries, date ranges, no SQL, no prose); anything else falls back to a deterministic planner and says so on screen. |
+| **Every figure has a receipt** | Formulas, filters, the executed SQL, dataset hash and a SHA-256 of the output sit next to each result. | Recipe/evidence binding per run; owner-scoped storage; audit log per action. |
+| **Forecasts must beat naive — or say so** | Weekly projections are selected on development origins only and reported against a naive benchmark on an untouched final window, even when they lose. | On the two-season Online Retail II data, seasonal naive is selected and is 28.8 % below naive MAE on the 12-week final window; on the one-year data the UI shows the month where naive wins. |
+| **Hand-off as code** | Export the current analysis — or a Chart Studio chart — as commented Python and DuckDB SQL with a README, the filtered rows as Parquet and pre-rendered figures. | `python analysis.py --check` recomputes everything and compares it with `expected.json` exactly; two exports of the same scope are byte-identical. |
+| **Statistics with their assumptions** | 95 % t-intervals for averages, OLS trend with R² and p-value, ±2σ control bands, moving averages — each with the limitation that applies. | Intervals are offered only for means; asking for one on an observed total yields a control band and a warning, never a fake interval. |
+| **Designed and measured** | One original, Gemini-generated visual language (52 glyphs, analyst portraits) and a measured design system. | DOM audit: Fitts, contrast, spacing, type scale, alignment and icon originality at 100 on 16 screen/theme/viewport combinations; Hick–Hyman 98–100. |
+
+## From description to decision
+
+| Question type | In Context Layer | Evidence you get |
+|---|---|---|
+| **Descriptive** — what happened? | KPIs, trends, country/product rankings, Chart Studio breakdowns by month, week, weekday, country or product | Metric definitions, executed SQL, data-quality counts |
+| **Diagnostic** — why, where, with what? | Co-purchase and country-profile networks, three-window change over time, concentration, partial-period flags | Communities/centralities, Jaccard overlap, new/lost links |
+| **Statistical** — how sure are we? | 95 % intervals of average order value, trend slope with R²/p/n, control bands | The assumption behind each statistic, stated with it |
+| **Predictive** — what next? | One-week projection selected among 10 registered methods by rolling-origin backtest; bounded ML experiments (baseline / forest / linear, CV, holdout) | MAE/MASE vs naive, band coverage, model cards with calibration metrics |
+| **Prescriptive** — what should we do? | Decision briefs: ranked investigations, price/volume scenarios, a typed narrative (fact → calculation → inference → recommendation → limitation) | A published support checklist (not a probability), missing evidence listed as unknown |
+
+---
+
+## Tour
+
+### Overview
+
+<p><img src="docs/showcase/01-overview-dark.jpg" width="880" alt="Sales overview in the dark appearance"></p>
 <details><summary>Light appearance</summary>
-
-![Light sales workspace](docs/evidence/phase10/02-light-overview.jpeg)
-
+<p><img src="docs/showcase/02-overview-light.jpg" width="880" alt="Sales overview in the light appearance"></p>
 </details>
 
-## Explore, investigate, keep the evidence
+Gross sales, orders, units and average order value with one scope card for dataset and filters, monthly trend with
+partial-period disclosure, and country rankings that filter the view. Turkish and English, command search (⌘K),
+keyboard navigation, 44 px targets, dark and light appearances.
 
-| Workspace | What you can do |
-|---|---|
-| **Prepare data** | Profile bounded flat CSV or Parquet tables, preserve leading-zero identifiers, see decimal-comma and date-pattern diagnostics, map retail fields, choose decimal/date conversions explicitly, preview quality and totals, and remove duplicates before import. |
-| **Model studio** | Choose a target and features, use random/group/time splits, compare baseline/forest/linear candidates with training CV, inspect held-out metrics (including log loss, Brier and calibration error for classifiers), and save/export an owner-scoped model card. |
-| **Decision studio** | Inspect ranked investigations and their evidence, compare weekly forecasts with a naive benchmark, declare price/volume/budget scenarios, and reopen or export saved decision briefs. |
-| **Overview** | Inspect gross sales, orders, units and average order value. Filter dates/countries, inspect monthly trends, review schema and data quality. |
-| **Analysis** | Ask bounded analytics questions, inspect formulas and calculation evidence, search metric/schema context, and use the read-only SQL lab. |
-| **Relationships** | Explore invoice co-purchase or country-profile similarity, select products, inspect communities/centralities, and switch to accessible data tables. |
-| **Change over time** | Compare before/focus/after windows using a shared product universe, new/lost relationships, Jaccard overlap, concentration and descriptive intervals. |
-| **Findings** | Save, reopen, rerun, compare, archive and restore your analyses. Export query results to CSV/Excel and calculation evidence to JSON. |
+### Chart Studio — describe the chart you want
 
-The interface supports Turkish and English, command search, keyboard navigation and responsive layouts. Light and navy/charcoal appearances follow the system preference, with a manual session toggle. Six Gemini raster assets and a 52-glyph Gemini-generated icon family form the visual identity: one grammar (24×24, 1.75 stroke, open top-right corner, one brass index dot), no stock icon package, and even the browser's own widget markers (disclosure, select caret, date picker, checkbox tick) drawn from the same family. The design system (12–32 px type scale, 4 px rhythm, 6/10/14 radii, 44 px targets, WCAG-contrast light theme) is measured by `tools/design/audit.js` and guarded by `tests/test_design_system.py`; see `docs/phases/DESIGN_SCORECARD.md`. Illustrations remain separate from analytic charts.
+Type a request — *"last 6 months"*, *"compare Germany and France"*, *"average order by country, top 8, with a 95 %
+interval"*, *"add a linear trend line"* — and refine it step by step. Each step shows exactly what changed, which
+planner was used, the data, the SQL and a commentary written from the computed values.
 
-### Analysis assistant
-
-An optional **Llama 3.3 70B** planner uses the Hugging Face inference router through the adapted adviSU provider transport. It maps a question to an allowlisted intent within the current filters. Facts and numbers come from the local calculation engine; the model cannot execute arbitrary SQL or Python. The question and a static routing policy are sent only when the user enables Llama. Dataset rows and results are not sent by this routing mode. The separate decision-studio opt-in below sends minimized numerical aggregates and methodology notes, without raw rows or product/country labels.
-
-**Current live-service limitation:** the configured account returned HTTP 402 (inference credit required). The app handles this explicitly and preserves the standard calculated answer. A successful live model response and model accuracy benchmark have **not** been verified. Fifty offline plan-contract fixtures test schema/executor behavior; they do not measure model accuracy.
-
-<details>
-<summary>View the analysis assistant</summary>
-
-![Bounded analysis with calculation evidence](docs/evidence/phase4/03-analysis.jpeg)
-
+<p><img src="docs/showcase/03-chart-studio-compare.jpg" width="880" alt="Germany vs France monthly gross sales with computed commentary"></p>
+<p><img src="docs/showcase/04-chart-studio-interval.jpg" width="880" alt="Average order value by country with 95% t-intervals"></p>
+<details><summary>Linear trend with R², p-value and the "descriptive, not a forecast" limitation</summary>
+<p><img src="docs/showcase/05-chart-studio-trend.jpg" width="880" alt="Monthly gross sales with an OLS trend"></p>
 </details>
 
-### From analysis to a decision brief
+The local planner understands Turkish and English (metrics, breakdowns, chart types, relative and absolute periods,
+quarters, Turkish country names, top-N, statistics, comparisons and removals). With Llama enabled and a provider
+configured, the model proposes the spec instead; an invalid or unavailable plan falls back locally and the screen says
+so. Interval whiskers that would fall below zero are cut at the axis, with the computed bounds kept in the Data tab.
 
-The **Decision studio** combines measured gross sales, market concentration,
-co-purchase evidence and a one-week sales projection. Each investigation has
-an explanation, explicit missing evidence, a three-step decision sequence and
-links to the actual calculation or chart. Its support score is a published
-checklist, not a probability of correctness or an expected return.
+### Hand the analysis to a developer
 
-![Current decision brief with typed narrative and evidence references](docs/evidence/phase11/06-decision-light-final.jpeg)
-
-Forecasts compare registered baselines (last week, seasonal naive when two
-seasons exist, drift, trailing means, exponential smoothing, damped Holt) by
-one-step rolling error on development origins only; a final window of the
-last origins is evaluated afterwards for every method and never selects one.
-The UI shows MAE/MASE against the naive benchmark, including when the
-selected method performs worse. On the one-year UCI data an 8-week mean is
-selected and lags the November ramp (naive is better that month). On the
-two-season Online Retail II data the same protocol selects seasonal naive,
-which is 28.8% below naive MAE on the untouched 12-week final window. The residual band's scaling is chosen on
-development origins with radii built from earlier residuals only (finite-sample
-conformal quantile); its development and final-window coverage and mean widths are shown and
-it remains labelled uncalibrated. At least 16 complete weeks are required.
-Price and volume scenarios use declared assumptions; gross-sales delta is
-separate from budget, profit and causal impact.
-
-Every brief carries a typed analyst narrative — fact, calculation, inference,
-assumption, recommendation, limitation — in which each sentence links to the
-calculation it rests on. The local renderer always produces it; an optional
-Llama narrative must return the same typed JSON over an evidence packet and is
-accepted only under schema, citation and signed numeric/unit checks, and only when
-each number sits next to the name of its own measure and each date inside that
-measure's period. These word-level checks do not establish semantic entailment or
-model accuracy. Missing evidence is
-reported as unknown, never as zero. Country filter labels stay local.
-
-An optional Llama step receives a bounded XML evidence bundle and methodology
-notes retrieved with the adapted adviSU BM25 kernel. Strict validation permits
-only existing candidate IDs and rationale codes. The local engine controls
-numbers, scores, ordering and explanations; provider failure preserves the
-local brief. XML structure and schema validation do not establish model accuracy.
-The current live provider remains blocked by HTTP 402.
-
-Briefs are saved per signed-in identity. Export JSON calculations, a Markdown
-report or the minimized XML model context. The [public UCI report](docs/evidence/phase10/uci-decision.md)
-and [evaluation report](docs/phases/PHASE_10_REPORT.md) show actual results and limits.
-
-### Product networks and time windows
-
-Co-purchase edges represent products on the same invoice. Similarity edges compare country sales profiles; they do not establish causality. The visible graph is bounded to 24 products and 150 edges. Temporal comparison uses one shared universe with up to 276 pairs. Methods, filters, sample coverage and evidence are available next to the result.
-
-![Product relationship network](docs/evidence/phase4/04-network.jpeg)
-
-<details>
-<summary>View the period comparison</summary>
-
-![Three-period sales and relationship comparison](docs/evidence/phase4/05-temporal.jpeg)
-
+<p><img src="docs/showcase/06-code-export-readme.jpg" width="880" alt="Code export dialog previewing the bundle README"></p>
+<details><summary>The generated Python, previewed in the app</summary>
+<p><img src="docs/showcase/07-code-export-python.jpg" width="880" alt="Commented analysis.py preview"></p>
 </details>
 
-<details>
-<summary>View saved findings and the mobile layout</summary>
+The bundle is a working project, not a snippet:
 
-![Saved analysis library](docs/evidence/phase4/07-findings.jpeg)
+```text
+README.md          purpose, quick start, scope, metric definitions, data dictionary, expected results, recipes for changes
+analysis.py        typed, documented functions; --data/--start/--end/--country/--out/--check; only dependency: duckdb
+analysis.sql       the same queries in DuckDB SQL, parameters at the top (SET VARIABLE …)
+charts.py          dependency-free SVG chart writer
+data/              the filtered rows as Parquet (no customer identifiers)
+expected.json      integer results at export time (pence and counts)
+figures/           pre-rendered SVG figures (+ the exported Chart Studio chart)
+```
 
-<img src="docs/evidence/phase4/06-mobile.jpeg" width="280" alt="Responsive sales overview on a narrow screen">
+```bash
+pip install -r requirements.txt
+python analysis.py --check      # ✓ 11 checks match expected.json
+```
 
+### Analysis assistant, networks and decisions
+
+<p><img src="docs/showcase/09-analysis-assistant.jpg" width="880" alt="Analysis assistant answer verified against the computed result"></p>
+<p><img src="docs/showcase/10-network.jpg" width="880" alt="Same-invoice co-purchase network with collision-free labels"></p>
+<p><img src="docs/showcase/11-decision-brief.jpg" width="880" alt="Decision brief with typed analyst narrative"></p>
+<details><summary>Backtested weekly forecast with diagnostics</summary>
+<p><img src="docs/showcase/12-decision-forecast.jpg" width="880" alt="Weekly projection, MAE against naive and band diagnostics"></p>
 </details>
 
-### Prepare data and compare models
+### Analyst portraits
 
-Explicit mappings and a source/recipe receipt connect the import preview to the
-actual calculation. Draft transformations can be reset; changing a field or
-option invalidates the previous preview. UTF-8, Windows-1252 and Windows-1254 decoding
-include a local text preview; non-UTF-8 files require confirmation before profiling.
-Parquet is limited to primitive columns, 2 MB of compressed bytes and 8 MB of
-decoded text, with no external file access beyond the temporary upload.
+<p>
+<img src="core/web/src/workbench/assets/avatars/analyst-core.jpg" width="88" alt="Core analytics mascot">
+<img src="core/web/src/workbench/assets/avatars/analyst-retail.jpg" width="88" alt="Retail analyst">
+<img src="core/web/src/workbench/assets/avatars/analyst-banking.jpg" width="88" alt="Banking analyst">
+<img src="core/web/src/workbench/assets/avatars/analyst-automotive.jpg" width="88" alt="Automotive analyst">
+<img src="core/web/src/workbench/assets/avatars/analyst-energy.jpg" width="88" alt="Energy analyst">
+<img src="core/web/src/workbench/assets/avatars/analyst-telecom.jpg" width="88" alt="Telecom analyst">
+<img src="core/web/src/workbench/assets/avatars/analyst-logistics.jpg" width="88" alt="Logistics analyst">
+<img src="core/web/src/workbench/assets/avatars/analyst-health.jpg" width="88" alt="Healthcare analyst">
+</p>
 
-![CSV preparation with a custom brand illustration](docs/evidence/phase6/05-preparation-art.jpeg)
+No letter avatars: each analyst picks a portrait for their business domain — retail, banking, automotive, energy,
+telecom, logistics, healthcare — or the Context Layer mascot, which is also the product mark. All are original
+Gemini (Nano Banana Pro) illustrations in one series; the choice is stored server-side per account
+([provenance](core/web/src/workbench/assets/PROVENANCE.md)).
 
-The model studio compares fixed-budget baseline, Random Forest and linear
-candidates using three training folds. Preprocessing is fitted inside each
-fold. Optional numeric-only SMOTE resamples training data only. A separate
-20% holdout is evaluated after selection; group and chronological strategies
-are available for suitable data. Saved cards contain split/source/runtime
-receipts, metrics and limitations. Raw training CSV and fitted executable
-models are not persisted.
+<p><img src="docs/showcase/08-analyst-portraits.jpg" width="880" alt="Portrait picker"></p>
 
-![Actual Wine held-out result compared with a constant baseline](docs/evidence/phase6/02-wine-result.jpeg)
-
-<details><summary>Original visual identity and responsive model studio</summary>
-
-<p><img src="core/web/src/workbench/assets/data-preparation.jpeg" width="180" alt="Original data preparation instrument"><img src="core/web/src/workbench/assets/model-studio.jpeg" width="180" alt="Original model comparison sculpture"><img src="core/web/src/workbench/assets/relationship-explorer.jpeg" width="180" alt="Original relationship constellation"></p>
-
-Six Gemini raster assets and 37 generated geometry vectors
-form the product's visual family. New illustrations orient the preparation,
-model and relationship entrances; calculated charts and results retain their
-own clear visual language. [Asset provenance](core/web/src/workbench/assets/PROVENANCE.md).
-
-<img src="docs/evidence/phase6/03-mobile.jpeg" width="280" alt="Model results on a narrow screen">
-
+<details><summary>On a phone</summary>
+<p><img src="docs/showcase/13-mobile-overview.jpg" width="280" alt="Mobile overview"> <img src="docs/showcase/14-mobile-chart-studio.jpg" width="280" alt="Mobile Chart Studio"></p>
 </details>
 
-<details><summary>Current mobile preparation and encoding checks</summary>
+---
 
-<img src="docs/evidence/phase11/05-encoding-mobile-final.jpeg" width="280" alt="Mobile encoding preview with correctly decoded Turkish characters and confirmed import controls">
+## Engineering
 
-</details>
+```mermaid
+flowchart LR
+  UI["React SPA<br/>(esbuild, Recharts)"] -- "OIDC session + CSRF" --> CORE["Core service<br/>TypeScript · Fastify"]
+  CORE -- "owner checks, admission,<br/>audit, Postgres" --> PG[(PostgreSQL 16)]
+  CORE -- "JSON over stdin/stdout,<br/>45 s, bounded output" --> W["Analysis worker<br/>Python 3.12"]
+  W --> DDB[("DuckDB<br/>read-only, columnar")]
+  W -. "opt-in plan only<br/>(validated JSON)" .-> LLM["Llama 3.3 70B<br/>HF router"]
+```
+
+| Layer | Choice | Why |
+|---|---|---|
+| Aggregation | **DuckDB** (vectorised, columnar, embedded) | Group-bys over 530 k invoice lines in milliseconds, parameterised SQL, read-only files, no server to run |
+| Statistics & ML | **Python** — pandas, NumPy, SciPy (special functions only on the hot path), scikit-learn, NetworkX | Established numerical libraries; imports are lazy so a chart request does not pay for the ML stack |
+| Service boundary | **TypeScript / Fastify** | OIDC sessions, CSRF, roles, owner checks, audit and admission control in one typed layer; one worker subprocess per request isolates analysis faults |
+| UI | **React** + Recharts, no UI kit | A design system measured in the DOM (type scale, 4 px rhythm, 44 px targets, WCAG contrast) and an original glyph family |
+
+**Measured worker latency** (full subprocess per request: interpreter start, imports, DuckDB, JSON; public UCI data,
+one thread, small samples — not an SLA; [receipt](docs/evidence/verification/phase12-aw16-performance.json),
+[earlier receipts](docs/evidence/verification/phase11-performance-startup.json)):
+
+| Request | p50 |
+|---|---:|
+| Python file export | 104 ms |
+| Chart Studio — monthly chart, country comparison | ~350 ms |
+| Code bundle — France scope (with Parquet and figures) | 404 ms |
+| Chart Studio — 95 % intervals / OLS trend (after moving off `scipy.stats`: 1.51 s → 0.61 s) | ~610 ms |
+| Overview run (KPIs, trend, rankings, network) | 703 ms |
+| Code bundle — all 530 k rows (3.2 MB zip) | 742 ms |
+
+**Quality gates.** 400 analytics tests (including 95 for Chart Studio and code export: planner cases in Turkish and
+English, adversarial model output, statistics against independent SciPy/NumPy computations, bundles executed end to
+end), 800+ platform tests, a Docker-backed TypeScript integration suite in CI (identity, CSRF, owner isolation,
+exports, chart and profile routes; a hostile dataset title cannot escape a generated SQL comment), a design-system test (glyph grammar, scales, contrast) and an in-page layout
+linter (overflow, clipping, alignment, narrow controls) used on every screen at 1440/1024/768/390 px.
+
+**Governance.** Existing OIDC sessions, CSRF checks, roles and audit logging; dataset/run/query/experiment ownership
+checked server-side; SQL through a validator plus an AST/function policy on read-only DuckDB with external access
+disabled; spreadsheet-formula protection in CSV/Excel exports; no browser storage of any kind.
+
+## How it compares
+
+Generalisations about tool *categories*, not claims about any specific product:
+
+| | Typical BI dashboard | Typical chat-to-chart assistant | Context Layer |
+|---|---|---|---|
+| Free-text chart requests | Rare | Yes | Yes, refined step by step |
+| Who computes the numbers | The BI engine | Often model-written code or the model itself | The local engine only; the model plans |
+| Evidence next to a result | Usually separate | Usually none | Formula, SQL, scope, hashes per result |
+| Forecast honesty | Often a fitted line | Varies | Backtest vs naive on an untouched window, shown even when worse |
+| Hand-off to a developer | Export a CSV | Copy a snippet | Reproducible project with a self-check |
+| Statistical caveats | Rarely shown | Rarely shown | Stated with each statistic |
+
+## What it does not replace
+
+Context Layer covers the routine, evidence-heavy part of an analytics engagement — clean scope, KPIs, drivers,
+statistics, a backtested projection, scenarios and a documented code hand-off — in minutes. It does **not** provide
+causal inference, profit or margin (the metrics are gross sales from invoice lines), market sizing outside the data,
+stakeholder interviews or domain judgement, and it has not yet been through a task-based user pilot. The optional live
+Llama path is implemented and tested against schema and adversarial fixtures, but the configured account returned
+HTTP 402, so **live model accuracy has not been measured**.
+
+---
 
 ## Try it locally
 
-Requirements: **Python 3.12**, **Node.js 22+** (tested with 24), and **PostgreSQL 16**. On macOS, the launcher uses the Homebrew PostgreSQL installation, creates an isolated loopback database, prepares datasets, builds the UI and starts the app. It does not require Docker or change other projects' containers.
+Requirements: **Python 3.12**, **Node.js 22+** (tested with 24), **PostgreSQL 16**. On macOS the launcher uses the
+Homebrew PostgreSQL installation, creates an isolated loopback database, prepares datasets, builds the UI and starts
+the app; it does not need Docker.
 
 ```sh
 ./deploy/phase1/start.sh
 ```
 
-Open **http://127.0.0.1:8123/app/**. Local fixture accounts: `selman` or `alper`, password `analiz-demo`. `viewer` uses the same password and has no analyst role. These are development fixtures, not a production identity deployment. Ports: app 8123, identity 8188, PostgreSQL 5549. Other environments can override `CONTEXT_NODE_BIN` and `CONTEXT_PG_BIN`; inspect the launcher before configuring a production environment.
+Open **http://127.0.0.1:8123/app/**. Local fixture accounts: `selman` or `alper`, password `analiz-demo` (`viewer` has
+no analyst role). These are development fixtures, not a production identity deployment. Ports: app 8123, identity
+8188, PostgreSQL 5549.
 
-To configure Llama, set `HF_TOKEN` and optionally `HF_MODEL=meta-llama/Llama-3.3-70B-Instruct` on the server, then restart it. The local launcher also supports an ignored mode-0600 `analysis/.local/hf-provider.json` with `token` and `model` keys. Never put a credential in browser code or Git. Inference requires appropriate Hugging Face permissions and credits.
+To enable Llama, set `HF_TOKEN` (and optionally `HF_MODEL=meta-llama/Llama-3.3-70B-Instruct`) on the server, or use the
+ignored mode-0600 `analysis/.local/hf-provider.json`. Never put a credential in browser code or Git.
 
-### Data included in the experience
+### Data
 
-- **Retail sample:** deterministic synthetic data, independent Decimal oracle, £21,405 gross sales / 180 invoices. Useful for checking filters and calculations.
-- **UCI Online Retail:** historical 2010–2011 public data by Daqing Chen, [DOI 10.24432/C5BW33](https://doi.org/10.24432/C5BW33), CC BY 4.0. Preparation downloads the official source; the full dataset is not committed. Of 541,909 source rows, 530,104 positive eligible invoice lines contribute **£10,666,684.54 / 19,960 invoices**.
-- **UCI Online Retail II (optional, two seasons):** 2009–2011 data from the same retailer, [DOI 10.24432/C5CG6D](https://doi.org/10.24432/C5CG6D), CC BY 4.0. Prepare it with `python -m analysis.prepare --online-retail-ii <downloaded zip>` (the zip is 45.6 MB; it is not committed and not needed in CI). The two yearly sheets repeat 2010-12-01..09 row for row; that window is taken once, and a non-identical overlap is refused. 1,044,848 source rows → 1,019,654 eligible lines, **£20,533,741.90 / 40,077 invoices**. It appears in the dataset menu only where it has been prepared.
-- **Private CSV/Parquet:** bounded flat-table profiling, explicit owner-scoped retail field mapping and import, up to 2 MB / 10,000 rows. CSV encoding choices are previewed locally; Parquet decoded text is additionally limited to 8 MB. Retail metrics require GBP and invoice-line grain; unit prices accept up to four decimal places.
-- **ML examples:** original measured records from UCI Wine (178 observations, 13 features, CC BY 4.0) and the scikit-learn Diabetes benchmark (442 observations, 10 features). Source notes and SHA-256 hashes are in [ML provenance](analysis/data/ML_PROVENANCE.json). Model experiments accept 100–3,000 observations and up to 30 selected features.
+- **Retail sample** — deterministic synthetic data with an independent Decimal oracle (£21,405 / 180 invoices).
+- **UCI Online Retail** — 2010–2011, Daqing Chen, [DOI 10.24432/C5BW33](https://doi.org/10.24432/C5BW33), CC BY 4.0.
+  530,104 eligible invoice lines, **£10,666,684.54 / 19,960 invoices**. Downloaded from the official source, not committed.
+- **UCI Online Retail II** (optional, two seasons) — [DOI 10.24432/C5CG6D](https://doi.org/10.24432/C5CG6D), CC BY 4.0;
+  `python -m analysis.prepare --online-retail-ii <zip>`. 1,019,654 eligible lines, **£20,533,741.90 / 40,077 invoices**.
+- **Your CSV/Parquet** — profiled, explicitly mapped and owner-scoped (≤ 2 MB / 10,000 rows).
+- **ML examples** — UCI Wine and the scikit-learn Diabetes benchmark ([provenance](analysis/data/ML_PROVENANCE.json)).
 
-Sales exclude returns/cancellations and are rounded to pence per invoice line. They are **gross sales**, not net revenue or profit. Duplicate lines and postage/service/manual invoice lines are retained and disclosed. Boundary months may be partial. Source definitions and quality counts stay available inside the app.
-
-## Trust and reproducibility
-
-The workspace reuses existing OIDC sessions, CSRF checks, roles and audit logging. Dataset/run/query/experiment ownership is checked server-side. SQL uses the original validator plus a narrow AST/function policy, read-only DuckDB, disabled external access and execution/output limits. CSV/Excel exports protect string cells against spreadsheet formulas while preserving numeric values.
-
-All analytic worker routes share subject/global admission, including PostgreSQL advisory permits across core processes using the same database. Run archival is reversible. Recipe v4 evidence binds dataset identity, filters, computed artifacts and a calculation-source/dependency fingerprint. Historic v1/v2/v3 results are retained rather than rewritten.
-
-This is a **locally verified development release**. Production identity/tenant RLS, dataset/query retention, OS resource isolation, large-scale load evidence and task-based user research remain open gates. The existing MCP/live execution governance path and deterministic KB generator are preserved.
+Sales exclude returns/cancellations and are rounded to pence per invoice line: **gross sales**, not net revenue or
+profit. Postage/service/manual lines are retained and disclosed. Boundary months may be partial.
 
 ## Verification and project map
 
-- [Test walkthrough](docs/phases/TEST_GUIDE.md) — expected values and UI scenarios.
-- [AW-14 correctness and browser acceptance](docs/phases/PHASE_11_CONTINUATION.md) — current scope, measured results and remaining gates.
-- [Preparation release](docs/phases/PHASE_5_REPORT.md), [model experiment release](docs/phases/PHASE_6_REPORT.md).
-- [Phase 4 release report](docs/phases/PHASE_4_REPORT.md) — actual checks, observations and remaining gates.
-- [Source reuse ledger](docs/phases/REUSE_LEDGER.md) — exact adaptations, runtime status and attribution.
-- [Architecture and setup](docs/PLATFORM_OVERVIEW.md), [core service](core/README.md), [specifications](specs/spec-index.md).
-- [Prioritized next work](docs/phases/NEXT_BACKLOG.md), [handoff](progress.md), [security](SECURITY.md).
+- [AW-16 spec](specs/analyst-workspace-phase12.md) — code export, Chart Studio, analyst portraits.
+- [Design scorecard](docs/phases/DESIGN_SCORECARD.md) — measured design and rule scores, formulas and limits.
+- [Test walkthrough](docs/phases/TEST_GUIDE.md), [AW-14 report](docs/phases/PHASE_11_CONTINUATION.md),
+  [source reuse ledger](docs/phases/REUSE_LEDGER.md), [architecture](docs/PLATFORM_OVERVIEW.md),
+  [core service](core/README.md), [specifications](specs/spec-index.md), [handoff](progress.md), [security](SECURITY.md).
 
 ```sh
 .venv/bin/python -m pytest analysis/tests -q
+.venv/bin/python -m pytest -q
 npm --prefix core run build
 ```
 
-Core integration tests use Docker-backed connector fixtures. Local tests, browser checks, source attribution and measured worker timings are under `docs/evidence/verification/phase11-*`. The latest CI receipt and acceptance limits are in [progress.md](progress.md) and the [current continuation report](docs/phases/PHASE_11_CONTINUATION.md). Offline schema tests do not measure live-model accuracy.
-
 ## Source projects
 
-Built on [AlperCamli/DataAnalyticsTool](https://github.com/AlperCamli/DataAnalyticsTool), with actual adaptations from [mesely/adviSU](https://github.com/mesely/adviSU) and [mesely/PoliEcoTRNetSci](https://github.com/mesely/PoliEcoTRNetSci). [Influencer stacking/SMOTE/RF](https://github.com/mesely/Influencer-Category-and-Like-Prediction-Stacking-SMOTE-RF) contributes adapted train-only preprocessing and log-error functions to the model studio. Its notebook models and historical scores are not imported; models are fitted and measured locally. [SNIPS intent detection](https://github.com/mesely/NLP-Intent-Detection-with-SNIPS-Dataset) remains researched but deferred until an analytics-intent baseline shows a measured need. Pinned commits, symbols and hashes are recorded in the source ledger.
+Built on [AlperCamli/DataAnalyticsTool](https://github.com/AlperCamli/DataAnalyticsTool), with adaptations from
+[mesely/adviSU](https://github.com/mesely/adviSU) and [mesely/PoliEcoTRNetSci](https://github.com/mesely/PoliEcoTRNetSci);
+[Influencer stacking/SMOTE/RF](https://github.com/mesely/Influencer-Category-and-Like-Prediction-Stacking-SMOTE-RF)
+contributes train-only preprocessing and log-error functions. Pinned commits, symbols and hashes are in the source
+ledger.

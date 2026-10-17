@@ -33,6 +33,7 @@ import { Profiles } from "./Profiles";
 import { Publish } from "./Publish";
 import { Setup } from "./Setup";
 import { Dark, ServerSays, Spinner, Text } from "./ui";
+import mascotWaving from "./workbench/assets/mascot/mascot-waving.png";
 
 const BASE = "/app";
 
@@ -68,20 +69,30 @@ const INBOX_ROUTE = "/inbox";
 
 function SignedOut({ error }: { error: ApiError }) {
   const login = `/v1/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+  // The workspace speaks Turkish first; an English browser gets English. The server's own error stays one click away.
+  const en = (navigator.language || "").toLowerCase().startsWith("en");
   return (
     <div className="signed-out">
+      <img className="signed-out-mascot" src={mascotWaving} alt="" width={160} height={160} decoding="async" />
       <h1>Context Layer</h1>
       <p>
         {error.status === 401
-          ? "You are not signed in."
-          : "The core could not confirm your session."}
+          ? en
+            ? "Your session has ended, or you have not signed in yet."
+            : "Oturumunuz sona erdi ya da henüz giriş yapmadınız."
+          : en
+            ? "The core could not confirm your session."
+            : "Oturumunuz doğrulanamadı."}
       </p>
-      <ServerSays error={error} />
       <p>
-        <a className="button" href={login}>
-          Sign in
+        <a className="button signed-out-action" href={login}>
+          {en ? "Sign in" : "Giriş yap"}
         </a>
       </p>
+      <details className="signed-out-detail">
+        <summary>{en ? "Technical detail" : "Teknik ayrıntı"}</summary>
+        <ServerSays error={error} />
+      </details>
     </div>
   );
 }

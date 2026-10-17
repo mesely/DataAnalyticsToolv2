@@ -58,6 +58,7 @@ const APP_SOURCES = [
   "workbench/CodeExport.tsx",
   "workbench/glyphs.generated.ts",
   "workbench/DecisionStudio.tsx",
+  "workbench/Reasoning.tsx",
   "workbench/TableWrap.tsx",
   "workbench/ExpertTools.tsx",
   "workbench/TemporalView.tsx",

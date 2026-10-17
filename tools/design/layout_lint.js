@@ -18,7 +18,9 @@
   };
   const name = (el) => `${el.tagName.toLowerCase()}${el.className && typeof el.className === "string" ? "." + el.className.trim().split(/\s+/).slice(0, 2).join(".") : ""} "${(el.getAttribute("aria-label") || el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 32)}"`;
   const CONTAINER = ".wb-kpi, .wb-panel, .wb-card, .wb-scope, .wb-dialog, dialog, .wb-sidebar, .wb-topbar, button, select, input, .wb-badge, .wb-chip, summary";
-  const root = document.querySelector(".wb") || document.body;
+  // A modal dialog makes the page behind it inert: while one is open, it is the screen being measured.
+  const modal = [...document.querySelectorAll("dialog[open]")].find((d) => d.matches(":modal"));
+  const root = modal || document.querySelector(".wb") || document.body;
   const all = [...root.querySelectorAll("*")].filter(vis);
   const out = { overflow: [], clipped: [], glyph_misaligned: [], images: [], near_miss: [], narrow_control: [], page_overflow: document.documentElement.scrollWidth - innerWidth };
 
@@ -55,7 +57,9 @@
   // Icon + label: the glyph and the first text-bearing sibling should share a vertical centre.
   for (const g of root.querySelectorAll("svg.wb-glyph")) {
     if (!vis(g)) continue;
-    const host = g.parentElement.matches("i, span") && g.parentElement.childElementCount === 1 ? g.parentElement : g;
+    // A wrapper that holds only the glyph stands in for it; a span that also carries the label text is the row itself.
+    const ownText = [...g.parentElement.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+    const host = g.parentElement.matches("i, span") && g.parentElement.childElementCount === 1 && !ownText ? g.parentElement : g;
     const sib = [...host.parentElement.childNodes].find((n) => n !== host && (n.nodeType === 3 ? n.textContent.trim() : n.nodeType === 1 && n.textContent.trim() && !n.querySelector("svg.wb-glyph")));
     if (!sib) continue;
     const parentCs = getComputedStyle(host.parentElement);

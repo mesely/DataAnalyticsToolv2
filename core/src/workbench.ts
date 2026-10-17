@@ -32,6 +32,8 @@ export function workbenchAllowed(roles: string[]): boolean {
 /** Analyst avatar ids (AW-16): Gemini-generated portraits shipped with the web bundle. */
 export const AVATARS = [
   "analyst-core",
+  "analyst-analyst",
+  "analyst-strategist",
   "analyst-retail",
   "analyst-banking",
   "analyst-automotive",

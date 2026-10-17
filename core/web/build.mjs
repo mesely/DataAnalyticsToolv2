@@ -29,7 +29,7 @@ const options = {
   legalComments: "inline",
   sourcemap: false,
   outfile: path.join(out, "app.js"),
-  loader: { ".css": "css", ".jpeg": "file", ".jpg": "file", ".svg": "file" },
+  loader: { ".css": "css", ".jpeg": "file", ".jpg": "file", ".png": "file", ".svg": "file" },
   assetNames: "assets/[name]-[hash]",
   publicPath: "/app/",
   define: { "process.env.NODE_ENV": '"production"' },

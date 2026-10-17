@@ -56,6 +56,8 @@ export interface DevIdp {
 }
 
 export async function startDevIdp(options: {
+  /** Optional decorative image for the sign-in page; only a `data:image/png;base64,` URI is accepted. */
+  art?: string;
   port?: number;
   users: DevUser[];
   /** Advertised issuer host (compose: the service name); default 127.0.0.1. */
@@ -104,6 +106,9 @@ export async function startDevIdp(options: {
   }
 
   function loginPage(query: URLSearchParams, error = ""): string {
+    const art = options.art && /^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(options.art)
+      ? `<img src="${options.art}" alt="" width="140" height="140" style="display:block;margin:0 0 4px -10px">`
+      : "";
     const fields = ["response_type", "client_id", "redirect_uri", "state", "code_challenge", "code_challenge_method", "scope", "resource"]
       .map((k) => {
         const v = query.get(k);
@@ -112,7 +117,7 @@ export async function startDevIdp(options: {
       .join("\n");
     return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in — Context Layer</title>
 <style>body{font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f6f7fa;color:#172238;max-width:360px;margin:12vh auto;padding:32px}h2{font-size:27px;letter-spacing:-.8px;margin:0 0 24px}form{background:#fff;border:1px solid #e5e9f0;border-radius:12px;padding:28px}label{display:block;font-size:13px}input{box-sizing:border-box;display:block;width:100%;padding:12px;margin-top:8px;border:1px solid #c5cdd9;border-radius:7px;font:inherit}button{width:100%;background:#4557c7;color:white;border:0;border-radius:7px;padding:13px;font:inherit;cursor:pointer}input:focus-visible,button:focus-visible{outline:3px solid #9da9ff;outline-offset:3px}p{font-size:12px;color:#637086}</style></head><body>
-<h2>Context Layer</h2><p role="alert" style="color:#a00">${error}</p>
+${art}<h2>Context Layer</h2><p role="alert" style="color:#a00">${error}</p>
 <form method="post" action="/authorize">
 ${fields}
 <label>User <input name="username" autofocus></label><br><br>

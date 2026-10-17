@@ -70,6 +70,7 @@ export function TemporalView({
   busy,
   minimum,
   activity,
+  asDialog = false,
 }: {
   data: Dataset;
   filters: Filters;
@@ -77,6 +78,8 @@ export function TemporalView({
   busy: boolean;
   minimum: number;
   activity: (delta: number) => void;
+  /** Rendered inside a modal dialog: the body only, without the collapsible panel. */
+  asDialog?: boolean;
 }) {
   const { t, locale } = useLocale(),
     [month, setMonth] = useState(middleMonth(data)),
@@ -159,21 +162,7 @@ export function TemporalView({
     },
     product = (id: string) =>
       result?.selected_products.find((p) => p.product_id === id)?.label || id;
-  return (
-    <details className="wb-panel wb-expert wb-temporal">
-      <summary>
-        <span>
-          <PeriodChange size={20} />
-          <strong>{t("Zaman içindeki değişim", "Change over time")}</strong>
-          <small>
-            {t(
-              "Satış, yoğunlaşma ve aynı ürünlerin ilişkileri",
-              "Sales, concentration and relationships of the same products",
-            )}
-          </small>
-        </span>
-        <ChevronRight size={20} />
-      </summary>
+  const body = (
       <div className="wb-expert-body">
         <p>
           {t(
@@ -413,6 +402,24 @@ export function TemporalView({
           </div>
         )}
       </div>
+  );
+  if (asDialog) return <div className="wb-expert wb-temporal is-dialog">{body}</div>;
+  return (
+    <details className="wb-panel wb-expert wb-temporal">
+      <summary>
+        <span>
+          <PeriodChange size={20} />
+          <strong>{t("Zaman içindeki değişim", "Change over time")}</strong>
+          <small>
+            {t(
+              "Satış, yoğunlaşma ve aynı ürünlerin ilişkileri",
+              "Sales, concentration and relationships of the same products",
+            )}
+          </small>
+        </span>
+        <ChevronRight size={20} />
+      </summary>
+{body}
     </details>
   );
 }

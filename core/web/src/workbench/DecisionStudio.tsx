@@ -1,6 +1,7 @@
 import { ChevronRight, ArrowRight } from "./BrandIcons";
 import { TableWrap } from "./TableWrap";
 import React, { useEffect, useRef, useState } from "react";
+import { ReasoningTree } from "./Reasoning";
 import { Findings, Database, Spinner } from "./BrandIcons";
 import { api } from "../api";
 import { useLocale } from "./Locale";
@@ -397,14 +398,6 @@ export function DecisionStudio({
     scenario_volume: t("Varsayılan hacim değişimi", "Assumed volume change"),
     scenario_price: t("Varsayılan fiyat değişimi", "Assumed price change"),
   };
-  const statementType: Record<string, string> = {
-    fact: t("Olgu", "Fact"),
-    calculation: t("Hesap", "Calculation"),
-    inference: t("Çıkarım", "Inference"),
-    assumption: t("Varsayım", "Assumption"),
-    recommendation: t("Öneri", "Recommendation"),
-    limitation: t("Sınır", "Limitation"),
-  };
   // Locale percent style ("%84,6" in Turkish, "84.6%" in English), one decimal like the narrative text.
   const percent = (ratio: number) =>
     new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-GB", {
@@ -425,37 +418,32 @@ export function DecisionStudio({
             ? percent(r.value / 100)
             : number(r.value);
   };
+  // Evidence chips under each statement open the referenced calculation; the tree shows how statements chain.
+  const evidenceChips = (s: { evidence?: string[] }) =>
+    s.evidence && s.evidence.length > 0 ? (
+      <div className="wb-evidence-links">
+        {s.evidence.map((k) => (
+          <button
+            key={k}
+            className="wb-text-btn"
+            onClick={() => {
+              setRefKey(k);
+              if (refKey === k) reference.current?.focus();
+            }}
+          >
+            <Database size={16} />
+            {refLabel[k] || k}: {formatRef(k)}
+            <ArrowRight size={16} />
+          </button>
+        ))}
+      </div>
+    ) : null;
   const narrativeList = (items: Statement[]) => (
-    <ol className="wb-narrative">
-      {items.map((s, i) => (
-        <li key={i} data-type={s.type}>
-          <span className="wb-narrative-type">
-            {statementType[s.type] || s.type}
-          </span>
-          <div>
-            <p>{s.text}</p>
-            {s.evidence.length > 0 && (
-              <div className="wb-evidence-links">
-                {s.evidence.map((k) => (
-                  <button
-                    key={k}
-                    className="wb-text-btn"
-                    onClick={() => {
-                      setRefKey(k);
-                      if (refKey === k) reference.current?.focus();
-                    }}
-                  >
-                    <Database size={16} />
-                    {refLabel[k] || k}: {formatRef(k)}
-                    <ArrowRight size={16} />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </li>
-      ))}
-    </ol>
+    <ReasoningTree
+      statements={items}
+      renderEvidence={evidenceChips}
+      label={t("Analist anlatısı", "Analyst narrative")}
+    />
   );
   return (
     <div className="wb-decision-studio" ref={top}>

@@ -62,12 +62,15 @@ export function ExpertTools({
   csrf,
   busy,
   activity,
+  asDialog = false,
 }: {
   dataset: string;
   filters: Filters;
   csrf: string | null;
   busy: boolean;
   activity: (delta: number) => void;
+  /** Rendered inside a modal dialog: the body only, without the collapsible panel. */
+  asDialog?: boolean;
 }) {
   const { t } = useLocale(),
     [statement, setStatement] = useState(EXAMPLES[0]![2]),
@@ -169,21 +172,7 @@ export function ExpertTools({
       activity(-1);
     }
   }
-  return (
-    <details className="wb-panel wb-expert">
-      <summary>
-        <span>
-          <Code2 size={20} />
-          <strong>{t("Uzman araçları", "Expert tools")}</strong>
-          <small>
-            {t(
-              "SQL laboratuvarı ve bağlam arama",
-              "SQL laboratory and context search",
-            )}
-          </small>
-        </span>
-        <ChevronRight size={20} />
-      </summary>
+  const body = (
       <div className="wb-expert-body">
         <div className="wb-expert-grid">
           <section>
@@ -440,6 +429,24 @@ export function ExpertTools({
           </section>
         )}
       </div>
+  );
+  if (asDialog) return <div className="wb-expert is-dialog">{body}</div>;
+  return (
+    <details className="wb-panel wb-expert">
+      <summary>
+        <span>
+          <Code2 size={20} />
+          <strong>{t("Uzman araçları", "Expert tools")}</strong>
+          <small>
+            {t(
+              "SQL laboratuvarı ve bağlam arama",
+              "SQL laboratory and context search",
+            )}
+          </small>
+        </span>
+        <ChevronRight size={20} />
+      </summary>
+{body}
     </details>
   );
 }

@@ -20,7 +20,9 @@
   const blend = (top, bot) => ({ r: top.r * top.a + bot.r * (1 - top.a), g: top.g * top.a + bot.g * (1 - top.a), b: top.b * top.a + bot.b * (1 - top.a), a: 1 });
   const bgOf = (el) => { const stack = []; for (let e = el; e; e = e.parentElement) { const c = parse(getComputedStyle(e).backgroundColor); if (c && c.a > 0) { stack.push(c); if (c.a >= 1) break; } } let base = { r: 255, g: 255, b: 255, a: 1 }; if (stack.length && stack[stack.length - 1].a >= 1) base = stack.pop(); for (let i = stack.length - 1; i >= 0; i--) base = blend(stack[i], base); return base; };
   const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
-  const root = document.querySelector(".wb") || document.body;
+  // A modal dialog makes the page behind it inert: while one is open, it is the screen being measured.
+  const modal = [...document.querySelectorAll("dialog[open]")].find((d) => d.matches(":modal"));
+  const root = modal || document.querySelector(".wb") || document.body;
   const all = [...root.querySelectorAll("*")].filter(vis);
 
   // Fitts: interactive target sizes (WCAG 2.5.5 AAA 44px; 2.5.8 AA 24px)
@@ -82,7 +84,7 @@
   const DATA = ".wb-ranking button, table button, .wb-graph-node, .recharts-wrapper *, .wb-evidence-links button, .wb-narrative button";
   const region = (sel) => { const r = document.querySelector(sel); return r ? [...r.querySelectorAll("button, a[href], select, summary")].filter(vis).filter((e) => !e.matches(DATA)).length : 0; };
   const regionRaw = (sel) => { const r = document.querySelector(sel); return r ? [...r.querySelectorAll("button, a[href], select, summary")].filter(vis).length : 0; };
-  const regions = { sidebar: region(".wb-sidebar"), topbar: region(".wb-topbar"), main: region("#wb-main"), main_including_data_items: regionRaw("#wb-main") };
+  const regions = { sidebar: region(".wb-sidebar"), topbar: region(".wb-topbar"), main: modal ? 0 : region("#wb-main"), dialog: modal ? region("dialog[open]") : 0, main_including_data_items: regionRaw(modal ? "dialog[open]" : "#wb-main") };
   const H = Object.fromEntries(Object.entries(regions).filter(([k]) => k !== "main_including_data_items").map(([k, n]) => [k, +Math.log2(n + 1).toFixed(2)]));
 
   const colors = new Set(all.map((e) => getComputedStyle(e).color)).size;
@@ -92,7 +94,7 @@
     contrast_icons: Math.round(100 * iconPass / Math.max(1, icons.length)),
     spacing_rhythm: Math.round(100 * onGrid / Math.max(1, spacing.length)),
     type_scale: Math.max(0, 100 - 8 * Math.max(0, fontSizes.size - 6)),
-    hick_main: Math.max(0, Math.round(100 - 12 * Math.max(0, H.main - 4))),
+    hick_main: Math.max(0, Math.round(100 - 12 * Math.max(0, Math.max(H.main, H.dialog) - 4))),
     alignment: Math.max(0, 100 - 15 * Math.max(0, insets.size - 1)),
     icon_originality: Math.round(100 * (icons.length - lucide) / Math.max(1, icons.length)),
   };

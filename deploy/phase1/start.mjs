@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 /** Isolated loopback fixture deployment using the existing core and OIDC session. */
 import { loadConfig } from "../../core/dist/config.js";
 import { createPool, JobsNotifier } from "../../core/dist/db.js";
@@ -25,7 +26,10 @@ const cfg = loadConfig({
   SYNC_ENABLED: "0",
   SYNC_GIT_REMOTE: "",
 });
+// The sign-in page shows the waving mascot; inlined so the identity provider serves no files of its own.
+const mascot = await readFile(new URL("../../core/web/src/workbench/assets/mascot/mascot-waving.png", import.meta.url));
 const idp = await startDevIdp({
+  art: "data:image/png;base64," + mascot.toString("base64"),
   port: 8188,
   host: "127.0.0.1",
   bindHost: "127.0.0.1",

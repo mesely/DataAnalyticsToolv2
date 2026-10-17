@@ -535,6 +535,8 @@ describe("analyst extension identity, CSRF, ownership and real calculation", () 
     expect(first.status).toBe(200);
     const avatars = first.json.avatars as string[];
     expect(avatars).toContain("analyst-core");
+    expect(avatars).toHaveLength(10);
+    expect(avatars).toEqual(expect.arrayContaining(["analyst-analyst", "analyst-strategist"]));
     expect(avatars).toContain(first.json.avatar);
     expect(first.json.chosen).toBe(false);
     // Deterministic default: asking twice gives the same portrait.

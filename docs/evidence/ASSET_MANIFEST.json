@@ -1,10 +1,5 @@
 [
  {
-  "path": "core/web/src/workbench/assets/analysis-library.jpeg",
-  "sha256": "c8a1649c336eccefbe53492c2135d9dc8d6a8169903235e27bd023ddff1f50ad",
-  "kind": "original-gemini-artwork"
- },
- {
   "path": "core/web/src/workbench/assets/data-preparation.jpeg",
   "sha256": "7b5fff31f6cf01244a0b47dcf14aa291fead59d69af6ba6f310847b72af53085",
   "kind": "original-gemini-artwork"
@@ -358,5 +353,35 @@
   "path": "docs/showcase/chart-studio.gif",
   "sha256": "9c6d5f21fddb180c105407452fd71a0cfdafcc69e400ca5c8f079fca228ead51",
   "kind": "showcase-capture"
+ },
+ {
+  "path": "core/web/src/workbench/assets/avatars/analyst-analyst.jpg",
+  "sha256": "cd14e6f8d7e437589284d74f5a71f8a7757752f97d7918683446f445ee5e0080",
+  "kind": "original-gemini-avatar"
+ },
+ {
+  "path": "core/web/src/workbench/assets/avatars/analyst-strategist.jpg",
+  "sha256": "8d80b119baa363456ed8aa9fb764463369e0eabb981e886d2daf026123c7310a",
+  "kind": "original-gemini-avatar"
+ },
+ {
+  "path": "core/web/src/workbench/assets/mascot/mascot-hanging.png",
+  "sha256": "1f2abd27816dd5da380341427d909ada7a9dec1993f91bdbb6f37975b347e4b7",
+  "kind": "image"
+ },
+ {
+  "path": "core/web/src/workbench/assets/mascot/mascot-reading.png",
+  "sha256": "56f7145894ea407be2824d16a2849369037f63d922275904a122328a3db38d36",
+  "kind": "image"
+ },
+ {
+  "path": "core/web/src/workbench/assets/mascot/mascot-waving.png",
+  "sha256": "cd609e92f9368d92041f8d840a48615039699ba36d916f799decf3b2b3c3bbab",
+  "kind": "image"
+ },
+ {
+  "path": "core/web/src/workbench/assets/mascot/mascot-searching.png",
+  "sha256": "affbb6569c27a273e9d9d8dbc796c845f5401ee14f9a176fbbe574e93a68dc91",
+  "kind": "image"
  }
 ]

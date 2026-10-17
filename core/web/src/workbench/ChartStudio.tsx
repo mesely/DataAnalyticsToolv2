@@ -25,7 +25,8 @@ import {
 import { api } from "../api";
 import { useLocale } from "./Locale";
 import type { ChartResult, ChartSpec, Filters } from "./types";
-import { AnalystAvatar } from "./Avatars";
+import { Mascot } from "./Avatars";
+import { ReasoningTree } from "./Reasoning";
 import { Send, Spinner, Reset, Download, Query, TableView, Trend, Info, Verified } from "./BrandIcons";
 
 const BASE = "/v1/dashboard/workbench";
@@ -113,7 +114,7 @@ export function ChartStudio({
         t("Aylık ortalama sepet, %95 güven aralığı", "Monthly average order, 95% interval"),
         t("4 dönemlik hareketli ortalama ekle", "Add a 4-period moving average"),
         t("Doğrusal trend çizgisi ekle", "Add a linear trend line"),
-        t("Ülkelere göre sipariş sayısı", "Orders by country"),
+        t("Ülkelere göre sipariş, İngiltere hariç", "Orders by country, except United Kingdom"),
       ];
 
   // Shape the engine's rows for the chart: one row per x; split series become columns.
@@ -157,13 +158,6 @@ export function ChartStudio({
 
   const unit = current?.unit ?? "GBP";
   const control = current?.overlays.control;
-  const typeLabel = (k: string) =>
-    ({
-      fact: t("Olgu", "Fact"),
-      calculation: t("Hesap", "Calculation"),
-      inference: t("Çıkarım", "Inference"),
-      limitation: t("Sınır", "Limitation"),
-    })[k] ?? k;
   const fieldLabel = (k: string) =>
     ({
       metric: t("Ölçü", "Measure"),
@@ -172,6 +166,7 @@ export function ChartStudio({
       start: t("Başlangıç", "Start"),
       end: t("Bitiş", "End"),
       countries: t("Ülkeler", "Countries"),
+      exclude_countries: t("Hariç ülkeler", "Excluded countries"),
       split_by_country: t("Ülkeye göre ayır", "Split by country"),
       top_n: t("İlk N", "Top N"),
       statistic: t("İstatistik", "Statistic"),
@@ -211,7 +206,7 @@ export function ChartStudio({
   return (
     <div className="wb-chart-studio">
       <div className="wb-studio-intro">
-        <AnalystAvatar id="analyst-core" size={48} />
+        <Mascot pose="reading" size={56} />
         <div>
           <strong>{t("Ne görmek istediğinizi yazın", "Describe the chart you want")}</strong>
           <span>
@@ -466,14 +461,7 @@ export function ChartStudio({
             </pre>
           )}
           {current.statements.length > 0 && (
-            <ul className="wb-narrative wb-studio-narrative" aria-label={t("Yorum", "Commentary")}>
-              {current.statements.map((s, i) => (
-                <li key={i} data-type={s.type}>
-                  <span className="wb-narrative-type">{typeLabel(s.type)}</span>
-                  <span>{s.text}</span>
-                </li>
-              ))}
-            </ul>
+            <ReasoningTree statements={current.statements} label={t("Yorum", "Commentary")} />
           )}
           <footer className="wb-studio-actions">
             <div className="wb-studio-steps" aria-label={t("Adımlar", "Steps")}>

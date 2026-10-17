@@ -1195,6 +1195,7 @@
 .wb-quality-score {
   display: flex;
   gap: 12px;
+  align-items: center;
   color: var(--tone-6b9a85);
   margin-bottom: 20px;
 }
@@ -2068,6 +2069,43 @@
   border-top: 1px solid var(--border);
   padding: 24px;
 }
+/* AW-16: the SQL laboratory opens in its own dialog; the analysis screen keeps one entry row. */
+.wb-expert-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-height: 64px;
+  padding: 20px 24px;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: var(--tone-354762);
+}
+.wb-expert-entry > span {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.wb-expert-entry small {
+  font-size: 12px;
+  color: var(--tone-728096);
+  font-weight: 400;
+}
+.wb-expert.is-dialog {
+  margin: 0;
+}
+.wb-expert.is-dialog > .wb-expert-body {
+  border-top: 0;
+  padding: 0;
+}
+.wb-metric-definition h4 {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
 .wb-expert-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.8fr) minmax(220px, 1fr);
@@ -2164,6 +2202,10 @@
   cursor: pointer;
   font-size: 12px;
 }
+.wb-context-search .wb-schema-help summary {
+  justify-content: flex-start;
+  align-items: center;
+}
 .wb-context-search summary small {
   display: block;
   margin-top: 4px;
@@ -2257,15 +2299,17 @@
   }
 }
 @media (max-width: 700px) {
-  .wb-expert > summary {
+  .wb-expert > summary,
+  .wb-expert-entry {
     padding: 16px;
   }
   .wb-expert-body {
     padding: 16px;
   }
-  .wb-expert summary small {
+  .wb-expert summary small,
+  .wb-expert-entry small {
     flex-basis: 100%;
-    padding-left: 28px;
+    padding-left: 32px;
   }
   .wb-sql-actions {
     align-items: flex-start;
@@ -3921,7 +3965,8 @@
 
 .wb-forecast-diagnostics {
   margin: 8px 0 16px;
-  padding-left: 16px;
+  padding-left: 0;
+  list-style: none;
   font-size: 12px;
   line-height: 1.4;
   color: var(--wb-text-muted, inherit);
@@ -4480,7 +4525,7 @@
 }
 .wb .wb-avatar-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
 }
 .wb .wb-avatar-option {
@@ -4498,8 +4543,8 @@
   cursor: pointer;
 }
 .wb .wb-avatar-option img {
-  width: 96px;
-  height: 96px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -4961,6 +5006,140 @@
   .wb .wb-narrative > li {
     grid-template-columns: minmax(0, 1fr);
     gap: 4px;
+  }
+}
+
+/* Reasoning tree (AW-16): numbered statements chained by shared evidence. Roots are facts and assumptions;
+   a branch line leads to what rests on them; limitations sit under the step they qualify. */
+.wb .wb-reasoning {
+  display: grid;
+  gap: 16px;
+}
+.wb .wb-reason-roots,
+.wb .wb-reason-children,
+.wb .wb-reason-limits,
+.wb .wb-reason-global ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wb .wb-reason {
+  position: relative;
+  transition: opacity 0.15s ease;
+}
+.wb .wb-reason-children {
+  margin-left: 16px;
+  padding-left: 24px;
+  border-left: 1px solid var(--border);
+}
+.wb .wb-reason-children > .wb-reason::before {
+  content: "";
+  position: absolute;
+  top: 20px;
+  left: -24px;
+  width: 16px;
+  border-top: 1px solid var(--border);
+}
+.wb .wb-reason-row,
+.wb .wb-reason-limit {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.wb .wb-reason-row {
+  padding: 8px 0;
+}
+.wb .wb-reason-id {
+  display: grid;
+  place-items: center;
+  height: 24px;
+  margin-top: 8px;
+  border-radius: 6px;
+  background: var(--code-bg);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.wb .wb-reason[data-type="fact"] > .wb-reason-row .wb-reason-id,
+.wb .wb-reason[data-type="assumption"] > .wb-reason-row .wb-reason-id {
+  background: var(--accent);
+  color: var(--surface);
+}
+.wb .wb-reason[data-type="recommendation"] > .wb-reason-row .wb-reason-id {
+  box-shadow: inset 0 0 0 1.5px var(--glyph-dot);
+}
+.wb .wb-reason-type {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.wb .wb-reason-body p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.wb .wb-reason-basis {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.wb .wb-reason-body .wb-evidence-links {
+  margin-top: 8px;
+}
+.wb .wb-reason-limits {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 8px 44px;
+  padding: 8px 12px;
+  border-left: 2px solid var(--glyph-dot);
+  border-radius: 0 10px 10px 0;
+  background: var(--code-bg);
+}
+.wb .wb-reason-limit p {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.wb .wb-reason-id.is-limit {
+  margin-top: 0;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+.wb .wb-reason-global {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.wb .wb-reason-global h4 {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.wb .wb-reason-global ul {
+  display: grid;
+  gap: 8px;
+}
+.wb .is-dim {
+  opacity: 0.45;
+}
+@media (max-width: 480px) {
+  .wb .wb-reason-children {
+    padding-left: 16px;
+  }
+  .wb .wb-reason-children > .wb-reason::before {
+    left: -16px;
+    width: 8px;
+  }
+  .wb .wb-reason-limits {
+    margin-left: 0;
   }
 }
 

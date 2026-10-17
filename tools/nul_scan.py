@@ -45,7 +45,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 #: Exact named image exceptions; no broad extension exemption (AW-7).
 BINARY_PATHS: tuple[str, ...] = (
-    'core/web/src/workbench/assets/analysis-library.jpeg',
+    'core/web/src/workbench/assets/avatars/analyst-analyst.jpg',
     'core/web/src/workbench/assets/avatars/analyst-automotive.jpg',
     'core/web/src/workbench/assets/avatars/analyst-banking.jpg',
     'core/web/src/workbench/assets/avatars/analyst-core.jpg',
@@ -53,10 +53,15 @@ BINARY_PATHS: tuple[str, ...] = (
     'core/web/src/workbench/assets/avatars/analyst-health.jpg',
     'core/web/src/workbench/assets/avatars/analyst-logistics.jpg',
     'core/web/src/workbench/assets/avatars/analyst-retail.jpg',
+    'core/web/src/workbench/assets/avatars/analyst-strategist.jpg',
     'core/web/src/workbench/assets/avatars/analyst-telecom.jpg',
     'core/web/src/workbench/assets/avatars/app-mark.jpg',
     'core/web/src/workbench/assets/data-preparation.jpeg',
     'core/web/src/workbench/assets/favicon.png',
+    'core/web/src/workbench/assets/mascot/mascot-hanging.png',
+    'core/web/src/workbench/assets/mascot/mascot-reading.png',
+    'core/web/src/workbench/assets/mascot/mascot-searching.png',
+    'core/web/src/workbench/assets/mascot/mascot-waving.png',
     'core/web/src/workbench/assets/model-studio.jpeg',
     'core/web/src/workbench/assets/relationship-explorer.jpeg',
     'docs/evidence/phase10/01-dark-overview.jpeg',

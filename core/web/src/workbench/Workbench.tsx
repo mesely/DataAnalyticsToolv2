@@ -38,12 +38,11 @@ import {
 } from "./BrandIcons";
 import modelArt from "./assets/model-studio.jpeg";
 import relationshipArt from "./assets/relationship-explorer.jpeg";
-import appMark from "./assets/avatars/app-mark.jpg";
-import { AnalystAvatar, AvatarPicker } from "./Avatars";
+import { AnalystAvatar, AvatarPicker, Mascot } from "./Avatars";
 import { ChartStudio } from "./ChartStudio";
 import { CodeExport } from "./CodeExport";
 import type { ChartSpec } from "./types";
-import { Sun, Moon } from "./BrandIcons";
+import { Sun, Moon, PeriodChange } from "./BrandIcons";
 import {
   Overview,
   Assistant,
@@ -59,7 +58,6 @@ import {
   Run,
   Spinner,
 } from "./BrandIcons";
-import libraryArt from "./assets/analysis-library.jpeg";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Area,
@@ -149,13 +147,7 @@ function Modal({
 function Empty({ title, text }: { title: string; text: string }) {
   return (
     <div className="wb-empty">
-      <img
-        src={libraryArt}
-        className="wb-empty-art"
-        alt=""
-        width="160"
-        height="160"
-      />
+      <Mascot pose="searching" size={140} className="wb-empty-art" />
       <h3>{title}</h3>
       <p>{text}</p>
     </div>
@@ -226,6 +218,8 @@ function Workspace({
       | "avatar"
       | "chart"
       | "code"
+      | "sql"
+      | "temporal"
       | null
     >(null),
     [codeChart, setCodeChart] = useState<ChartSpec | null>(null),
@@ -455,8 +449,9 @@ function Workspace({
           <X size={20} />
         </button>
         <div className="wb-brand">
-          <span className="wb-brandmark">
-            <img src={appMark} alt="" width="56" height="56" />
+          {/* The mascot hangs from the top edge of the sidebar above the wordmark (AW-16). */}
+          <span className="wb-brandmark is-hanging">
+            <Mascot pose="hanging" size={88} />
           </span>
           <div>
             context<span>layer</span>
@@ -1047,10 +1042,8 @@ function Workspace({
                       )}
                     </p>
                     <div className="wb-starters">
-                      {[
-                        t("Satışları özetle", "Summarize sales"),
-                        t("En çok satan ürünler", "Top selling products"),
-                      ].map((q) => (
+                      {/* One starter: the assistant screen holds the other example questions (Hick–Hyman). */}
+                      {[t("Satışları özetle", "Summarize sales")].map((q) => (
                         <button
                           key={q}
                           disabled={working}
@@ -1163,7 +1156,7 @@ function Workspace({
           )}
           {section === "analysis" && (
             <div className="wb-model-entry wb-chart-entry">
-              <AnalystAvatar id="analyst-core" size={72} className="wb-model-entry-art" />
+              <Mascot pose="reading" size={72} className="wb-model-entry-art" />
               <div>
                 <strong>{t("Grafik stüdyosu", "Chart studio")}</strong>
                 <span>
@@ -1180,13 +1173,14 @@ function Workspace({
             </div>
           )}
           {section === "analysis" && (
-            <ExpertTools
-              activity={activity}
-              dataset={dataset}
-              filters={applied}
-              csrf={csrf}
-              busy={working}
-            />
+            <button type="button" className="wb-panel wb-expert wb-expert-entry" onClick={() => setModal("sql")}>
+              <span>
+                <Code2 size={20} />
+                <strong>{t("Uzman araçları", "Expert tools")}</strong>
+                <small>{t("SQL laboratuvarı ve bağlam arama", "SQL laboratory and context search")}</small>
+              </span>
+              <ChevronRight size={20} />
+            </button>
           )}
           {result && section === "analysis" && (
             <div className="wb-analysis-grid">
@@ -1277,10 +1271,6 @@ function Workspace({
                     t(
                       "En çok satan ürünler hangileri?",
                       "Which products sell the most?",
-                    ),
-                    t(
-                      "Ülkelere göre satışlar nasıl?",
-                      "How do sales vary by country?",
                     ),
                   ].map((q) => (
                     <button
@@ -1406,14 +1396,19 @@ function Workspace({
             </div>
           )}
           {result && section === "network" && (
-            <TemporalView
-              activity={activity}
-              data={result.dataset}
-              filters={applied}
-              csrf={csrf}
-              busy={working}
-              minimum={minimum}
-            />
+            <button type="button" className="wb-panel wb-expert wb-expert-entry" onClick={() => setModal("temporal")}>
+              <span>
+                <PeriodChange size={20} />
+                <strong>{t("Zaman içindeki değişim", "Change over time")}</strong>
+                <small>
+                  {t(
+                    "Satış, yoğunlaşma ve aynı ürünlerin ilişkileri",
+                    "Sales, concentration and relationships of the same products",
+                  )}
+                </small>
+              </span>
+              <ChevronRight size={20} />
+            </button>
           )}
           {result && section === "network" && (
             <NetworkView
@@ -1554,12 +1549,7 @@ function Workspace({
                 · {result.evidence.duration_ms} ms
               </span>
               <div>
-                <button
-                  className="wb-text-btn"
-                  onClick={() => setModal("metrics")}
-                >
-                  {t("Metrik sözlüğü", "Metric dictionary")}
-                </button>
+                {/* Metric definitions live in the evidence dialog and the command palette, next to the SQL they explain. */}
                 {/* Progressive disclosure: both downloads behind one choice (Hick–Hyman). */}
                 <details className="wb-export-menu">
                   <summary className="wb-text-btn">
@@ -1618,7 +1608,7 @@ function Workspace({
       </div>
       {modal && (
         <Modal
-          wide={modal === "decisions" || modal === "chart" || modal === "code"}
+          wide={modal === "decisions" || modal === "chart" || modal === "code" || modal === "sql" || modal === "temporal"}
           title={
             modal === "source"
               ? t("Verinin kaynağı ve sınırları", "Data provenance and limits")
@@ -1638,6 +1628,10 @@ function Workspace({
                             ? t("Grafik stüdyosu", "Chart studio")
                             : modal === "code"
                               ? t("Analizi kod olarak dışa aktar", "Export the analysis as code")
+                            : modal === "sql"
+                              ? t("Uzman araçları", "Expert tools")
+                            : modal === "temporal"
+                              ? t("Zaman içindeki değişim", "Change over time")
                         : modal === "import"
                           ? t("Veri hazırlama", "Prepare data")
                           : modal === "search"
@@ -1721,6 +1715,14 @@ function Workspace({
                   <code>{result.evidence.output_sha256}</code>
                 </dd>
               </dl>
+              <h3>{t("Metrik tanımları", "Metric definitions")}</h3>
+              {result.metrics.map((m) => (
+                <article className="wb-metric-definition" key={m.id}>
+                  <h4>{m.title}</h4>
+                  <code>{m.formula}</code>
+                  <p>{m.note}</p>
+                </article>
+              ))}
               <button
                 className="wb-btn"
                 onClick={() =>
@@ -1734,6 +1736,20 @@ function Workspace({
                 {t("Kanıtı indir", "Download evidence")}
               </button>
             </>
+          )}
+          {modal === "temporal" && result && (
+            <TemporalView
+              activity={activity}
+              data={result.dataset}
+              filters={applied}
+              csrf={csrf}
+              busy={working}
+              minimum={minimum}
+              asDialog
+            />
+          )}
+          {modal === "sql" && (
+            <ExpertTools activity={activity} dataset={dataset} filters={applied} csrf={csrf} busy={working} asDialog />
           )}
           {modal === "chart" && (
             <ChartStudio
@@ -1839,6 +1855,7 @@ function Workspace({
           )}
           {modal === "help" && (
             <>
+              <Mascot pose="waving" size={120} className="wb-help-mascot" />
               <ol className="wb-help-steps">
                 {[
                   [
@@ -1923,13 +1940,7 @@ function Workspace({
                     ),
                     action: () => {
                       go("analysis");
-                      setTimeout(
-                        () =>
-                          document
-                            .querySelector<HTMLDetailsElement>(".wb-expert")
-                            ?.setAttribute("open", ""),
-                        0,
-                      );
+                      setModal("sql");
                     },
                   },
                   {
@@ -1939,13 +1950,7 @@ function Workspace({
                     ),
                     action: () => {
                       go("network");
-                      setTimeout(
-                        () =>
-                          document
-                            .querySelector<HTMLDetailsElement>(".wb-temporal")
-                            ?.setAttribute("open", ""),
-                        0,
-                      );
+                      setModal("temporal");
                     },
                   },
                   {

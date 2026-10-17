@@ -112,6 +112,8 @@ export interface ChartSpec {
   start?: string | null;
   end?: string | null;
   countries: string[];
+  /** AW-16 amendment A1 (additive): catalog countries left out of the chart. */
+  exclude_countries?: string[];
   split_by_country: boolean;
   top_n: number;
   statistic: "none" | "ci95" | "moving_average" | "trend" | "control_band";
@@ -145,7 +147,7 @@ export interface ChartResult {
     trend?: { slope: number; intercept: number; r2: number; p_value: number; n: number; line: { x: string; value: number }[] };
     control?: { mean: number; sd: number; lower: number; upper: number; n: number; outside: string[] };
   };
-  statements: { type: "fact" | "calculation" | "inference" | "limitation"; text: string }[];
+  statements: { type: "fact" | "calculation" | "inference" | "limitation"; text: string; evidence?: string[] }[];
   sql: string;
   params: unknown[];
   warnings: string[];

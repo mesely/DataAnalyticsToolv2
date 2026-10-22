@@ -1,0 +1,777 @@
+{
+ "set": "chart",
+ "split": "val",
+ "cases": [
+  {
+   "id": "c006",
+   "prompt": "last 12 months only",
+   "lang": "en",
+   "category": "period_relative",
+   "expect": {
+    "start": "2011-01-01",
+    "end": "2011-12-09"
+   }
+  },
+  {
+   "id": "c011",
+   "prompt": "last 6 ay",
+   "lang": "mixed",
+   "category": "period_relative",
+   "expect": {
+    "start": "2011-07-01",
+    "end": "2011-12-09"
+   }
+  },
+  {
+   "id": "c015",
+   "prompt": "Aralık 2010",
+   "lang": "tr",
+   "category": "period_named",
+   "expect": {
+    "start": "2010-12-01",
+    "end": "2010-12-31"
+   }
+  },
+  {
+   "id": "c020",
+   "prompt": "Q3 2011",
+   "lang": "en",
+   "category": "period_named",
+   "expect": {
+    "start": "2011-07-01",
+    "end": "2011-09-30"
+   }
+  },
+  {
+   "id": "c021",
+   "prompt": "the third quarter of 2011",
+   "lang": "en",
+   "category": "period_named",
+   "expect": {
+    "start": "2011-07-01",
+    "end": "2011-09-30"
+   }
+  },
+  {
+   "id": "c030",
+   "prompt": "İrlanda için göster",
+   "lang": "tr",
+   "category": "countries",
+   "expect": {
+    "countries": [
+     "EIRE"
+    ]
+   }
+  },
+  {
+   "id": "c032",
+   "prompt": "ABD için aylık ciro",
+   "lang": "tr",
+   "category": "countries",
+   "expect": {
+    "countries": [
+     "USA"
+    ],
+    "dimension": "month",
+    "metric": "gross_sales"
+   }
+  },
+  {
+   "id": "c034",
+   "prompt": "Japonya, Singapur ve Hong Kong'u göster",
+   "lang": "tr",
+   "category": "countries",
+   "expect": {
+    "countries": [
+     "Japan",
+     "Singapore",
+     "Hong Kong"
+    ]
+   }
+  },
+  {
+   "id": "c048",
+   "prompt": "drop France",
+   "lang": "en",
+   "category": "exclusions",
+   "base": {
+    "countries": [
+     "Germany",
+     "France",
+     "Spain"
+    ],
+    "split_by_country": true
+   },
+   "expect": {
+    "countries": [
+     "Germany",
+     "Spain"
+    ],
+    "split_by_country": true
+   }
+  },
+  {
+   "id": "c050",
+   "prompt": "Fransa'yı çıkar",
+   "lang": "tr",
+   "category": "exclusions",
+   "base": {
+    "countries": [
+     "France",
+     "Germany",
+     "Spain"
+    ]
+   },
+   "expect": {
+    "countries": [
+     "Germany",
+     "Spain"
+    ]
+   }
+  },
+  {
+   "id": "c051",
+   "prompt": "remove Germany",
+   "lang": "en",
+   "category": "exclusions",
+   "base": {
+    "exclude_countries": [
+     "United Kingdom"
+    ]
+   },
+   "expect": {
+    "exclude_countries": [
+     "United Kingdom",
+     "Germany"
+    ]
+   }
+  },
+  {
+   "id": "c059",
+   "prompt": "Almanya ile Fransa'yı karşılaştır",
+   "lang": "tr",
+   "category": "compare",
+   "expect": {
+    "countries": [
+     "Germany",
+     "France"
+    ],
+    "split_by_country": true,
+    "dimension": "month"
+   }
+  },
+  {
+   "id": "c065",
+   "prompt": "İngiltere'yi de ekle ve karşılaştır",
+   "lang": "tr",
+   "category": "compare",
+   "base": {
+    "countries": [
+     "Germany"
+    ]
+   },
+   "expect": {
+    "countries": [
+     "Germany",
+     "United Kingdom"
+    ],
+    "split_by_country": true
+   }
+  },
+  {
+   "id": "c067",
+   "prompt": "compare the USA and Canada weekly",
+   "lang": "en",
+   "category": "compare",
+   "expect": {
+    "countries": [
+     "USA",
+     "Canada"
+    ],
+    "split_by_country": true,
+    "dimension": "week"
+   }
+  },
+  {
+   "id": "c079",
+   "prompt": "ciroya geri dön",
+   "lang": "tr",
+   "category": "metric",
+   "base": {
+    "metric": "orders"
+   },
+   "expect": {
+    "metric": "gross_sales"
+   }
+  },
+  {
+   "id": "c081",
+   "prompt": "average order value please",
+   "lang": "en",
+   "category": "metric",
+   "expect": {
+    "metric": "aov"
+   }
+  },
+  {
+   "id": "c083",
+   "prompt": "haftalık yap",
+   "lang": "tr",
+   "category": "dimension",
+   "expect": {
+    "dimension": "week"
+   }
+  },
+  {
+   "id": "c087",
+   "prompt": "ülkelere göre",
+   "lang": "tr",
+   "category": "dimension",
+   "expect": {
+    "dimension": "country"
+   }
+  },
+  {
+   "id": "c092",
+   "prompt": "bar olsun",
+   "lang": "tr",
+   "category": "chart_type",
+   "expect": {
+    "chart": "bar"
+   }
+  },
+  {
+   "id": "c093",
+   "prompt": "make it a bar chart",
+   "lang": "en",
+   "category": "chart_type",
+   "expect": {
+    "chart": "bar"
+   }
+  },
+  {
+   "id": "c105",
+   "prompt": "chronological order",
+   "lang": "en",
+   "category": "sort",
+   "base": {
+    "sort": "value_desc"
+   },
+   "expect": {
+    "sort": "natural"
+   }
+  },
+  {
+   "id": "c108",
+   "prompt": "top 15",
+   "lang": "en",
+   "category": "top_n",
+   "base": {
+    "dimension": "product"
+   },
+   "expect": {
+    "top_n": 15
+   }
+  },
+  {
+   "id": "c114",
+   "prompt": "show top 3",
+   "lang": "en",
+   "category": "top_n",
+   "base": {
+    "dimension": "country"
+   },
+   "expect": {
+    "top_n": 3
+   }
+  },
+  {
+   "id": "c117",
+   "prompt": "hareketli ortalama ekle",
+   "lang": "tr",
+   "category": "statistic",
+   "expect": {
+    "statistic": "moving_average",
+    "window": 3
+   }
+  },
+  {
+   "id": "c118",
+   "prompt": "3 aylık hareketli ortalama",
+   "lang": "tr",
+   "category": "statistic",
+   "expect": {
+    "statistic": "moving_average",
+    "window": 3
+   }
+  },
+  {
+   "id": "c122",
+   "prompt": "kontrol bandı ekle",
+   "lang": "tr",
+   "category": "statistic",
+   "expect": {
+    "statistic": "control_band"
+   }
+  },
+  {
+   "id": "c134",
+   "prompt": "AOV için ci95 göster",
+   "lang": "mixed",
+   "category": "statistic",
+   "expect": {
+    "metric": "aov",
+    "statistic": "ci95"
+   }
+  },
+  {
+   "id": "c142",
+   "prompt": "NATO yerine AB",
+   "lang": "tr",
+   "category": "country_group",
+   "base": {
+    "dimension": "country_group",
+    "group": "nato"
+   },
+   "expect": {
+    "dimension": "country_group",
+    "group": "eu"
+   }
+  },
+  {
+   "id": "c145",
+   "prompt": "kıta yerine NATO",
+   "lang": "tr",
+   "category": "country_group",
+   "base": {
+    "dimension": "country_group",
+    "group": "continent"
+   },
+   "expect": {
+    "dimension": "country_group",
+    "group": "nato"
+   }
+  },
+  {
+   "id": "c152",
+   "prompt": "at the time of each order",
+   "lang": "en",
+   "category": "group_as_of",
+   "base": {
+    "dimension": "country_group",
+    "group": "eu",
+    "group_as_of": "period_end"
+   },
+   "expect": {
+    "group_as_of": "transaction"
+   }
+  },
+  {
+   "id": "c157",
+   "prompt": "group by EU, membership at the time",
+   "lang": "en",
+   "category": "group_as_of",
+   "expect": {
+    "dimension": "country_group",
+    "group": "eu",
+    "group_as_of": "transaction"
+   }
+  },
+  {
+   "id": "c161",
+   "prompt": "at today's rate",
+   "lang": "en",
+   "category": "disambiguation",
+   "base": {
+    "dimension": "country_group",
+    "group": "nato",
+    "transform": {
+     "currency": "USD",
+     "fx": "transaction",
+     "real": null,
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   },
+   "expect": {
+    "transform": {
+     "currency": "USD",
+     "fx": "latest",
+     "real": null,
+     "unit": "money",
+     "index": false,
+     "compare": false
+    },
+    "group_as_of": "transaction"
+   }
+  },
+  {
+   "id": "c170",
+   "prompt": "use today's exchange rate",
+   "lang": "en",
+   "category": "transform",
+   "base": {
+    "transform": {
+     "currency": "EUR",
+     "fx": "transaction",
+     "real": null,
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   },
+   "expect": {
+    "transform": {
+     "currency": "EUR",
+     "fx": "latest",
+     "real": null,
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   }
+  },
+  {
+   "id": "c173",
+   "prompt": "inflation-adjust it",
+   "lang": "en",
+   "category": "transform",
+   "base": {
+    "transform": {
+     "currency": "USD",
+     "fx": "transaction",
+     "real": null,
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   },
+   "expect": {
+    "transform": {
+     "currency": "USD",
+     "fx": "transaction",
+     "real": "latest",
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   }
+  },
+  {
+   "id": "c174",
+   "prompt": "bugünün TL'siyle göster",
+   "lang": "tr",
+   "category": "transform",
+   "expect": {
+    "transform": {
+     "currency": "TRY",
+     "fx": "transaction",
+     "real": "latest",
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   }
+  },
+  {
+   "id": "c175",
+   "prompt": "in today's TL",
+   "lang": "en",
+   "category": "transform",
+   "expect": {
+    "transform": {
+     "currency": "TRY",
+     "fx": "transaction",
+     "real": "latest",
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   }
+  },
+  {
+   "id": "c176",
+   "prompt": "Ocak 2011 fiyatlarıyla",
+   "lang": "tr",
+   "category": "transform",
+   "base": {
+    "transform": {
+     "currency": "TRY",
+     "fx": "transaction",
+     "real": null,
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   },
+   "expect": {
+    "transform": {
+     "currency": "TRY",
+     "fx": "transaction",
+     "real": "2011-01",
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   }
+  },
+  {
+   "id": "c187",
+   "prompt": "100'e endeksle",
+   "lang": "tr",
+   "category": "transform",
+   "expect": {
+    "transform": {
+     "currency": "GBP",
+     "fx": "transaction",
+     "real": null,
+     "unit": "money",
+     "index": true,
+     "compare": false
+    }
+   }
+  },
+  {
+   "id": "c191",
+   "prompt": "nominal vs real",
+   "lang": "en",
+   "category": "transform",
+   "base": {
+    "transform": {
+     "currency": "USD",
+     "fx": "transaction",
+     "real": null,
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   },
+   "expect": {
+    "transform": {
+     "currency": "USD",
+     "fx": "transaction",
+     "real": "latest",
+     "unit": "money",
+     "index": false,
+     "compare": true
+    }
+   }
+  },
+  {
+   "id": "c195",
+   "prompt": "TL yerine dolar",
+   "lang": "tr",
+   "category": "transform",
+   "base": {
+    "transform": {
+     "currency": "TRY",
+     "fx": "transaction",
+     "real": null,
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   },
+   "expect": {
+    "transform": {
+     "currency": "USD",
+     "fx": "transaction",
+     "real": null,
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   }
+  },
+  {
+   "id": "c202",
+   "prompt": "aylık ciro",
+   "lang": "tr",
+   "category": "defaults",
+   "expect": {
+    "metric": "gross_sales",
+    "dimension": "month",
+    "chart": "line",
+    "sort": "natural"
+   }
+  },
+  {
+   "id": "c204",
+   "prompt": "revenue by product",
+   "lang": "en",
+   "category": "defaults",
+   "expect": {
+    "metric": "gross_sales",
+    "dimension": "product",
+    "chart": "bar",
+    "sort": "value_desc",
+    "top_n": 10
+   }
+  },
+  {
+   "id": "c212",
+   "prompt": "enflasyndan arındır",
+   "lang": "tr",
+   "category": "typos",
+   "base": {
+    "transform": {
+     "currency": "TRY",
+     "fx": "transaction",
+     "real": null,
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   },
+   "expect": {
+    "transform": {
+     "currency": "TRY",
+     "fx": "transaction",
+     "real": "latest",
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   }
+  },
+  {
+   "id": "c213",
+   "prompt": "haftlık yap",
+   "lang": "tr",
+   "category": "typos",
+   "expect": {
+    "dimension": "week"
+   }
+  },
+  {
+   "id": "c222",
+   "prompt": "nato ya gore grupla",
+   "lang": "tr",
+   "category": "typos",
+   "expect": {
+    "dimension": "country_group",
+    "group": "nato"
+   }
+  },
+  {
+   "id": "c232",
+   "prompt": "Aylık ciro, 3 aylık hareketli ortalama, gram altın cinsinden",
+   "lang": "tr",
+   "category": "combined",
+   "expect": {
+    "dimension": "month",
+    "metric": "gross_sales",
+    "statistic": "moving_average",
+    "window": 3,
+    "transform": {
+     "currency": "GBP",
+     "fx": "transaction",
+     "real": null,
+     "unit": "gold_g",
+     "index": false,
+     "compare": false
+    }
+   }
+  },
+  {
+   "id": "c234",
+   "prompt": "Haftalık ciro, kontrol bandıyla, son 6 ay",
+   "lang": "tr",
+   "category": "combined",
+   "expect": {
+    "dimension": "week",
+    "metric": "gross_sales",
+    "statistic": "control_band",
+    "start": "2011-07-01",
+    "end": "2011-12-09"
+   }
+  },
+  {
+   "id": "c236",
+   "prompt": "Monthly units for Japan and Australia as an area chart",
+   "lang": "en",
+   "category": "combined",
+   "expect": {
+    "countries": [
+     "Japan",
+     "Australia"
+    ],
+    "metric": "units",
+    "dimension": "month",
+    "chart": "area"
+   }
+  },
+  {
+   "id": "c242",
+   "prompt": "Monthly revenue in USD at today's rate, nominal vs real",
+   "lang": "en",
+   "category": "combined",
+   "expect": {
+    "dimension": "month",
+    "metric": "gross_sales",
+    "transform": {
+     "currency": "USD",
+     "fx": "latest",
+     "real": "latest",
+     "unit": "money",
+     "index": false,
+     "compare": true
+    }
+   }
+  },
+  {
+   "id": "c251",
+   "prompt": "switch to AOV",
+   "lang": "en",
+   "category": "refinement_persist",
+   "base": {
+    "transform": {
+     "currency": "TRY",
+     "fx": "transaction",
+     "real": "latest",
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   },
+   "expect": {
+    "metric": "aov",
+    "transform": {
+     "currency": "TRY",
+     "fx": "transaction",
+     "real": "latest",
+     "unit": "money",
+     "index": false,
+     "compare": false
+    }
+   }
+  },
+  {
+   "id": "c253",
+   "prompt": "Fransa için",
+   "lang": "tr",
+   "category": "refinement_persist",
+   "base": {
+    "dimension": "product",
+    "top_n": 15
+   },
+   "expect": {
+    "countries": [
+     "France"
+    ],
+    "dimension": "product",
+    "top_n": 15
+   }
+  },
+  {
+   "id": "c257",
+   "prompt": "show units instead of revenue",
+   "lang": "en",
+   "category": "instead_of",
+   "expect": {
+    "metric": "units"
+   }
+  }
+ ]
+}

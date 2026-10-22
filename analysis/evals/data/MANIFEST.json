@@ -6,20 +6,52 @@
   "test": 0.4
  },
  "sources": {
-  "retrieval_cases.json": "a1d21043bc1dd0d9cecd4762ead54ccf7b2c8ca1e6e5ae753bc4882e89714b9c"
+  "retrieval_cases.json": "a1d21043bc1dd0d9cecd4762ead54ccf7b2c8ca1e6e5ae753bc4882e89714b9c",
+  "studio_cases.json": "17c84d12940e552178054dc5d4931835263149333cf46f7651a502e55b587220",
+  "intent_cases.json": "916696bb5c2d38bef9798a07da4087d68ec8f663bf0543be1c6e250fb8cd7ab4",
+  "chart_cases.json": "fd7a28868df2b7061db829e756487c99a076084775816eb658aeef39c8902cbe",
+  "multiturn_cases.json": "560d23bf201ac1b4a1538e5ce1143b3c272555384dce7146828e95f6bc78c0c1"
  },
  "files": {
   "retrieval_dev.json": "3e5aef7f9227f983cdbc1ca8865ddda73a14fec8c676731ae7ac8bc4adce6e72",
   "retrieval_val.json": "e5f2b6df712ad43af22d95d4b8efcd0c3d200bd27d508d6df8a9ce252fae21d8",
-  "retrieval_test.json": "b809f2a2ff7265ddf8656e7471cb41ffe947f410bb59c31c640dfe0b807e176a"
+  "retrieval_test.json": "b809f2a2ff7265ddf8656e7471cb41ffe947f410bb59c31c640dfe0b807e176a",
+  "studio_dev.json": "61442854f691b211274be9025ceb4344cf49f4e639bbcb5fa8fbe3225da08dbb",
+  "studio_val.json": "eb5e124f2ec766b9fa0ff1ac506c4232d8ccf4f0bd4dca9dcf7c23ebcdb787e5",
+  "studio_test.json": "c56fbc29634c881fbf66b249ab52caac8cbc0e5b923d24a6aaa586b26137d21e",
+  "intent_dev.json": "d4ac5aaebdf9cb0001e0c9eaefd619f2aa9fe4a07590e5c58fa31c1637ed6225",
+  "intent_val.json": "ab27bd92ee7bee7dbe2453970b38955a2b7ae7d46fa82eede4424764659706d8",
+  "intent_test.json": "c037a0239d861a8afc6beac82760cff8bdbed2debaa1bd164734c3a7a8cf8ee9",
+  "chart_dev.json": "40d2f687d90160a4fd85ba16d6747986569ee22cf0046708748c61821809d979",
+  "chart_val.json": "ad32c2c19f5f3db6ac876eaaf03fff1a3386deccc58318535e1dea2898ab89bb",
+  "chart_test.json": "53cfbd9dde14d331075c505a68b8036d8de513c5cd8ea7c2fc1c0af4f674f632",
+  "multiturn_dev.json": "072916ca1c3b644c5b35a58eb4d37c5492897747d8e897f61de40776047f7491",
+  "multiturn_val.json": "a0634b77513980a62aacad8677b55a1ede310ce0ba1d527e4ec90028687a25ee",
+  "multiturn_test.json": "c3aebb7c86c47c2fc81381150410e28a663b9b294044c06c580aa27f2ad2e2aa"
  },
  "counts": {
   "retrieval_dev.json": 106,
   "retrieval_val.json": 53,
-  "retrieval_test.json": 101
+  "retrieval_test.json": 101,
+  "studio_dev.json": 128,
+  "studio_val.json": 63,
+  "studio_test.json": 129,
+  "intent_dev.json": 97,
+  "intent_val.json": 46,
+  "intent_test.json": 97,
+  "chart_dev.json": 104,
+  "chart_val.json": 52,
+  "chart_test.json": 104,
+  "multiturn_dev.json": 18,
+  "multiturn_val.json": 9,
+  "multiturn_test.json": 18
  },
  "sealed": {
-  "retrieval": "2026-10-22T18:11:14+00:00"
+  "retrieval": "2026-10-22T18:11:14+00:00",
+  "studio": "2026-10-22T18:16:52+00:00",
+  "intent": "2026-10-22T18:16:52+00:00",
+  "chart": "2026-10-22T18:16:52+00:00",
+  "multiturn": "2026-10-22T18:16:52+00:00"
  },
  "author_notes": {
   "retrieval": "Written by an independent test author from analysis/knowledge/context-cards.json only (no code read). Each card was read in both languages; queries were then written per category as analysts would type them: paraphrased rather than copied titles, Turkish with and without diacritics, typos (enflsyon, amzon fee, kargoo, kapsiyor), terse queries (aov?, retail v2, nato payı?), long rambling ones, follow-ups (peki ..., and Sweden ...), synonyms (ciro/hasılat/turnover, kâr/profit, sepet/basket) and hard negatives whose wording points at a different card (euro conversion vs euro area, today's rate vs today's membership vs today's TL, gold vs dataset licence, trend vs forecast, basket analysis vs AOV, campaign/channel vs dataset columns). 'relevant' lists every card a good answer needs; 'primary' is the single most important one. Limitation cases point at the card that states the limitation (limit-*, excl-customer-id, excl-cancelled or dataset-columns). The 20 unanswerable cases were checked against all 57 cards and no card covers them (relevant=[], primary=null). required_facts are literal substrings of the primary card body in the query's language (Turkish body for mixed). Prompt-injection-style cases that still have a relevant card: r023, r024, r045, r069, r082, r091, r115, r119, r130, r140, r163, r184, r212, r213, r234, r235."

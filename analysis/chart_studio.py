@@ -1178,6 +1178,17 @@ RE_Q1 = _P(r"(?<!\w)q([1-4])(?:\s*[-/ ]?\s*" + _YEAR + r")?(?![\da-z])")
 RE_Q2 = _P(_YEAR + r"\s*[-/ ]?\s*q([1-4])(?![\da-z])")
 RE_Q3 = _P(r"(?<![\w.])(?:([1-4])\s*\.?|(first|second|third|fourth|1st|2nd|3rd|4th|birinci|ikinci|ucuncu|dorduncu))\s*(?:ceyrek|quarter)[a-z']*(?:\s+of)?(?:\s+" + _YEAR + r")?")
 RE_Q4 = _P(_YEAR + r"(?:'?[a-z]*)?\s+([1-4])\s*\.?\s*ceyrek[a-z']*")
+RE_Q5 = _P(_YEAR + r"(?:'?[a-z]*)?\s+(ilk|birinci|ikinci|ucuncu|dorduncu|first|second|third|fourth)\s+(?:ceyre[a-z']*|quarter)")
+# Month ranges: "Mart'tan Haziran'a 2011", "from March to June 2011", "March–June 2011", "Ocak-Mart 2011 arası".
+_MONTH_ANY = "|".join(_TR_MONTHS + _EN_MONTHS + ["sept"] + _EN_ABBR)
+RE_MONTH_RANGE = _P(r"(?<!\w)(?:from\s+)?(" + _MONTH_ANY + r")[a-z']*\s*(?:-|–|to|until|through|ile|ve|ila)?\s*(" + _MONTH_ANY
+                    + r")[a-z']*\s+" + _YEAR + r"(?!\d)")
+# A moving-average window on its own: "pencereyi 6 yap", "window to 6", "6'lı pencere".
+RE_WINDOW = _P(r"(?<!\w)(?:pencere[a-z']*\s+(\d{1,2})|window\s+(?:to\s+|of\s+|=\s*)?(\d{1,2})|(\d{1,2})\s*'?(?:li|lu|lik|luk)?\s+pencere[a-z']*)(?!\d)")
+# "A yerine B" (TR) and "B instead of A" (EN): A is the value being replaced, never the one asked for.
+RE_YERINE = _P(r"(?<![a-z])yerine(?![a-z])")
+RE_INSTEAD = _P(r"(?<![a-z])(?:instead\s+of|rather\s+than)(?![a-z])")
+_OLD_WORD = r"[a-z0-9][a-z0-9'.\-]*"
 RE_MONTH_TR = _P(r"(?<!\w)(" + "|".join(_TR_MONTHS) + r")[a-z']*\s+" + _YEAR + r"(?!\d)")
 RE_MONTH_EN = _P(r"(?<!\w)(" + "|".join(_EN_MONTHS + ["sept"] + _EN_ABBR) + r")\.?\s+" + _YEAR + r"(?!\d)")
 RE_ISO_MONTH = _P(r"(?<![\d-])((?:19|20)\d{2})-(0[1-9]|1[0-2])(?![\d-])")
@@ -1192,7 +1203,8 @@ RE_CONTROL = _P(r"(?<!\w)(?:kontrol (?:band|limit|grafi)[a-z']*|olagan degisim[a
 RE_REMOVE = _P(r"(?<!\w)(?:kaldir|cikar|olmadan|haric|sil(?![a-z])|gizle|remove|without|drop|exclude|hide|delete)")
 # Exclusion phrases attached to a country (or a list of countries joined by "ve/and/,"). EXCLUDE words always
 # exclude; REMOVE words drop a country from the comparison when it is in `countries`, otherwise exclude it.
-_EXCLUDE_AFTER = r"haric\s+tut[a-z']*|haric[a-z']*|disinda[a-z']*(?:\s+(?:kalan\s+)?ulke[a-z']*)?|olmadan|excluded"
+_EXCLUDE_AFTER = (r"haric\s+tut[a-z']*|haric[a-z']*|disinda[a-z']*(?:\s+(?:kalan\s+)?ulke[a-z']*)?|olmadan|excluded|"
+                  r"olmasin|olmayan|disarida\s+birak[a-z']*|disari\s+(?:al|birak)[a-z']*|dahil\s+etme[a-z']*|katma[a-z']*")
 _REMOVE_AFTER = (r"(?:(?:karsilastirma|grafik|liste|kapsam)[a-z']*\s+)?"
                  r"(?:cikar[a-z']*|kaldir[a-z']*|sil(?:in|er)?(?![a-z])|gizle[a-z']*)")
 _EXCLUDE_BEFORE = r"except(?:\s+for)?|excluding|exclude|other\s+than|without|but\s+not|apart\s+from"
@@ -1234,7 +1246,7 @@ GROUP_PATTERNS = [
 _MONTH_WORDS = "|".join(_TR_MONTHS + _EN_MONTHS + _EN_ABBR + ["sept"])
 RE_TX_TODAY_RATE = _P(r"(?<!\w)(?:bugunku kur[a-z']*|guncel kur[a-z']*|simdiki kur[a-z']*|son kur[a-z']*|"
                       r"(?:at )?today'?s? (?:exchange )?rate|(?:at )?(?:the )?current (?:exchange )?rate|latest (?:exchange )?rate)")
-RE_TX_TODAY_VALUE = _P(r"(?<!\w)(?:bugunku (?:fiyat|para|deger|tl|lira|sterlin|dolar|euro|avro)[a-z']*|bugunun (?:fiyat|para)[a-z']*|"
+RE_TX_TODAY_VALUE = _P(r"(?<!\w)(?:bugun(?:ku|un)? (?:fiyat|para|deger|tl|lira|sterlin|dolar|euro|avro)[a-z']*|"
                        r"guncel fiyat[a-z']*|today'?s? (?:prices?|money|value|terms|tl|lira|pounds?|sterling|dollars?|euros?)|"
                        r"in today'?s terms|current prices)")
 RE_TX_BASE_MONTH = _P(r"(?<!\w)(?:(?P<m1>" + _MONTH_WORDS + r")[a-z']*\.?\s+(?P<y1>(?:19|20)\d{2})|(?P<y2>(?:19|20)\d{2})[- ](?P<m2>0[1-9]|1[0-2])|"
@@ -1251,12 +1263,15 @@ RE_TX_CURRENCY = [
     ("EUR", _P(r"(?<!\w)(?:euro(?:'[a-z]+|ya|ye)?(?![a-z ]*(?:bolge|alan|area|zone))|avro[a-z']*|eur(?![a-z])|euros)")),
     ("GBP", _P(r"(?<!\w)(?:sterlin[a-z']*|pounds?(?: sterling)?|gbp(?![a-z])|£)")),
 ]
+RE_TX_TX_RATE = _P(r"(?<!\w)(?:(?:islem|siparis|satis)\s+(?:tarih|gun|an)[a-z']*\s+kur[a-z']*|o gunku kur[a-z']*|tarihsel kur[a-z']*|"
+                   r"(?:the\s+)?(?:rate|exchange rate)\s+(?:of|on|at)\s+(?:the\s+|each\s+)?(?:order|transaction|sale)(?:'s)?\s+date|historical\s+(?:exchange\s+)?rates?|"
+                   r"(?:transaction|order)[- ]date\s+rates?)")
 RE_TX_REMOVE = _P(r"(?<!\w)(?:(?:donusum|enflasyon duzeltme|kur donusum|altin|cevir)[a-z']*\s+(?:kaldir|cikar|iptal|geri al)[a-z']*|"
                   r"(?:remove|drop|undo|clear|without)\s+(?:the\s+)?(?:conversion|transform\w*|inflation adjustment|gold)|"
                   r"nominal(?:e|a)? (?:don|gec)[a-z']*|(?:back )?to nominal|sterline? geri don[a-z']*|back to (?:gbp|pounds?|sterling))")
 RE_TX_INDEX_REMOVE = _P(r"(?<!\w)(?:endeks[a-z']*\s+(?:kaldir|cikar|iptal)[a-z']*|(?:remove|drop|undo)\s+(?:the\s+)?index(?:ing)?)")
 RE_ASOF_TODAY = _P(r"(?<!\w)(?:bugun(?:ku)?|guncel|simdiki|su anki|today'?s?|current(?:ly)?)(?![a-z])")
-RE_ASOF_PERIOD = _P(r"(?<!\w)(?:donem(?:in)? sonu[a-z']*|verinin donem sonu[a-z']*|period end|end of (?:the )?(?:chart'?s? )?period)")
+RE_ASOF_PERIOD = _P(r"(?<!\w)(?:donem(?:in)? sonu[a-z']*|verinin donem sonu[a-z']*|period[- ]end|end of (?:the )?(?:chart'?s? )?period)")
 # AW-22: membership on each order's own date ("o dönemdeki üyelik", "membership at the time").
 RE_ASOF_TX = _P(r"(?<!\w)(?:o donem[a-z']*|o zaman[a-z']*|o tarih[a-z']*|islem (?:tarih|zaman|gun)[a-z']*|siparis (?:tarih|gun)[a-z']*|"
                 r"satis (?:tarih|ani)[a-z']*|at the time(?: of (?:the )?(?:sale|order|transaction)s?)?|on the (?:order|transaction|sale) date|"
@@ -1269,6 +1284,8 @@ CHART_PATTERNS = [
     ("bar", _P(r"(?<!\w)(?:bar(?:s| chart)?(?![a-z])|cubuk[a-z']*|sutun[a-z']*|columns?(?![a-z]))")),
 ]
 SORT_PATTERNS = [
+    ("value_desc", _P(r"(?<!\w)(?:(?:from\s+)?(?:highest|largest|biggest|most)\s+to\s+(?:lowest|smallest|least)|en\s+(?:yuksek|buyuk)ten\s+en\s+(?:dusug|kucug)[a-z']*)")),
+    ("value_asc", _P(r"(?<!\w)(?:(?:from\s+)?(?:lowest|smallest|least)\s+to\s+(?:highest|largest|biggest|most)|en\s+(?:dusuk|kucuk)ten\s+en\s+(?:yuksek|buyug)[a-z']*)")),
     ("value_asc", _P(r"(?<!\w)(?:artan|ascending|kucukten buyuge|en dusukten|asc(?![a-z]))")),
     ("value_desc", _P(r"(?<!\w)(?:azalan|descending|buyukten kucuge|en yuksekten|desc(?![a-z]))")),
     ("natural", _P(r"(?<!\w)(?:kronolojik|chronolog[a-z]*|tarih sirasi|natural order|dogal sira[a-z]*)")),
@@ -1318,6 +1335,63 @@ def _country_patterns(catalog) -> list[tuple[re.Pattern, str]]:
     return out
 
 
+# Words the planner reads (folded); a request word one edit away from one of them (two for long words) is read as it,
+# when it is not itself a known word or a suffixed form of one ("trnd" -> "trend", "frnace" -> "france").
+PLANNER_WORDS = frozenset("""
+trend moving average rolling compare comparison versus karsilastir kiyasla hareketli kayan ortalama haftalik aylik gunluk
+weekly monthly daily satis siparis adet ciro ulke ulkeler urun urunler country countries product products revenue sales
+orders units haric except excluding exclude remove drop kaldir cikar control kontrol band bandi interval confidence guven
+araligi enflasyon inflation altin gold endeks index dolar dollar euro sterlin pound grafik chart cizgi line cubuk sutun
+alan area ekle add sadece only istatistik statistic nominal reel real yerine instead weekday hafta month quarter ceyrek
+""".split())
+
+
+def _fix_typos(prompt: str, catalog) -> tuple[str, list[tuple[str, str]]]:
+    from analysis.retrieval import _edits_le
+
+    names = {_fold(n) for n in catalog["countries"]} | set(EXONYMS)
+    vocab = PLANNER_WORDS | {w for n in names for w in n.split() if len(w) >= 4}
+    folded = _fold(prompt)
+    fixes = []
+
+    def fix(m):
+        w = m.group(0)
+        if len(w) < 4 or w in vocab or any(w.startswith(v) and len(v) >= 4 for v in vocab) or w.isdigit():
+            return w
+        limit = 2 if len(w) >= 8 else 1
+        near = sorted(v for v in vocab if abs(len(v) - len(w)) <= limit and v[0] == w[0] and _edits_le(w, v, limit))
+        if len(near) == 1:
+            fixes.append((w, near[0]))
+            return near[0]
+        return w
+    return re.sub(r"[a-z]+", fix, folded), fixes
+
+
+def _replaced_spans(folded: str) -> list[tuple[int, int]]:
+    """Character spans of the values a request replaces: the one or two words before "yerine" ("çizgi yerine sütun",
+    "alan grafiği yerine çizgi") and after "instead of" / "rather than" ("Spain instead of Italy")."""
+    spans = []
+    for m in RE_YERINE.finditer(folded):
+        words = list(re.finditer(_OLD_WORD, folded[:m.start()]))
+        tail = [w for w in words[-2:] if not re.search(r"[,.;:!?]", folded[w.end():m.start()])]
+        if tail and tail[-1].end() >= m.start() - 2:
+            first = tail[-2] if len(tail) == 2 and tail[-2].group(0) not in ("ve", "ile", "and") and \
+                not re.search(r"[,.;:!?]", folded[tail[-2].end():tail[-1].start()]) else tail[-1]
+            spans.append((first.start(), m.start()))
+    for m in RE_INSTEAD.finditer(folded):
+        rest = folded[m.end():]
+        words = []
+        for w in re.finditer(_OLD_WORD, rest):
+            if words and (re.search(r"[,.;:!?]", rest[words[-1].end():w.start()]) or len(words) == 2):
+                break
+            if w.group(0) in ("and", "with", "but", "ve", "ile"):
+                break
+            words.append(w)
+        if words:
+            spans.append((m.end() + words[0].start(), m.end() + words[-1].end()))
+    return spans
+
+
 def _membership_date(text: "_Text"):
     """Which membership date the request names (AW-22), honouring "X yerine Y" / "Y instead of X": a phrase that
     is followed by "yerine" or preceded by "instead of" is the one being replaced, not the one asked for."""
@@ -1346,7 +1420,10 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
     t = _T[locale]
     base = validate_spec(base_spec, catalog, locale=locale) if base_spec is not None else default_spec()
     spec = json.loads(json.dumps(base))
-    text = _Text(prompt or "")
+    corrected, typo_fixes = _fix_typos(prompt or "", catalog)
+    text = _Text(corrected)
+    replaced_spans = _replaced_spans(text.text)
+    keep = lambda pos: not any(a <= pos < b for a, b in replaced_spans)  # noqa: E731
     recognized = False
     notes: list[str] = []
     first, last = date.fromisoformat(catalog["start"]), date.fromisoformat(catalog["end"])
@@ -1363,6 +1440,8 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
     for pattern, name in _country_patterns(catalog):
         found.extend((m.start(), m.end(), name) for m in text.take(pattern))
     found.sort()
+    replaced = [name for start, _, name in found if not keep(start)]
+    found = [x for x in found if keep(x[0])]
     mentioned: list[str] = []
     for _, _, name in found:
         if name not in mentioned:
@@ -1376,7 +1455,8 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
         tx["index"], tx_hits = False, tx_hits + ["index_off"]
     if text.take(RE_TX_REMOVE):
         tx, tx_hits = transforms_default(), tx_hits + ["reset"]
-    today_rate = bool(text.take(RE_TX_TODAY_RATE))
+    today_rate = any(keep(m.start()) for m in text.take(RE_TX_TODAY_RATE))
+    tx_rate = any(keep(m.start()) for m in text.take(RE_TX_TX_RATE))
     today_words = " ".join(m.group(0) for m in text.take(RE_TX_TODAY_VALUE))
     today_value = bool(today_words)
     base_month = None
@@ -1394,7 +1474,7 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
     # --- reference country groups (v3 G7) and the membership date
     group_hits: list[tuple[int, str]] = []
     for gid, pattern in GROUP_PATTERNS:
-        group_hits.extend((m.start(), gid) for m in text.take(pattern))
+        group_hits.extend((m.start(), gid) for m in text.take(pattern) if keep(m.start()))
     as_of = _membership_date(text)
 
     # --- money transforms, part 2: target currency, constant prices, gold, index, nominal vs real
@@ -1410,12 +1490,15 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
         tx["currency"], tx["real"] = "GBP", None
         tx_hits.append("gold")
     for code, pattern in RE_TX_CURRENCY:
-        if text.take(pattern) or pattern.search(today_words):
+        if any(keep(m.start()) for m in text.take(pattern)) or pattern.search(today_words):
             tx["currency"], tx["unit"] = code, "money"
             tx_hits.append("currency")
     if today_rate:
         tx["fx"], tx["real"] = "latest", None
         tx_hits.append("fx_latest")
+    elif tx_rate:
+        tx["fx"] = "transaction"
+        tx_hits.append("fx_transaction")
     elif "currency" in tx_hits:
         tx["fx"] = "transaction"
     if text.take(RE_TX_INDEX):
@@ -1451,6 +1534,8 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
         quarters.append((int(m.group(2)), int(m.group(1))))
     for m in text.take(RE_Q4):
         quarters.append((int(m.group(2)), int(m.group(1))))
+    for m in text.take(RE_Q5):
+        quarters.append(({"ilk": 1, "first": 1}.get(m.group(2)) or _ORDINALS[m.group(2)], int(m.group(1))))
     for m in text.take(RE_Q3):
         q = int(m.group(1)) if m.group(1) else _ORDINALS[m.group(2)]
         quarters.append((q, int(m.group(3)) if m.group(3) else None))
@@ -1458,6 +1543,14 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
         if year is None:  # latest year in the data whose quarter has started
             year = last.year if date(last.year, 3 * q - 2, 1) <= last else last.year - 1
         ranges.append((date(year, 3 * q - 2, 1), _month_end(year, 3 * q)))
+    def month_no(word):
+        return (_TR_MONTHS.index(word) if word in _TR_MONTHS else _EN_MONTHS.index(word) if word in _EN_MONTHS
+                else 8 if word == "sept" else _EN_ABBR.index(word)) + 1
+
+    for m in text.take(RE_MONTH_RANGE):
+        a, b, y = month_no(m.group(1)), month_no(m.group(2)), int(m.group(3))
+        if a <= b:
+            ranges.append((date(y, a, 1), _month_end(y, b)))
     for m in text.take(RE_MONTH_TR):
         mo, y = _TR_MONTHS.index(m.group(1)) + 1, int(m.group(2))
         ranges.append((date(y, mo, 1), _month_end(y, mo)))
@@ -1509,6 +1602,14 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
     for name, pattern in [("moving_average", RE_MA), ("ci95", RE_CI), ("trend", RE_TREND), ("control_band", RE_CONTROL)]:
         for m in text.take(pattern):
             stat_hits.append((m.start(), name))
+    stat_hits = [h for h in stat_hits if keep(h[0])]
+    for m in text.take(RE_WINDOW):
+        window = int(next(g for g in m.groups() if g))
+        if not stat_hits and spec["statistic"] != "moving_average":
+            stat_hits.append((m.start(), "moving_average"))
+        elif not stat_hits:
+            recognized = True
+            spec["window"] = min(max(window, WINDOW_RANGE[0]), WINDOW_RANGE[1])
     if stat_hits:
         recognized = True
         wanted = sorted(stat_hits)[0][1]
@@ -1529,24 +1630,28 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
     metric_hits = []  # (priority, position, metric): "ortalama sipariş" is aov, "sipariş sayısı" is orders
     for priority, (name, pattern) in enumerate(METRIC_PATTERNS):
         for m in text.take(pattern):
-            metric_hits.append((priority, m.start(), name))
+            if keep(m.start()):
+                metric_hits.append((priority, m.start(), name))
     if metric_hits:
         recognized = True
         spec["metric"] = sorted(metric_hits)[0][2]
     for name, pattern in DIMENSION_PATTERNS:
         for m in text.take(pattern):
-            dim_mentions.append((m.start(), name))
+            if keep(m.start()):
+                dim_mentions.append((m.start(), name))
     chart_hits = []
     for name, pattern in CHART_PATTERNS:
         for m in text.take(pattern):
-            chart_hits.append((m.start(), name))
+            if keep(m.start()):
+                chart_hits.append((m.start(), name))
     if chart_hits:
         recognized = True
         spec["chart"] = sorted(chart_hits)[0][1]
     sort_hits = []
     for name, pattern in SORT_PATTERNS:
         for m in text.take(pattern):
-            sort_hits.append((m.start(), name))
+            if keep(m.start()):
+                sort_hits.append((m.start(), name))
     if sort_hits:
         recognized = True
         spec["sort"] = sorted(sort_hits)[0][1]
@@ -1594,6 +1699,9 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
                 dim_mentions.append((10**6, "month"))
         else:
             notes.append(t["note_compare_one"])
+    if replaced:
+        recognized = True
+        spec["countries"] = [c for c in spec["countries"] if c not in replaced]
     if spec["split_by_country"] and len(spec["countries"]) < 2:
         spec["split_by_country"] = False
 

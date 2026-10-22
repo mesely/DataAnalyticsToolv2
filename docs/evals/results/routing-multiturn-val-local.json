@@ -1,0 +1,283 @@
+{
+ "local": {
+  "task": "multiturn",
+  "split": "val",
+  "method": "local",
+  "n": 9,
+  "answered": 9,
+  "accuracy": 0.7777777777777778,
+  "ci95": [
+   0.4525833436728054,
+   0.9367762376877727
+  ],
+  "blocked": null,
+  "latency_ms": {
+   "p50": 2.2,
+   "p95": 9.962,
+   "p99": 11.184,
+   "mean": 3.881
+  },
+  "tokens": 0,
+  "rows": [
+   {
+    "id": "m04",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 11.49
+   },
+   {
+    "id": "m09",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 1.94
+   },
+   {
+    "id": "m14",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 2.07
+   },
+   {
+    "id": "m28",
+    "lang": "en",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "countries"
+      ]
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "countries"
+      ]
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "countries"
+      ]
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "countries"
+      ]
+     }
+    ],
+    "correct": false,
+    "latency_ms": 2.47
+   },
+   {
+    "id": "m31",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 1.96
+   },
+   {
+    "id": "m32",
+    "lang": "mixed",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 2.02
+   },
+   {
+    "id": "m33",
+    "lang": "en",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "transform"
+      ]
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "transform"
+      ]
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "transform"
+      ]
+     }
+    ],
+    "correct": false,
+    "latency_ms": 2.2
+   },
+   {
+    "id": "m37",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 7.67
+   },
+   {
+    "id": "m38",
+    "lang": "en",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 3.11
+   }
+  ],
+  "turn_accuracy": 0.8372093023255814
+ }
+}

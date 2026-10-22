@@ -13,6 +13,7 @@ import {
   Cell,
   ComposedChart,
   ErrorBar,
+  LabelList,
   Legend,
   Line,
   ReferenceArea,
@@ -24,7 +25,8 @@ import {
 } from "recharts";
 import { api } from "../api";
 import { useLocale } from "./Locale";
-import type { ChartResult, ChartSpec, Filters } from "./types";
+import { RoutingBadge } from "./Routing";
+import type { ChartResult, ChartSpec, ChartUnit, Filters } from "./types";
 import { Mascot } from "./Avatars";
 import { ReasoningTree } from "./Reasoning";
 import { Send, Spinner, Reset, Download, Query, TableView, Trend, Info, Verified } from "./BrandIcons";
@@ -56,7 +58,6 @@ export function ChartStudio({
   dataset,
   filters,
   csrf,
-  providerReady,
   providerLabel,
   initialPrompt,
   onExportCode,
@@ -64,7 +65,6 @@ export function ChartStudio({
   dataset: string;
   filters: Filters;
   csrf: string | null;
-  providerReady: boolean;
   providerLabel?: string | null;
   initialPrompt?: string;
   onExportCode: (spec: ChartSpec) => void;
@@ -74,15 +74,19 @@ export function ChartStudio({
     [prompt, setPrompt] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [useLlm, setUseLlm] = useState(false),
     [view, setView] = useState<View>("chart");
   const chartRef = useRef<HTMLDivElement>(null);
   const current = steps[steps.length - 1]?.result ?? null;
   const fmt = useMemo(
-    () => (unit: "GBP" | "count", v: number) =>
-      new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-GB", unit === "GBP"
-        ? { style: "currency", currency: "GBP", maximumFractionDigits: v >= 1000 ? 0 : 2 }
-        : { maximumFractionDigits: 0 }).format(v),
+    () => (unit: ChartUnit, v: number) => {
+      const tag = locale === "tr" ? "tr-TR" : "en-GB";
+      if (unit === "GBP" || unit === "TRY" || unit === "USD" || unit === "EUR")
+        return new Intl.NumberFormat(tag, { style: "currency", currency: unit, maximumFractionDigits: Math.abs(v) >= 1000 ? 0 : 2 }).format(v);
+      if (unit === "g" || unit === "oz")
+        return new Intl.NumberFormat(tag, { maximumFractionDigits: Math.abs(v) >= 100 ? 0 : 2 }).format(v) + " " + unit;
+      if (unit === "index") return new Intl.NumberFormat(tag, { maximumFractionDigits: 1 }).format(v);
+      return new Intl.NumberFormat(tag, { maximumFractionDigits: 0 }).format(v);
+    },
     [locale],
   );
 
@@ -91,7 +95,7 @@ export function ChartStudio({
     setError("");
     const r = await api.post<ChartResult>(
       BASE + "/chart",
-      { dataset, filters, locale, prompt: text, base_spec: base, use_llm: useLlm && providerReady },
+      { dataset, filters, locale, prompt: text, base_spec: base },
       csrf,
     );
     setBusy(false);
@@ -143,6 +147,9 @@ export function ChartStudio({
         }
         row.n = d.n;
         row.partial = d.partial;
+        // A country_group bar carries its share ("NATO 93,6 %") next to the bar.
+        if (d.share != null)
+          row.shareLabel = new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-GB", { style: "percent", maximumFractionDigits: 1 }).format(d.share);
       }
       byX.set(d.x, row);
     });
@@ -156,7 +163,7 @@ export function ChartStudio({
       if (row) row.trend = p.value;
     });
     return [...byX.values()];
-  }, [current]);
+  }, [current, locale]);
 
   const unit = current?.unit ?? "GBP";
   const control = current?.overlays.control;
@@ -174,6 +181,9 @@ export function ChartStudio({
       statistic: t("İstatistik", "Statistic"),
       window: t("Pencere", "Window"),
       sort: t("Sıralama", "Sort"),
+      group: t("Grup", "Group"),
+      group_as_of: t("Üyelik tarihi", "Membership date"),
+      transform: t("Birim / dönüşüm", "Unit / transform"),
     })[k] ?? k;
   const VALUE_LABELS: Record<string, [string, string]> = {
     gross_sales: ["brüt satış", "gross sales"],
@@ -185,6 +195,16 @@ export function ChartStudio({
     weekday: ["haftanın günü", "weekday"],
     country: ["ülke", "country"],
     product: ["ürün", "product"],
+    country_group: ["ülke grubu", "country group"],
+    nato: ["NATO", "NATO"],
+    eu: ["AB", "EU"],
+    eurozone: ["Euro bölgesi", "euro area"],
+    g7: ["G7", "G7"],
+    oecd: ["OECD", "OECD"],
+    continent: ["kıta", "continent"],
+    period_end: ["dönem sonu", "period end"],
+    transaction: ["sipariş tarihi", "order date"],
+    today: ["bugün", "today"],
     line: ["çizgi", "line"],
     area: ["alan", "area"],
     bar: ["çubuk", "bar"],
@@ -199,6 +219,15 @@ export function ChartStudio({
   };
   const show = (v: unknown) => {
     if (v == null || v === "" || (Array.isArray(v) && !v.length)) return t("yok", "none");
+    if (typeof v === "object" && !Array.isArray(v) && "currency" in (v as object)) {
+      const x = v as NonNullable<ChartSpec["transform"]>;
+      const parts = [x.unit === "gold_g" ? t("altın (g)", "gold (g)") : x.unit === "gold_oz" ? t("altın (ons)", "gold (oz)") : x.currency === "TRY" ? "TL" : x.currency];
+      if (x.fx === "latest") parts.push(t("bugünkü kur", "today's rate"));
+      if (x.real) parts.push(x.real === "latest" ? t("bugünkü fiyatlar", "today's prices") : t(`${x.real} fiyatları`, `${x.real} prices`));
+      if (x.compare) parts.push(t("nominal ve reel", "nominal vs real"));
+      if (x.index) parts.push(t("endeks = 100", "index = 100"));
+      return parts.join(" · ");
+    }
     if (Array.isArray(v)) return v.join(", ");
     if (typeof v === "boolean") return v ? t("evet", "yes") : t("hayır", "no");
     const label = VALUE_LABELS[String(v)];
@@ -241,22 +270,6 @@ export function ChartStudio({
           {t("Uygula", "Apply")}
         </button>
       </form>
-      <div className="wb-studio-options">
-        <label className={"wb-studio-llm" + (providerReady ? "" : " is-off")}>
-          <input type="checkbox" checked={useLlm && providerReady} disabled={!providerReady} onChange={(e) => setUseLlm(e.target.checked)} />
-          {providerLabel
-            ? t(`${providerLabel} ile planla`, `Plan with ${providerLabel}`)
-            : t("Dil modeliyle planla", "Plan with the language model")}
-          <small>
-            {providerReady
-              ? t(
-                  "İstek, ülke listesi ve tarih aralığı sağlayıcıya gider; satırlar ve tutarlar gitmez. Model yalnız planı önerir; plan doğrulanır.",
-                  "Your request, the country list and the date range go to the provider; rows and amounts stay local. The model only proposes the plan, which is validated.",
-                )
-              : t("Sağlayıcı bağlı değil; yerel planlayıcı kullanılır.", "No provider connected; the local planner is used.")}
-          </small>
-        </label>
-      </div>
       <div className="wb-question-chips" aria-label={t("Önerilen istekler", "Suggested requests")}>
         {suggestions.map((s) => (
           <button key={s} type="button" disabled={busy} onClick={() => void ask(s, current?.spec ?? null)}>
@@ -298,12 +311,16 @@ export function ChartStudio({
             </div>
           </header>
           <div className="wb-studio-plan">
-            <span className={"wb-badge " + (current.planner.source === "model" ? "blue" : "")}>
-              <Verified size={16} />
-              {current.planner.source === "model"
-                ? t("Model planladı · sayılar yerelde", "Planned by the model · numbers local")
-                : t("Yerel planlayıcı", "Local planner")}
-            </span>
+            {current.planner.routing ? (
+              <RoutingBadge routing={current.planner.routing} providerLabel={providerLabel} />
+            ) : (
+              <span className={"wb-badge " + (current.planner.source === "model" ? "blue" : "")}>
+                <Verified size={16} />
+                {current.planner.source === "model"
+                  ? t("Model planladı · sayılar yerelde", "Planned by the model · numbers local")
+                  : t("Yerel planlayıcı", "Local planner")}
+              </span>
+            )}
             {steps[steps.length - 1]!.prompt !== "" && current.planner.changes.map((c) => (
               <span key={c.field} className="wb-studio-change">
                 <b>{fieldLabel(c.field)}</b> {show(c.from)} → {show(c.to)}
@@ -332,7 +349,7 @@ export function ChartStudio({
                   <ComposedChart
                     data={rows}
                     layout={isTime ? "horizontal" : "vertical"}
-                    margin={{ top: 12, right: 24, bottom: 8, left: 8 }}
+                    margin={{ top: 12, right: rows.some((r) => r.shareLabel) ? 64 : 24, bottom: 8, left: 8 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={!isTime} horizontal={isTime} />
                     {isTime ? (
@@ -379,6 +396,7 @@ export function ChartStudio({
                       ])
                     ) : spec.chart === "bar" ? (
                       <Bar dataKey="value" name={current.title} fill={SERIES[0]} radius={isTime ? [6, 6, 0, 0] : [0, 6, 6, 0]} maxBarSize={36}>
+                        {rows.some((r) => r.shareLabel) && <LabelList dataKey="shareLabel" position="right" className="wb-bar-share" />}
                         {rows.map((r, i) => (
                           <Cell key={i} fillOpacity={r.partial ? 0.45 : 1} />
                         ))}
@@ -429,6 +447,35 @@ export function ChartStudio({
               {rows.some((r) => r.partial) && (
                 <p className="wb-studio-foot">{t("İçi boş nokta veya soluk çubuk: kısmi dönem; trend ve ortalamalara katılmaz.", "Hollow point or faded bar: partial period, excluded from trends and averages.")}</p>
               )}
+              {current.transform && (
+                <details className="wb-studio-provenance">
+                  <summary>
+                    <Info size={16} />
+                    {t("Dönüşüm: ", "Transform: ")}
+                    {current.transform.label}
+                  </summary>
+                  <p>{current.transform.text}</p>
+                  <ul>
+                    {current.transform.sources.map((src) => (
+                      <li key={src.id}>
+                        <a href={src.url} target="_blank" rel="noreferrer noopener">
+                          {src.title}
+                        </a>
+                        {" · "}
+                        {src.series.join(", ")}
+                        {" · "}
+                        {t("sürüm", "version")} {src.version}
+                        {" · "}
+                        {t("indirildi", "retrieved")} {src.retrieved_at.slice(0, 10)}
+                        {" · "}
+                        {src.licence}
+                        {" · "}
+                        <code title={src.sha256}>sha256 {src.sha256.slice(0, 12)}</code>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
             </div>
           )}
           {view === "data" && (
@@ -439,6 +486,8 @@ export function ChartStudio({
                     <th>{fieldLabel("dimension")}</th>
                     {seriesNames.length > 0 && <th>{t("Seri", "Series")}</th>}
                     <th>{t("Değer", "Value")}</th>
+                    {current.transform && current.data.some((d) => d.gbp != null) && <th>{t("Kaynak (GBP)", "Source (GBP)")}</th>}
+                    {current.data.some((d) => d.share != null) && <th>{t("Pay", "Share")}</th>}
                     {spec.statistic === "ci95" && <th>%95 GA</th>}
                     {spec.statistic === "ci95" && <th>n</th>}
                   </tr>
@@ -451,7 +500,13 @@ export function ChartStudio({
                         {d.partial ? " *" : ""}
                       </td>
                       {seriesNames.length > 0 && <td>{d.series}</td>}
-                      <td className="num">{fmt(unit, d.value)}</td>
+                      <td className="num">{d.value == null ? "—" : fmt(unit, d.value)}</td>
+                      {current.transform && current.data.some((x) => x.gbp != null) && (
+                        <td className="num">{d.gbp != null ? fmt(spec.metric === "gross_sales" || spec.metric === "aov" ? "GBP" : "count", d.gbp) : "—"}</td>
+                      )}
+                      {current.data.some((x) => x.share != null) && (
+                        <td className="num">{d.share != null ? new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-GB", { style: "percent", maximumFractionDigits: 1 }).format(d.share) : "—"}</td>
+                      )}
                       {spec.statistic === "ci95" && (
                         <td className="num">{d.lower != null && d.upper != null ? `${fmt(unit, d.lower)} – ${fmt(unit, d.upper)}` : "—"}</td>
                       )}
@@ -460,6 +515,42 @@ export function ChartStudio({
                   ))}
                 </tbody>
               </table>
+              {current.groups && (
+                <table className="wb-group-members">
+                  <caption>
+                    {t(
+                      current.groups.as_of_rule === "transaction"
+                        ? `${current.groups.label} üyeliği · her siparişin kendi tarihine göre · referans ${current.groups.card.version}`
+                        : `${current.groups.label} üyeliği · ${current.groups.as_of} (${current.groups.as_of_rule === "today" ? "bugün" : "dönem sonu"}) · referans ${current.groups.card.version}`,
+                      current.groups.as_of_rule === "transaction"
+                        ? `${current.groups.label} membership · on each order's own date · reference ${current.groups.card.version}`
+                        : `${current.groups.label} membership · ${current.groups.as_of} (${current.groups.as_of_rule === "today" ? "today" : "period end"}) · reference ${current.groups.card.version}`,
+                    )}
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th>{t("Ülke", "Country")}</th>
+                      <th>{t("Grup", "Group")}</th>
+                      <th>{t("Brüt satış", "Gross sales")}</th>
+                      <th>{t("Not", "Note")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {current.groups.countries.map((g) => (
+                      <tr key={g.country}>
+                        <td>{g.display}</td>
+                        <td>
+                          {g.spans && g.spans.length > 1
+                            ? g.spans.map((x) => `${x.bucket_label} (${x.from} – ${x.to})`).join(" → ")
+                            : g.bucket_label}
+                        </td>
+                        <td className="num">{fmt("GBP", g.pence / 100)}</td>
+                        <td>{g.note ?? ""}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
           {view === "sql" && (
@@ -482,6 +573,18 @@ export function ChartStudio({
               <button className="wb-text-btn" disabled={steps.length < 2 || busy} onClick={() => setSteps((s) => s.slice(0, -1))}>
                 <Reset size={16} />
                 {t("Geri al", "Undo")}
+              </button>
+              {/* Every request refines the current chart; this starts a new one from the default. */}
+              <button
+                className="wb-text-btn"
+                disabled={steps.length < 2 || busy}
+                onClick={() => {
+                  setSteps([]);
+                  void ask("", null);
+                }}
+              >
+                <Reset size={16} />
+                {t("Baştan başla", "Start over")}
               </button>
               <button
                 className="wb-text-btn"

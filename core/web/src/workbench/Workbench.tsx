@@ -46,6 +46,8 @@ import { Sun, Moon, PeriodChange } from "./BrandIcons";
 import {
   Overview,
   Assistant,
+  Trend,
+  Decision,
   Findings,
   Workspace as WorkspaceGlyph,
   Guide,
@@ -73,6 +75,10 @@ import { DecisionStudio } from "./DecisionStudio";
 import { ModelStudio } from "./ModelStudio";
 import { Preparation } from "./Preparation";
 import { TemporalView } from "./TemporalView";
+import { ScopeView } from "./Scope";
+import { RoutingBadge } from "./Routing";
+import { DataGrid } from "./DataGrid";
+import { DEFAULT_EDGE_LIMIT, EDGE_LIMITS, edgeScale, neighbourhood, strongest } from "./network";
 import { ExpertTools, CompareRuns } from "./ExpertTools";
 import { LocaleProvider, useLocale } from "./Locale";
 import { UsageMeter } from "./UsageMeter";
@@ -84,15 +90,34 @@ import type {
   Locale,
   SavedRun,
   Section,
+  ChartTab,
+  DecisionTab,
+  NetworkAnswer,
 } from "./types";
 const BASE = "/v1/dashboard/workbench";
 import { csvCell as cell } from "./csv";
 const titles: Record<Section, [string, string]> = {
   overview: ["Genel bakış", "Overview"],
-  analysis: ["Analiz asistanı", "Analysis assistant"],
-  network: ["İlişki ağı", "Relationship network"],
+  chart: ["Grafik stüdyosu", "Chart studio"],
+  decision: ["Karar stüdyosu", "Decision studio"],
   findings: ["Bulgularım", "My findings"],
 };
+const SECTIONS: Section[] = ["overview", "chart", "decision", "findings"];
+const CHART_TABS: ChartTab[] = ["chart", "network", "temporal", "sql"];
+const DECISION_TABS: DecisionTab[] = ["ask", "brief", "model"];
+/** The page lives in the address hash (#chart/network, #decision/brief), so back and links reopen it (v3 G8). */
+function viewFromAddress(): { section: Section; chartTab?: ChartTab; decisionTab?: DecisionTab } {
+  const [head, tab] = window.location.hash.replace(/^#/, "").split("/");
+  // Pre-v3 links: the assistant and the network pages now live inside the two studios.
+  if (head === "analysis") return { section: "decision", decisionTab: "ask" };
+  if (head === "network") return { section: "chart", chartTab: "network" };
+  const section = SECTIONS.includes(head as Section) ? (head as Section) : "overview";
+  return {
+    section,
+    chartTab: section === "chart" && CHART_TABS.includes(tab as ChartTab) ? (tab as ChartTab) : undefined,
+    decisionTab: section === "decision" && DECISION_TABS.includes(tab as DecisionTab) ? (tab as DecisionTab) : undefined,
+  };
+}
 function download(name: string, text: string, type = "application/json") {
   const url = URL.createObjectURL(new Blob([text], { type }));
   const a = document.createElement("a");
@@ -100,6 +125,34 @@ function download(name: string, text: string, type = "application/json") {
   a.download = name;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+/** v3 G8: the sections inside a studio, as a tab list that is also reachable from the address. */
+function StudioTabs({
+  label,
+  value,
+  tabs,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  tabs: [string, string][];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="wb-studio-tabs" role="tablist" aria-label={label}>
+      {tabs.map(([id, text]) => (
+        <button
+          key={id}
+          role="tab"
+          aria-selected={value === id}
+          className={value === id ? "active" : ""}
+          onClick={() => onChange(id)}
+        >
+          {text}
+        </button>
+      ))}
+    </div>
+  );
 }
 function Modal({
   title,
@@ -194,7 +247,14 @@ function Workspace({
       ? "dark"
       : "light",
   );
-  const [section, setSection] = useState<Section>("overview"),
+  const initialView = useRef(viewFromAddress()).current;
+  const [section, setSection] = useState<Section>(initialView.section),
+    [chartTab, setChartTab] = useState<ChartTab>(initialView.chartTab ?? "chart"),
+    [decisionTab, setDecisionTab] = useState<DecisionTab>(initialView.decisionTab ?? "ask"),
+    // A request routed from the ask box to the Chart studio; `n` remounts the studio so it starts from it.
+    [chartRequest, setChartRequest] = useState<{ text: string; n: number } | null>(null),
+    [routed, setRouted] = useState(""),
+    [ask, setAsk] = useState(""),
     [datasets, setDatasets] = useState<Dataset[]>([]),
     [dataset, setDataset] = useState("uci"),
     [result, setResult] = useState<AnalysisResult | null>(null),
@@ -204,12 +264,14 @@ function Workspace({
     [notice, setNotice] = useState("");
   const [draft, setDraft] = useState<Filters>({}),
     [applied, setApplied] = useState<Filters>({}),
+    appliedRef = useRef<Filters>({}),
+    staleLocale = useRef(false),
     [question, setQuestion] = useState(""),
-    [useLlm, setUseLlm] = useState(false),
-    [providerReady, setProviderReady] = useState(false),
     // Display name of the configured language model, e.g. "GPT-OSS 20B · Groq"; null when none is configured.
     [providerLabel, setProviderLabel] = useState<string | null>(null),
     [graphMode, setGraphMode] = useState("copurchase"),
+    // Whether postage, fees and adjustments count as products in product views (v3 G5).
+    [includeService, setIncludeService] = useState(false),
     [minimum, setMinimum] = useState(2),
     [modal, setModal] = useState<
       | "help"
@@ -217,15 +279,11 @@ function Workspace({
       | "evidence"
       | "source"
       | "import"
-      | "model"
-      | "decisions"
       | "save"
       | "metrics"
       | "avatar"
-      | "chart"
       | "code"
-      | "sql"
-      | "temporal"
+      | "scope"
       | null
     >(null),
     [codeChart, setCodeChart] = useState<ChartSpec | null>(null),
@@ -267,9 +325,6 @@ function Workspace({
       }>(BASE + "/catalog");
       if (r.ok) {
         setDatasets(r.data.datasets);
-        setProviderReady(
-          r.data.provider.configured ?? r.data.provider.connected,
-        );
         setProviderLabel(r.data.provider.label ?? null);
       } else setError(r.error.detail);
       const p = await api.get<{ avatar: string }>(BASE + "/profile");
@@ -306,6 +361,9 @@ function Workspace({
       prompt?: string;
       mode?: string;
       min?: number;
+      /** Set when the filters come from the browser history, so the address is not pushed again. */
+      fromHistory?: boolean;
+      include?: boolean;
     } = {},
   ) {
     if (inFlight.current || childJobsRef.current > 0) return;
@@ -321,9 +379,9 @@ function Workspace({
           dataset: o.id || dataset,
           filters: o.filters ?? applied,
           question: o.prompt || "",
-          use_llm: !!o.prompt && useLlm,
           graph_mode: o.mode || graphMode,
           min_shared: o.min ?? minimum,
+          include_service: o.include ?? includeService,
           locale,
         },
         csrf,
@@ -333,22 +391,51 @@ function Workspace({
           setResult(r.data);
           setSaved(false);
           setApplied(r.data.filters);
+          appliedRef.current = r.data.filters;
+          setDraft(r.data.filters);
+          if (r.data.scope) setIncludeService(r.data.scope.include_service);
+          if (!o.fromHistory) syncAddress(r.data.filters);
           void history();
         } else setError(r.error.detail);
       }
     } finally {
       setBusy(false);
       inFlight.current = false;
+      if (staleLocale.current) {
+        staleLocale.current = false;
+        // The latest render's analyze, so the rerun carries the new language.
+        setTimeout(() => void analyzeRef.current({ fromHistory: true }), 0);
+      }
     }
   }
   useEffect(() => {
-    void catalog().then(() => analyze());
+    // The view's filters live in the address (?country=…&start=…&end=), so a link reopens the same view and the
+    // browser's back button returns from a country to all countries (v3 G4).
+    const initial = filtersFromAddress();
+    if (filtersKey(initial)) replaceAddress(initial);
+    void catalog().then(() => analyze({ filters: initial, fromHistory: true }));
     void history();
+    const back = () => {
+      const v = viewFromAddress();
+      setSection(v.section);
+      if (v.chartTab) setChartTab(v.chartTab);
+      if (v.decisionTab) setDecisionTab(v.decisionTab);
+      const f = filtersFromAddress();
+      if (filtersKey(f) !== filtersKey(appliedRef.current)) void analyze({ filters: f, fromHistory: true });
+    };
+    window.addEventListener("popstate", back);
+    return () => window.removeEventListener("popstate", back);
   }, []);
   // Server-written text (answers, method notes) is rendered in the request locale: refresh it on a switch.
+  const analyzeRef = useRef(analyze);
+  analyzeRef.current = analyze;
   const firstLocale = useRef(locale);
   useEffect(() => {
-    if (locale !== firstLocale.current && result) void analyze();
+    // A switch while an analysis is running would leave its text in the old language: rerun when it lands.
+    if (locale !== firstLocale.current) {
+      if (inFlight.current) staleLocale.current = true;
+      else if (result) void analyze();
+    }
     firstLocale.current = locale;
   }, [locale]);
   useEffect(() => {
@@ -362,11 +449,46 @@ function Workspace({
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, []);
-  function go(s: Section) {
+  function clearFilter(key?: keyof Filters) {
+    const next: Filters = key ? { ...applied, [key]: undefined } : {};
+    if (key) delete next[key];
+    setDraft(next);
+    void analyze({ filters: next });
+  }
+  function go(s: Section, tab?: ChartTab | DecisionTab) {
     setSection(s);
+    if (s === "chart" && tab) setChartTab(tab as ChartTab);
+    if (s === "decision" && tab) setDecisionTab(tab as DecisionTab);
     setMenu(false);
     setModal(null);
+    setRouted("");
     if (s === "findings") void history();
+    const ct = s === "chart" ? ((tab as ChartTab) ?? chartTab) : null,
+      dt = s === "decision" ? ((tab as DecisionTab) ?? decisionTab) : null;
+    const hash = "#" + s + (ct && ct !== "chart" ? "/" + ct : dt && dt !== "ask" ? "/" + dt : "");
+    if (window.location.hash !== hash && !(s === "overview" && !window.location.hash))
+      window.history.pushState(null, "", window.location.pathname + window.location.search + hash);
+  }
+  /** v3 G8: one ask box. The router picks the studio; the destination studio does its own validation. */
+  async function askAnything(text: string) {
+    const q = text.trim();
+    if (!q) return;
+    const r = await api.post<{ studio: "chart" | "decision" }>(BASE + "/route", { text: q, locale }, csrf);
+    const studio = r.ok ? r.data.studio : "decision",
+      from = section;
+    setAsk("");
+    if (studio === "chart") {
+      go("chart", "chart");
+      setChartRequest({ text: q, n: Date.now() });
+      setRouted(t("Bu bir grafik isteği; Grafik stüdyosunda açıldı.", "This is a chart request; it opened in the Chart studio."));
+    } else {
+      go("decision", "ask");
+      setQuestion(q);
+      // Only say where the request went when it actually moved the analyst somewhere.
+      if (from !== "decision")
+        setRouted(t("Bu bir soru; Karar stüdyosunda yanıtlanıyor.", "This is a question; the Decision studio answers it."));
+      void analyze({ prompt: q });
+    }
   }
   function changeDataset(id: string) {
     setDataset(id);
@@ -425,23 +547,34 @@ function Workspace({
       setDataset(r.data.recipe.dataset);
       setApplied(r.data.recipe.filters);
       setDraft(r.data.recipe.filters);
+      syncAddress(r.data.recipe.filters);
       setGraphMode(r.data.recipe.graph_mode);
       setMinimum(r.data.recipe.min_shared);
+      setIncludeService(r.data.recipe.include_service === true);
       setQuestion(r.data.recipe.question || "");
       setSaved(r.data.saved);
-      go("analysis");
+      go("decision", "ask");
     } else setError(r.error.detail);
   }
   const selected = datasets.find((d) => d.id === dataset),
     s = result?.summary,
     source = selected?.source,
-    filtered = !!(applied.country || applied.start || applied.end);
+    filtered = !!(applied.country || applied.start || applied.end || applied.definition);
   const nav = [
     { id: "overview" as const, icon: Overview },
-    { id: "analysis" as const, icon: Assistant },
-    { id: "network" as const, icon: Network },
+    { id: "chart" as const, icon: Trend },
+    { id: "decision" as const, icon: Decision },
     { id: "findings" as const, icon: Findings },
   ];
+  /** Old entry points (modals) now open a studio tab. */
+  const open = (target: "chart" | "network" | "temporal" | "sql" | "decisions" | "model" | "ask") =>
+    target === "decisions"
+      ? go("decision", "brief")
+      : target === "model"
+        ? go("decision", "model")
+        : target === "ask"
+          ? go("decision", "ask")
+          : go("chart", target);
   return (
     <div className="wb" data-theme={theme}>
       <a className="wb-skip" href="#wb-main">
@@ -610,15 +743,15 @@ function Workspace({
                       "Satış, sipariş ve ürün dağılımını inceleyin.",
                       "Review sales, orders and product performance.",
                     )
-                  : section === "analysis"
+                  : section === "chart"
                     ? t(
-                        "Hesaplanan sonucu, varsayımları ve kanıtı birlikte görün.",
-                        "See computed results, assumptions and evidence together.",
+                        "İstediğiniz grafiği yazın; ilişki ağı, dönem değişimi ve SQL de burada.",
+                        "Describe the chart you want; the relationship network, change over time and SQL live here too.",
                       )
-                    : section === "network"
+                    : section === "decision"
                       ? t(
-                          "Birlikte alım, profil benzerliği ve dönem değişimi.",
-                          "Co-purchase, profile similarity and changes over time.",
+                          "Soru sorun, karar özeti çıkarın, tahmin modeli deneyin; her sonuç kanıtıyla.",
+                          "Ask a question, build a decision brief, try a prediction model; every result with its evidence.",
                         )
                       : t(
                           "Analizleri kaynak ve filtreleriyle yeniden açın.",
@@ -748,6 +881,22 @@ function Workspace({
                   onChange={(e) => setDraft({ ...draft, end: e.target.value })}
                 />
               </label>
+              <label title={t(
+                "retail-v1: iptal edilmemiş her pozitif fatura satırı. retail-v2: muhasebe düzeltmeleri (kötü borç) ve pazar yeri/banka ücretleri hariç müşteri satışı.",
+                "retail-v1: every positive, non-cancelled invoice line. retail-v2: customer sales, without accounting adjustments (bad debt) and marketplace/bank fees.",
+              )}>
+                {t("Tanım", "Definition")}
+                <select
+                  value={draft.definition || "retail-v1"}
+                  onChange={(e) =>
+                    setDraft({ ...draft, definition: e.target.value === "retail-v2" ? "retail-v2" : undefined })
+                  }
+                  aria-label={t("Ölçü tanımı", "Metric definition")}
+                >
+                  <option value="retail-v1">{t("retail-v1 · tüm satırlar", "retail-v1 · every line")}</option>
+                  <option value="retail-v2">{t("retail-v2 · müşteri satışı", "retail-v2 · customer sales")}</option>
+                </select>
+              </label>
               <button
                 className="wb-btn wb-apply"
                 disabled={working}
@@ -775,6 +924,23 @@ function Workspace({
               )}
             </form>
           )}
+          {section !== "findings" && filtered && (
+            <div className="wb-active-filters" role="region" aria-label={t("Etkin filtreler", "Active filters")}>
+              <span>{t("Etkin filtre:", "Active filters:")}</span>
+              {(["country", "start", "end", "definition"] as const).map((k) =>
+                applied[k] ? (
+                  <button key={k} className="wb-filter-chip" disabled={working} onClick={() => clearFilter(k)}
+                    aria-label={t(`${FILTER_NAMES[k][0]} filtresini kaldır`, `Remove ${FILTER_NAMES[k][1]} filter`)}>
+                    {t(FILTER_NAMES[k][0], FILTER_NAMES[k][1])}: <b>{k === "country" || k === "definition" ? applied[k] : dateText(applied[k]!)}</b>
+                    <X size={16} />
+                  </button>
+                ) : null,
+              )}
+              <button className="wb-text-btn" disabled={working} onClick={() => clearFilter()}>
+                {t("Tümünü temizle", "Clear all")}
+              </button>
+            </div>
+          )}
           </div>
           {working && (
             <div className="wb-loading-bar" role="status">
@@ -784,17 +950,24 @@ function Workspace({
               )}
             </div>
           )}
-          {s && section !== "findings" && (
+          {s && section === "overview" && (
             <div className="wb-kpis">
               <Kpi
                 title={t("Brüt satış", "Gross sales")}
                 value={money(s.gross_sales)}
                 subtitle={t(
-                  "İade ve iptaller hariç · GBP",
-                  "Returns/cancellations excluded · GBP",
+                  `İade ve iptaller hariç · GBP · ${applied.definition ?? "retail-v1"}`,
+                  `Returns/cancellations excluded · GBP · ${applied.definition ?? "retail-v1"}`,
                 )}
                 icon={<GrossSales size={20} />}
                 primary
+                action={
+                  result?.scope ? (
+                    <button className="wb-why" onClick={() => setModal("scope")}>
+                      {t("Neden? Ne dışarıda?", "Why? What is left out?")}
+                    </button>
+                  ) : undefined
+                }
               />
               <Kpi
                 title={t("Sipariş", "Orders")}
@@ -970,7 +1143,7 @@ function Workspace({
                       )}
                     </span>
                     <span className="wb-panel-footer-actions">
-                      <button onClick={() => setModal("chart")}>
+                      <button onClick={() => open("chart")}>
                         {t("Stüdyoda düzenle", "Edit in studio")}
                         <ArrowRight size={16} />
                       </button>
@@ -986,13 +1159,19 @@ function Workspace({
                     <div>
                       <h2>{t("Ülkelere göre satış", "Sales by country")}</h2>
                       <p>
-                        {t(
-                          "Aynı tanım, karşılaştırılabilir tutarlar",
-                          "One definition, comparable totals",
-                        )}
+                        {applied.country
+                          ? t(`Yalnız ${applied.country} gösteriliyor`, `Showing ${applied.country} only`)
+                          : t("Aynı tanım, karşılaştırılabilir tutarlar", "One definition, comparable totals")}
                       </p>
                     </div>
-                    <Markets size={20} />
+                    {applied.country ? (
+                      <button className="wb-btn wb-back-all" disabled={working} onClick={() => clearFilter("country")}>
+                        <RotateCcw size={16} />
+                        {t("Tüm ülkelere dön", "Back to all countries")}
+                      </button>
+                    ) : (
+                      <Markets size={20} />
+                    )}
                   </div>
                   <div className="wb-ranking">
                     {result.countries.slice(0, 5).map((c, i) => (
@@ -1025,41 +1204,57 @@ function Workspace({
                     ))}
                   </div>
                   <p className="wb-card-note">
-                    {t(
-                      "Bir ülkeye tıklayarak görünümü filtreleyin.",
-                      "Select a country to filter this view.",
-                    )}
+                    {applied.country
+                      ? t(
+                          "Diğer ülkeleri görmek için “Tüm ülkelere dön”, filtre çipindeki ✕ veya tarayıcının geri tuşu.",
+                          "To see every country again: “Back to all countries”, the ✕ on the filter chip, or the browser's back button.",
+                        )
+                      : t("Bir ülkeye tıklayarak görünümü filtreleyin.", "Select a country to filter this view.")}
                   </p>
                 </section>
               </div>
               <div className="wb-lower-grid">
-                <section className="wb-panel wb-start">
+                <section className="wb-panel wb-start wb-ask">
                   <div className="wb-start-symbol">
                     <MessageSquare size={24} />
                   </div>
                   <div>
-                    <div className="wb-eyebrow">{t("ANALİZ", "ANALYSIS")}</div>
-                    <h2>
-                      {t("Satış analizi", "Ask your data the right question.")}
-                    </h2>
+                    <div className="wb-eyebrow">{t("SORU VEYA GRAFİK İSTEĞİ", "QUESTION OR CHART REQUEST")}</div>
+                    <h2>{t("Ne öğrenmek veya görmek istiyorsunuz?", "What do you want to learn or see?")}</h2>
                     <p>
                       {t(
-                        "Hazır sorularla başlayın; sonucu kaynağıyla kontrol edin.",
-                        "Start with a suggested question and verify its source.",
+                        "Yazın; grafik istekleri Grafik stüdyosunda, sorular Karar stüdyosunda açılır.",
+                        "Type it; chart requests open in the Chart studio, questions in the Decision studio.",
                       )}
                     </p>
+                    <form
+                      className="wb-ask-form"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        void askAnything(ask);
+                      }}
+                    >
+                      <label htmlFor="wb-ask" className="sr-only">
+                        {t("Soru veya grafik isteği", "Question or chart request")}
+                      </label>
+                      <input
+                        id="wb-ask"
+                        value={ask}
+                        maxLength={8000}
+                        onChange={(e) => setAsk(e.target.value)}
+                        placeholder={t("Örn. Almanya ile Fransa'yı karşılaştır · En çok satan ürün hangisi?", "e.g. Compare Germany and France · Which product sells the most?")}
+                      />
+                      <button className="wb-btn wb-primary" disabled={working || !ask.trim()}>
+                        <Send size={16} />
+                        {t("Sor", "Ask")}
+                      </button>
+                    </form>
                     <div className="wb-starters">
-                      {/* One starter: the assistant screen holds the other example questions (Hick–Hyman). */}
-                      {[t("Satışları özetle", "Summarize sales")].map((q) => (
-                        <button
-                          key={q}
-                          disabled={working}
-                          onClick={() => {
-                            go("analysis");
-                            setQuestion(q);
-                            void analyze({ prompt: q });
-                          }}
-                        >
+                      {[
+                        t("Satışları özetle", "Summarize sales"),
+                        t("Son 6 ay, Almanya ile Fransa", "Last 6 months, Germany vs France"),
+                      ].map((q) => (
+                        <button key={q} disabled={working} onClick={() => void askAnything(q)}>
                           {q}
                           <ArrowRight size={16} />
                         </button>
@@ -1085,7 +1280,7 @@ function Workspace({
                     </p>
                     <button
                       className="wb-text-btn"
-                      onClick={() => go("network")}
+                      onClick={() => go("chart", "network")}
                     >
                       {t("İlişki ağını aç", "Explore network")}
                       <ArrowRight size={16} />
@@ -1103,93 +1298,134 @@ function Workspace({
               </div>
             </>
           )}
-          {(section === "overview" || section === "analysis") && (
-            <section className="wb-decision-entry">
-              <div>
-                <span className="wb-eyebrow">
-                  {t("KARAR ÇALIŞMASI", "DECISION WORKSPACE")}
+          {section === "overview" && (
+            <div className="wb-studio-cards">
+              <button type="button" className="wb-panel wb-studio-card" onClick={() => go("chart", "chart")}>
+                <Trend size={24} />
+                <span>
+                  <strong>{t("Grafik stüdyosu", "Chart studio")}</strong>
+                  <small>
+                    {t(
+                      "İstediğiniz grafiği yazın · ilişki ağı · zaman içindeki değişim · SQL",
+                      "Describe any chart · relationship network · change over time · SQL",
+                    )}
+                  </small>
                 </span>
-                <h2>
-                  {t(
-                    "Bulguları bir sonraki adıma dönüştürün",
-                    "Turn findings into a next step",
-                  )}
-                </h2>
-                <p>
-                  {t(
-                    "Haftalık projeksiyon, varsayımsal senaryo ve dayanaklarına bağlı öneriler.",
-                    "Weekly projections, hypothetical scenarios and evidence-linked recommendations.",
-                  )}
-                </p>
-              </div>
-              <button
-                className="wb-btn"
-                disabled={working}
-                onClick={() => setModal("decisions")}
-              >
-                {t("Karar stüdyosunu aç", "Open decision studio")}
-                <ArrowRight size={16} />
+                <ChevronRight size={20} />
               </button>
+              <button type="button" className="wb-panel wb-studio-card" onClick={() => go("decision", "ask")}>
+                <Decision size={24} />
+                <span>
+                  <strong>{t("Karar stüdyosu", "Decision studio")}</strong>
+                  <small>
+                    {t(
+                      "Soru-cevap · karar özeti, tahmin ve senaryo · tahmin modeli",
+                      "Questions · decision brief, forecast and scenario · prediction model",
+                    )}
+                  </small>
+                </span>
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          )}
+          {section === "overview" && result && (
+            <DataGrid
+              dataset={dataset}
+              filters={applied}
+              csrf={csrf}
+              includeService={includeService}
+              providerLabel={providerLabel}
+              onOpenChart={(prompt) => {
+                go("chart", "chart");
+                setChartRequest({ text: prompt, n: Date.now() });
+                setRouted(t("Tablodaki soru Grafik stüdyosunda açıldı.", "The table question opened in the Chart studio."));
+              }}
+            />
+          )}
+          {routed && (section === "chart" || section === "decision") && (
+            <p className="wb-routed" role="status">
+              <Info size={16} />
+              {routed}
+            </p>
+          )}
+          {section === "chart" && (
+            <StudioTabs
+              label={t("Grafik stüdyosu bölümleri", "Chart studio sections")}
+              value={chartTab}
+              onChange={(v) => go("chart", v as ChartTab)}
+              tabs={[
+                ["chart", t("Grafik", "Chart")],
+                ["network", t("İlişki ağı", "Relationship network")],
+                ["temporal", t("Zaman içindeki değişim", "Change over time")],
+                ["sql", t("Gelişmiş: SQL", "Advanced: SQL")],
+              ]}
+            />
+          )}
+          {section === "chart" && chartTab === "chart" && (
+            <section className="wb-panel wb-studio-page">
+              <ChartStudio
+                key={chartRequest?.n ?? 0}
+                dataset={dataset}
+                filters={applied}
+                csrf={csrf}
+                providerLabel={providerLabel}
+                initialPrompt={chartRequest?.text}
+                onExportCode={(spec) => {
+                  setCodeChart(spec);
+                  setModal("code");
+                }}
+              />
             </section>
           )}
-          {section === "analysis" && (
-            <div className="wb-model-entry">
-              <img
-                src={modelArt}
-                className="wb-model-entry-art"
-                alt=""
-                width="72"
-                height="72"
-                loading="lazy"
+          {section === "chart" && chartTab === "temporal" && result && (
+            <section className="wb-panel wb-studio-page">
+              <TemporalView
+                activity={activity}
+                data={result.dataset}
+                filters={applied}
+                csrf={csrf}
+                busy={working}
+                minimum={minimum}
+                includeService={includeService}
+                asDialog
               />
-              <div>
-                <strong>{t("Model stüdyosu", "Model studio")}</strong>
-                <span>
-                  {t(
-                    "Hedefinizi seçin, başlangıç modeliyle karşılaştırın.",
-                    "Choose your target and compare against a baseline.",
-                  )}
-                </span>
-              </div>
-              <button
-                className="wb-btn"
-                disabled={working}
-                onClick={() => setModal("model")}
-              >
-                {t("Model deneyi aç", "Open model experiment")}
-                <ArrowRight size={16} />
-              </button>
-            </div>
+            </section>
           )}
-          {section === "analysis" && (
-            <div className="wb-model-entry wb-chart-entry">
-              <Mascot pose="reading" size={72} className="wb-model-entry-art" />
-              <div>
-                <strong>{t("Grafik stüdyosu", "Chart studio")}</strong>
-                <span>
-                  {t(
-                    "İstediğiniz grafiği yazın: dönemi daraltın, ülkeleri karşılaştırın, güven aralığı veya trend ekleyin.",
-                    "Describe the chart you want: narrow the period, compare countries, add an interval or a trend.",
-                  )}
-                </span>
-              </div>
-              <button className="wb-btn" disabled={working} onClick={() => setModal("chart")}>
-                {t("Stüdyoyu aç", "Open studio")}
-                <ArrowRight size={16} />
-              </button>
-            </div>
+          {section === "chart" && chartTab === "sql" && (
+            <section className="wb-panel wb-studio-page">
+              <ExpertTools activity={activity} dataset={dataset} filters={applied} csrf={csrf} busy={working} asDialog />
+            </section>
           )}
-          {section === "analysis" && (
-            <button type="button" className="wb-panel wb-expert wb-expert-entry" onClick={() => setModal("sql")}>
-              <span>
-                <Code2 size={20} />
-                <strong>{t("Uzman araçları", "Expert tools")}</strong>
-                <small>{t("SQL laboratuvarı ve bağlam arama", "SQL laboratory and context search")}</small>
-              </span>
-              <ChevronRight size={20} />
-            </button>
+          {section === "decision" && (
+            <StudioTabs
+              label={t("Karar stüdyosu bölümleri", "Decision studio sections")}
+              value={decisionTab}
+              onChange={(v) => go("decision", v as DecisionTab)}
+              tabs={[
+                ["ask", t("Soru-cevap", "Questions")],
+                ["brief", t("Karar özeti ve tahmin", "Decision brief and forecast")],
+                ["model", t("Tahmin modeli", "Prediction model")],
+              ]}
+            />
           )}
-          {result && section === "analysis" && (
+          {section === "decision" && decisionTab === "brief" && (
+            <section className="wb-panel wb-studio-page">
+              <DecisionStudio
+                dataset={dataset}
+                filters={applied}
+                csrf={csrf}
+                providerLabel={providerLabel}
+                busy={busy || childJobs > 0}
+                activity={activity}
+              />
+            </section>
+          )}
+          {section === "decision" && decisionTab === "model" && (
+            <section className="wb-panel wb-studio-page">
+              <ModelStudio csrf={csrf} busy={busy || childJobs > 0} activity={activity} />
+            </section>
+          )}
+          {result && section === "decision" && decisionTab === "ask" && (
             <div className="wb-analysis-grid">
               <section className="wb-panel wb-chat">
                 <div className="wb-panel-head">
@@ -1213,12 +1449,28 @@ function Workspace({
                             "Hesaplanan sonuçla doğrulandı",
                             "Verified against computed result",
                           )
+                        : result.answer.status === "answered"
+                        ? t("Bilgi kartından, kaynaklarıyla", "From the knowledge cards, with sources")
+                        : result.answer.citations?.length
+                        ? t("Veri bunu cevaplayamıyor: neden ve yakın analiz", "The data cannot answer this: why, and the closest analysis")
                         : t(
                             "Sınır / açıklama gerekiyor",
                             "Limit / clarification required",
                           )}
                     </div>
-                    <p>{result.answer.text}</p>
+                    {result.answer.text.split("\n\n").map((para, i) => (
+                      <p key={i}>{para}</p>
+                    ))}
+                    {result.answer.citations && result.answer.citations.length > 0 && (
+                      <ul className="wb-answer-cards" aria-label={t("Kaynak kartlar", "Source cards")}>
+                        {result.answer.citations.map((c) => (
+                          <li key={c.id} title={c.source}>
+                            <FileText size={16} />
+                            {c.title}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                     {result.planner &&
                       result.planner.status !== "planned" &&
                       result.planner.status !== "blocked" && (
@@ -1239,21 +1491,11 @@ function Workspace({
                               )}
                         </p>
                       )}
-                    {result.planner?.status === "planned" && (
-                      <p className="wb-plan-receipt">
-                        {t("Model planı", "Model plan")}
-                        {providerLabel ? ` (${providerLabel})` : ""}:{" "}
-                        {result.planner.intent} ·{" "}
-                        {t(
-                          "Sayılar hesap kaydından",
-                          "Figures from calculation record",
-                        )}
-                      </p>
-                    )}
+                    <RoutingBadge routing={result.routing} providerLabel={providerLabel} />
                     <div className="wb-answer-citations">
                       <button onClick={() => setModal("metrics")}>
                         <FileText size={16} />
-                        retail-v1
+                        {applied.definition ?? "retail-v1"}
                       </button>
                       <button onClick={() => setModal("evidence")}>
                         <Database size={16} />
@@ -1299,30 +1541,11 @@ function Workspace({
                     </button>
                   ))}
                 </div>
-                <div className="wb-analysis-mode">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={useLlm}
-                      disabled={!providerReady || working}
-                      onChange={(e) => setUseLlm(e.target.checked)}
-                    />
-                    {t("Dil modeliyle yorumla", "Interpret with the language model")}
-                  </label>
-                  <span>
-                    {useLlm
-                      ? t(
-                          `Soru sağlayıcıya (${providerLabel ?? "—"}) gönderilir; veri satırları gönderilmez.`,
-                          `Your question is sent to ${providerLabel ?? "the provider"}; data rows stay local.`,
-                        )
-                      : t("Standart analiz", "Standard analysis")}
-                  </span>
-                </div>
                 <form
                   className="wb-composer"
                   onSubmit={(e) => {
                     e.preventDefault();
-                    if (question.trim()) void analyze({ prompt: question });
+                    if (question.trim()) void askAnything(question);
                   }}
                 >
                   <label htmlFor="wb-question" className="sr-only">
@@ -1340,7 +1563,7 @@ function Workspace({
                     onKeyDown={(e) => {
                       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
                         e.preventDefault();
-                        if (question.trim()) void analyze({ prompt: question });
+                        if (question.trim()) void askAnything(question);
                       }
                     }}
                   />
@@ -1408,22 +1631,7 @@ function Workspace({
               </aside>
             </div>
           )}
-          {result && section === "network" && (
-            <button type="button" className="wb-panel wb-expert wb-expert-entry" onClick={() => setModal("temporal")}>
-              <span>
-                <PeriodChange size={20} />
-                <strong>{t("Zaman içindeki değişim", "Change over time")}</strong>
-                <small>
-                  {t(
-                    "Satış, yoğunlaşma ve aynı ürünlerin ilişkileri",
-                    "Sales, concentration and relationships of the same products",
-                  )}
-                </small>
-              </span>
-              <ChevronRight size={20} />
-            </button>
-          )}
-          {result && section === "network" && (
+          {result && section === "chart" && chartTab === "network" && (
             <NetworkView
               result={result}
               busy={working}
@@ -1436,6 +1644,12 @@ function Workspace({
               }}
               onRecalculate={() => void analyze({ min: minimum })}
               money={money}
+              onScope={() => setModal("scope")}
+              dataset={dataset}
+              filters={applied}
+              csrf={csrf}
+              includeService={includeService}
+              providerLabel={providerLabel}
             />
           )}
           {section === "findings" && (
@@ -1524,13 +1738,14 @@ function Workspace({
                             setDataset(r.recipe.dataset);
                             setDraft(r.recipe.filters);
                             setApplied(r.recipe.filters);
-                            go("analysis");
+                            go("decision", "ask");
                             void analyze({
                               id: r.recipe.dataset,
                               filters: r.recipe.filters,
                               prompt: r.recipe.question,
                               mode: r.recipe.graph_mode,
                               min: r.recipe.min_shared,
+                              include: r.recipe.include_service === true,
                             });
                           }}
                         >
@@ -1554,7 +1769,7 @@ function Workspace({
               )}
             </section>
           )}
-          {result && section !== "findings" && (
+          {result && (section === "overview" || (section === "decision" && decisionTab === "ask") || (section === "chart" && chartTab === "network")) && (
             <div className="wb-bottom-actions">
               <span>
                 <CheckCircle2 size={16} />
@@ -1593,7 +1808,7 @@ function Workspace({
                   </div>
                 </details>
                 {/* The analysis view already offers "Save finding" beside the answer; no second save button. */}
-                {section !== "analysis" && (
+                {!(section === "decision" && decisionTab === "ask") && (
                   <button
                     className="wb-btn"
                     onClick={() => {
@@ -1621,7 +1836,7 @@ function Workspace({
       </div>
       {modal && (
         <Modal
-          wide={modal === "decisions" || modal === "chart" || modal === "code" || modal === "sql" || modal === "temporal"}
+          wide={modal === "code" || modal === "scope"}
           title={
             modal === "source"
               ? t("Verinin kaynağı ve sınırları", "Data provenance and limits")
@@ -1631,20 +1846,12 @@ function Workspace({
                   ? t("Metrik sözlüğü", "Metric dictionary")
                   : modal === "save"
                     ? t("Bulguyu kaydet", "Save finding")
-                    : modal === "decisions"
-                      ? t("Karar stüdyosu", "Decision studio")
-                      : modal === "model"
-                        ? t("Model stüdyosu", "Model studio")
                         : modal === "avatar"
                           ? t("Profil görseli", "Profile portrait")
-                          : modal === "chart"
-                            ? t("Grafik stüdyosu", "Chart studio")
                             : modal === "code"
                               ? t("Analizi kod olarak dışa aktar", "Export the analysis as code")
-                            : modal === "sql"
-                              ? t("Uzman araçları", "Expert tools")
-                            : modal === "temporal"
-                              ? t("Zaman içindeki değişim", "Change over time")
+                            : modal === "scope"
+                              ? t("Kapsam ve dışlamalar", "Scope and exclusions")
                         : modal === "import"
                           ? t("Veri hazırlama", "Prepare data")
                           : modal === "search"
@@ -1750,33 +1957,6 @@ function Workspace({
               </button>
             </>
           )}
-          {modal === "temporal" && result && (
-            <TemporalView
-              activity={activity}
-              data={result.dataset}
-              filters={applied}
-              csrf={csrf}
-              busy={working}
-              minimum={minimum}
-              asDialog
-            />
-          )}
-          {modal === "sql" && (
-            <ExpertTools activity={activity} dataset={dataset} filters={applied} csrf={csrf} busy={working} asDialog />
-          )}
-          {modal === "chart" && (
-            <ChartStudio
-              dataset={dataset}
-              filters={applied}
-              csrf={csrf}
-              providerReady={providerReady}
-              providerLabel={providerLabel}
-              onExportCode={(spec) => {
-                setCodeChart(spec);
-                setModal("code");
-              }}
-            />
-          )}
           {modal === "code" && (
             <CodeExport dataset={dataset} filters={applied} chart={codeChart} csrf={csrf} />
           )}
@@ -1793,6 +1973,18 @@ function Workspace({
                   setModal(null);
                   setNotice(t("Profil görseli güncellendi.", "Profile portrait updated."));
                 } else setError(r.error.detail || t("Profil görseli kaydedilemedi.", "Could not save the portrait."));
+              }}
+            />
+          )}
+          {modal === "scope" && result?.scope && (
+            <ScopeView
+              scope={result.scope}
+              money={money}
+              num={num}
+              busy={working}
+              onIncludeService={(v) => {
+                setIncludeService(v);
+                void analyze({ include: v });
               }}
             />
           )}
@@ -1833,24 +2025,6 @@ function Workspace({
               </button>
             </form>
           )}
-          {modal === "decisions" && (
-            <DecisionStudio
-              dataset={dataset}
-              filters={applied}
-              csrf={csrf}
-              providerReady={providerReady}
-              providerLabel={providerLabel}
-              busy={busy || childJobs > 0}
-              activity={activity}
-            />
-          )}
-          {modal === "model" && (
-            <ModelStudio
-              csrf={csrf}
-              busy={busy || childJobs > 0}
-              activity={activity}
-            />
-          )}
           {modal === "import" && (
             <Preparation
               csrf={csrf}
@@ -1889,13 +2063,10 @@ function Workspace({
                     ),
                   ],
                   [
+                    t("Sorun veya grafik isteyin", "Ask or request a chart"),
                     t(
-                      "Analiz edin ve ilişkileri görün",
-                      "Analyze and explore relationships",
-                    ),
-                    t(
-                      "Örnek soruyu çalıştırın; kanıtı açın; ağda bir ürünü seçin.",
-                      "Run a suggested question; inspect evidence; select a product in the network.",
+                      "Genel bakıştaki kutuya yazın: grafik istekleri Grafik stüdyosunda, sorular Karar stüdyosunda açılır. Kanıtı açın.",
+                      "Type in the overview box: chart requests open in the Chart studio, questions in the Decision studio. Open the evidence.",
                     ),
                   ],
                   [
@@ -1954,20 +2125,18 @@ function Workspace({
                       "Uzman SQL laboratuvarı ve bağlam arama",
                       "Expert SQL laboratory and context search",
                     ),
-                    action: () => {
-                      go("analysis");
-                      setModal("sql");
-                    },
+                    action: () => open("sql"),
+                  },
+                  {
+                    label: t("İlişki ağı", "Relationship network"),
+                    action: () => open("network"),
                   },
                   {
                     label: t(
                       "Zaman içindeki ağ değişimi",
                       "Network change over time",
                     ),
-                    action: () => {
-                      go("network");
-                      setModal("temporal");
-                    },
+                    action: () => open("temporal"),
                   },
                   {
                     label: t("Analizleri karşılaştır", "Compare analyses"),
@@ -1998,24 +2167,24 @@ function Workspace({
                   },
                   {
                     label: t(
-                      "Model stüdyosu ve deneylerim",
-                      "Model studio and experiments",
+                      "Tahmin modeli ve deneylerim (Karar stüdyosu)",
+                      "Prediction model and experiments (Decision studio)",
                     ),
-                    action: () => setModal("model"),
+                    action: () => open("model"),
                   },
                   {
                     label: t(
                       "Karar stüdyosu, tahmin ve senaryolar",
                       "Decision studio, forecasts and scenarios",
                     ),
-                    action: () => setModal("decisions"),
+                    action: () => open("decisions"),
                   },
                   {
                     label: t(
                       "Grafik stüdyosu: istediğiniz grafiği yazın",
                       "Chart studio: describe any chart",
                     ),
-                    action: () => setModal("chart"),
+                    action: () => open("chart"),
                   },
                   {
                     label: t(
@@ -2075,12 +2244,15 @@ function Kpi({
   subtitle,
   icon,
   primary = false,
+  action,
 }: {
   title: string;
   value: string;
   subtitle: string;
   icon: React.ReactNode;
   primary?: boolean;
+  /** A small control after the subtitle, e.g. "Why?" for what the number leaves out. */
+  action?: React.ReactNode;
 }) {
   return (
     <section className={"wb-kpi" + (primary ? " primary" : "")}>
@@ -2094,7 +2266,10 @@ function Kpi({
       >
         {value}
       </strong>
-      <p>{subtitle}</p>
+      <p>
+        {subtitle}
+        {action}
+      </p>
     </section>
   );
 }
@@ -2217,6 +2392,50 @@ function readableLabels(
   return shown;
 }
 
+const FILTER_NAMES: Record<keyof Filters, [string, string]> = {
+  country: ["Ülke", "Country"],
+  start: ["Başlangıç", "From"],
+  end: ["Bitiş", "To"],
+  definition: ["Tanım", "Definition"],
+};
+const FILTER_KEYS = ["country", "start", "end", "definition"] as const;
+function filtersFromAddress(): Filters {
+  const q = new URLSearchParams(window.location.search),
+    out: Filters = {};
+  for (const k of FILTER_KEYS) {
+    const v = q.get(k);
+    if (!v) continue;
+    if (k === "definition") {
+      if (v === "retail-v2") out.definition = v;
+    } else if (k === "country" ? v.length <= 80 : /^\d{4}-\d{2}-\d{2}$/.test(v)) out[k] = v;
+  }
+  return out;
+}
+function filtersKey(f: Filters) {
+  return FILTER_KEYS.map((k) => (f[k] ? `${k}=${encodeURIComponent(f[k]!)}` : "")).filter(Boolean).join("&");
+}
+function addressFor(f: Filters) {
+  const q = new URLSearchParams(window.location.search);
+  for (const k of FILTER_KEYS) {
+    if (f[k]) q.set(k, f[k]!);
+    else q.delete(k);
+  }
+  const query = q.toString();
+  return window.location.pathname + (query ? "?" + query : "") + window.location.hash;
+}
+function replaceAddress(f: Filters) {
+  window.history.replaceState(window.history.state, "", addressFor(f));
+}
+/** A new history entry only when the filters actually changed, so back steps through distinct views. */
+function syncAddress(f: Filters) {
+  if (filtersKey(f) !== filtersKey(filtersFromAddress())) window.history.pushState(null, "", addressFor(f));
+}
+/** ISO date (yyyy-mm-dd) as dd.mm.yyyy, matching the date inputs' Turkish order. */
+function dateText(iso: string) {
+  const [y, m, d] = iso.split("-");
+  return y && m && d ? `${d}.${m}.${y}` : iso;
+}
+
 function NetworkView({
   result,
   busy,
@@ -2226,6 +2445,12 @@ function NetworkView({
   onMode,
   onRecalculate,
   money,
+  onScope,
+  dataset,
+  filters,
+  csrf,
+  includeService,
+  providerLabel,
 }: {
   result: AnalysisResult;
   busy: boolean;
@@ -2235,12 +2460,38 @@ function NetworkView({
   onMode: (m: string) => void;
   onRecalculate: () => void;
   money: (n: number) => string;
+  onScope: () => void;
+  dataset: string;
+  filters: Filters;
+  csrf: string | null;
+  includeService: boolean;
+  providerLabel: string | null;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  // v3 G2: questions about the network; the answer's nodes and links are lit on the graph.
+  const [question, setQuestion] = useState(""),
+    [answer, setAnswer] = useState<NetworkAnswer | null>(null),
+    [asking, setAsking] = useState(false),
+    [askError, setAskError] = useState("");
+  async function askNetwork(q: string) {
+    if (!q.trim()) return;
+    setAsking(true);
+    setAskError("");
+    const r = await api.post<NetworkAnswer>(
+      BASE + "/network/ask",
+      { dataset, filters, locale, question: q, graph_mode: mode, min_shared: minimum, include_service: includeService },
+      csrf,
+    );
+    setAsking(false);
+    if (r.ok) setAnswer(r.data);
+    else setAskError(r.error.detail || t("Soru cevaplanamadı.", "The question could not be answered."));
+  }
   const [selected, setSelected] = useState<GraphNode | null>(null),
     [zoom, setZoom] = useState(1),
     [filter, setFilter] = useState(""),
-    [table, setTable] = useState(false);
+    [table, setTable] = useState(false),
+    [limit, setLimit] = useState<number>(DEFAULT_EDGE_LIMIT),
+    [hover, setHover] = useState<string | null>(null);
   const g = result.graph,
     colors = [
       "#6674e5",
@@ -2263,7 +2514,21 @@ function NetworkView({
         n.id.toLowerCase().includes(filter.toLowerCase()),
     ),
     ids = new Set(nodes.map((n) => n.id)),
-    edges = g.edges.filter((e) => ids.has(e.source) && ids.has(e.target)),
+    linked = strongest(g.edges.filter((e) => ids.has(e.source) && ids.has(e.target)), 0),
+    answerEdges = new Set((answer?.highlight.edges ?? []).flatMap(([x, y]) => [x + ":" + y, y + ":" + x])),
+    answerNodes = answer?.highlight.nodes.length ? new Set(answer.highlight.nodes) : null,
+    // An answer's links are drawn even when they are weaker than the strongest-N cut.
+    edges = [
+      ...strongest(linked, limit),
+      ...linked.filter((e) => answerEdges.has(e.source + ":" + e.target) && !strongest(linked, limit).includes(e)),
+    ],
+    scale = edgeScale(edges),
+    focus = neighbourhood(edges, hover ?? selected?.id ?? null),
+    copurchase = g.mode !== "similarity",
+    weightText = (w: number) =>
+      copurchase
+        ? `${Math.round(w)} ${t("ortak fatura", "shared invoices")}`
+        : `${t("benzerlik", "similarity")} ${w.toFixed(2)}`,
     nodeText = (n: { label: string }) =>
       n.label.length > (nodes.length > 16 ? 12 : 23)
         ? n.label.slice(0, nodes.length > 16 ? 11 : 21) + "…"
@@ -2282,8 +2547,11 @@ function NetworkView({
         <div>
           <h2>{t("Ürün ilişkileri", "Product relationships")}</h2>
           <p>
-            {nodes.length} {t("düğüm", "nodes")} · {edges.length}{" "}
-            {t("kenar", "edges")} · {g.communities || 0}{" "}
+            {nodes.length} {t("düğüm", "nodes")} ·{" "}
+            {edges.length < linked.length
+              ? t(`en güçlü ${edges.length} / ${linked.length} kenar`, `strongest ${edges.length} of ${linked.length} edges`)
+              : `${edges.length} ${t("kenar", "edges")}`}{" "}
+            · {g.communities || 0}{" "}
             {t("topluluk", "communities")}
           </p>
         </div>
@@ -2341,6 +2609,16 @@ function NetworkView({
         <button className="wb-btn" disabled={busy} onClick={onRecalculate}>
           {t("Ağı hesapla", "Compute network")}
         </button>
+        <label>
+          {t("Gösterilen bağ", "Links shown")}
+          <select value={limit} onChange={(e) => setLimit(Number(e.target.value))}>
+            {EDGE_LIMITS.map((n) => (
+              <option key={n} value={n}>
+                {n ? t(`En güçlü ${n}`, `Strongest ${n}`) : t(`Tümü (${linked.length})`, `All (${linked.length})`)}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="wb-node-search">
           <Search size={16} />
           <input
@@ -2351,9 +2629,89 @@ function NetworkView({
           />
         </label>
       </div>
+      <div className="wb-network-ask">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void askNetwork(question);
+          }}
+        >
+          <label htmlFor="wb-network-q" className="sr-only">
+            {t("Ağa soru sorun", "Ask the network")}
+          </label>
+          <input
+            id="wb-network-q"
+            value={question}
+            maxLength={500}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder={t("Ağa sorun: örn. REGENCY CAKESTAND 3 TIER ile en çok ne alınıyor?", "Ask the network: e.g. what is bought with REGENCY CAKESTAND 3 TIER?")}
+          />
+          <button className="wb-btn" disabled={asking || !question.trim()}>
+            {asking ? <Spinner size={16} className="spin" /> : <Send size={16} />}
+            {t("Sor", "Ask")}
+          </button>
+        </form>
+        <div className="wb-question-chips" aria-label={t("Hazır ağ soruları", "Suggested network questions")}>
+          {[
+            t("En güçlü 5 ürün çifti hangisi?", "Which are the 5 strongest pairs?"),
+            t("Kaç topluluk var, her birinin öne çıkan ürünü ne?", "How many communities, and what leads each?"),
+            t("Hangi ürün köprü görevi görüyor?", "Which products act as bridges?"),
+            t("En çok bağlantısı olan ürünler", "Most connected products"),
+            t("Son ayda hangi bağlar oluştu veya koptu?", "Which links appeared or disappeared last month?"),
+          ].map((q) => (
+            <button
+              key={q}
+              type="button"
+              disabled={asking}
+              onClick={() => {
+                setQuestion(q);
+                void askNetwork(q);
+              }}
+            >
+              {q}
+              <ArrowRight size={16} />
+            </button>
+          ))}
+        </div>
+        {askError && (
+          <p className="wb-alert wb-alert-error" role="alert">
+            <Info size={16} /> {askError}
+          </p>
+        )}
+        {answer && (
+          <div className="wb-network-answer" role="status">
+            <div>
+              <RoutingBadge routing={answer.routing} providerLabel={providerLabel} />
+              <button type="button" className="wb-text-btn" onClick={() => setAnswer(null)}>
+                <X size={16} />
+                {t("Vurgulamayı kaldır", "Clear highlight")}
+              </button>
+            </div>
+            <p>{answer.answer}</p>
+          </div>
+        )}
+      </div>
       <div className="wb-callout wb-graph-note">
         <Info size={16} />
-        {g.note}
+        <span>
+          {g.note}{" "}
+          {result.scope?.service.lines ? (
+            <>
+              {g.include_service
+                ? t(
+                    `Kargo, ücret ve düzeltme kalemleri ürün olarak dahil (${result.scope.service.lines} satır).`,
+                    `Postage, fees and adjustments are counted as products (${result.scope.service.lines} lines).`,
+                  )
+                : t(
+                    `Kargo, ücret ve düzeltme kalemleri ürün sayılmadı (${result.scope.service.lines} satır, ${money(result.scope.service.pence / 100)}).`,
+                    `Postage, fees and adjustments are not counted as products (${result.scope.service.lines} lines, ${money(result.scope.service.pence / 100)}).`,
+                  )}{" "}
+              <button className="wb-why" onClick={onScope}>
+                {t("Neden? Değiştir", "Why? Change")}
+              </button>
+            </>
+          ) : null}
+        </span>
       </div>
       {table ? (
         <TableWrap>
@@ -2404,7 +2762,7 @@ function NetworkView({
               </tr>
             </thead>
             <tbody>
-              {edges.map((e) => (
+              {linked.map((e) => (
                 <tr key={e.source + ":" + e.target}>
                   <td>
                     {nodes.find((n) => n.id === e.source)?.label || e.source}
@@ -2432,33 +2790,59 @@ function NetworkView({
               <g
                 transform={`translate(${375 - 375 * zoom},${230 - 230 * zoom}) scale(${zoom})`}
               >
-                {edges.map((e, i) => {
+                {/* Weakest first, so a strong link is never painted over by a weak one. */}
+                {[...edges].reverse().map((e) => {
                   const a = nodes.find((n) => n.id === e.source),
                     b = nodes.find((n) => n.id === e.target);
                   if (!a || !b) return null;
-                  const h =
-                    selected && (selected.id === a.id || selected.id === b.id);
+                  const st = scale.style(e.weight),
+                    lit = focus
+                      ? focus.has(a.id) && focus.has(b.id) && (a.id === (hover ?? selected?.id) || b.id === (hover ?? selected?.id))
+                      : answerEdges.has(e.source + ":" + e.target);
+                  const dim = focus || answerNodes;
                   return (
                     <line
                       aria-hidden="true"
-                      key={i}
+                      key={e.source + ":" + e.target}
                       x1={375 + a.x * 270}
                       y1={230 + a.y * 165}
                       x2={375 + b.x * 270}
                       y2={230 + b.y * 165}
-                      stroke={
-                        e.weight < 0 ? "#d88384" : h ? "#6173df" : "#c6cde5"
-                      }
-                      strokeDasharray={e.weight < 0 ? "5 4" : undefined}
-                      strokeWidth={h ? 2 : 1.2}
-                      opacity={selected && !h ? 0.3 : 0.65}
+                      className={`wb-edge is-${st.tier}${st.negative ? " is-negative" : ""}${lit ? " is-lit" : ""}`}
+                      strokeDasharray={st.negative ? "5 4" : undefined}
+                      strokeWidth={lit ? st.width + 1 : st.width}
+                      strokeLinecap="round"
+                      opacity={dim ? (lit ? Math.max(0.9, st.opacity) : 0.07) : st.opacity}
                     >
                       <title>
-                        {a.label} ↔ {b.label}: {e.weight}
+                        {a.label} ↔ {b.label}: {weightText(e.weight)}
+                        {e.lift != null
+                          ? ` · lift ${e.lift.toFixed(2)} · Jaccard ${(e.jaccard ?? 0).toFixed(2)} ${t("(lift 1 = tesadüf düzeyi)", "(lift 1 = chance level)")}`
+                          : ""}
                       </title>
                     </line>
                   );
                 })}
+                {/* The lit links of the hovered or selected product carry their value at the midpoint. */}
+                {(focus || answerEdges.size > 0) &&
+                  edges.map((e) => {
+                    const id = hover ?? selected?.id,
+                      a = nodes.find((n) => n.id === e.source),
+                      b = nodes.find((n) => n.id === e.target);
+                    if (!a || !b) return null;
+                    if (focus ? a.id !== id && b.id !== id : !answerEdges.has(e.source + ":" + e.target)) return null;
+                    return (
+                      <text
+                        key={"w" + e.source + ":" + e.target}
+                        className="wb-edge-value"
+                        x={375 + ((a.x + b.x) / 2) * 270}
+                        y={230 + ((a.y + b.y) / 2) * 165 + 4}
+                        textAnchor="middle"
+                      >
+                        {copurchase ? Math.round(e.weight) : e.weight.toFixed(2)}
+                      </text>
+                    );
+                  })}
                 {nodes.map((n) => (
                   <g
                     key={n.id}
@@ -2468,13 +2852,17 @@ function NetworkView({
                     role="button"
                     aria-label={`${n.label}, ${n.degree} ${t("bağlantı", "connections")}`}
                     onClick={() => setSelected(n)}
+                    onMouseEnter={() => setHover(n.id)}
+                    onMouseLeave={() => setHover(null)}
+                    onFocus={() => setHover(n.id)}
+                    onBlur={() => setHover(null)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
                         setSelected(n);
                       }
                     }}
-                    className="wb-graph-node"
+                    className={`wb-graph-node${(focus ? !focus.has(n.id) : answerNodes ? !answerNodes.has(n.id) : false) ? " is-faded" : ""}`}
                   >
                     <title>
                       {n.label} · {t("Topluluk", "Community")} {n.community + 1}
@@ -2524,10 +2912,35 @@ function NetworkView({
             </div>
             <span className="wb-canvas-hint">
               {t(
-                "Bir ürün seçin · renkler toplulukları gösterir",
-                "Select a product · colors show communities",
+                "Bir ürünün üzerine gelin veya seçin · düğüm rengi topluluğu gösterir",
+                "Hover or select a product · node colour shows the community",
               )}
             </span>
+            <div className="wb-edge-legend" aria-label={t("Bağ gücü göstergesi", "Link strength legend")}>
+            <span className="wb-edge-legend-title">
+              {copurchase ? t("Bağ gücü (ortak fatura)", "Link strength (shared invoices)") : t("Bağ gücü (benzerlik)", "Link strength (similarity)")}
+            </span>
+            {scale.legend.map((l) => {
+              const mid = scale.style(l.to);
+              const fmt = (v: number) => (copurchase ? String(Math.round(v)) : v.toFixed(2));
+              return (
+                <span key={l.tier} className="wb-edge-legend-item">
+                  <svg width="36" height="12" aria-hidden="true">
+                    <line x1="2" y1="6" x2="34" y2="6" className={`wb-edge is-${l.tier}`} strokeWidth={mid.width} strokeLinecap="round" opacity={mid.opacity} />
+                  </svg>
+                  {l.tier === "weak" ? t("zayıf", "weak") : l.tier === "mid" ? t("orta", "medium") : t("güçlü", "strong")} {fmt(l.from)}–{fmt(l.to)}
+                </span>
+              );
+            })}
+            {!copurchase && (
+              <span className="wb-edge-legend-item">
+                <svg width="36" height="12" aria-hidden="true">
+                  <line x1="2" y1="6" x2="34" y2="6" className="wb-edge is-negative" strokeWidth={2} strokeDasharray="5 4" />
+                </svg>
+                {t("kesik: ters yönlü benzerlik", "dashed: opposite profile")}
+              </span>
+            )}
+          </div>
           </div>
           <aside className="wb-node-detail">
             {selected ? (

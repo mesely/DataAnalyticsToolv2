@@ -1,0 +1,1393 @@
+{
+ "rules-v1": {
+  "task": "studio",
+  "split": "val",
+  "method": "rules-v1",
+  "n": 63,
+  "answered": 63,
+  "accuracy": 0.7777777777777778,
+  "ci95": [
+   0.6608748439801618,
+   0.8627511613817685
+  ],
+  "blocked": null,
+  "latency_ms": {
+   "p50": 0.0,
+   "p95": 0.01,
+   "p99": 0.01,
+   "mean": 0.004
+  },
+  "tokens": 0,
+  "rows": [
+   {
+    "id": "s013",
+    "category": "chart_as_question",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s014",
+    "category": "chart_as_question",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s017",
+    "category": "chart_fragment",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s027",
+    "category": "chart_fragment",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "decision",
+    "correct": false,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s033",
+    "category": "chart_fragment",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s035",
+    "category": "chart_period",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s040",
+    "category": "chart_compare",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s064",
+    "category": "chart_transform",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s066",
+    "category": "chart_statistic",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s067",
+    "category": "chart_statistic",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s069",
+    "category": "chart_statistic",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s070",
+    "category": "chart_type_sort",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s074",
+    "category": "chart_no_diacritics",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "decision",
+    "correct": false,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s075",
+    "category": "chart_no_diacritics",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "decision",
+    "correct": false,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s081",
+    "category": "chart_typo",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s083",
+    "category": "chart_typo",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "decision",
+    "correct": false,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s088",
+    "category": "chart_long",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s092",
+    "category": "chart_refine",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s100",
+    "category": "decision_number",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s101",
+    "category": "decision_ranking",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s106",
+    "category": "decision_ranking",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s116",
+    "category": "decision_knowledge",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s118",
+    "category": "decision_knowledge",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s128",
+    "category": "decision_knowledge",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s139",
+    "category": "decision_unsupported",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s146",
+    "category": "decision_temporal",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s148",
+    "category": "decision_network",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s159",
+    "category": "decision_no_diacritics",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s162",
+    "category": "decision_typo",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s165",
+    "category": "decision_long",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s167",
+    "category": "ambiguous",
+    "lang": "tr",
+    "ambiguous": true,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s169",
+    "category": "ambiguous",
+    "lang": "tr",
+    "ambiguous": true,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s175",
+    "category": "ambiguous",
+    "lang": "tr",
+    "ambiguous": true,
+    "expect": "decision",
+    "got": "chart",
+    "correct": false,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s179",
+    "category": "chart_explicit",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s182",
+    "category": "chart_explicit",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s190",
+    "category": "chart_fragment",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s191",
+    "category": "chart_fragment",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "decision",
+    "correct": false,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s193",
+    "category": "chart_fragment",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s194",
+    "category": "chart_fragment",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "decision",
+    "correct": false,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s206",
+    "category": "chart_compare",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s208",
+    "category": "chart_exclude",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "decision",
+    "correct": false,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s211",
+    "category": "chart_group",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "decision",
+    "correct": false,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s213",
+    "category": "chart_group",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "decision",
+    "correct": false,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s216",
+    "category": "chart_transform",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s218",
+    "category": "chart_transform",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s222",
+    "category": "chart_transform",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "decision",
+    "correct": false,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s236",
+    "category": "decision_ranking",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s242",
+    "category": "decision_chart_word_question",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "chart",
+    "correct": false,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s243",
+    "category": "decision_chart_word_question",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "chart",
+    "correct": false,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s246",
+    "category": "decision_explanation",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s251",
+    "category": "decision_knowledge",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s252",
+    "category": "decision_knowledge",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s258",
+    "category": "decision_recommendation",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s263",
+    "category": "decision_unsupported",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s276",
+    "category": "decision_injection",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s277",
+    "category": "decision_injection",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s284",
+    "category": "ambiguous",
+    "lang": "en",
+    "ambiguous": true,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s289",
+    "category": "chart_explicit",
+    "lang": "mixed",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s300",
+    "category": "chart_transform",
+    "lang": "mixed",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s303",
+    "category": "chart_group",
+    "lang": "mixed",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "decision",
+    "correct": false,
+    "latency_ms": 0.01
+   },
+   {
+    "id": "s306",
+    "category": "decision_number",
+    "lang": "mixed",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s313",
+    "category": "decision_unsupported",
+    "lang": "mixed",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   },
+   {
+    "id": "s314",
+    "category": "decision_forecast",
+    "lang": "mixed",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.0
+   }
+  ],
+  "per_class": {
+   "chart": {
+    "precision": 0.896551724137931,
+    "recall": 0.7027027027027027,
+    "n": 37
+   },
+   "decision": {
+    "precision": 0.6764705882352942,
+    "recall": 0.8846153846153846,
+    "n": 26
+   }
+  }
+ },
+ "learned": {
+  "task": "studio",
+  "split": "val",
+  "method": "learned",
+  "n": 63,
+  "answered": 63,
+  "accuracy": 1.0,
+  "ci95": [
+   0.9425268096514744,
+   0.9999999999999999
+  ],
+  "blocked": null,
+  "latency_ms": {
+   "p50": 0.09,
+   "p95": 0.268,
+   "p99": 6.206,
+   "mean": 0.347
+  },
+  "tokens": 0,
+  "rows": [
+   {
+    "id": "s013",
+    "category": "chart_as_question",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 15.76,
+    "confidence": 0.9304
+   },
+   {
+    "id": "s014",
+    "category": "chart_as_question",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.28,
+    "confidence": 0.9603
+   },
+   {
+    "id": "s017",
+    "category": "chart_fragment",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.07,
+    "confidence": 0.6336
+   },
+   {
+    "id": "s027",
+    "category": "chart_fragment",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.06,
+    "confidence": 0.5325
+   },
+   {
+    "id": "s033",
+    "category": "chart_fragment",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.06,
+    "confidence": 0.6817
+   },
+   {
+    "id": "s035",
+    "category": "chart_period",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.11,
+    "confidence": 0.7159
+   },
+   {
+    "id": "s040",
+    "category": "chart_compare",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.15,
+    "confidence": 0.9115
+   },
+   {
+    "id": "s064",
+    "category": "chart_transform",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.13,
+    "confidence": 0.7668
+   },
+   {
+    "id": "s066",
+    "category": "chart_statistic",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.11,
+    "confidence": 0.9533
+   },
+   {
+    "id": "s067",
+    "category": "chart_statistic",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.06,
+    "confidence": 0.8611
+   },
+   {
+    "id": "s069",
+    "category": "chart_statistic",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.08,
+    "confidence": 0.6802
+   },
+   {
+    "id": "s070",
+    "category": "chart_type_sort",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.1,
+    "confidence": 0.9372
+   },
+   {
+    "id": "s074",
+    "category": "chart_no_diacritics",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.06,
+    "confidence": 0.5603
+   },
+   {
+    "id": "s075",
+    "category": "chart_no_diacritics",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.1,
+    "confidence": 0.8631
+   },
+   {
+    "id": "s081",
+    "category": "chart_typo",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.06,
+    "confidence": 0.9503
+   },
+   {
+    "id": "s083",
+    "category": "chart_typo",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.08,
+    "confidence": 0.7988
+   },
+   {
+    "id": "s088",
+    "category": "chart_long",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.3,
+    "confidence": 0.9469
+   },
+   {
+    "id": "s092",
+    "category": "chart_refine",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.16,
+    "confidence": 0.8263
+   },
+   {
+    "id": "s100",
+    "category": "decision_number",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.12,
+    "confidence": 0.641
+   },
+   {
+    "id": "s101",
+    "category": "decision_ranking",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.09,
+    "confidence": 0.8786
+   },
+   {
+    "id": "s106",
+    "category": "decision_ranking",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.11,
+    "confidence": 0.9014
+   },
+   {
+    "id": "s116",
+    "category": "decision_knowledge",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.07,
+    "confidence": 0.7893
+   },
+   {
+    "id": "s118",
+    "category": "decision_knowledge",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.11,
+    "confidence": 0.9322
+   },
+   {
+    "id": "s128",
+    "category": "decision_knowledge",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.13,
+    "confidence": 0.6499
+   },
+   {
+    "id": "s139",
+    "category": "decision_unsupported",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.07,
+    "confidence": 0.814
+   },
+   {
+    "id": "s146",
+    "category": "decision_temporal",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.11,
+    "confidence": 0.6809
+   },
+   {
+    "id": "s148",
+    "category": "decision_network",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.09,
+    "confidence": 0.8773
+   },
+   {
+    "id": "s159",
+    "category": "decision_no_diacritics",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.06,
+    "confidence": 0.7078
+   },
+   {
+    "id": "s162",
+    "category": "decision_typo",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.08,
+    "confidence": 0.8299
+   },
+   {
+    "id": "s165",
+    "category": "decision_long",
+    "lang": "tr",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.35,
+    "confidence": 0.5901
+   },
+   {
+    "id": "s167",
+    "category": "ambiguous",
+    "lang": "tr",
+    "ambiguous": true,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.09,
+    "confidence": 0.6748
+   },
+   {
+    "id": "s169",
+    "category": "ambiguous",
+    "lang": "tr",
+    "ambiguous": true,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.11,
+    "confidence": 0.902
+   },
+   {
+    "id": "s175",
+    "category": "ambiguous",
+    "lang": "tr",
+    "ambiguous": true,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.1,
+    "confidence": 0.7725
+   },
+   {
+    "id": "s179",
+    "category": "chart_explicit",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.11,
+    "confidence": 0.8224
+   },
+   {
+    "id": "s182",
+    "category": "chart_explicit",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.12,
+    "confidence": 0.7571
+   },
+   {
+    "id": "s190",
+    "category": "chart_fragment",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.03,
+    "confidence": 0.6405
+   },
+   {
+    "id": "s191",
+    "category": "chart_fragment",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.04,
+    "confidence": 0.6464
+   },
+   {
+    "id": "s193",
+    "category": "chart_fragment",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.06,
+    "confidence": 0.7522
+   },
+   {
+    "id": "s194",
+    "category": "chart_fragment",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.04,
+    "confidence": 0.5126
+   },
+   {
+    "id": "s206",
+    "category": "chart_compare",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.09,
+    "confidence": 0.8446
+   },
+   {
+    "id": "s208",
+    "category": "chart_exclude",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.09,
+    "confidence": 0.7535
+   },
+   {
+    "id": "s211",
+    "category": "chart_group",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.06,
+    "confidence": 0.737
+   },
+   {
+    "id": "s213",
+    "category": "chart_group",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.14,
+    "confidence": 0.8023
+   },
+   {
+    "id": "s216",
+    "category": "chart_transform",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.1,
+    "confidence": 0.572
+   },
+   {
+    "id": "s218",
+    "category": "chart_transform",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.08,
+    "confidence": 0.5878
+   },
+   {
+    "id": "s222",
+    "category": "chart_transform",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.07,
+    "confidence": 0.537
+   },
+   {
+    "id": "s236",
+    "category": "decision_ranking",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.07,
+    "confidence": 0.8982
+   },
+   {
+    "id": "s242",
+    "category": "decision_chart_word_question",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.11,
+    "confidence": 0.7304
+   },
+   {
+    "id": "s243",
+    "category": "decision_chart_word_question",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.12,
+    "confidence": 0.7839
+   },
+   {
+    "id": "s246",
+    "category": "decision_explanation",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.05,
+    "confidence": 0.862
+   },
+   {
+    "id": "s251",
+    "category": "decision_knowledge",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.08,
+    "confidence": 0.8249
+   },
+   {
+    "id": "s252",
+    "category": "decision_knowledge",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.06,
+    "confidence": 0.9163
+   },
+   {
+    "id": "s258",
+    "category": "decision_recommendation",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.06,
+    "confidence": 0.8368
+   },
+   {
+    "id": "s263",
+    "category": "decision_unsupported",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.07,
+    "confidence": 0.9316
+   },
+   {
+    "id": "s276",
+    "category": "decision_injection",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.12,
+    "confidence": 0.7181
+   },
+   {
+    "id": "s277",
+    "category": "decision_injection",
+    "lang": "en",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.15,
+    "confidence": 0.6849
+   },
+   {
+    "id": "s284",
+    "category": "ambiguous",
+    "lang": "en",
+    "ambiguous": true,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.06,
+    "confidence": 0.831
+   },
+   {
+    "id": "s289",
+    "category": "chart_explicit",
+    "lang": "mixed",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.09,
+    "confidence": 0.93
+   },
+   {
+    "id": "s300",
+    "category": "chart_transform",
+    "lang": "mixed",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.08,
+    "confidence": 0.6924
+   },
+   {
+    "id": "s303",
+    "category": "chart_group",
+    "lang": "mixed",
+    "ambiguous": false,
+    "expect": "chart",
+    "got": "chart",
+    "correct": true,
+    "latency_ms": 0.1,
+    "confidence": 0.7034
+   },
+   {
+    "id": "s306",
+    "category": "decision_number",
+    "lang": "mixed",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.07,
+    "confidence": 0.9113
+   },
+   {
+    "id": "s313",
+    "category": "decision_unsupported",
+    "lang": "mixed",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.05,
+    "confidence": 0.7884
+   },
+   {
+    "id": "s314",
+    "category": "decision_forecast",
+    "lang": "mixed",
+    "ambiguous": false,
+    "expect": "decision",
+    "got": "decision",
+    "correct": true,
+    "latency_ms": 0.06,
+    "confidence": 0.8578
+   }
+  ],
+  "per_class": {
+   "chart": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "n": 37
+   },
+   "decision": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "n": 26
+   }
+  }
+ }
+}

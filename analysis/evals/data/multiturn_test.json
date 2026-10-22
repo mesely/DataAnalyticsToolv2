@@ -1,0 +1,1168 @@
+{
+ "set": "multiturn",
+ "split": "test",
+ "conversations": [
+  {
+   "id": "m01",
+   "lang": "tr",
+   "turns": [
+    {
+     "prompt": "aylık ciro",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month"
+     }
+    },
+    {
+     "prompt": "sadece Almanya",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "countries": [
+       "Germany"
+      ]
+     }
+    },
+    {
+     "prompt": "TL'ye çevir",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "countries": [
+       "Germany"
+      ],
+      "transform": {
+       "currency": "TRY",
+       "fx": "transaction",
+       "real": null,
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "aynı grafiği enflasyona göre düzelt",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "countries": [
+       "Germany"
+      ],
+      "transform": {
+       "currency": "TRY",
+       "fx": "transaction",
+       "real": "latest",
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "haftalık yap",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "week",
+      "countries": [
+       "Germany"
+      ],
+      "transform": {
+       "currency": "TRY",
+       "fx": "transaction",
+       "real": "latest",
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "İngiltere'yi de ekle ve karşılaştır",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "week",
+      "countries": [
+       "Germany",
+       "United Kingdom"
+      ],
+      "transform": {
+       "currency": "TRY",
+       "fx": "transaction",
+       "real": "latest",
+       "unit": "money",
+       "index": false,
+       "compare": false
+      },
+      "split_by_country": true
+     }
+    }
+   ]
+  },
+  {
+   "id": "m02",
+   "lang": "en",
+   "turns": [
+    {
+     "prompt": "Show revenue by country",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "country"
+     }
+    },
+    {
+     "prompt": "top 5",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "country",
+      "top_n": 5
+     }
+    },
+    {
+     "prompt": "exclude the UK",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "country",
+      "top_n": 5,
+      "exclude_countries": [
+       "United Kingdom"
+      ]
+     }
+    },
+    {
+     "prompt": "switch to orders",
+     "expect": {
+      "metric": "orders",
+      "dimension": "country",
+      "top_n": 5,
+      "exclude_countries": [
+       "United Kingdom"
+      ]
+     }
+    },
+    {
+     "prompt": "sort ascending",
+     "expect": {
+      "metric": "orders",
+      "dimension": "country",
+      "top_n": 5,
+      "exclude_countries": [
+       "United Kingdom"
+      ],
+      "sort": "value_asc"
+     }
+    }
+   ]
+  },
+  {
+   "id": "m06",
+   "lang": "tr",
+   "turns": [
+    {
+     "prompt": "haftalık sipariş sayısı",
+     "expect": {
+      "dimension": "week",
+      "metric": "orders"
+     }
+    },
+    {
+     "prompt": "trend çizgisi ekle",
+     "expect": {
+      "dimension": "week",
+      "metric": "orders",
+      "statistic": "trend"
+     }
+    },
+    {
+     "prompt": "trend yerine 4 haftalık hareketli ortalama",
+     "expect": {
+      "dimension": "week",
+      "metric": "orders",
+      "statistic": "moving_average",
+      "window": 4
+     }
+    },
+    {
+     "prompt": "son 3 ay",
+     "expect": {
+      "dimension": "week",
+      "metric": "orders",
+      "statistic": "moving_average",
+      "window": 4,
+      "start": "2011-10-01",
+      "end": "2011-12-09"
+     }
+    },
+    {
+     "prompt": "kontrol bandı koy",
+     "expect": {
+      "dimension": "week",
+      "metric": "orders",
+      "statistic": "control_band",
+      "start": "2011-10-01",
+      "end": "2011-12-09"
+     }
+    }
+   ]
+  },
+  {
+   "id": "m07",
+   "lang": "en",
+   "turns": [
+    {
+     "prompt": "average order value by month",
+     "expect": {
+      "metric": "aov",
+      "dimension": "month"
+     }
+    },
+    {
+     "prompt": "add a 95% confidence interval",
+     "expect": {
+      "metric": "aov",
+      "dimension": "month",
+      "statistic": "ci95"
+     }
+    },
+    {
+     "prompt": "only Germany",
+     "expect": {
+      "metric": "aov",
+      "dimension": "month",
+      "statistic": "ci95",
+      "countries": [
+       "Germany"
+      ]
+     }
+    },
+    {
+     "prompt": "Q2 2011",
+     "expect": {
+      "metric": "aov",
+      "dimension": "month",
+      "statistic": "ci95",
+      "countries": [
+       "Germany"
+      ],
+      "start": "2011-04-01",
+      "end": "2011-06-30"
+     }
+    },
+    {
+     "prompt": "in euros",
+     "expect": {
+      "metric": "aov",
+      "dimension": "month",
+      "statistic": "ci95",
+      "countries": [
+       "Germany"
+      ],
+      "start": "2011-04-01",
+      "end": "2011-06-30",
+      "transform": {
+       "currency": "EUR",
+       "fx": "transaction",
+       "real": null,
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "m08",
+   "lang": "tr",
+   "turns": [
+    {
+     "prompt": "aylık ciro grafiği",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month"
+     }
+    },
+    {
+     "prompt": "2011'in ilk çeyreği",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "start": "2011-01-01",
+      "end": "2011-03-31"
+     }
+    },
+    {
+     "prompt": "Haziran 2011",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "start": "2011-06-01",
+      "end": "2011-06-30"
+     }
+    },
+    {
+     "prompt": "tüm dönem",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "start": null,
+      "end": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "m11",
+   "lang": "en",
+   "turns": [
+    {
+     "prompt": "monthly revenue",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month"
+     }
+    },
+    {
+     "prompt": "in grams of gold",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "transform": {
+       "currency": "GBP",
+       "fx": "transaction",
+       "real": null,
+       "unit": "gold_g",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "ounces instead of grams",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "transform": {
+       "currency": "GBP",
+       "fx": "transaction",
+       "real": null,
+       "unit": "gold_oz",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "last 12 months",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "transform": {
+       "currency": "GBP",
+       "fx": "transaction",
+       "real": null,
+       "unit": "gold_oz",
+       "index": false,
+       "compare": false
+      },
+      "start": "2011-01-01",
+      "end": "2011-12-09"
+     }
+    }
+   ]
+  },
+  {
+   "id": "m12",
+   "lang": "tr",
+   "turns": [
+    {
+     "prompt": "ülkelere göre sipariş sayısı",
+     "expect": {
+      "dimension": "country",
+      "metric": "orders"
+     }
+    },
+    {
+     "prompt": "İngiltere hariç",
+     "expect": {
+      "dimension": "country",
+      "metric": "orders",
+      "exclude_countries": [
+       "United Kingdom"
+      ]
+     }
+    },
+    {
+     "prompt": "İrlanda'yı da çıkar",
+     "expect": {
+      "dimension": "country",
+      "metric": "orders",
+      "exclude_countries": [
+       "United Kingdom",
+       "EIRE"
+      ]
+     }
+    },
+    {
+     "prompt": "tüm ülkeler",
+     "expect": {
+      "dimension": "country",
+      "metric": "orders",
+      "exclude_countries": [],
+      "countries": []
+     }
+    },
+    {
+     "prompt": "ilk 5",
+     "expect": {
+      "dimension": "country",
+      "metric": "orders",
+      "exclude_countries": [],
+      "countries": [],
+      "top_n": 5
+     }
+    }
+   ]
+  },
+  {
+   "id": "m17",
+   "lang": "tr",
+   "turns": [
+    {
+     "prompt": "Almanya, Fransa ve Hollanda'nın aylık cirolarını karşılaştır",
+     "expect": {
+      "countries": [
+       "Germany",
+       "France",
+       "Netherlands"
+      ],
+      "split_by_country": true,
+      "dimension": "month",
+      "metric": "gross_sales"
+     }
+    },
+    {
+     "prompt": "TL'ye çevir ve enflasyondan arındır",
+     "expect": {
+      "countries": [
+       "Germany",
+       "France",
+       "Netherlands"
+      ],
+      "split_by_country": true,
+      "dimension": "month",
+      "metric": "gross_sales",
+      "transform": {
+       "currency": "TRY",
+       "fx": "transaction",
+       "real": "latest",
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "nominal ve reel karşılaştır",
+     "expect": {
+      "countries": [
+       "Germany",
+       "France",
+       "Netherlands"
+      ],
+      "split_by_country": true,
+      "dimension": "month",
+      "metric": "gross_sales",
+      "transform": {
+       "currency": "TRY",
+       "fx": "transaction",
+       "real": "latest",
+       "unit": "money",
+       "index": false,
+       "compare": true
+      }
+     }
+    },
+    {
+     "prompt": "Hollanda'yı çıkar",
+     "expect": {
+      "countries": [
+       "Germany",
+       "France"
+      ],
+      "split_by_country": true,
+      "dimension": "month",
+      "metric": "gross_sales",
+      "transform": {
+       "currency": "TRY",
+       "fx": "transaction",
+       "real": "latest",
+       "unit": "money",
+       "index": false,
+       "compare": true
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "m21",
+   "lang": "tr",
+   "turns": [
+    {
+     "prompt": "aylık ciroyu TL olarak göster",
+     "expect": {
+      "dimension": "month",
+      "metric": "gross_sales",
+      "transform": {
+       "currency": "TRY",
+       "fx": "transaction",
+       "real": null,
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "Ocak 2011 fiyatlarıyla",
+     "expect": {
+      "dimension": "month",
+      "metric": "gross_sales",
+      "transform": {
+       "currency": "TRY",
+       "fx": "transaction",
+       "real": "2011-01",
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "2011 fiyatlarıyla",
+     "expect": {
+      "dimension": "month",
+      "metric": "gross_sales",
+      "transform": {
+       "currency": "TRY",
+       "fx": "transaction",
+       "real": "2011",
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "100'e endeksle",
+     "expect": {
+      "dimension": "month",
+      "metric": "gross_sales",
+      "transform": {
+       "currency": "TRY",
+       "fx": "transaction",
+       "real": "2011",
+       "unit": "money",
+       "index": true,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "sadece İsviçre",
+     "expect": {
+      "dimension": "month",
+      "metric": "gross_sales",
+      "transform": {
+       "currency": "TRY",
+       "fx": "transaction",
+       "real": "2011",
+       "unit": "money",
+       "index": true,
+       "compare": false
+      },
+      "countries": [
+       "Switzerland"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "m24",
+   "lang": "mixed",
+   "turns": [
+    {
+     "prompt": "monthly AOV göster",
+     "expect": {
+      "metric": "aov",
+      "dimension": "month"
+     }
+    },
+    {
+     "prompt": "ci95 ekle",
+     "expect": {
+      "metric": "aov",
+      "dimension": "month",
+      "statistic": "ci95"
+     }
+    },
+    {
+     "prompt": "sadece France",
+     "expect": {
+      "metric": "aov",
+      "dimension": "month",
+      "statistic": "ci95",
+      "countries": [
+       "France"
+      ]
+     }
+    },
+    {
+     "prompt": "USD'ye çevir at today's rate",
+     "expect": {
+      "metric": "aov",
+      "dimension": "month",
+      "statistic": "ci95",
+      "countries": [
+       "France"
+      ],
+      "transform": {
+       "currency": "USD",
+       "fx": "latest",
+       "real": null,
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "m25",
+   "lang": "en",
+   "turns": [
+    {
+     "prompt": "top 10 products by revenue",
+     "expect": {
+      "dimension": "product",
+      "top_n": 10,
+      "metric": "gross_sales"
+     }
+    },
+    {
+     "prompt": "only in Germany",
+     "expect": {
+      "dimension": "product",
+      "top_n": 10,
+      "metric": "gross_sales",
+      "countries": [
+       "Germany"
+      ]
+     }
+    },
+    {
+     "prompt": "Q1 2011",
+     "expect": {
+      "dimension": "product",
+      "top_n": 10,
+      "metric": "gross_sales",
+      "countries": [
+       "Germany"
+      ],
+      "start": "2011-01-01",
+      "end": "2011-03-31"
+     }
+    },
+    {
+     "prompt": "top 20",
+     "expect": {
+      "dimension": "product",
+      "top_n": 20,
+      "metric": "gross_sales",
+      "countries": [
+       "Germany"
+      ],
+      "start": "2011-01-01",
+      "end": "2011-03-31"
+     }
+    },
+    {
+     "prompt": "convert to euros",
+     "expect": {
+      "dimension": "product",
+      "top_n": 20,
+      "metric": "gross_sales",
+      "countries": [
+       "Germany"
+      ],
+      "start": "2011-01-01",
+      "end": "2011-03-31",
+      "transform": {
+       "currency": "EUR",
+       "fx": "transaction",
+       "real": null,
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "m27",
+   "lang": "tr",
+   "turns": [
+    {
+     "prompt": "NATO bazında sipariş sayısı",
+     "expect": {
+      "dimension": "country_group",
+      "group": "nato",
+      "metric": "orders"
+     }
+    },
+    {
+     "prompt": "dönem sonu üyeliğini kullan",
+     "expect": {
+      "dimension": "country_group",
+      "group": "nato",
+      "metric": "orders",
+      "group_as_of": "period_end"
+     }
+    },
+    {
+     "prompt": "o dönemdeki üyeliğe dön",
+     "expect": {
+      "dimension": "country_group",
+      "group": "nato",
+      "metric": "orders",
+      "group_as_of": "transaction"
+     }
+    },
+    {
+     "prompt": "OECD'ye geç",
+     "expect": {
+      "dimension": "country_group",
+      "group": "oecd",
+      "metric": "orders",
+      "group_as_of": "transaction"
+     }
+    },
+    {
+     "prompt": "son 6 ay",
+     "expect": {
+      "dimension": "country_group",
+      "group": "oecd",
+      "metric": "orders",
+      "group_as_of": "transaction",
+      "start": "2011-07-01",
+      "end": "2011-12-09"
+     }
+    }
+   ]
+  },
+  {
+   "id": "m30",
+   "lang": "en",
+   "turns": [
+    {
+     "prompt": "revenue by country",
+     "expect": {
+      "dimension": "country",
+      "metric": "gross_sales"
+     }
+    },
+    {
+     "prompt": "group them by EU membership instead",
+     "expect": {
+      "dimension": "country_group",
+      "metric": "gross_sales",
+      "group": "eu"
+     }
+    },
+    {
+     "prompt": "at period end",
+     "expect": {
+      "dimension": "country_group",
+      "metric": "gross_sales",
+      "group": "eu",
+      "group_as_of": "period_end"
+     }
+    },
+    {
+     "prompt": "in USD",
+     "expect": {
+      "dimension": "country_group",
+      "metric": "gross_sales",
+      "group": "eu",
+      "group_as_of": "period_end",
+      "transform": {
+       "currency": "USD",
+       "fx": "transaction",
+       "real": null,
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "index to 100",
+     "expect": {
+      "dimension": "country_group",
+      "metric": "gross_sales",
+      "group": "eu",
+      "group_as_of": "period_end",
+      "transform": {
+       "currency": "USD",
+       "fx": "transaction",
+       "real": null,
+       "unit": "money",
+       "index": true,
+       "compare": false
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "m35",
+   "lang": "tr",
+   "turns": [
+    {
+     "prompt": "haftanın günlerine göre ciro",
+     "expect": {
+      "dimension": "weekday",
+      "metric": "gross_sales"
+     }
+    },
+    {
+     "prompt": "sadece İngiltere",
+     "expect": {
+      "dimension": "weekday",
+      "metric": "gross_sales",
+      "countries": [
+       "United Kingdom"
+      ]
+     }
+    },
+    {
+     "prompt": "ortalama sepet olsun",
+     "expect": {
+      "dimension": "weekday",
+      "metric": "aov",
+      "countries": [
+       "United Kingdom"
+      ]
+     }
+    },
+    {
+     "prompt": "2011'in ilk yarısı",
+     "expect": {
+      "dimension": "weekday",
+      "metric": "aov",
+      "countries": [
+       "United Kingdom"
+      ],
+      "start": "2011-01-01",
+      "end": "2011-06-30"
+     }
+    },
+    {
+     "prompt": "alan grafiği",
+     "expect": {
+      "dimension": "weekday",
+      "metric": "aov",
+      "countries": [
+       "United Kingdom"
+      ],
+      "start": "2011-01-01",
+      "end": "2011-06-30",
+      "chart": "area"
+     }
+    }
+   ]
+  },
+  {
+   "id": "m36",
+   "lang": "en",
+   "turns": [
+    {
+     "prompt": "monthly revenue",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month"
+     }
+    },
+    {
+     "prompt": "except the UK",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "exclude_countries": [
+       "United Kingdom"
+      ]
+     }
+    },
+    {
+     "prompt": "also exclude EIRE",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "exclude_countries": [
+       "United Kingdom",
+       "EIRE"
+      ]
+     }
+    },
+    {
+     "prompt": "in grams of gold",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "exclude_countries": [
+       "United Kingdom",
+       "EIRE"
+      ],
+      "transform": {
+       "currency": "GBP",
+       "fx": "transaction",
+       "real": null,
+       "unit": "gold_g",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "add a trend line",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "exclude_countries": [
+       "United Kingdom",
+       "EIRE"
+      ],
+      "transform": {
+       "currency": "GBP",
+       "fx": "transaction",
+       "real": null,
+       "unit": "gold_g",
+       "index": false,
+       "compare": false
+      },
+      "statistic": "trend"
+     }
+    }
+   ]
+  },
+  {
+   "id": "m41",
+   "lang": "tr",
+   "turns": [
+    {
+     "prompt": "aylık ciro",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month"
+     }
+    },
+    {
+     "prompt": "son 6 ay",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "start": "2011-07-01",
+      "end": "2011-12-09"
+     }
+    },
+    {
+     "prompt": "son 6 ay yerine son 3 ay",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "start": "2011-10-01",
+      "end": "2011-12-09"
+     }
+    },
+    {
+     "prompt": "2011 Q2",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "start": "2011-04-01",
+      "end": "2011-06-30"
+     }
+    },
+    {
+     "prompt": "tüm dönem",
+     "expect": {
+      "metric": "gross_sales",
+      "dimension": "month",
+      "start": null,
+      "end": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "m43",
+   "lang": "en",
+   "turns": [
+    {
+     "prompt": "monthly revenue for Switzerland and Austria, compared",
+     "expect": {
+      "countries": [
+       "Switzerland",
+       "Austria"
+      ],
+      "split_by_country": true,
+      "dimension": "month",
+      "metric": "gross_sales"
+     }
+    },
+    {
+     "prompt": "in euros",
+     "expect": {
+      "countries": [
+       "Switzerland",
+       "Austria"
+      ],
+      "split_by_country": true,
+      "dimension": "month",
+      "metric": "gross_sales",
+      "transform": {
+       "currency": "EUR",
+       "fx": "transaction",
+       "real": null,
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "in constant 2011 prices",
+     "expect": {
+      "countries": [
+       "Switzerland",
+       "Austria"
+      ],
+      "split_by_country": true,
+      "dimension": "month",
+      "metric": "gross_sales",
+      "transform": {
+       "currency": "EUR",
+       "fx": "transaction",
+       "real": "2011",
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "add Germany",
+     "expect": {
+      "countries": [
+       "Switzerland",
+       "Austria",
+       "Germany"
+      ],
+      "split_by_country": true,
+      "dimension": "month",
+      "metric": "gross_sales",
+      "transform": {
+       "currency": "EUR",
+       "fx": "transaction",
+       "real": "2011",
+       "unit": "money",
+       "index": false,
+       "compare": false
+      }
+     }
+    },
+    {
+     "prompt": "area chart",
+     "expect": {
+      "countries": [
+       "Switzerland",
+       "Austria",
+       "Germany"
+      ],
+      "split_by_country": true,
+      "dimension": "month",
+      "metric": "gross_sales",
+      "transform": {
+       "currency": "EUR",
+       "fx": "transaction",
+       "real": "2011",
+       "unit": "money",
+       "index": false,
+       "compare": false
+      },
+      "chart": "area"
+     }
+    }
+   ]
+  },
+  {
+   "id": "m45",
+   "lang": "mixed",
+   "turns": [
+    {
+     "prompt": "ülkelere göre revenue",
+     "expect": {
+      "dimension": "country",
+      "metric": "gross_sales"
+     }
+    },
+    {
+     "prompt": "top 15 yap",
+     "expect": {
+      "dimension": "country",
+      "metric": "gross_sales",
+      "top_n": 15
+     }
+    },
+    {
+     "prompt": "UK hariç",
+     "expect": {
+      "dimension": "country",
+      "metric": "gross_sales",
+      "top_n": 15,
+      "exclude_countries": [
+       "United Kingdom"
+      ]
+     }
+    },
+    {
+     "prompt": "orders'a geç",
+     "expect": {
+      "dimension": "country",
+      "metric": "orders",
+      "top_n": 15,
+      "exclude_countries": [
+       "United Kingdom"
+      ]
+     }
+    },
+    {
+     "prompt": "ascending sırala",
+     "expect": {
+      "dimension": "country",
+      "metric": "orders",
+      "top_n": 15,
+      "exclude_countries": [
+       "United Kingdom"
+      ],
+      "sort": "value_asc"
+     }
+    }
+   ]
+  }
+ ]
+}

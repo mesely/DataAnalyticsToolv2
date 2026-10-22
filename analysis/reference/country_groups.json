@@ -1,0 +1,132 @@
+{
+ "id": "country-groups",
+ "version": "2026-10-18",
+ "kind": "authored-facts",
+ "compiled_at": "2026-10-18",
+ "note": "Membership facts compiled from the organisations' public member lists, not downloaded data. Dates are when membership took effect (NATO: accession; EU: accession, UK left on 2020-01-31; euro area: adoption; OECD: ratification; G7: first summit). A membership is counted on a date when joined <= date and (left is null or date < left).",
+ "groups": {
+  "nato": {
+   "label": ["NATO", "NATO"],
+   "outside": ["NATO dışı", "Outside NATO"],
+   "source": "https://www.nato.int/cps/en/natohq/topics_52044.htm",
+   "members": {
+    "BEL": ["1949-08-24", null], "CAN": ["1949-08-24", null], "DNK": ["1949-08-24", null], "FRA": ["1949-08-24", null],
+    "ISL": ["1949-08-24", null], "ITA": ["1949-08-24", null], "LUX": ["1949-08-24", null], "NLD": ["1949-08-24", null],
+    "NOR": ["1949-08-24", null], "PRT": ["1949-08-24", null], "GBR": ["1949-08-24", null], "USA": ["1949-08-24", null],
+    "GRC": ["1952-02-18", null], "TUR": ["1952-02-18", null], "DEU": ["1955-05-06", null], "ESP": ["1982-05-30", null],
+    "CZE": ["1999-03-12", null], "HUN": ["1999-03-12", null], "POL": ["1999-03-12", null],
+    "BGR": ["2004-03-29", null], "EST": ["2004-03-29", null], "LVA": ["2004-03-29", null], "LTU": ["2004-03-29", null],
+    "ROU": ["2004-03-29", null], "SVK": ["2004-03-29", null], "SVN": ["2004-03-29", null],
+    "ALB": ["2009-04-01", null], "HRV": ["2009-04-01", null], "MNE": ["2017-06-05", null], "MKD": ["2020-03-27", null],
+    "FIN": ["2023-04-04", null], "SWE": ["2024-03-07", null]
+   }
+  },
+  "eu": {
+   "label": ["AB", "EU"],
+   "outside": ["AB dışı", "Outside the EU"],
+   "source": "https://european-union.europa.eu/principles-countries-history/country-profiles_en",
+   "members": {
+    "BEL": ["1958-01-01", null], "FRA": ["1958-01-01", null], "DEU": ["1958-01-01", null], "ITA": ["1958-01-01", null],
+    "LUX": ["1958-01-01", null], "NLD": ["1958-01-01", null], "DNK": ["1973-01-01", null], "IRL": ["1973-01-01", null],
+    "GBR": ["1973-01-01", "2020-02-01"], "GRC": ["1981-01-01", null], "ESP": ["1986-01-01", null], "PRT": ["1986-01-01", null],
+    "AUT": ["1995-01-01", null], "FIN": ["1995-01-01", null], "SWE": ["1995-01-01", null],
+    "CYP": ["2004-05-01", null], "CZE": ["2004-05-01", null], "EST": ["2004-05-01", null], "HUN": ["2004-05-01", null],
+    "LVA": ["2004-05-01", null], "LTU": ["2004-05-01", null], "MLT": ["2004-05-01", null], "POL": ["2004-05-01", null],
+    "SVK": ["2004-05-01", null], "SVN": ["2004-05-01", null], "BGR": ["2007-01-01", null], "ROU": ["2007-01-01", null],
+    "HRV": ["2013-07-01", null]
+   }
+  },
+  "eurozone": {
+   "label": ["Euro bölgesi", "Euro area"],
+   "outside": ["Euro bölgesi dışı", "Outside the euro area"],
+   "source": "https://www.ecb.europa.eu/euro/intro/html/index.en.html",
+   "members": {
+    "AUT": ["1999-01-01", null], "BEL": ["1999-01-01", null], "FIN": ["1999-01-01", null], "FRA": ["1999-01-01", null],
+    "DEU": ["1999-01-01", null], "IRL": ["1999-01-01", null], "ITA": ["1999-01-01", null], "LUX": ["1999-01-01", null],
+    "NLD": ["1999-01-01", null], "PRT": ["1999-01-01", null], "ESP": ["1999-01-01", null], "GRC": ["2001-01-01", null],
+    "SVN": ["2007-01-01", null], "CYP": ["2008-01-01", null], "MLT": ["2008-01-01", null], "SVK": ["2009-01-01", null],
+    "EST": ["2011-01-01", null], "LVA": ["2014-01-01", null], "LTU": ["2015-01-01", null], "HRV": ["2023-01-01", null],
+    "BGR": ["2026-01-01", null]
+   }
+  },
+  "g7": {
+   "label": ["G7", "G7"],
+   "outside": ["G7 dışı", "Outside the G7"],
+   "source": "G7 summit membership: France, Germany, Italy, Japan, the United Kingdom and the United States from the first summit (1975-11-15), Canada from 1976-06-27; Russia's G8 participation (1997–2014) is not counted.",
+   "members": {
+    "FRA": ["1975-11-15", null], "DEU": ["1975-11-15", null], "ITA": ["1975-11-15", null], "JPN": ["1975-11-15", null],
+    "GBR": ["1975-11-15", null], "USA": ["1975-11-15", null], "CAN": ["1976-06-27", null]
+   }
+  },
+  "oecd": {
+   "label": ["OECD", "OECD"],
+   "outside": ["OECD dışı", "Outside the OECD"],
+   "source": "https://www.oecd.org/en/about/members-partners.html",
+   "members": {
+    "AUT": ["1961-09-30", null], "BEL": ["1961-09-30", null], "CAN": ["1961-09-30", null], "DNK": ["1961-09-30", null],
+    "FRA": ["1961-09-30", null], "DEU": ["1961-09-30", null], "GRC": ["1961-09-30", null], "ISL": ["1961-09-30", null],
+    "IRL": ["1961-09-30", null], "LUX": ["1961-09-30", null], "NLD": ["1961-09-30", null], "NOR": ["1961-09-30", null],
+    "PRT": ["1961-09-30", null], "ESP": ["1961-09-30", null], "SWE": ["1961-09-30", null], "CHE": ["1961-09-30", null],
+    "TUR": ["1961-09-30", null], "GBR": ["1961-09-30", null], "USA": ["1961-09-30", null], "ITA": ["1962-03-29", null],
+    "JPN": ["1964-04-28", null], "FIN": ["1969-01-28", null], "AUS": ["1971-06-07", null], "NZL": ["1973-05-29", null],
+    "MEX": ["1994-05-18", null], "CZE": ["1995-12-21", null], "HUN": ["1996-05-07", null], "POL": ["1996-11-22", null],
+    "KOR": ["1996-12-12", null], "SVK": ["2000-12-14", null], "CHL": ["2010-05-07", null], "SVN": ["2010-07-21", null],
+    "ISR": ["2010-09-07", null], "EST": ["2010-12-09", null], "LVA": ["2016-07-01", null], "LTU": ["2018-07-05", null],
+    "COL": ["2020-04-28", null], "CRI": ["2021-05-25", null]
+   }
+  }
+ },
+ "continents": {
+  "label": ["Kıta", "Continent"],
+  "names": {
+   "europe": ["Avrupa", "Europe"], "asia": ["Asya", "Asia"], "africa": ["Afrika", "Africa"],
+   "north_america": ["Kuzey Amerika", "North America"], "south_america": ["Güney Amerika", "South America"],
+   "oceania": ["Okyanusya", "Oceania"]
+  }
+ },
+ "dataset_countries": {
+  "Australia": {"iso3": "AUS", "continent": "oceania"},
+  "Austria": {"iso3": "AUT", "continent": "europe"},
+  "Bahrain": {"iso3": "BHR", "continent": "asia"},
+  "Belgium": {"iso3": "BEL", "continent": "europe"},
+  "Bermuda": {"iso3": null, "continent": "north_america", "unmatched": ["Britanya denizaşırı toprağı; bir örgütün üyesi değil, Birleşik Krallık'ın bir parçası da sayılmaz", "British Overseas Territory; not a member of any group in its own right, and not counted as the United Kingdom"]},
+  "Brazil": {"iso3": "BRA", "continent": "south_america"},
+  "Canada": {"iso3": "CAN", "continent": "north_america"},
+  "Channel Islands": {"iso3": null, "continent": "europe", "unmatched": ["Britanya Kraliyet bağımlılıkları (Jersey, Guernsey); kendi başına üye değil, Birleşik Krallık'ın bir parçası da sayılmaz", "British Crown Dependencies (Jersey, Guernsey); not a member in their own right, and not counted as the United Kingdom"]},
+  "Cyprus": {"iso3": "CYP", "continent": "europe"},
+  "Czech Republic": {"iso3": "CZE", "continent": "europe"},
+  "Denmark": {"iso3": "DNK", "continent": "europe"},
+  "EIRE": {"iso3": "IRL", "continent": "europe", "display": ["İrlanda (EIRE)", "Ireland (EIRE)"]},
+  "European Community": {"iso3": null, "continent": null, "unmatched": ["Bir ülke değil (veride bölge etiketi)", "Not a country (a region label in the data)"]},
+  "Finland": {"iso3": "FIN", "continent": "europe"},
+  "France": {"iso3": "FRA", "continent": "europe"},
+  "Germany": {"iso3": "DEU", "continent": "europe"},
+  "Greece": {"iso3": "GRC", "continent": "europe"},
+  "Hong Kong": {"iso3": "HKG", "continent": "asia"},
+  "Iceland": {"iso3": "ISL", "continent": "europe"},
+  "Israel": {"iso3": "ISR", "continent": "asia"},
+  "Italy": {"iso3": "ITA", "continent": "europe"},
+  "Japan": {"iso3": "JPN", "continent": "asia"},
+  "Korea": {"iso3": "KOR", "continent": "asia", "display": ["Kore (Güney Kore varsayıldı)", "Korea (assumed Republic of Korea)"]},
+  "Lebanon": {"iso3": "LBN", "continent": "asia"},
+  "Lithuania": {"iso3": "LTU", "continent": "europe"},
+  "Malta": {"iso3": "MLT", "continent": "europe"},
+  "Netherlands": {"iso3": "NLD", "continent": "europe"},
+  "Nigeria": {"iso3": "NGA", "continent": "africa"},
+  "Norway": {"iso3": "NOR", "continent": "europe"},
+  "Poland": {"iso3": "POL", "continent": "europe"},
+  "Portugal": {"iso3": "PRT", "continent": "europe"},
+  "RSA": {"iso3": "ZAF", "continent": "africa", "display": ["Güney Afrika (RSA)", "South Africa (RSA)"]},
+  "Saudi Arabia": {"iso3": "SAU", "continent": "asia"},
+  "Singapore": {"iso3": "SGP", "continent": "asia"},
+  "Spain": {"iso3": "ESP", "continent": "europe"},
+  "Sweden": {"iso3": "SWE", "continent": "europe"},
+  "Switzerland": {"iso3": "CHE", "continent": "europe"},
+  "Thailand": {"iso3": "THA", "continent": "asia"},
+  "USA": {"iso3": "USA", "continent": "north_america"},
+  "United Arab Emirates": {"iso3": "ARE", "continent": "asia"},
+  "United Kingdom": {"iso3": "GBR", "continent": "europe"},
+  "Unspecified": {"iso3": null, "continent": null, "unmatched": ["Ülke belirtilmemiş", "Country not specified"]},
+  "West Indies": {"iso3": null, "continent": "north_america", "unmatched": ["Tek bir ülke değil (Karayipler bölge etiketi)", "Not a single country (a Caribbean region label)"]}
+ }
+}

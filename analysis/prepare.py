@@ -76,6 +76,7 @@ def normalize(raw):
         "invalid_date": int(df.order_date.isna().sum()),
         "duplicate_rows": int(df.duplicated().sum()),
         "excluded_rows": int((~valid).sum()),
+        "exclusions": exclusion_breakdown(df, cancelled, numeric_ok, valid),
     }
     df = df.loc[valid, COLUMNS].copy()
     for c in ["invoice", "product_id", "product", "country"]:
@@ -99,6 +100,39 @@ def normalize(raw):
     df["quantity"] = df.quantity.astype("int64")
     df["order_date"] = df.order_date.dt.strftime("%Y-%m-%d")
     return df, quality
+
+
+def exclusion_breakdown(df, cancelled, numeric_ok, valid):
+    """Excluded lines by their first matching reason, so the counts add up to `excluded_rows` (v3 G5).
+
+    The raw profile counts above overlap (every cancellation also has a negative quantity); this list does not.
+    `pence` is the signed line value Σ(quantity × unit_price) of the excluded lines, where both are numbers, so the
+    screen can say how much each rule kept out of gross sales.
+    """
+    import numpy as np
+
+    reasons = [
+        ("cancelled", cancelled),
+        ("invalid_number", ~numeric_ok),
+        ("nonpositive_quantity", df.quantity <= 0),
+        ("nonpositive_price", df.unit_price <= 0),
+        ("missing_field", df.order_date.isna() | df["product"].isna() | df.invoice.isna() | df.product_id.isna()),
+    ]
+    taken = valid.copy()
+    out = []
+    finite = np.isfinite(df.quantity) & np.isfinite(df.unit_price)
+    for name, mask in reasons:
+        hit = (~taken) & mask.fillna(False).astype(bool)
+        taken = taken | hit
+        sel = hit & finite
+        pence = sum(
+            int((Decimal(str(q)) * Decimal(str(p)) * 100).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+            for q, p in zip(df.quantity[sel], df.unit_price[sel])
+        )
+        out.append({"reason": name, "rows": int(hit.sum()), "pence": pence})
+    if not bool(taken.all()):
+        raise AssertionError("every excluded line must match one exclusion reason")
+    return out
 
 
 def store(dataset_id, title, raw, source):

@@ -38,6 +38,12 @@ EXPECTED_SCHEMA = "context-layer-analysis-expected/v1"
 # One source for every query: the Python script binds "@name" tokens as ? parameters (in order of
 # appearance), the SQL file inlines the default values. Text is otherwise identical in both files.
 
+from analysis.scope import SERVICE_CODES as _SERVICE_CODES
+
+# v3 G5: postage, fees and adjustments are in gross sales but are not products (analysis/scope.py), so the product
+# ranking and the co-purchase candidates leave them out, exactly as the workspace does.
+PRODUCTS_ONLY = "UPPER(product_id) NOT IN (" + ", ".join("'" + c + "'" for c in sorted(_SERVICE_CODES)) + ")"
+
 SQL = {
     "kpis": """SELECT
     COUNT(*)::BIGINT AS row_count,
@@ -68,12 +74,14 @@ LIMIT @limit""",
     SUM(line_pence)::BIGINT AS gross_pence,
     SUM(quantity)::BIGINT AS units
 FROM sales
+WHERE @products_only
 GROUP BY product_id
 ORDER BY gross_pence DESC, product_id
 LIMIT @limit""",
     "copurchase_pairs": """WITH candidates AS (
     SELECT product_id
     FROM sales
+    WHERE @products_only
     GROUP BY product_id
     ORDER BY SUM(line_pence) DESC, product_id
     LIMIT @candidates
@@ -103,6 +111,7 @@ HAVING COUNT(*) >= @min_shared
 ORDER BY shared_orders DESC, product_a, product_b
 LIMIT @limit""",
 }
+SQL = {k: v.replace("@products_only", PRODUCTS_ONLY) for k, v in SQL.items()}
 DEFAULTS = {
     "top_countries": {"limit": 10},
     "top_products": {"limit": 10},
@@ -1258,7 +1267,7 @@ def write_chart_figure(results: dict[str, Any], path: Path) -> Path:
     # @@c_bar_order@@
     bounds_per_row = chart_intervals(results)
     items = [(label, value, bounds) for (label, value), bounds in zip(points.get("all", []), bounds_per_row)]
-    if CHART_SPEC["dimension"] in ("country", "product"):
+    if CHART_SPEC["dimension"] in ("country", "product", "country_group"):
         if CHART_SPEC["sort"] == "value_asc":
             items.reverse()
     elif CHART_SPEC["sort"] != "natural":
@@ -1767,7 +1776,7 @@ R = {
         "limits_text": [
             "Gross sales are positive invoice lines before returns; they are not net revenue or profit.",
             "Cancelled invoices and lines with non-positive quantity or price were removed during preparation.",
-            "Service lines such as POSTAGE, Manual or bank charges are kept as products where they occur.",
+            "Service lines such as POSTAGE, Manual, fees and accounting adjustments are in gross sales but are not ranked as products or used as co-purchase candidates.",
             "Distinct order counts are not additive across months, countries or products.",
             "Co-purchase pairs are restricted to the 24 best-selling products and show co-occurrence, not causation.",
         ],
@@ -1928,7 +1937,7 @@ R = {
         "limits_text": [
             "Brüt satış, iadeler öncesi pozitif fatura satırlarıdır; net gelir veya kâr değildir.",
             "İptal edilen faturalar ve adedi ya da fiyatı pozitif olmayan satırlar hazırlıkta çıkarıldı.",
-            "POSTAGE, Manual veya banka masrafı gibi hizmet satırları geçtikleri yerde ürün olarak korunur.",
+            "POSTAGE, Manual, ücret ve muhasebe düzeltmesi gibi hizmet satırları brüt satışta kalır; ürün sıralamasına ve birlikte alım adaylarına girmez.",
             "Benzersiz sipariş sayıları aylar, ülkeler veya ürünler arasında toplanamaz.",
             "Birlikte alım çiftleri en çok satan 24 ürünle sınırlıdır ve nedensellik değil birlikte görülme gösterir.",
         ],
@@ -2139,7 +2148,7 @@ def _zip(files: dict[str, bytes]) -> bytes:
     return buffer.getvalue()
 
 
-def _chart_sql(spec: dict, m: dict, locale: str) -> dict:
+def _chart_sql(spec: dict, m: dict, locale: str, filters: dict | None = None, include_service: bool = False) -> dict:
     """SQL for an exported chart, shared verbatim by analysis.py and analysis.sql.
 
     ``scope`` sets the chart's date window from the dataset range, the --start/--end filters and the spec;
@@ -2150,6 +2159,7 @@ def _chart_sql(spec: dict, m: dict, locale: str) -> dict:
     from analysis.chart_studio import _BUCKET, _BUCKET_NOTE, _BUCKET_NOTE_TR, _RANK
 
     v = L[locale]["v"]
+    filters = filters or {}
     dim, metric, statistic = spec["dimension"], spec["metric"], spec["statistic"]
     time_axis = dim in ("month", "week")
     starts = [f"DATE {_literal(m['start'])}", "getvariable('start_date')::DATE"]
@@ -2160,6 +2170,38 @@ def _chart_sql(spec: dict, m: dict, locale: str) -> dict:
              f"SET VARIABLE chart_end = least({', '.join(ends)})")
 
     where = ["order_date BETWEEN getvariable('chart_start') AND getvariable('chart_end')"]
+    if dim == "product" and not include_service:
+        where.append(PRODUCTS_ONLY)
+    groups_cte, source = "", "sales"
+    if dim == "country_group":
+        # Membership is fixed when the bundle is made (at the end of the exported scope, or today), and written
+        # out as literals, so the script never needs the reference file.
+        from analysis import reference
+
+        end = min(d for d in [m["end"], filters.get("end"), spec["end"]] if d)
+        unmatched = _literal(reference.bucket_label(spec["group"], "unmatched", locale))
+        if spec["group_as_of"] == "transaction":
+            # Membership by date (AW-22): each order takes the bucket valid on its own date.
+            start = max(d for d in [m["start"], filters.get("start"), spec["start"]] if d)
+            spans = reference.spans(spec["group"], m["countries"], start, end, locale)
+            rows = ",\n        ".join(
+                f"({_literal(c)}, {_literal(reference.bucket_label(spec['group'], b, locale))}, DATE {_literal(a)}, DATE {_literal(z)})"
+                for c, b, a, z, _ in sorted(spans))
+            groups_cte = (f"country_groups AS (\n    -- {spec['group']} membership on each order's date"
+                          f" ({reference.card(spec['group'], locale)['source']})\n"
+                          f"    SELECT * FROM (VALUES\n        {rows}\n    ) AS g(member_country, bucket, valid_from, valid_to)\n),\n")
+            source = ("sales LEFT JOIN country_groups AS g\n"
+                      "        ON g.member_country = country AND order_date BETWEEN g.valid_from AND g.valid_to")
+        else:
+            on = reference.resolve_as_of(spec["group_as_of"], end)
+            mapping = reference.classify(spec["group"], m["countries"], on, locale)
+            rows = ",\n        ".join(f"({_literal(c)}, {_literal(reference.bucket_label(spec['group'], mapping[c]['bucket'], locale))})"
+                                       for c in sorted(mapping))
+            groups_cte = (f"country_groups AS (\n    -- {spec['group']} membership on {on.isoformat()}"
+                          f" ({reference.card(spec['group'], locale)['source']})\n"
+                          f"    SELECT * FROM (VALUES\n        {rows}\n    ) AS g(country, bucket)\n),\n")
+            source = "sales LEFT JOIN country_groups AS g USING (country)"
+        bucket_sql = f"COALESCE(g.bucket, {unmatched})"
     if spec["countries"]:
         where.append("country IN (" + ", ".join(_literal(c) for c in spec["countries"]) + ")")
     if spec["exclude_countries"]:
@@ -2167,16 +2209,17 @@ def _chart_sql(spec: dict, m: dict, locale: str) -> dict:
     series = "country" if spec["split_by_country"] else "'all'"
     product = dim == "product"
     note = (_BUCKET_NOTE_TR if locale == "tr" else _BUCKET_NOTE)[dim]
+    bucket = bucket_sql if dim == "country_group" else _BUCKET[dim]
     order_totals = (
         f"    -- {v['orders']}\n"
         "    SELECT\n"
-        f"        {_BUCKET[dim]} AS x,  -- {note}\n"
+        f"        {bucket} AS x,  -- {note}\n"
         f"        {series} AS series,\n"
         "        invoice,\n"
         + ("        MIN(product) AS label,\n" if product else "")
         + "        SUM(line_pence) AS order_pence,\n"
         "        SUM(quantity) AS order_units\n"
-        "    FROM sales\n"
+        f"    FROM {source}\n"
         "    WHERE " + "\n      AND ".join(where) + "\n"
         "    GROUP BY x, series, invoice"
     )
@@ -2240,11 +2283,11 @@ def _chart_sql(spec: dict, m: dict, locale: str) -> dict:
     else:
         value = {"gross_sales": "SUM(order_pence) / 100.0", "orders": "COUNT(*)::DOUBLE",
                  "units": "SUM(order_units)::DOUBLE", "aov": "SUM(order_pence) / COUNT(*) / 100.0"}[metric]
-        ranked = dim in ("country", "product")
+        ranked = dim in ("country", "product", "country_group")
         rank = f"{_RANK[metric]} DESC, x" if ranked else "x"
         view = (
             "CREATE OR REPLACE TEMP VIEW chart_buckets AS\n"
-            "WITH order_totals AS (\n" + order_totals + "\n)\n"
+            "WITH " + groups_cte + "order_totals AS (\n" + order_totals + "\n)\n"
             "SELECT\n"
             f"    row_number() OVER (ORDER BY {rank}) AS bucket_order,  -- "
             + (v["rank"].format(n=spec["top_n"]) if ranked else v["weekday"]) + "\n"
@@ -2258,7 +2301,7 @@ def _chart_sql(spec: dict, m: dict, locale: str) -> dict:
             f"    {value} AS value{value_note}\n"
             "FROM order_totals\n"
             "GROUP BY x, series"
-            + (f"\nQUALIFY bucket_order <= {int(spec['top_n'])}" if ranked else "")
+            + (f"\nQUALIFY bucket_order <= {int(spec['top_n'])}" if dim in ("country", "product") else "")
         )
         order = "bucket_order"
         columns = "x, series, label, pence, orders, units" if product else "x, series, pence, orders, units"
@@ -2327,19 +2370,29 @@ def _chart_sql(spec: dict, m: dict, locale: str) -> dict:
     return {"scope": scope, "view": view, "queries": queries}
 
 
-def _chart_bundle(spec_obj, m: dict, locale: str, filters: dict) -> dict:
+def _chart_bundle(spec_obj, m: dict, locale: str, filters: dict, include_service: bool = False) -> dict:
     from analysis.chart_studio import scope_text, validate_spec, _T as chart_text
 
     warnings: list[str] = []
     spec = validate_spec(spec_obj, m, locale=locale, warnings=warnings)
+    if spec.pop("transform", None):
+        # A money transform (AW-20) is not reproduced by the exported scripts yet: the bundle is the same chart in
+        # GBP and says so, rather than a converted chart whose numbers the scripts could not recompute.
+        warnings.append("Kod paketi dönüşümsüz (GBP) grafiği içerir; kur, enflasyon ve altın dönüşümü pakete henüz "
+                        "aktarılmıyor." if locale == "tr" else
+                        "The bundle contains the chart in GBP without the transform; currency, inflation and gold "
+                        "transforms are not exported yet.")
+    from analysis import reference
+
+    group = reference.card(spec["group"], locale)["label"] if spec["dimension"] == "country_group" else ""
     title = chart_text[locale]["title"][spec["dimension"]].format(m=chart_text[locale]["metric"][spec["metric"]],
-                                                                  n=spec["top_n"])
+                                                                  n=spec["top_n"], g=group)
     title = title[:1].upper() + title[1:]
     if spec["countries"] or spec["exclude_countries"]:
         title += " · " + scope_text(spec, filters.get("country"), locale)
     overlay_label = L[locale]["overlay"][spec["statistic"]].format(w=spec["window"])
     return {"spec": spec, "title": title, "overlay_label": overlay_label, "warnings": warnings,
-            **_chart_sql(spec, m, locale)}
+            **_chart_sql(spec, m, locale, filters, include_service)}
 
 
 def export_code(request: dict) -> dict:
@@ -2350,7 +2403,10 @@ def export_code(request: dict) -> dict:
     kind = request.get("format", "bundle")
     if kind not in FORMATS:
         raise ValueError("Geçersiz dışa aktarım biçimi." if locale == "tr" else "Invalid export format.")
-    chart = _chart_bundle(request["chart"], m, locale, clean) if request.get("chart") is not None else None
+    from analysis.scope import include_service
+
+    chart = (_chart_bundle(request["chart"], m, locale, clean, include_service(request))
+             if request.get("chart") is not None else None)
     engine = duckdb.__version__
     analysis_py = _analysis_source(locale, clean, chart)
     analysis_sql = _sql_source(locale, m, clean, chart, engine)

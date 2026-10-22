@@ -1,0 +1,119 @@
+{
+ "version": "llm-eval-v3.0",
+ "generated_at": "2026-10-17T21:55:00Z",
+ "model": "GPT-OSS 20B · Groq",
+ "tasks": {
+  "chart_groups": {
+   "local": {
+    "label": "MEASURED",
+    "blocked": null,
+    "summary": {
+     "n": 12,
+     "answered": 12,
+     "correct": 12,
+     "accuracy": 1.0,
+     "tokens": null,
+     "median_latency_ms": null
+    },
+    "records": [
+     {
+      "id": "g01",
+      "prompt": "ülkeleri nato ülkeleri veya nato dışı diye sınıflandırıp satışlarımızı incele % kaçı nato ülkeleri % kaçı dışında onu bir grafik yap",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 3,
+      "fields": 3
+     },
+     {
+      "id": "g02",
+      "prompt": "NATO üyesi olan ve olmayan ülkelerin sipariş payı",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 3,
+      "fields": 3
+     },
+     {
+      "id": "g03",
+      "prompt": "share of sales from NATO members, using today's membership",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 3,
+      "fields": 3
+     },
+     {
+      "id": "g04",
+      "prompt": "AB içi ve AB dışı satış",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "g05",
+      "prompt": "EU vs non-EU revenue",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "g06",
+      "prompt": "euro bölgesindeki müşterilerden gelen ciro payı",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "g07",
+      "prompt": "how much comes from the euro area",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "g08",
+      "prompt": "G7 ülkeleri ve diğerleri",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "g09",
+      "prompt": "OECD members versus others, units sold",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 3,
+      "fields": 3
+     },
+     {
+      "id": "g10",
+      "prompt": "kıtalara göre satış dağılımı",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "g11",
+      "prompt": "bugünkü üyeliğe göre göster",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "g12",
+      "prompt": "AB'ye göre yap",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     }
+    ]
+   }
+  }
+ }
+}

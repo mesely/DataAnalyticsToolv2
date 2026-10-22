@@ -1,0 +1,131 @@
+{
+ "version": "llm-routing-v2",
+ "rule": {
+  "margin": 0.03,
+  "alpha": 0.05,
+  "test": "exact McNemar on paired held-out cases",
+  "rescue_rate": 0.6,
+  "rescue_min": 3,
+  "split": "frozen test (analysis/evals/data)"
+ },
+ "tasks": {
+  "chart_plan": {
+   "local_method": "local",
+   "local_accuracy": 0.9231,
+   "n": 104,
+   "receipt": "docs/evals/results/routing-chart-test-*.json",
+   "measured_at": "2026-10-22T18:58:06+00:00",
+   "candidates": {},
+   "method": "local",
+   "why": "no model answered every held-out case (quota or not run)"
+  },
+  "decision_focus": {
+   "method": "local",
+   "why": "no local equivalent to compare against; the checklist ranking stays the reference",
+   "receipt": "docs/evidence/verification/phase12-llm-eval-groq.json"
+  },
+  "decision_narrative": {
+   "method": "local",
+   "local_accuracy": 1.0,
+   "model_accuracy": 0.3333333333333333,
+   "why": "model narrative accepted by the validator 1/3",
+   "receipt": "docs/evidence/verification/phase12-llm-eval-groq.json"
+  },
+  "network_question": {
+   "method": "local",
+   "local_accuracy": 0.88,
+   "model_accuracy": null,
+   "n": 25,
+   "why": "model not measured yet; local 22/25 on the v3.1 network set (not independent)",
+   "receipt": "docs/evidence/verification/phase13-network-local.json"
+  },
+  "studio_route": {
+   "local_method": "learned",
+   "local_accuracy": 0.9457,
+   "n": 129,
+   "receipt": "docs/evals/results/routing-studio-test-*.json",
+   "measured_at": "2026-10-22T18:58:06+00:00",
+   "candidates": {
+    "gpt-oss-20b": {
+     "accuracy": 0.8837,
+     "p_value": 0.1338,
+     "rescued": 7,
+     "lost": 15,
+     "latency_p50_ms": 472.85,
+     "tokens": 47719,
+     "n": 129
+    },
+    "gpt-oss-120b": {
+     "accuracy": 0.9457,
+     "p_value": 1.0,
+     "rescued": 7,
+     "lost": 7,
+     "latency_p50_ms": 404.08,
+     "tokens": 48510,
+     "n": 129
+    },
+    "qwen3.8-27b": {
+     "accuracy": 0.938,
+     "p_value": 1.0,
+     "rescued": 7,
+     "lost": 8,
+     "latency_p50_ms": 288.56,
+     "tokens": 33947,
+     "n": 129
+    }
+   },
+   "model": "GPT-OSS 120B · Groq",
+   "model_id": "openai/gpt-oss-120b",
+   "model_accuracy": 0.9457,
+   "p_value": 1.0,
+   "method": "local",
+   "why": "local is as good as or better than every model"
+  },
+  "question_intent": {
+   "local_method": "rules",
+   "local_accuracy": 0.9278,
+   "n": 97,
+   "receipt": "docs/evals/results/routing-intent-test-*.json",
+   "measured_at": "2026-10-22T18:58:06+00:00",
+   "candidates": {
+    "gpt-oss-20b": {
+     "accuracy": 0.9175,
+     "p_value": 1.0,
+     "rescued": 5,
+     "lost": 6,
+     "latency_p50_ms": 536.65,
+     "tokens": 48915,
+     "n": 97
+    },
+    "gpt-oss-120b": {
+     "accuracy": 0.9691,
+     "p_value": 0.3438,
+     "rescued": 7,
+     "lost": 3,
+     "latency_p50_ms": 471.71,
+     "tokens": 50494,
+     "n": 97
+    },
+    "qwen3.8-27b": {
+     "accuracy": 0.9897,
+     "p_value": 0.0703,
+     "rescued": 7,
+     "lost": 1,
+     "latency_p50_ms": 317.86,
+     "tokens": 40153,
+     "n": 97
+    }
+   },
+   "model": "Qwen3.8 27B · Groq",
+   "model_id": "qwen/qwen3.8-27b",
+   "model_accuracy": 0.9897,
+   "p_value": 0.07031,
+   "method": "local_then_model",
+   "tau": 0.5,
+   "hybrid_accuracy": 0.9691,
+   "model_call_rate": 0.0722,
+   "hybrid_p_value": 0.125,
+   "why": "local when its confidence >= 0.5 (chosen on val: 87.0 -> 100.0 %), the model otherwise; test 96.9 % with the model on 7 % of questions"
+  }
+ }
+}

@@ -108,7 +108,11 @@ def test_validate_spec_coercions_and_warnings():
     assert validate_spec({"chart": "bar", "sort": "value_desc"}, UCI)["sort"] == "value_desc"
     assert validate_spec({}, UCI) == default_spec()
     assert validate_spec({"countries": ["France", "France"]}, UCI)["countries"] == ["France"]
-    assert list(validate_spec({}, UCI)) == list(SPEC_KEYS)
+    # group/group_as_of exist only on a country_group chart (AW-19), transform only on a converted money chart (AW-20);
+    # every other spec has the v1 keys in order.
+    assert list(validate_spec({}, UCI)) == [k for k in SPEC_KEYS if k not in ("group", "group_as_of", "transform")]
+    assert list(validate_spec({"dimension": "country_group"}, UCI)) == [k for k in SPEC_KEYS if k != "transform"]
+    assert list(validate_spec({"dimension": "country_group", "transform": {"currency": "TRY"}}, UCI)) == list(SPEC_KEYS)
 
 
 # ------------------------------------------------------------------------------------------ planner
@@ -412,32 +416,82 @@ def test_llm_injection_never_reaches_the_model():
     assert result["status"] == "blocked" and model.calls == []
 
 
+def _fake_settings(**_):  # accepts the per-task model selector (task=...)
+    from analysis.adapted.providers import ProviderSettings
+
+    return ProviderSettings(provider="huggingface", hf_api_key="fake", max_tokens=100)
+
+
+def _route(monkeypatch, method, blocked=None):
+    """Pin the routing table and availability (v3 G6): no checkbox, the table decides."""
+    monkeypatch.setattr("analysis.llm_routing.entry", lambda task: {"method": method, "why": "test"})
+    monkeypatch.setattr("analysis.llm_routing.availability", lambda: blocked)
+
+
 def test_chart_falls_back_to_local_planner(monkeypatch):
     from analysis.adapted.providers import ProviderSettings
 
     seen = {}
-    monkeypatch.setattr("analysis.llm.configuration", lambda: ProviderSettings(provider="huggingface", hf_api_key="fake", max_tokens=100))
+    _route(monkeypatch, "model")
+    monkeypatch.setattr("analysis.llm.configuration", lambda **_: ProviderSettings(provider="huggingface", hf_api_key="fake", max_tokens=100))
 
     def build(cfg):
         seen["max_tokens"] = cfg.max_tokens
         return FakeChat("I would chart weekly orders. SELECT 1")
 
     monkeypatch.setattr("analysis.llm.build_chat_model", build)
-    r = chart({"dataset": "uci", "prompt": "haftalık sipariş", "use_llm": True, "locale": "tr"})
+    r = chart({"dataset": "uci", "prompt": "haftalık sipariş", "locale": "tr"})
     assert seen["max_tokens"] == 300
     assert r["planner"]["source"] == "local" and r["planner"]["status"] == "planned"
     assert r["planner"]["fallback"]["status"] == "invalid_plan" and "Dil modeli" in r["planner"]["note"]
+    assert r["planner"]["routing"]["used"] == "local" and r["planner"]["routing"]["fallback"] == "invalid_plan"
     assert r["spec"]["dimension"] == "week" and r["spec"]["metric"] == "orders"
 
     monkeypatch.setattr("analysis.llm.build_chat_model", lambda cfg: FakeChat(VALID))
-    ok = chart({"dataset": "uci", "prompt": "haftalık sipariş", "use_llm": True})
+    ok = chart({"dataset": "uci", "prompt": "haftalık sipariş"})
     assert ok["planner"]["source"] == "model" and ok["planner"]["changes"]
+    assert ok["planner"]["routing"] == {**ok["planner"]["routing"], "task": "chart_plan", "method": "model", "used": "model"}
     assert ok["output_sha256"] == r["output_sha256"]  # same spec, same locally computed numbers
 
-    monkeypatch.setattr("analysis.llm.configuration", lambda: None)
-    off = chart({"dataset": "uci", "prompt": "weekly orders", "use_llm": True, "locale": "en"})
-    assert off["planner"]["source"] == "local" and off["planner"]["fallback"]["error_code"] == "not_configured"
-    assert "not configured" in off["planner"]["note"]
+    # An explicit use_llm=False (benchmarks, evaluations) always stays local.
+    forced = chart({"dataset": "uci", "prompt": "haftalık sipariş", "use_llm": False})
+    assert forced["planner"]["source"] == "local" and "fallback" not in forced["planner"]
+
+    # No provider, an administrator's local-only policy or a spent daily budget: local, and the receipt says why.
+    _route(monkeypatch, "model", blocked="not_configured")
+    off = chart({"dataset": "uci", "prompt": "weekly orders", "locale": "en"})
+    assert off["planner"]["source"] == "local" and off["planner"]["routing"]["unavailable"] == "not_configured"
+
+
+def test_local_then_model_asks_only_when_the_local_planner_cannot(monkeypatch):
+    calls = []
+    _route(monkeypatch, "local_then_model")
+
+    def build(cfg):
+        calls.append(1)
+        return FakeChat(VALID)
+
+    monkeypatch.setattr("analysis.llm.configuration", _fake_settings)
+    monkeypatch.setattr("analysis.llm.build_chat_model", build)
+    planned = chart({"dataset": "uci", "prompt": "haftalık sipariş"})
+    assert planned["planner"]["source"] == "local" and calls == []
+    unplanned = chart({"dataset": "uci", "prompt": "bunu biraz daha güzel yap"})
+    assert calls == [1] and unplanned["planner"]["routing"]["used"] == "model"
+
+
+def test_validated_model_plans_are_cached(monkeypatch):
+    calls = []
+    _route(monkeypatch, "model")
+
+    def build(cfg):
+        calls.append(1)
+        return FakeChat(VALID)
+
+    monkeypatch.setattr("analysis.llm.configuration", _fake_settings)
+    monkeypatch.setattr("analysis.llm.build_chat_model", build)
+    a = chart({"dataset": "uci", "prompt": "haftalık sipariş"})
+    b = chart({"dataset": "uci", "prompt": "haftalık sipariş"})
+    assert calls == [1] and a["output_sha256"] == b["output_sha256"] and b["planner"]["source"] == "model"
 
 
 def test_prompt_limit_determinism_and_dispatch():

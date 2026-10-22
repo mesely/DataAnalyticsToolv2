@@ -1,0 +1,1250 @@
+{
+ "version": "llm-eval-v3.0",
+ "generated_at": "2026-10-17T21:32:56Z",
+ "model": "GPT-OSS 20B · Groq",
+ "tasks": {
+  "chart_plan": {
+   "local": {
+    "label": "MEASURED",
+    "blocked": null,
+    "summary": {
+     "n": 60,
+     "answered": 60,
+     "correct": 49,
+     "accuracy": 0.8166666666666667,
+     "tokens": null,
+     "median_latency_ms": null
+    },
+    "records": [
+     {
+      "id": "h01",
+      "prompt": "ülke ülke kaç sipariş gelmiş",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h02",
+      "prompt": "en çok satan 8 ürün",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h03",
+      "prompt": "en fazla adet satılan 10 ürünü göster",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 3,
+      "fields": 3
+     },
+     {
+      "id": "h04",
+      "prompt": "haftalara göre sipariş",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h05",
+      "prompt": "haftanın günlerine göre satış",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h06",
+      "prompt": "ortalama fatura tutarı aylık",
+      "raw_status": "planned",
+      "correct": false,
+      "field_hits": 1,
+      "fields": 2
+     },
+     {
+      "id": "h07",
+      "prompt": "son 3 ay",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h08",
+      "prompt": "Ocak-Mart 2011 arası",
+      "raw_status": "planned",
+      "correct": false,
+      "field_hits": 1,
+      "fields": 2
+     },
+     {
+      "id": "h09",
+      "prompt": "2011'in ilk çeyreği",
+      "raw_status": "planned",
+      "correct": false,
+      "field_hits": 1,
+      "fields": 2
+     },
+     {
+      "id": "h10",
+      "prompt": "Haziran 2011",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h11",
+      "prompt": "Hollanda ve Avustralya'yı kıyasla",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h12",
+      "prompt": "İspanya, İtalya ve Portekiz'i ayrı ayrı göster",
+      "raw_status": "planned",
+      "correct": false,
+      "field_hits": 1,
+      "fields": 2
+     },
+     {
+      "id": "h13",
+      "prompt": "sadece Almanya",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h14",
+      "prompt": "Birleşik Krallık hariç ülkeler",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h15",
+      "prompt": "İrlanda ve İngiltere dışındaki ülkelerde sipariş",
+      "raw_status": "planned",
+      "correct": false,
+      "field_hits": 2,
+      "fields": 3
+     },
+     {
+      "id": "h16",
+      "prompt": "çizgi yerine sütun grafik",
+      "raw_status": "no_change",
+      "correct": false,
+      "field_hits": 0,
+      "fields": 1
+     },
+     {
+      "id": "h17",
+      "prompt": "alan grafiği olsun",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h18",
+      "prompt": "büyükten küçüğe sırala",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h19",
+      "prompt": "küçükten büyüğe sırala",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h20",
+      "prompt": "6 aylık hareketli ortalama",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h21",
+      "prompt": "eğilim çizgisi çek",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h22",
+      "prompt": "ortalama sepete güven aralığı koy",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h23",
+      "prompt": "kontrol sınırlarını ekle",
+      "raw_status": "no_change",
+      "correct": false,
+      "field_hits": 0,
+      "fields": 1
+     },
+     {
+      "id": "h24",
+      "prompt": "istatistiği kaldır",
+      "raw_status": "no_change",
+      "correct": false,
+      "field_hits": 0,
+      "fields": 1
+     },
+     {
+      "id": "h25",
+      "prompt": "Fransa'yı çıkar",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h26",
+      "prompt": "İtalya'yı da ekle",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h27",
+      "prompt": "tüm dönem",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h28",
+      "prompt": "adet olarak göster",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h29",
+      "prompt": "ilk 15",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h30",
+      "prompt": "sipariş sayısını haftalık ver",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h31",
+      "prompt": "number of orders per country",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h32",
+      "prompt": "best 7 products by revenue",
+      "raw_status": "planned",
+      "correct": false,
+      "field_hits": 2,
+      "fields": 3
+     },
+     {
+      "id": "h33",
+      "prompt": "units sold by weekday",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h34",
+      "prompt": "average order value per month",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h35",
+      "prompt": "last 3 months",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h36",
+      "prompt": "first quarter of 2011",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h37",
+      "prompt": "June 2011 only",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h38",
+      "prompt": "Netherlands vs Australia",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h39",
+      "prompt": "show Spain, Italy and Portugal side by side",
+      "raw_status": "planned",
+      "correct": false,
+      "field_hits": 1,
+      "fields": 2
+     },
+     {
+      "id": "h40",
+      "prompt": "sales by country without the UK",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h41",
+      "prompt": "make it a bar chart",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h42",
+      "prompt": "area chart please",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h43",
+      "prompt": "sort descending",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h44",
+      "prompt": "6-month rolling average",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h45",
+      "prompt": "fit a trend line",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h46",
+      "prompt": "95% confidence interval on average order value",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h47",
+      "prompt": "add control limits",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h48",
+      "prompt": "remove the statistic",
+      "raw_status": "no_change",
+      "correct": false,
+      "field_hits": 0,
+      "fields": 1
+     },
+     {
+      "id": "h49",
+      "prompt": "drop France",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h50",
+      "prompt": "also add Italy",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h51",
+      "prompt": "whole period",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h52",
+      "prompt": "show units instead",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h53",
+      "prompt": "top 15",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1
+     },
+     {
+      "id": "h54",
+      "prompt": "almanyaa ile fransa karşılaştırma",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h55",
+      "prompt": "son 6ayın grafiği",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h56",
+      "prompt": "Hollanda'nın aylık satışı",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2
+     },
+     {
+      "id": "h57",
+      "prompt": "weekly orders for Germany",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 3,
+      "fields": 3
+     },
+     {
+      "id": "h58",
+      "prompt": "monthly AOV for France with a 95% CI",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 4,
+      "fields": 4
+     },
+     {
+      "id": "h59",
+      "prompt": "top 10 countries by orders, excluding United Kingdom, as bars",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 5,
+      "fields": 5
+     },
+     {
+      "id": "h60",
+      "prompt": "ülkelere göre ortalama sipariş tutarı, ilk 5, büyükten küçüğe",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 4,
+      "fields": 4
+     }
+    ]
+   },
+   "live": {
+    "label": "BLOCKED",
+    "blocked": {
+     "status": "unavailable",
+     "error_code": "rate_limited",
+     "http_status": 429
+    },
+    "summary": {
+     "n": 60,
+     "answered": 19,
+     "correct": 10,
+     "accuracy": 0.5263157894736842,
+     "tokens": 17700,
+     "median_latency_ms": 474.65
+    },
+    "records": [
+     {
+      "id": "h01",
+      "prompt": "ülke ülke kaç sipariş gelmiş",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2,
+      "latency_ms": 505.09,
+      "total_tokens": 926
+     },
+     {
+      "id": "h02",
+      "prompt": "en çok satan 8 ürün",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2,
+      "latency_ms": 575.71,
+      "total_tokens": 957
+     },
+     {
+      "id": "h03",
+      "prompt": "en fazla adet satılan 10 ürünü göster",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 3,
+      "fields": 3,
+      "latency_ms": 463.73,
+      "total_tokens": 968
+     },
+     {
+      "id": "h04",
+      "prompt": "haftalara göre sipariş",
+      "raw_status": "planned",
+      "correct": false,
+      "field_hits": 1,
+      "fields": 2,
+      "latency_ms": 633.34,
+      "total_tokens": 907
+     },
+     {
+      "id": "h05",
+      "prompt": "haftanın günlerine göre satış",
+      "raw_status": "no_change",
+      "correct": false,
+      "field_hits": 0,
+      "fields": 1,
+      "latency_ms": 362.0,
+      "total_tokens": 913
+     },
+     {
+      "id": "h06",
+      "prompt": "ortalama fatura tutarı aylık",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2,
+      "latency_ms": 392.52,
+      "total_tokens": 927
+     },
+     {
+      "id": "h07",
+      "prompt": "son 3 ay",
+      "raw_status": "no_change",
+      "correct": false,
+      "field_hits": 0,
+      "fields": 2,
+      "latency_ms": 447.65,
+      "total_tokens": 911
+     },
+     {
+      "id": "h08",
+      "prompt": "Ocak-Mart 2011 arası",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2,
+      "latency_ms": 347.0,
+      "total_tokens": 944
+     },
+     {
+      "id": "h09",
+      "prompt": "2011'in ilk çeyreği",
+      "raw_status": "no_change",
+      "correct": false,
+      "field_hits": 0,
+      "fields": 2,
+      "latency_ms": 474.65,
+      "total_tokens": 924
+     },
+     {
+      "id": "h10",
+      "prompt": "Haziran 2011",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 2,
+      "fields": 2,
+      "latency_ms": 472.13,
+      "total_tokens": 954
+     },
+     {
+      "id": "h11",
+      "prompt": "Hollanda ve Avustralya'yı kıyasla",
+      "raw_status": "planned",
+      "correct": false,
+      "field_hits": 1,
+      "fields": 2,
+      "latency_ms": 569.24,
+      "total_tokens": 945
+     },
+     {
+      "id": "h12",
+      "prompt": "İspanya, İtalya ve Portekiz'i ayrı ayrı göster",
+      "raw_status": "planned",
+      "correct": false,
+      "field_hits": 1,
+      "fields": 2,
+      "latency_ms": 1406.75,
+      "total_tokens": 957
+     },
+     {
+      "id": "h13",
+      "prompt": "sadece Almanya",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1,
+      "latency_ms": 301.04,
+      "total_tokens": 909
+     },
+     {
+      "id": "h14",
+      "prompt": "Birleşik Krallık hariç ülkeler",
+      "raw_status": "planned",
+      "correct": false,
+      "field_hits": 1,
+      "fields": 2,
+      "latency_ms": 581.36,
+      "total_tokens": 937
+     },
+     {
+      "id": "h15",
+      "prompt": "İrlanda ve İngiltere dışındaki ülkelerde sipariş",
+      "raw_status": "planned",
+      "correct": false,
+      "field_hits": 2,
+      "fields": 3,
+      "latency_ms": 496.95,
+      "total_tokens": 982
+     },
+     {
+      "id": "h16",
+      "prompt": "çizgi yerine sütun grafik",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1,
+      "latency_ms": 267.27,
+      "total_tokens": 907
+     },
+     {
+      "id": "h17",
+      "prompt": "alan grafiği olsun",
+      "raw_status": "no_change",
+      "correct": false,
+      "field_hits": 0,
+      "fields": 1,
+      "latency_ms": 285.02,
+      "total_tokens": 896
+     },
+     {
+      "id": "h18",
+      "prompt": "büyükten küçüğe sırala",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1,
+      "latency_ms": 476.71,
+      "total_tokens": 918
+     },
+     {
+      "id": "h19",
+      "prompt": "küçükten büyüğe sırala",
+      "raw_status": "planned",
+      "correct": true,
+      "field_hits": 1,
+      "fields": 1,
+      "latency_ms": 494.1,
+      "total_tokens": 918
+     },
+     {
+      "id": "h20",
+      "prompt": "6 aylık hareketli ortalama",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h21",
+      "prompt": "eğilim çizgisi çek",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h22",
+      "prompt": "ortalama sepete güven aralığı koy",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h23",
+      "prompt": "kontrol sınırlarını ekle",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h24",
+      "prompt": "istatistiği kaldır",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h25",
+      "prompt": "Fransa'yı çıkar",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h26",
+      "prompt": "İtalya'yı da ekle",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h27",
+      "prompt": "tüm dönem",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h28",
+      "prompt": "adet olarak göster",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h29",
+      "prompt": "ilk 15",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h30",
+      "prompt": "sipariş sayısını haftalık ver",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h31",
+      "prompt": "number of orders per country",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h32",
+      "prompt": "best 7 products by revenue",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 3,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h33",
+      "prompt": "units sold by weekday",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h34",
+      "prompt": "average order value per month",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h35",
+      "prompt": "last 3 months",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h36",
+      "prompt": "first quarter of 2011",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h37",
+      "prompt": "June 2011 only",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h38",
+      "prompt": "Netherlands vs Australia",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h39",
+      "prompt": "show Spain, Italy and Portugal side by side",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h40",
+      "prompt": "sales by country without the UK",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h41",
+      "prompt": "make it a bar chart",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h42",
+      "prompt": "area chart please",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h43",
+      "prompt": "sort descending",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h44",
+      "prompt": "6-month rolling average",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h45",
+      "prompt": "fit a trend line",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h46",
+      "prompt": "95% confidence interval on average order value",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h47",
+      "prompt": "add control limits",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h48",
+      "prompt": "remove the statistic",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h49",
+      "prompt": "drop France",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h50",
+      "prompt": "also add Italy",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h51",
+      "prompt": "whole period",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h52",
+      "prompt": "show units instead",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h53",
+      "prompt": "top 15",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 1,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h54",
+      "prompt": "almanyaa ile fransa karşılaştırma",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h55",
+      "prompt": "son 6ayın grafiği",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h56",
+      "prompt": "Hollanda'nın aylık satışı",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 2,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h57",
+      "prompt": "weekly orders for Germany",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 3,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h58",
+      "prompt": "monthly AOV for France with a 95% CI",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 4,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h59",
+      "prompt": "top 10 countries by orders, excluding United Kingdom, as bars",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 5,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     },
+     {
+      "id": "h60",
+      "prompt": "ülkelere göre ortalama sipariş tutarı, ilk 5, büyükten küçüğe",
+      "raw_status": "BLOCKED",
+      "correct": null,
+      "field_hits": null,
+      "fields": 4,
+      "blocked": {
+       "status": "unavailable",
+       "error_code": "rate_limited",
+       "http_status": 429
+      }
+     }
+    ],
+    "note": "Groq free tier: tokens per day (TPD) 200000 reached after 19 cases (Used 199443). The remaining 41 cases are BLOCKED, not inferred."
+   },
+   "paired_on_model_answered": {
+    "n": 19,
+    "local_correct": 13,
+    "model_correct": 10
+   }
+  }
+ }
+}

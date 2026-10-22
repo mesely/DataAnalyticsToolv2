@@ -71,6 +71,7 @@ export function TemporalView({
   minimum,
   activity,
   asDialog = false,
+  includeService = false,
 }: {
   data: Dataset;
   filters: Filters;
@@ -80,6 +81,8 @@ export function TemporalView({
   activity: (delta: number) => void;
   /** Rendered inside a modal dialog: the body only, without the collapsible panel. */
   asDialog?: boolean;
+  /** Count postage, fees and adjustments as products (v3 G5); the overview's setting. */
+  includeService?: boolean;
 }) {
   const { t, locale } = useLocale(),
     [month, setMonth] = useState(middleMonth(data)),
@@ -106,7 +109,7 @@ export function TemporalView({
     setMonth(middleMonth(data));
     setResult(null);
     setError("");
-  }, [data.id, scope, minimum]);
+  }, [data.id, scope, minimum, includeService]);
   function invalidate() {
     version.current++;
     setResult(null);
@@ -126,6 +129,7 @@ export function TemporalView({
           month,
           window: windowMonths,
           min_shared: minimum,
+          include_service: includeService,
         },
         csrf,
       );
@@ -172,10 +176,15 @@ export function TemporalView({
         </p>
         {(data.id === "uci" || data.id === "uci2") && (
           <div className="wb-callout">
-            {t(
-              "UCI verisinde kargo, hizmet ve Manual gibi fatura kalemleri de korunur. Ürün/hizmet sınıflaması yapılmadan fiziksel ürün ilişkisi olarak yorumlamayın.",
-              "UCI retains postage, service and Manual invoice lines. Interpret physical-product relationships only after product/service classification.",
-            )}
+            {includeService
+              ? t(
+                  "Kargo, Manual, ücret ve düzeltme kalemleri ürün olarak dahil; ağ ve yoğunlaşma bunları da içerir.",
+                  "Postage, manual, fee and adjustment lines are counted as products; the networks and concentration include them.",
+                )
+              : t(
+                  "Kargo, Manual, ücret ve düzeltme kalemleri ürün sayılmaz: ürün evreni, ağ ve yoğunlaşma (HHI) bunlarsız; dönem satışı ve ortalama sipariş bunları içerir.",
+                  "Postage, manual, fee and adjustment lines are not products here: the product universe, networks and concentration (HHI) leave them out; period sales and average order include them.",
+                )}
           </div>
         )}
         <form

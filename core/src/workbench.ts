@@ -302,6 +302,7 @@ export function registerWorkbench(
           month: b.month,
           window: b.window ?? 1,
           min_shared: b.min_shared ?? 2,
+          include_service: b.include_service === true,
         });
         await audit(v.identity.subject, v.identity.roles, "temporal", {
           dataset: b.dataset,
@@ -435,6 +436,99 @@ export function registerWorkbench(
       }
     });
   });
+  // v3 G3: the overview's data table — rows or a summary, sorted, filtered and paged; downloads; "ask the table".
+  // Column names and operators are validated by analysis/table.py against allowlists; values are bound parameters.
+  const TABLE_KEYS = ["view", "group_by", "filters_table", "sort", "page", "page_size", "include_service"] as const;
+  const tableBody = (b: Obj) =>
+    Object.fromEntries(TABLE_KEYS.filter((k) => b[k] !== undefined).map((k) => [k, b[k]]));
+  for (const [path, action] of [
+    ["/table", "table"],
+    ["/table/export", "table_export"],
+    ["/table/ask", "table_ask"],
+  ] as const) {
+    app.post(BASE + path, async (req, reply) => {
+      const v = await viewer(req, reply, true);
+      if (!v) return;
+      const b = (req.body || {}) as Obj;
+      if (typeof b.dataset !== "string" || !(await permitted(v.identity.subject, b.dataset)))
+        return reply.code(404).send({ error: "not_found" });
+      if (action === "table_ask" && (typeof b.prompt !== "string" || !b.prompt.trim() || b.prompt.length > 500))
+        return reply.code(400).send({ error: "input_limit", detail: "Soru 1–500 karakter olmalı." });
+      return bounded(v.identity.subject, reply, async () => {
+        try {
+          const result = (await analysisWorker(
+            {
+              action,
+              dataset: b.dataset,
+              filters: b.filters || {},
+              locale: b.locale === "en" ? "en" : "tr",
+              ...tableBody(b),
+              ...(action === "table_export"
+                ? { format: b.format, columns: b.columns, labels: b.labels }
+                : {}),
+              ...(action === "table_ask" ? { prompt: b.prompt } : {}),
+            },
+            // A download carries the file as base64 (≤ 500,000 cells).
+            action === "table_export" ? 12_000_000 : 5_000_000,
+          )) as Obj;
+          if (action === "table_export")
+            await audit(v.identity.subject, v.identity.roles, "export_table", {
+              dataset: b.dataset,
+              format: b.format,
+              rows: result.rows,
+              sha256: result.sha256,
+            });
+          return result;
+        } catch (e) {
+          reply.code(400);
+          return { error: "table_refused", detail: (e as Error).message };
+        }
+      });
+    });
+  }
+  // v3 G2: a question about the relationship network, answered on the network the analyst is looking at.
+  app.post(BASE + "/network/ask", async (req, reply) => {
+    const v = await viewer(req, reply, true);
+    if (!v) return;
+    const b = (req.body || {}) as Obj;
+    if (typeof b.dataset !== "string" || !(await permitted(v.identity.subject, b.dataset)))
+      return reply.code(404).send({ error: "not_found" });
+    if (typeof b.question !== "string" || !b.question.trim() || b.question.length > 500)
+      return reply.code(400).send({ error: "input_limit", detail: "Soru 1–500 karakter olmalı." });
+    return bounded(v.identity.subject, reply, async () => {
+      try {
+        return await analysisWorker({
+          action: "network_ask",
+          dataset: b.dataset,
+          filters: b.filters || {},
+          locale: b.locale === "en" ? "en" : "tr",
+          question: b.question,
+          graph_mode: b.graph_mode === "similarity" ? "similarity" : "copurchase",
+          min_shared: typeof b.min_shared === "number" ? b.min_shared : 2,
+          include_service: b.include_service === true,
+        });
+      } catch (e) {
+        reply.code(400);
+        return { error: "network_question_refused", detail: (e as Error).message };
+      }
+    });
+  });
+  // v3 G8: one ask box, two studios. Wording only; no dataset is read, so no dataset permission is involved.
+  app.post(BASE + "/route", async (req, reply) => {
+    const v = await viewer(req, reply, true);
+    if (!v) return;
+    const b = (req.body || {}) as Obj;
+    if (typeof b.text !== "string" || !b.text.trim() || b.text.length > 8000)
+      return reply.code(400).send({ error: "input_limit", detail: "İstek 1–8.000 karakter olmalı." });
+    return bounded(v.identity.subject, reply, async () => {
+      try {
+        return await analysisWorker({ action: "route", text: b.text, locale: b.locale === "en" ? "en" : "tr" });
+      } catch (e) {
+        reply.code(400);
+        return { error: "route_failed", detail: (e as Error).message };
+      }
+    });
+  });
   app.post(BASE + "/run", async (req, reply) => {
     const v = await viewer(req, reply, true);
     if (!v) return;
@@ -456,7 +550,8 @@ export function registerWorkbench(
       min_shared: b.min_shared || 2,
       locale: b.locale === "en" ? "en" : "tr",
       include_graph: true,
-      use_llm: b.use_llm === true,
+      // Product views include postage, fees and adjustments only on request (analysis/scope.py, v3 G5).
+      include_service: b.include_service === true,
     };
     return bounded(subject, reply, async () => {
       try {
@@ -515,7 +610,6 @@ export function registerWorkbench(
             locale: b.locale === "en" ? "en" : "tr",
             objective: b.objective || "balanced",
             scenario: b.scenario,
-            use_llm: b.use_llm === true,
           };
           const result = (await analysisWorker({ action, ...recipe })) as Obj;
           if (action === "forecast") {
@@ -649,7 +743,6 @@ export function registerWorkbench(
           locale: b.locale === "en" ? "en" : "tr",
           prompt: b.prompt,
           base_spec: b.base_spec ?? null,
-          use_llm: b.use_llm === true,
         })) as Obj;
         await audit(v.identity.subject, v.identity.roles, "chart", {
           dataset: b.dataset,

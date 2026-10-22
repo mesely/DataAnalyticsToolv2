@@ -65,7 +65,7 @@ def context_xml(brief):
         root,
         "scope",
         dataset_sha256=brief["dataset_sha256"],
-        metric_version="retail-v1",
+        metric_version=brief["filters"].get("definition", "retail-v1"),
         currency="GBP",
     )
     facts = ET.SubElement(root, "computed_evidence")
@@ -487,7 +487,15 @@ def decision_brief(request, overview, prediction, model=None):
         "scope_note": quality_scope,
         "provider": {"status": "not_requested"},
     }
-    if request.get("use_llm") is True:
+    from analysis import llm_routing
+
+    # v3 G6: the routing table decides; `use_llm: True` (evaluations) still asks and `use_llm: False` never does.
+    def wanted(task):
+        if request.get("use_llm") is False:
+            return False
+        return request.get("use_llm") is True or llm_routing.use_model(task)
+
+    if wanted("decision_focus"):
         brief["provider"] = select_actions(brief, model)
         if brief["provider"]["status"] == "selected":
             chosen = {a["id"] for a in brief["provider"]["actions"]}
@@ -508,13 +516,22 @@ def decision_brief(request, overview, prediction, model=None):
         "model": None,
         "provider": {"status": "not_requested"},
     }
-    if request.get("use_llm") is True:
+    if wanted("decision_narrative"):
         outcome = narrate(brief, model)
         brief["narrative"]["provider"] = {k: v for k, v in outcome.items() if k != "statements"}
         if outcome["status"] == "accepted":
             brief["narrative"]["model"] = outcome["statements"]
+    brief["routing"] = {
+        "decision_focus": llm_routing.receipt(
+            "decision_focus", "model" if brief["provider"].get("status") == "selected" else "local"
+        ),
+        "decision_narrative": llm_routing.receipt(
+            "decision_narrative", "model" if brief["narrative"]["model"] else "local"
+        ),
+    }
     brief["report_markdown"] = render_report(brief)
-    hashed = {k: v for k, v in brief.items() if k not in ("provider", "narrative")}
+    # The routing receipt depends on the deployment (provider, policy, budget), not on the data: kept out of the hash.
+    hashed = {k: v for k, v in brief.items() if k not in ("provider", "narrative", "routing")}
     hashed["provider"] = {
         k: v for k, v in brief["provider"].items() if k != "telemetry"
     }

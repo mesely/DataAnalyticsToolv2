@@ -1,0 +1,533 @@
+{
+ "local": {
+  "task": "multiturn",
+  "split": "test",
+  "method": "local",
+  "n": 18,
+  "answered": 18,
+  "accuracy": 0.7777777777777778,
+  "ci95": [
+   0.5478497354769452,
+   0.90999218086618
+  ],
+  "blocked": null,
+  "latency_ms": {
+   "p50": 1.92,
+   "p95": 3.57,
+   "p99": 8.786,
+   "mean": 2.358
+  },
+  "tokens": 0,
+  "rows": [
+   {
+    "id": "m01",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 10.09
+   },
+   {
+    "id": "m02",
+    "lang": "en",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 1.95
+   },
+   {
+    "id": "m06",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 1.99
+   },
+   {
+    "id": "m07",
+    "lang": "en",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 2.24
+   },
+   {
+    "id": "m08",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 1.68
+   },
+   {
+    "id": "m11",
+    "lang": "en",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 1.6
+   },
+   {
+    "id": "m12",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 1.79
+   },
+   {
+    "id": "m17",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "transform"
+      ]
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "transform"
+      ]
+     }
+    ],
+    "correct": false,
+    "latency_ms": 1.89
+   },
+   {
+    "id": "m21",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 2.04
+   },
+   {
+    "id": "m24",
+    "lang": "mixed",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 1.52
+   },
+   {
+    "id": "m25",
+    "lang": "en",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 1.71
+   },
+   {
+    "id": "m27",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 2.26
+   },
+   {
+    "id": "m30",
+    "lang": "en",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "transform"
+      ]
+     }
+    ],
+    "correct": false,
+    "latency_ms": 2.42
+   },
+   {
+    "id": "m35",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "end"
+      ]
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "end",
+       "chart"
+      ]
+     }
+    ],
+    "correct": false,
+    "latency_ms": 2.0
+   },
+   {
+    "id": "m36",
+    "lang": "en",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 1.8
+   },
+   {
+    "id": "m41",
+    "lang": "tr",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "start"
+      ]
+     },
+     {
+      "correct": false,
+      "wrong": [
+       "start",
+       "end"
+      ]
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": false,
+    "latency_ms": 1.68
+   },
+   {
+    "id": "m43",
+    "lang": "en",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 1.99
+   },
+   {
+    "id": "m45",
+    "lang": "mixed",
+    "turns": [
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     },
+     {
+      "correct": true,
+      "wrong": []
+     }
+    ],
+    "correct": true,
+    "latency_ms": 1.8
+   }
+  ],
+  "turn_accuracy": 0.9195402298850575
+ }
+}

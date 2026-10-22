@@ -35,8 +35,9 @@ UNSUPPORTED = _P(r"(?<![a-z])(?:kar(?:li\w*|lar\w*|i|in|imiz\w*|ini)?(?![a-z])|p
                  r"sadakat\w*|loyal\w*|lifetime value|yasam boyu deger\w*|donusum oran\w*|conversion\w*|rakip\w*|competitor\w*|"
                  r"pazar pay\w*|market share|gelecek yil\w*|next year\w*|onumuzdeki yil\w*|2012|predict\w*|"
                  r"stok seviye\w*|stock level\w*|inventory|envanter\w*|kampanya etkisi|campaign effect\w*|reklam\w*|advert\w*|"
-                 r"(?:neden|niye|nicin|why)\b.{0,40}(?:dus|azal|art|yuksel|fell|fall|drop|declin|decreas|increas|ris|grow|go(?:es)? (?:up|down))|"
-                 r"(?:dus|azal|art|fell|drop|declin)\w*.{0,30}(?:nedeni|sebeb|reason|cause)|"
+                 # causes of a change ("neden düştü", "why did sales fall") — not "neden düşülüyor" (why is it deducted)
+                 r"(?:neden|niye|nicin|why)\b.{0,40}(?:dus(?!ul)|azal|art(?!i\b)|yuksel|fell|fall|drop|declin|decreas|increas|ris|grow|go(?:es)? (?:up|down))|"
+                 r"(?:dus(?!ul)|azal|art|fell|drop|declin)\w*.{0,30}(?:nedeni|sebeb|reason|cause)|"
                  r"adet (?:bazinda|olarak|e gore) (?:sirala|en)|en cok adet|most units|units sold the most|by quantity|miktar(?:a|ca) gore sirala)")
 # Questions about definitions, methods, provenance and exclusions (answered from the context cards).
 KNOWLEDGE = _P(r"(?:nasil hesaplan\w*|nasil bulun\w*|nasil tanimlan\w*|nasil cevril\w*|nasil uygulan\w*|ne demek|ne anlama|"

@@ -99,3 +99,13 @@ def test_ranking_metrics_by_hand():
     lo, hi = M.wilson(95, 100)
     assert lo == pytest.approx(0.8882, abs=1e-3) and hi == pytest.approx(0.9785, abs=1e-3)
     assert M.mcnemar(0, 6) == pytest.approx(0.03125)
+
+
+@pytest.mark.parametrize("question,intent", [
+    ("retail-v2 nedir, AMAZON FEE neden düşülüyor?", "knowledge"),  # "why is it deducted" is not a causal question
+    ("iptaller neden düşülüyor", "knowledge"),
+    ("Satışlar neden düştü?", "unsupported"),
+    ("why did sales fall in November", "unsupported"),
+])
+def test_deducted_is_not_a_fall_in_sales(question, intent):
+    assert intents.classify(question)["intent"] == intent

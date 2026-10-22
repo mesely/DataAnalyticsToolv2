@@ -31,7 +31,7 @@ def chat(reply, code=200):
     return build_chat_model(ProviderSettings(provider="huggingface",hf_api_key="fake-test-token",max_retries=0),transport=httpx.MockTransport(transport))
 
 def test_hf_transport_numeric_claims_and_safe_telemetry(monkeypatch):
-    c=chat('{"intent":"products","scope":"current_filters"}')
+    c=chat('{"intent":"products"}')  # intent v2 (AW-24): one key
     monkeypatch.setattr("analysis.llm.build_chat_model",lambda cfg:c)
     monkeypatch.setenv("HF_TOKEN","fake-test-token")
     result=run({"dataset":"demo","use_llm":True,"include_graph":False,"locale":"en","question":"Which item brings in most revenue?"})

@@ -224,17 +224,18 @@ def test_local_answer_numeric_claims_are_scoped_and_reject_tampering():
 
 
 @pytest.mark.parametrize(
-    "question,reason",
+    "question,reason,needle",
     [
-        ("Which products are bought together?", "open_network_tool"),
-        ("Aylık satış trendi", "open_temporal_tool"),
+        ("Which products are bought together?", "computed_network", "strongest"),
+        ("Aylık satış trendi", "computed_series", "Tam aylara göre"),
     ],
 )
-def test_questions_requiring_other_tools_are_not_mislabeled_as_answered(
-    question, reason
-):
+def test_network_and_trend_questions_get_the_closest_computed_answer(question, reason, needle):
+    """AW-24: instead of "open the other tool", the assistant computes the co-purchase links or the monthly facts
+    (partial months named) and says where the full view is."""
     r = run({"dataset": "demo", "question": question, "include_graph": False})
-    assert r["answer"]["status"] == "clarify" and r["answer"]["reason"] == reason
+    assert r["answer"]["status"] == "verified" and r["answer"]["reason"] == reason
+    assert needle in r["answer"]["text"] and r["answer"]["intent"] in ("network", "temporal")
 
 
 def test_equal_rankings_have_deterministic_tie_breakers(monkeypatch, tmp_path):

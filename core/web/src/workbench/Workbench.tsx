@@ -1449,12 +1449,28 @@ function Workspace({
                             "Hesaplanan sonuçla doğrulandı",
                             "Verified against computed result",
                           )
+                        : result.answer.status === "answered"
+                        ? t("Bilgi kartından, kaynaklarıyla", "From the knowledge cards, with sources")
+                        : result.answer.citations?.length
+                        ? t("Veri bunu cevaplayamıyor: neden ve yakın analiz", "The data cannot answer this: why, and the closest analysis")
                         : t(
                             "Sınır / açıklama gerekiyor",
                             "Limit / clarification required",
                           )}
                     </div>
-                    <p>{result.answer.text}</p>
+                    {result.answer.text.split("\n\n").map((para, i) => (
+                      <p key={i}>{para}</p>
+                    ))}
+                    {result.answer.citations && result.answer.citations.length > 0 && (
+                      <ul className="wb-answer-cards" aria-label={t("Kaynak kartlar", "Source cards")}>
+                        {result.answer.citations.map((c) => (
+                          <li key={c.id} title={c.source}>
+                            <FileText size={16} />
+                            {c.title}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                     {result.planner &&
                       result.planner.status !== "planned" &&
                       result.planner.status !== "blocked" && (
@@ -1479,7 +1495,7 @@ function Workspace({
                     <div className="wb-answer-citations">
                       <button onClick={() => setModal("metrics")}>
                         <FileText size={16} />
-                        retail-v1
+                        {applied.definition ?? "retail-v1"}
                       </button>
                       <button onClick={() => setModal("evidence")}>
                         <Database size={16} />

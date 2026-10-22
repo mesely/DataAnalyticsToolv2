@@ -4939,6 +4939,24 @@
   color: var(--muted);
   font-size: 12px;
 }
+.wb .wb-answer-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.wb .wb-answer-cards li {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+}
 .wb .wb-studio-provenance {
   margin: 12px 0 0;
   padding: 8px 12px;

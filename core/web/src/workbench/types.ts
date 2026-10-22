@@ -124,7 +124,18 @@ export interface AnalysisResult {
   preview: Record<string, string | number>[];
   metrics: { id: string; title: string; formula: string; note: string }[];
   graph: GraphData;
-  answer: null | { status: string; text: string; reason: string; mode: string };
+  answer: null | {
+    status: string;
+    text: string;
+    reason: string;
+    mode: string;
+    /** AW-24 pipeline: the decided intent and how it was decided. */
+    intent?: string;
+    pipeline?: { version: string; intent: string; intent_method?: string; intent_used?: string; confidence?: number; definition?: string; fallback?: string };
+    /** knowledge and limitation answers: the context cards quoted (analysis/knowledge/context-cards.json). */
+    citations?: { id: string; title: string; source?: string }[];
+    network?: { highlight: { nodes: string[]; edges: string[][] } };
+  };
   evidence: {
     recipe_version: string;
     dataset_sha256: string;

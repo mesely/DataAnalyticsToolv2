@@ -36,13 +36,22 @@ _SHAPE = re.compile(
 )
 
 
-def route(text, locale="tr"):
-    """Return {"studio": "chart"|"decision", "signal": ..., "version": ...} for a request text."""
+def route(text, locale="tr", method="rules"):
+    """Return {"studio": "chart"|"decision", "signal": ..., "version": ...} for a request text.
+
+    method "rules" is the v1 lexicon below; "learned" the linear classifier trained on the benchmark's dev split
+    (analysis/models/studio-router.json, AW-24); "auto" is what the product uses (see llm_routing.json)."""
     if not isinstance(text, str):
         raise ValueError("İstek metin olmalı.")
     t = text.strip()
     if len(t) > 8000:
         raise ValueError("İstek 8.000 karakteri aşamaz.")
+    if method in ("learned", "auto"):
+        from analysis import textclf
+
+        studio, p = textclf.predict("studio-router", t)
+        return {"studio": studio, "signal": "learned", "confidence": round(p, 4),
+                "version": "studio-router-v2" if method == "auto" else "studio-router-learned-v1"}
     if _DRAW.search(t):
         studio, signal = "chart", "draw"
     elif _DECIDE.search(t):

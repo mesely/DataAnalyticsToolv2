@@ -2179,15 +2179,28 @@ def _chart_sql(spec: dict, m: dict, locale: str, filters: dict | None = None, in
         from analysis import reference
 
         end = min(d for d in [m["end"], filters.get("end"), spec["end"]] if d)
-        on = reference.resolve_as_of(spec["group_as_of"], end)
-        mapping = reference.classify(spec["group"], m["countries"], on, locale)
-        rows = ",\n        ".join(f"({_literal(c)}, {_literal(reference.bucket_label(spec['group'], mapping[c]['bucket'], locale))})"
-                                   for c in sorted(mapping))
         unmatched = _literal(reference.bucket_label(spec["group"], "unmatched", locale))
-        groups_cte = (f"country_groups AS (\n    -- {spec['group']} membership on {on.isoformat()}"
-                      f" ({reference.card(spec['group'], locale)['source']})\n"
-                      f"    SELECT * FROM (VALUES\n        {rows}\n    ) AS g(country, bucket)\n),\n")
-        source = "sales LEFT JOIN country_groups AS g USING (country)"
+        if spec["group_as_of"] == "transaction":
+            # Membership by date (AW-22): each order takes the bucket valid on its own date.
+            start = max(d for d in [m["start"], filters.get("start"), spec["start"]] if d)
+            spans = reference.spans(spec["group"], m["countries"], start, end, locale)
+            rows = ",\n        ".join(
+                f"({_literal(c)}, {_literal(reference.bucket_label(spec['group'], b, locale))}, DATE {_literal(a)}, DATE {_literal(z)})"
+                for c, b, a, z, _ in sorted(spans))
+            groups_cte = (f"country_groups AS (\n    -- {spec['group']} membership on each order's date"
+                          f" ({reference.card(spec['group'], locale)['source']})\n"
+                          f"    SELECT * FROM (VALUES\n        {rows}\n    ) AS g(member_country, bucket, valid_from, valid_to)\n),\n")
+            source = ("sales LEFT JOIN country_groups AS g\n"
+                      "        ON g.member_country = country AND order_date BETWEEN g.valid_from AND g.valid_to")
+        else:
+            on = reference.resolve_as_of(spec["group_as_of"], end)
+            mapping = reference.classify(spec["group"], m["countries"], on, locale)
+            rows = ",\n        ".join(f"({_literal(c)}, {_literal(reference.bucket_label(spec['group'], mapping[c]['bucket'], locale))})"
+                                       for c in sorted(mapping))
+            groups_cte = (f"country_groups AS (\n    -- {spec['group']} membership on {on.isoformat()}"
+                          f" ({reference.card(spec['group'], locale)['source']})\n"
+                          f"    SELECT * FROM (VALUES\n        {rows}\n    ) AS g(country, bucket)\n),\n")
+            source = "sales LEFT JOIN country_groups AS g USING (country)"
         bucket_sql = f"COALESCE(g.bucket, {unmatched})"
     if spec["countries"]:
         where.append("country IN (" + ", ".join(_literal(c) for c in spec["countries"]) + ")")

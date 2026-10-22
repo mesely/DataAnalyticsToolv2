@@ -8015,3 +8015,17 @@ of marketplace and bank fees (AMAZON FEE £13,761.09, Bank Charges £165.00): no
   − postage − manual/samples/discounts = merchandise, inside the current filters;
   `analysis/tests/test_definitions.py` proves the identities on the whole data and inside filters, against the
   line amounts.
+
+## AW-22 — Group membership on each order's own date (amends AW-19's default)
+
+22 Oct 2026. AW-19 read membership once, at the end of the chart's period (or today). A membership that changes
+inside the period (Lithuania's euro on 2015-01-01, Finland's NATO accession on 2023-04-04, the UK leaving the EU
+on 2020-02-01) then moved every order of that country into its end-of-period bucket.
+
+- `group_as_of` gains `transaction` and it becomes the default: `reference.spans()` cuts each country's range at
+  the reference table's join/leave dates inside the period, and the chart joins on `order_date BETWEEN
+  valid_from AND valid_to`. `period_end` and `today` remain explicit choices.
+- For UCI (Dec 2010 – Dec 2011) no dataset country changes membership in the period, so the NATO share stays
+  93.6 % (91 % → 94.2 % only with today's membership); the synthetic test proves the split.
+- Planner: "o dönemdeki", "at the time", "sipariş tarihindeki" → transaction; "dönem sonu" → period_end;
+  "bugünkü" → today; "X yerine Y" / "Y instead of X" asks for Y. Code export writes the dated ranges as literals.

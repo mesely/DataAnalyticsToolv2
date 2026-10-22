@@ -203,6 +203,7 @@ export function ChartStudio({
     oecd: ["OECD", "OECD"],
     continent: ["kıta", "continent"],
     period_end: ["dönem sonu", "period end"],
+    transaction: ["sipariş tarihi", "order date"],
     today: ["bugün", "today"],
     line: ["çizgi", "line"],
     area: ["alan", "area"],
@@ -518,8 +519,12 @@ export function ChartStudio({
                 <table className="wb-group-members">
                   <caption>
                     {t(
-                      `${current.groups.label} üyeliği · ${current.groups.as_of} (${current.groups.as_of_rule === "today" ? "bugün" : "dönem sonu"}) · referans ${current.groups.card.version}`,
-                      `${current.groups.label} membership · ${current.groups.as_of} (${current.groups.as_of_rule === "today" ? "today" : "period end"}) · reference ${current.groups.card.version}`,
+                      current.groups.as_of_rule === "transaction"
+                        ? `${current.groups.label} üyeliği · her siparişin kendi tarihine göre · referans ${current.groups.card.version}`
+                        : `${current.groups.label} üyeliği · ${current.groups.as_of} (${current.groups.as_of_rule === "today" ? "bugün" : "dönem sonu"}) · referans ${current.groups.card.version}`,
+                      current.groups.as_of_rule === "transaction"
+                        ? `${current.groups.label} membership · on each order's own date · reference ${current.groups.card.version}`
+                        : `${current.groups.label} membership · ${current.groups.as_of} (${current.groups.as_of_rule === "today" ? "today" : "period end"}) · reference ${current.groups.card.version}`,
                     )}
                   </caption>
                   <thead>
@@ -534,7 +539,11 @@ export function ChartStudio({
                     {current.groups.countries.map((g) => (
                       <tr key={g.country}>
                         <td>{g.display}</td>
-                        <td>{g.bucket_label}</td>
+                        <td>
+                          {g.spans && g.spans.length > 1
+                            ? g.spans.map((x) => `${x.bucket_label} (${x.from} – ${x.to})`).join(" → ")
+                            : g.bucket_label}
+                        </td>
                         <td className="num">{fmt("GBP", g.pence / 100)}</td>
                         <td>{g.note ?? ""}</td>
                       </tr>

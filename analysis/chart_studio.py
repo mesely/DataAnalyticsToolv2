@@ -111,7 +111,8 @@ _T = {
                   "country_group": "{g} üyeliğine göre {m}"},
         "s_group_share": "{m} dağılımı: {parts}.",
         "l_group": "{g} üyeliği {on} tarihine göre ({rule}); kaynak: {src}. Eşleşmeyen ülkeler: {un}. Üyelik tablosu Veri sekmesinde.",
-        "as_of_rule": {"period_end": "grafiğin dönem sonu", "today": "bugün"},
+        "as_of_rule": {"period_end": "grafiğin dönem sonu", "today": "bugün", "transaction": "her siparişin kendi tarihi"},
+        "l_group_tx": "{g} üyeliği her siparişin kendi tarihine göre sayıldı; kaynak: {src}. Dönem içinde üyeliği değişen ülkeler: {chg}. Eşleşmeyen ülkeler: {un}. Üyelik tablosu Veri sekmesinde.",
         "none": "yok",
         "weekdays": ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"],
         "per": {"month": "ay", "week": "hafta"},
@@ -201,7 +202,8 @@ _T = {
                   "country_group": "{m} by {g} membership"},
         "s_group_share": "{m} split: {parts}.",
         "l_group": "{g} membership as of {on} ({rule}); source: {src}. Unmatched countries: {un}. The membership table is in the Data tab.",
-        "as_of_rule": {"period_end": "the end of the chart's period", "today": "today"},
+        "as_of_rule": {"period_end": "the end of the chart's period", "today": "today", "transaction": "each order's own date"},
+        "l_group_tx": "{g} membership counted on each order's own date; source: {src}. Countries whose membership changed in the period: {chg}. Unmatched countries: {un}. The membership table is in the Data tab.",
         "none": "none",
         "weekdays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
         "per": {"month": "month", "week": "week"},
@@ -349,7 +351,9 @@ def validate_spec(obj, catalog, *, locale: str = "tr", warnings: list | None = N
     if spec["dimension"] == "country_group":
         from analysis.reference import AS_OF, GROUP_IDS
 
-        group, as_of = obj.get("group") or "nato", obj.get("group_as_of") or "period_end"
+        from analysis.reference import DEFAULT_AS_OF
+
+        group, as_of = obj.get("group") or "nato", obj.get("group_as_of") or DEFAULT_AS_OF
         if not isinstance(group, str) or group not in GROUP_IDS:
             raise ValueError(t["enum"].format(field="group", value=str(group)[:40]))
         if not isinstance(as_of, str) or as_of not in AS_OF:
@@ -490,7 +494,8 @@ def compile_query(spec: dict, *, start=None, end=None, filter_country=None, sour
     """Readable, parameterized DuckDB SQL for a validated spec. Values are bound with ``?``; identifiers
     come only from the allowlists above. Returns (sql, params).
 
-    ``groups`` — (country, bucket) pairs for a country_group chart, bound as a VALUES table.
+    ``groups`` — (country, bucket) pairs for a country_group chart, bound as a VALUES table; or
+    (country, bucket, valid_from, valid_to) ranges when membership is read on each order's date (AW-22).
     ``products_only`` — a product chart leaves out postage, fees and adjustments (analysis/scope.py).
     ``factors`` — (day, factor, nominal_factor) rows of a money transform (analysis/transforms.py), bound as a
     VALUES table and joined on each order's date: ``conv_minor`` is the transformed sum in hundredths of the
@@ -508,10 +513,17 @@ def compile_query(spec: dict, *, start=None, end=None, filter_country=None, sour
         pairs = list(groups or [])
         if not pairs:
             raise ValueError("A country_group chart needs its reference membership.")
-        group_cte = ("country_groups(country, bucket) AS (\n    -- reference membership, one row per dataset country\n"
-                     "    VALUES " + ", ".join("(?, ?)" for _ in pairs) + "\n),\n")
+        if len(pairs[0]) == 4:
+            group_cte = ("country_groups(member_country, bucket, valid_from, valid_to) AS (\n"
+                         "    -- reference membership by date: each order takes the bucket valid on its own date\n"
+                         "    VALUES " + ", ".join("(?, ?, ?::DATE, ?::DATE)" for _ in pairs) + "\n),\n")
+            joined = (f"{source} LEFT JOIN country_groups AS g\n"
+                      "        ON g.member_country = country AND order_date BETWEEN g.valid_from AND g.valid_to")
+        else:
+            group_cte = ("country_groups(country, bucket) AS (\n    -- reference membership, one row per dataset country\n"
+                         "    VALUES " + ", ".join("(?, ?)" for _ in pairs) + "\n),\n")
+            joined = f"{source} LEFT JOIN country_groups AS g USING (country)"
         group_params = [v for pair in pairs for v in pair]
-        joined = f"{source} LEFT JOIN country_groups AS g USING (country)"
     if factors:
         group_cte += ("fx_factors(d, factor, nominal) AS (\n    -- reference factor per day (rate x CPI ratio, or gold), analysis/transforms.py\n"
                       "    VALUES " + ", ".join("(?::DATE, ?::DOUBLE, ?::DOUBLE)" for _ in factors) + "\n),\n")
@@ -696,11 +708,19 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
     if dim == "country_group" and not empty:
         from analysis import reference
 
-        on = reference.resolve_as_of(spec["group_as_of"], hi)
-        membership = {"on": on, "map": reference.classify(spec["group"], catalog["countries"], on, locale)}
+        if spec["group_as_of"] == "transaction":
+            ranges = reference.spans(spec["group"], catalog["countries"], lo, hi, locale)
+            on = date.fromisoformat(hi)
+            end_map = reference.classify(spec["group"], catalog["countries"], on, locale)
+            changed = sorted({r[0] for r in ranges if sum(1 for x in ranges if x[0] == r[0]) > 1})
+            membership = {"on": on, "map": end_map, "spans": ranges, "changed": changed}
+        else:
+            on = reference.resolve_as_of(spec["group_as_of"], hi)
+            membership = {"on": on, "map": reference.classify(spec["group"], catalog["countries"], on, locale)}
     products_only = dim == "product" and not include_service
     sql, params = compile_query(spec, start=lo, end=hi, filter_country=filter_country, locale=locale,
-                                groups=sorted((c, m["bucket"]) for c, m in membership["map"].items()) if membership else None,
+                                groups=(sorted(r[:4] for r in membership["spans"]) if membership and "spans" in membership else
+                                        sorted((c, m["bucket"]) for c, m in membership["map"].items()) if membership else None),
                                 products_only=products_only, factors=factors, definition=definition)
     support = None
     with duckdb.connect(str(DATA / (catalog["id"] + ".duckdb")), read_only=True) as con:
@@ -982,16 +1002,26 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
         present = {r["country"]: r for r in by_country}
         unmatched = [c for c, m in membership["map"].items() if m["bucket"] == "unmatched" and c in present]
         when = membership["on"].isoformat()
-        say("limitation", t["l_group"].format(
-            g=info["label"], on=when, rule=t["as_of_rule"][spec["group_as_of"]], src=info["source"],
-            un=(", ".join(display_country(c, locale) for c in unmatched) or t["none"])), ["share"])
+        if "spans" in membership:
+            moved = [c for c in membership["changed"] if c in present]
+            say("limitation", t["l_group_tx"].format(
+                g=info["label"], src=info["source"],
+                chg=(", ".join(display_country(c, locale) for c in moved) or t["none"]),
+                un=(", ".join(display_country(c, locale) for c in unmatched) or t["none"])), ["share"])
+        else:
+            say("limitation", t["l_group"].format(
+                g=info["label"], on=when, rule=t["as_of_rule"][spec["group_as_of"]], src=info["source"],
+                un=(", ".join(display_country(c, locale) for c in unmatched) or t["none"])), ["share"])
         groups_out = {
             "group": spec["group"], "label": info["label"], "as_of": when, "as_of_rule": spec["group_as_of"],
             "card": info,
             "countries": [{"country": c, "display": display_country(c, locale), "bucket": membership["map"][c]["bucket"],
                            "bucket_label": bucket_label(spec["group"], membership["map"][c]["bucket"], locale),
                            "iso3": membership["map"][c]["iso3"], "note": membership["map"][c]["note"],
-                           "pence": present[c]["pence"], "orders": present[c]["orders"], "units": present[c]["units"]}
+                           "pence": present[c]["pence"], "orders": present[c]["orders"], "units": present[c]["units"],
+                           **({"spans": [{"bucket": r[1], "bucket_label": bucket_label(spec["group"], r[1], locale),
+                                          "from": r[2], "to": r[3]} for r in membership["spans"] if r[0] == c]}
+                              if "spans" in membership else {})}
                           for c in present if c in membership["map"]],
         }
     if tr_info:
@@ -1226,7 +1256,13 @@ RE_TX_REMOVE = _P(r"(?<!\w)(?:(?:donusum|enflasyon duzeltme|kur donusum|altin|ce
                   r"nominal(?:e|a)? (?:don|gec)[a-z']*|(?:back )?to nominal|sterline? geri don[a-z']*|back to (?:gbp|pounds?|sterling))")
 RE_TX_INDEX_REMOVE = _P(r"(?<!\w)(?:endeks[a-z']*\s+(?:kaldir|cikar|iptal)[a-z']*|(?:remove|drop|undo)\s+(?:the\s+)?index(?:ing)?)")
 RE_ASOF_TODAY = _P(r"(?<!\w)(?:bugun(?:ku)?|guncel|simdiki|su anki|today'?s?|current(?:ly)?)(?![a-z])")
-RE_ASOF_PERIOD = _P(r"(?<!\w)(?:o donem[a-z']*|o zaman[a-z']*|donemin(?: sonu)?|verinin donem[a-z']*|at the time|period end)")
+RE_ASOF_PERIOD = _P(r"(?<!\w)(?:donem(?:in)? sonu[a-z']*|verinin donem sonu[a-z']*|period end|end of (?:the )?(?:chart'?s? )?period)")
+# AW-22: membership on each order's own date ("o dönemdeki üyelik", "membership at the time").
+RE_ASOF_TX = _P(r"(?<!\w)(?:o donem[a-z']*|o zaman[a-z']*|o tarih[a-z']*|islem (?:tarih|zaman|gun)[a-z']*|siparis (?:tarih|gun)[a-z']*|"
+                r"satis (?:tarih|ani)[a-z']*|at the time(?: of (?:the )?(?:sale|order|transaction)s?)?|on the (?:order|transaction|sale) date|"
+                r"(?:transaction|order|sale) date|historical membership|tarihsel uyelik[a-z']*|(?:verinin )?donem[a-z']* (?:icindeki|boyunca)[a-z']*)")
+RE_INSTEAD_EN = _P(r"(?:instead of|rather than|not)\s*$")
+RE_INSTEAD_TR = _P(r"^\W*(?:\w+\s+){0,2}?(?:yerine|degil)")
 CHART_PATTERNS = [
     ("line", _P(r"(?<!\w)(?:cizgi[a-z']*|line(?:s| chart)?(?![a-z]))")),
     ("area", _P(r"(?<!\w)(?:alan grafi[a-z']*|area(?: chart)?(?![a-z]))")),
@@ -1280,6 +1316,21 @@ def _country_patterns(catalog) -> list[tuple[re.Pattern, str]]:
             tail = r"[a-z']*" if len(alias) >= 5 else r"(?![a-z])"
             out.append((re.compile(r"(?<!\w)" + re.escape(alias) + tail), name))
     return out
+
+
+def _membership_date(text: "_Text"):
+    """Which membership date the request names (AW-22), honouring "X yerine Y" / "Y instead of X": a phrase that
+    is followed by "yerine" or preceded by "instead of" is the one being replaced, not the one asked for."""
+    hits = []
+    for rule, pattern in (("today", RE_ASOF_TODAY), ("transaction", RE_ASOF_TX), ("period_end", RE_ASOF_PERIOD)):
+        for m in pattern.finditer(text.text):
+            before, after = text.text[:m.start()], text.text[m.end():]
+            negated = bool(RE_INSTEAD_EN.search(before) or RE_INSTEAD_TR.search(after))
+            hits.append((m.start(), rule, negated))
+    for pattern in (RE_ASOF_TODAY, RE_ASOF_TX, RE_ASOF_PERIOD):
+        text.take(pattern)
+    wanted = [rule for _, rule, negated in sorted(hits) if not negated]
+    return wanted[0] if wanted else None
 
 
 def transforms_default() -> dict:
@@ -1344,7 +1395,7 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
     group_hits: list[tuple[int, str]] = []
     for gid, pattern in GROUP_PATTERNS:
         group_hits.extend((m.start(), gid) for m in text.take(pattern))
-    as_of = "today" if text.take(RE_ASOF_TODAY) else "period_end" if text.take(RE_ASOF_PERIOD) else None
+    as_of = _membership_date(text)
 
     # --- money transforms, part 2: target currency, constant prices, gold, index, nominal vs real
     if text.take(RE_TX_COMPARE):
@@ -1562,7 +1613,9 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
     if group_hits:
         recognized = True
         spec["dimension"], spec["group"] = "country_group", sorted(group_hits)[0][1]
-        spec["group_as_of"] = as_of or spec.get("group_as_of") or "period_end"
+        from analysis.reference import DEFAULT_AS_OF
+
+        spec["group_as_of"] = as_of or spec.get("group_as_of") or DEFAULT_AS_OF
         spec["split_by_country"] = False
         if not chart_hits:
             spec["chart"] = "bar"
@@ -1671,8 +1724,9 @@ it is there, otherwise excludes it. "all countries"/"tüm ülkeler" empties both
 relative periods ("last 6 months") count back from CATALOG.date_range.end.
 Grouping countries by membership ("NATO / NATO dışı", "AB ülkeleri", "euro area", "G7", "OECD", "by continent"): set
 dimension country_group, chart bar, and add the two extra keys "group": nato|eu|eurozone|g7|oecd|continent and
-"group_as_of": period_end (membership at the end of the chart's period; default) or today ("bugünkü üyelik", "current
-members"). Membership itself comes from a reference table, never from you. Omit both keys for any other dimension.
+"group_as_of": transaction (membership on each order's own date; default; "o dönemdeki", "at the time"), period_end
+(one membership at the end of the chart's period; "dönem sonu") or today ("bugünkü üyelik", "current members"); in
+"X instead of Y" / "Y yerine X" the request asks for X. Membership itself comes from a reference table, never from you. Omit both keys for any other dimension.
 Money transforms (metric gross_sales or aov only): add the key "transform": {"currency":"GBP|TRY|USD|EUR","fx":"transaction|latest",
 "real":null|"latest"|"YYYY-MM"|"YYYY","unit":"money|gold_g|gold_oz","index":false,"compare":false}. "TL'ye çevir"/"in TL" -> currency TRY
 with fx transaction (the rate of each order's date); "bugünkü kurla"/"at today's rate" -> fx latest; "enflasyondan arındır"/

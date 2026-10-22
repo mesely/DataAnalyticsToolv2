@@ -165,7 +165,7 @@ export interface ChartSpec {
   chart: "line" | "area" | "bar";
   /** v3 AW-19 (additive): reference group and membership date of a country_group chart. */
   group?: "nato" | "eu" | "eurozone" | "g7" | "oecd" | "continent";
-  group_as_of?: "period_end" | "today";
+  group_as_of?: "transaction" | "period_end" | "today";
   start?: string | null;
   end?: string | null;
   countries: string[];
@@ -230,9 +230,19 @@ export interface ChartResult {
     group: string;
     label: string;
     as_of: string;
-    as_of_rule: "period_end" | "today";
+    as_of_rule: "transaction" | "period_end" | "today";
     card: { source: string; version: string; sha256: string };
-    countries: { country: string; display: string; bucket: string; bucket_label: string; iso3: string | null; note: string | null; pence: number }[];
+    countries: {
+      country: string;
+      display: string;
+      bucket: string;
+      bucket_label: string;
+      iso3: string | null;
+      note: string | null;
+      pence: number;
+      /** AW-22: membership ranges inside the period when it is read on each order's date. */
+      spans?: { bucket: string; bucket_label: string; from: string; to: string }[];
+    }[];
   };
   /** transformed charts: every reference value used, with its source (analysis/transforms.py). */
   transform?: {

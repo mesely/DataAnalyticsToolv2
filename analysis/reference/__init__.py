@@ -9,12 +9,15 @@ from __future__ import annotations
 import functools
 import hashlib
 import json
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 REF = Path(__file__).resolve().parent
 GROUP_IDS = ("nato", "eu", "eurozone", "g7", "oecd", "continent")
-AS_OF = ("period_end", "today")
+# transaction: each order is classified by the membership on its own date (the default since AW-22);
+# period_end: one membership, at the end of the chart's period; today: today's membership.
+AS_OF = ("transaction", "period_end", "today")
+DEFAULT_AS_OF = "transaction"
 
 
 @functools.lru_cache(maxsize=1)
@@ -82,6 +85,29 @@ def classify(group, countries, on, locale="tr"):
             note = (f"Üyelik {span[0]} tarihinde başladı" if on < date.fromisoformat(span[0]) else f"Üyelik {span[1]} tarihinde bitti") if i == 0 else (
                 f"Membership began on {span[0]}" if on < date.fromisoformat(span[0]) else f"Membership ended on {span[1]}")
         out[country] = {"bucket": "member" if member else "outside", "iso3": info["iso3"], "note": note}
+    return out
+
+
+def spans(group, countries, lo, hi, locale="tr"):
+    """Membership by date for an order-date classification (AW-22): for each country, the consecutive date ranges
+    inside [lo, hi] over which its bucket is constant, as (country, bucket, valid_from, valid_to, note) with ISO
+    dates. A country whose membership began or ended inside the range gets two ranges; nothing is extrapolated."""
+    lo, hi = date.fromisoformat(str(lo)), date.fromisoformat(str(hi))
+    data = groups()
+    out = []
+    for country in countries:
+        cuts = {lo}
+        info = data["dataset_countries"].get(country) or {}
+        if group != "continent" and info.get("iso3"):
+            span = data["groups"][group]["members"].get(info["iso3"])
+            for edge in (span or [])[:2]:
+                if edge and lo < date.fromisoformat(edge) <= hi:
+                    cuts.add(date.fromisoformat(edge))
+        starts = sorted(cuts)
+        for i, start in enumerate(starts):
+            end = (starts[i + 1] - timedelta(days=1)) if i + 1 < len(starts) else hi
+            c = classify(group, [country], start, locale)[country]
+            out.append((country, c["bucket"], start.isoformat(), end.isoformat(), c["note"]))
     return out
 
 

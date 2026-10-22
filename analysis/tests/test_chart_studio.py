@@ -416,7 +416,7 @@ def test_llm_injection_never_reaches_the_model():
     assert result["status"] == "blocked" and model.calls == []
 
 
-def _fake_settings():
+def _fake_settings(**_):  # accepts the per-task model selector (task=...)
     from analysis.adapted.providers import ProviderSettings
 
     return ProviderSettings(provider="huggingface", hf_api_key="fake", max_tokens=100)
@@ -433,7 +433,7 @@ def test_chart_falls_back_to_local_planner(monkeypatch):
 
     seen = {}
     _route(monkeypatch, "model")
-    monkeypatch.setattr("analysis.llm.configuration", lambda: ProviderSettings(provider="huggingface", hf_api_key="fake", max_tokens=100))
+    monkeypatch.setattr("analysis.llm.configuration", lambda **_: ProviderSettings(provider="huggingface", hf_api_key="fake", max_tokens=100))
 
     def build(cfg):
         seen["max_tokens"] = cfg.max_tokens

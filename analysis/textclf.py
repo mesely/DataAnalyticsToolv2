@@ -20,9 +20,14 @@ MODELS = Path(__file__).resolve().parent / "models"
 _WORD = re.compile(r"[a-z0-9]+")
 
 
-def features(text: str) -> set[str]:
+EXTRAS = {}  # name -> callable(text) -> set of extra feature names (domain signals), registered by the router modules
+
+
+def features(text: str, extras: str | None = None) -> set[str]:
     t = " ".join(_WORD.findall(fold(text)))
     out = {"w:" + w for w in t.split()}
+    if extras:
+        out |= EXTRAS[extras](text)
     if "?" in text:
         out.add("p:?")  # a question mark is a strong sign of a question to answer
     padded = f" {t} "
@@ -34,11 +39,11 @@ def features(text: str) -> set[str]:
     return out
 
 
-def vectorizer():
+def vectorizer(extras: str | None = None):
     """The scikit-learn vectorizer that reproduces `features` (training only)."""
     from sklearn.feature_extraction.text import CountVectorizer
 
-    return CountVectorizer(analyzer=lambda text: sorted(features(text)), binary=True, lowercase=False)
+    return CountVectorizer(analyzer=lambda text: sorted(features(text, extras)), binary=True, lowercase=False)
 
 
 @functools.lru_cache(maxsize=8)
@@ -52,7 +57,9 @@ def scores(name: str, text: str) -> dict[str, float]:
     """Class probabilities (softmax of the linear scores; one-vs-rest sigmoid for two classes)."""
     m = load(name)
     idx = m["_index"]
-    present = [idx[f] for f in features(text) if f in idx]
+    if m.get("extras"):
+        __import__(m["extras_module"])  # registers the model's domain signals
+    present = [idx[f] for f in features(text, m.get("extras")) if f in idx]
     raw = [m["intercept"][c] + sum(row[i] for i in present) for c, row in enumerate(m["coef"])]
     classes = m["classes"]
     if len(raw) == 1:  # binary logistic regression: one row for classes[1]

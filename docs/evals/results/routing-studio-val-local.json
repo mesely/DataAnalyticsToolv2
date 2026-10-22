@@ -437,7 +437,7 @@
     "expect": "chart",
     "got": "decision",
     "correct": false,
-    "latency_ms": 0.01
+    "latency_ms": 0.0
    },
    {
     "id": "s213",
@@ -676,10 +676,10 @@
   ],
   "blocked": null,
   "latency_ms": {
-   "p50": 0.04,
-   "p95": 0.117,
-   "p99": 1.437,
-   "mean": 0.097
+   "p50": 0.09,
+   "p95": 0.268,
+   "p99": 6.206,
+   "mean": 0.347
   },
   "tokens": 0,
   "rows": [
@@ -691,8 +691,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 3.52,
-    "confidence": 0.911
+    "latency_ms": 15.76,
+    "confidence": 0.9304
    },
    {
     "id": "s014",
@@ -702,8 +702,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.09,
-    "confidence": 0.9513
+    "latency_ms": 0.28,
+    "confidence": 0.9603
    },
    {
     "id": "s017",
@@ -713,8 +713,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.5641
+    "latency_ms": 0.07,
+    "confidence": 0.6336
    },
    {
     "id": "s027",
@@ -724,8 +724,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.5296
+    "latency_ms": 0.06,
+    "confidence": 0.5325
    },
    {
     "id": "s033",
@@ -735,8 +735,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.6078
+    "latency_ms": 0.06,
+    "confidence": 0.6817
    },
    {
     "id": "s035",
@@ -746,8 +746,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.6533
+    "latency_ms": 0.11,
+    "confidence": 0.7159
    },
    {
     "id": "s040",
@@ -757,8 +757,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.07,
-    "confidence": 0.9151
+    "latency_ms": 0.15,
+    "confidence": 0.9115
    },
    {
     "id": "s064",
@@ -768,8 +768,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.12,
-    "confidence": 0.7177
+    "latency_ms": 0.13,
+    "confidence": 0.7668
    },
    {
     "id": "s066",
@@ -779,8 +779,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.06,
-    "confidence": 0.9509
+    "latency_ms": 0.11,
+    "confidence": 0.9533
    },
    {
     "id": "s067",
@@ -790,8 +790,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.8432
+    "latency_ms": 0.06,
+    "confidence": 0.8611
    },
    {
     "id": "s069",
@@ -801,8 +801,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.619
+    "latency_ms": 0.08,
+    "confidence": 0.6802
    },
    {
     "id": "s070",
@@ -812,8 +812,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.9231
+    "latency_ms": 0.1,
+    "confidence": 0.9372
    },
    {
     "id": "s074",
@@ -823,8 +823,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.5691
+    "latency_ms": 0.06,
+    "confidence": 0.5603
    },
    {
     "id": "s075",
@@ -834,8 +834,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.8844
+    "latency_ms": 0.1,
+    "confidence": 0.8631
    },
    {
     "id": "s081",
@@ -845,8 +845,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.9395
+    "latency_ms": 0.06,
+    "confidence": 0.9503
    },
    {
     "id": "s083",
@@ -856,8 +856,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.8182
+    "latency_ms": 0.08,
+    "confidence": 0.7988
    },
    {
     "id": "s088",
@@ -867,8 +867,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.13,
-    "confidence": 0.9426
+    "latency_ms": 0.3,
+    "confidence": 0.9469
    },
    {
     "id": "s092",
@@ -878,8 +878,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.07,
-    "confidence": 0.8177
+    "latency_ms": 0.16,
+    "confidence": 0.8263
    },
    {
     "id": "s100",
@@ -889,8 +889,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.07,
-    "confidence": 0.5786
+    "latency_ms": 0.12,
+    "confidence": 0.641
    },
    {
     "id": "s101",
@@ -900,8 +900,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.8762
+    "latency_ms": 0.09,
+    "confidence": 0.8786
    },
    {
     "id": "s106",
@@ -911,8 +911,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.8823
+    "latency_ms": 0.11,
+    "confidence": 0.9014
    },
    {
     "id": "s116",
@@ -922,8 +922,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.7832
+    "latency_ms": 0.07,
+    "confidence": 0.7893
    },
    {
     "id": "s118",
@@ -933,8 +933,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.9308
+    "latency_ms": 0.11,
+    "confidence": 0.9322
    },
    {
     "id": "s128",
@@ -944,8 +944,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.06,
-    "confidence": 0.6317
+    "latency_ms": 0.13,
+    "confidence": 0.6499
    },
    {
     "id": "s139",
@@ -955,8 +955,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.7992
+    "latency_ms": 0.07,
+    "confidence": 0.814
    },
    {
     "id": "s146",
@@ -966,8 +966,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.6968
+    "latency_ms": 0.11,
+    "confidence": 0.6809
    },
    {
     "id": "s148",
@@ -977,8 +977,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.8545
+    "latency_ms": 0.09,
+    "confidence": 0.8773
    },
    {
     "id": "s159",
@@ -988,8 +988,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.6956
+    "latency_ms": 0.06,
+    "confidence": 0.7078
    },
    {
     "id": "s162",
@@ -999,8 +999,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.8197
+    "latency_ms": 0.08,
+    "confidence": 0.8299
    },
    {
     "id": "s165",
@@ -1010,8 +1010,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.16,
-    "confidence": 0.5162
+    "latency_ms": 0.35,
+    "confidence": 0.5901
    },
    {
     "id": "s167",
@@ -1021,8 +1021,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.6162
+    "latency_ms": 0.09,
+    "confidence": 0.6748
    },
    {
     "id": "s169",
@@ -1032,8 +1032,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.8884
+    "latency_ms": 0.11,
+    "confidence": 0.902
    },
    {
     "id": "s175",
@@ -1043,8 +1043,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.8201
+    "latency_ms": 0.1,
+    "confidence": 0.7725
    },
    {
     "id": "s179",
@@ -1054,8 +1054,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.762
+    "latency_ms": 0.11,
+    "confidence": 0.8224
    },
    {
     "id": "s182",
@@ -1065,8 +1065,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.7131
+    "latency_ms": 0.12,
+    "confidence": 0.7571
    },
    {
     "id": "s190",
@@ -1076,8 +1076,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.01,
-    "confidence": 0.5688
+    "latency_ms": 0.03,
+    "confidence": 0.6405
    },
    {
     "id": "s191",
@@ -1087,8 +1087,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.6661
+    "latency_ms": 0.04,
+    "confidence": 0.6464
    },
    {
     "id": "s193",
@@ -1098,8 +1098,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.6848
+    "latency_ms": 0.06,
+    "confidence": 0.7522
    },
    {
     "id": "s194",
@@ -1109,8 +1109,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.52
+    "latency_ms": 0.04,
+    "confidence": 0.5126
    },
    {
     "id": "s206",
@@ -1120,8 +1120,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.799
+    "latency_ms": 0.09,
+    "confidence": 0.8446
    },
    {
     "id": "s208",
@@ -1131,8 +1131,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.7598
+    "latency_ms": 0.09,
+    "confidence": 0.7535
    },
    {
     "id": "s211",
@@ -1142,8 +1142,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.7542
+    "latency_ms": 0.06,
+    "confidence": 0.737
    },
    {
     "id": "s213",
@@ -1153,8 +1153,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.05,
-    "confidence": 0.8206
+    "latency_ms": 0.14,
+    "confidence": 0.8023
    },
    {
     "id": "s216",
@@ -1164,8 +1164,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.5087
+    "latency_ms": 0.1,
+    "confidence": 0.572
    },
    {
     "id": "s218",
@@ -1175,8 +1175,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.5254
+    "latency_ms": 0.08,
+    "confidence": 0.5878
    },
    {
     "id": "s222",
@@ -1186,8 +1186,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.5421
+    "latency_ms": 0.07,
+    "confidence": 0.537
    },
    {
     "id": "s236",
@@ -1197,8 +1197,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.8828
+    "latency_ms": 0.07,
+    "confidence": 0.8982
    },
    {
     "id": "s242",
@@ -1208,8 +1208,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.06,
-    "confidence": 0.7823
+    "latency_ms": 0.11,
+    "confidence": 0.7304
    },
    {
     "id": "s243",
@@ -1219,8 +1219,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.05,
-    "confidence": 0.7268
+    "latency_ms": 0.12,
+    "confidence": 0.7839
    },
    {
     "id": "s246",
@@ -1230,8 +1230,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.8204
+    "latency_ms": 0.05,
+    "confidence": 0.862
    },
    {
     "id": "s251",
@@ -1241,8 +1241,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.782
+    "latency_ms": 0.08,
+    "confidence": 0.8249
    },
    {
     "id": "s252",
@@ -1252,8 +1252,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.8837
+    "latency_ms": 0.06,
+    "confidence": 0.9163
    },
    {
     "id": "s258",
@@ -1263,8 +1263,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.7956
+    "latency_ms": 0.06,
+    "confidence": 0.8368
    },
    {
     "id": "s263",
@@ -1274,8 +1274,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.9081
+    "latency_ms": 0.07,
+    "confidence": 0.9316
    },
    {
     "id": "s276",
@@ -1285,8 +1285,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.05,
-    "confidence": 0.7003
+    "latency_ms": 0.12,
+    "confidence": 0.7181
    },
    {
     "id": "s277",
@@ -1296,8 +1296,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.05,
-    "confidence": 0.6689
+    "latency_ms": 0.15,
+    "confidence": 0.6849
    },
    {
     "id": "s284",
@@ -1307,8 +1307,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.7975
+    "latency_ms": 0.06,
+    "confidence": 0.831
    },
    {
     "id": "s289",
@@ -1318,8 +1318,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.04,
-    "confidence": 0.9156
+    "latency_ms": 0.09,
+    "confidence": 0.93
    },
    {
     "id": "s300",
@@ -1329,8 +1329,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.6386
+    "latency_ms": 0.08,
+    "confidence": 0.6924
    },
    {
     "id": "s303",
@@ -1340,8 +1340,8 @@
     "expect": "chart",
     "got": "chart",
     "correct": true,
-    "latency_ms": 0.07,
-    "confidence": 0.7108
+    "latency_ms": 0.1,
+    "confidence": 0.7034
    },
    {
     "id": "s306",
@@ -1351,8 +1351,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.8814
+    "latency_ms": 0.07,
+    "confidence": 0.9113
    },
    {
     "id": "s313",
@@ -1362,8 +1362,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.02,
-    "confidence": 0.7226
+    "latency_ms": 0.05,
+    "confidence": 0.7884
    },
    {
     "id": "s314",
@@ -1373,8 +1373,8 @@
     "expect": "decision",
     "got": "decision",
     "correct": true,
-    "latency_ms": 0.03,
-    "confidence": 0.8031
+    "latency_ms": 0.06,
+    "confidence": 0.8578
    }
   ],
   "per_class": {

@@ -14,7 +14,7 @@
    "local_accuracy": 0.9231,
    "n": 104,
    "receipt": "docs/evals/results/routing-chart-test-*.json",
-   "measured_at": "2026-10-22T18:55:51+00:00",
+   "measured_at": "2026-10-22T18:58:06+00:00",
    "candidates": {},
    "method": "local",
    "why": "no model answered every held-out case (quota or not run)"
@@ -41,24 +41,24 @@
   },
   "studio_route": {
    "local_method": "learned",
-   "local_accuracy": 0.9147,
+   "local_accuracy": 0.9457,
    "n": 129,
    "receipt": "docs/evals/results/routing-studio-test-*.json",
-   "measured_at": "2026-10-22T18:55:51+00:00",
+   "measured_at": "2026-10-22T18:58:06+00:00",
    "candidates": {
     "gpt-oss-20b": {
      "accuracy": 0.8837,
-     "p_value": 0.5413,
-     "rescued": 10,
-     "lost": 14,
+     "p_value": 0.1338,
+     "rescued": 7,
+     "lost": 15,
      "latency_p50_ms": 472.85,
      "tokens": 47719,
      "n": 129
     },
     "gpt-oss-120b": {
      "accuracy": 0.9457,
-     "p_value": 0.4807,
-     "rescued": 11,
+     "p_value": 1.0,
+     "rescued": 7,
      "lost": 7,
      "latency_p50_ms": 404.08,
      "tokens": 48510,
@@ -66,8 +66,8 @@
     },
     "qwen3.8-27b": {
      "accuracy": 0.938,
-     "p_value": 0.6476,
-     "rescued": 11,
+     "p_value": 1.0,
+     "rescued": 7,
      "lost": 8,
      "latency_p50_ms": 288.56,
      "tokens": 33947,
@@ -77,16 +77,16 @@
    "model": "GPT-OSS 120B · Groq",
    "model_id": "openai/gpt-oss-120b",
    "model_accuracy": 0.9457,
-   "p_value": 0.48068,
+   "p_value": 1.0,
    "method": "local",
-   "why": "local within 3.1 points of the best model (McNemar p = 0.481); local is free, instant and private"
+   "why": "local is as good as or better than every model"
   },
   "question_intent": {
    "local_method": "rules",
    "local_accuracy": 0.9278,
    "n": 97,
    "receipt": "docs/evals/results/routing-intent-test-*.json",
-   "measured_at": "2026-10-22T18:55:51+00:00",
+   "measured_at": "2026-10-22T18:58:06+00:00",
    "candidates": {
     "gpt-oss-20b": {
      "accuracy": 0.9175,

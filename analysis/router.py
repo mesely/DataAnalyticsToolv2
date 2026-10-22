@@ -36,6 +36,38 @@ _SHAPE = re.compile(
 )
 
 
+_NO_DRAW = re.compile(r"(?:don'?t|do not|without|no need to|cizme|cizmeden|grafik(?:siz| istemiyorum| yok| olmadan| degil))", re.I)
+
+
+def signals(text: str) -> set[str]:
+    """Domain signals for the learned router (AW-24): the v1 lexicon, the guard and the intent cue rules, as
+    features the classifier weighs, not as overrides."""
+    from analysis import intents
+    from analysis.retrieval import fold
+
+    out = set()
+    for name, pattern in (("draw", _DRAW), ("decide", _DECIDE), ("shape", _SHAPE)):
+        if pattern.search(text):
+            out.add("x:" + name)
+    if _NO_DRAW.search(fold(text)):
+        out.add("x:no_draw")
+    if not intents.assess_input(text).allowed:
+        out.add("x:guard")
+    hit = intents.rules(text)
+    if hit:
+        out.add("x:intent_" + hit)
+    return out
+
+
+def _register():
+    from analysis import textclf
+
+    textclf.EXTRAS["studio"] = signals
+
+
+_register()
+
+
 def route(text, locale="tr", method="rules"):
     """Return {"studio": "chart"|"decision", "signal": ..., "version": ...} for a request text.
 

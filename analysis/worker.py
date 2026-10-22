@@ -323,10 +323,27 @@ def graph(request):
                 "y": round(float(pos[n][1]), 5),
             }
         )
+    association = None
+    if mode == "copurchase" and edges:
+        # Association measures (v3 G1 follow-up): a raw co-order count favours best sellers. Lift compares the pair
+        # with chance (co-orders x all orders / (orders with A x orders with B); 1 = independent) and Jaccard is the
+        # share of orders with either product that hold both. Both use orders in the same scope (all lines, so a
+        # basket's postage line does not change N).
+        n_orders = query(con, "SELECT COUNT(DISTINCT invoice)::BIGINT AS n FROM transactions" + filters_for(request, m)[0],
+                         filters_for(request, m)[1])[0]["n"]
+        by_id = {x["product_id"]: x["orders"] for x in top}
+        for e in edges:
+            a, b, co = by_id[e["source"]], by_id[e["target"]], e["weight"]
+            e["lift"] = round(co * n_orders / (a * b), 4) if a and b else None
+            e["jaccard"] = round(co / (a + b - co), 4) if a + b - co else None
+        association = {"orders_in_scope": n_orders,
+                       "lift": "co_orders * orders_in_scope / (orders_with_a * orders_with_b)",
+                       "jaccard": "co_orders / (orders_with_a + orders_with_b - co_orders)"}
     con.close()
     return {
         "nodes": nodes,
         "edges": edges,
+        "association": association,
         "mode": mode,
         "note": note,
         "components": nx.number_connected_components(g),

@@ -48,8 +48,13 @@ def _extract(question: str, card: dict, i: int, opt: R.Options, mode: str = "ran
     return [s for n, s in enumerate(sents) if n in keep][:MAX_SENTENCES]
 
 
+# A second card's body is quoted too when it scores within this share of the first (the question likely needs both);
+# chosen on the dev split (docs/evals/RETRIEVAL.md).
+SECOND_BODY = 0.6
+
+
 def answer(question: str, locale: str = "tr", *, k: int = 3, opt: R.Options | None = None,
-           threshold: float = ABSTAIN_SCORE, retriever=None, mode: str = "ranked") -> dict:
+           threshold: float = ABSTAIN_SCORE, retriever=None, mode: str = "all", second: float = SECOND_BODY) -> dict:
     """Retrieve, then answer extractively with citations. `retriever(question) -> [(card_id, score), ...]` overrides
     the default lexical retriever (used by the benchmark to compare configurations end to end)."""
     opt = opt or R.Options()
@@ -67,12 +72,17 @@ def answer(question: str, locale: str = "tr", *, k: int = 3, opt: R.Options | No
     top_id, top_score = ranked[0]
     top = by_id[top_id]
     body = _extract(question, top, i, opt, mode)
-    # Other cards that also apply: within 60 % of the top score, at most k-1 of them.
-    also = [by_id[c] for c, s in ranked[1:k] if s >= 0.6 * top_score]
-    text = " ".join(body)
+    quoted = [top]
+    if len(ranked) > 1 and second and ranked[1][1] >= second * top_score:
+        nxt = by_id[ranked[1][0]]
+        body += [""] + _extract(question, nxt, i, opt, mode)
+        quoted.append(nxt)
+    # Other cards that also apply: within 60 % of the top score, at most k-1 of them, named by title.
+    also = [by_id[c] for c, s in ranked[1:k] if s >= 0.6 * top_score and by_id[c] not in quoted]
+    text = " ".join(body).replace("  ", "\n\n")
     if also:
         text += ("\n\nSee also: " if i else "\n\nAyrıca: ") + "; ".join(c["title"][i] for c in also) + "."
-    cited = [top] + also
+    cited = quoted + also
     return {"status": "answered", "version": VERSION, "text": text,
             "citations": [{"id": c["id"], "title": c["title"][i], "source": c.get("source")} for c in cited],
             "retrieved": [c for c, _ in ranked[:k]], "score": round(top_score, 4), "corpus_sha256": R.corpus()[1]}

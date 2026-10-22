@@ -34,17 +34,18 @@ def supported(answer: dict) -> tuple[bool, list[str]]:
         return True, []
     by_id = {c["id"]: c for c in R.cards()}
     pool = [norm(b) for c in answer["citations"] for b in by_id[c["id"]]["body"]]
-    main = answer["text"].split("\n\n")[0]
-    missing = [s for s in K.sentences(main) if not any(norm(s) in p for p in pool)]
+    main = answer["text"].split("\n\nSee also:")[0].split("\n\nAyrıca:")[0]
+    missing = [s for para in main.split("\n\n") for s in K.sentences(para) if not any(norm(s) in p for p in pool)]
     numbers = K.unsupported_numbers(main, [by_id[c["id"]] for c in answer["citations"]])
     return not missing and not numbers, missing + numbers
 
 
-def run(cases, retriever=None, mode="ranked", threshold=K.ABSTAIN_SCORE, model_answer=None) -> dict:
+def run(cases, retriever=None, mode="all", threshold=K.ABSTAIN_SCORE, model_answer=None, second=K.SECOND_BODY) -> dict:
     rows, lat = [], []
     for c in cases:
         t0 = time.perf_counter()
-        a = K.answer(c["query"], "en" if c["lang"] == "en" else "tr", retriever=retriever, mode=mode, threshold=threshold)
+        a = K.answer(c["query"], "en" if c["lang"] == "en" else "tr", retriever=retriever, mode=mode, threshold=threshold,
+                     second=second)
         if model_answer and a["status"] == "answered":
             a = model_answer(c["query"], a)
         lat.append((time.perf_counter() - t0) * 1000)
@@ -77,14 +78,16 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", default="dev", choices=("dev", "val", "test"))
     ap.add_argument("--retriever", default="lexical")
-    ap.add_argument("--mode", default="ranked", choices=("ranked", "all"))
+    ap.add_argument("--mode", default="all", choices=("ranked", "all"))
+    ap.add_argument("--second", type=float, default=K.SECOND_BODY)
     ap.add_argument("--threshold", type=float, default=K.ABSTAIN_SCORE)
     ap.add_argument("--out", default="")
     args = ap.parse_args(argv)
     bench = Bench()
     fn = bench.configs()[args.retriever]
-    res = run(load(args.split), retriever=fn, mode=args.mode, threshold=args.threshold)
+    res = run(load(args.split), retriever=fn, mode=args.mode, threshold=args.threshold, second=args.second)
     res.update({"split": args.split, "retriever": args.retriever, "mode": args.mode, "threshold": args.threshold,
+                "second": args.second,
                 "qa_version": K.VERSION})
     print({k: (round(v, 3) if isinstance(v, float) else v) for k, v in res.items() if k != "rows"})
     if args.out:

@@ -97,3 +97,42 @@ powerbi-preflight:  ## verify the D-91.7 Power BI SP provisioning (STOP-A gate)
 .PHONY: stack-up stack-mcp stack-demo stack-live stack-down drill \
         conditions preflight ingest status score fixture-up scenarios \
         powerbi-preflight
+
+# --- Analytics workspace (v3) -------------------------------------------------------------------------------
+# A fresh clone reproduces the workspace and its measurements with these (docs/evals/README.md). Model runs need a
+# provider key in analysis/.local (never committed); everything else is offline and deterministic.
+WS_NODE ?= $(shell command -v node)
+
+ws-setup:    ## venv + analysis deps + UCI data + web bundle (no Docker; Homebrew PostgreSQL 16 for the app)
+	test -x $(PY) || python3.12 -m venv .venv
+	$(PY) -m pip install -q -c constraints.txt -e '.[dev]' -r analysis/requirements.txt
+	test -f analysis/.local/uci.duckdb || (curl --fail -L --max-time 120 'https://archive.ics.uci.edu/static/public/352/online+retail.zip' -o /tmp/online-retail.zip && $(PY) -m analysis.prepare)
+	npm --prefix core ci --ignore-scripts && npm --prefix core run build
+
+ws-dev:      ## run the local app at http://127.0.0.1:8123/app/ (fixture login in deploy/phase1/start.mjs)
+	./deploy/phase1/start.sh
+
+ws-test:     ## analytics unit, golden and contract tests + web typecheck + reference-data and split integrity
+	$(PY) -m pytest analysis/tests -q
+	$(PY) -m analysis.reference.fetch --check || echo "(no saved downloads: run python -m analysis.reference.fetch once)"
+	$(PY) -m analysis.evals.split --verify
+	./core/node_modules/.bin/tsc -p core/web/tsconfig.json --noEmit
+
+ws-eval:     ## local methods on the frozen splits (no network): routing, chart plans, multi-turn, answers
+	for t in studio intent chart multiturn; do for s in val test; do \
+	  $(PY) -m analysis.evals.routing --task $$t --split $$s --methods $$( [ $$t = studio ] && echo rules-v1,learned || ([ $$t = intent ] && echo legacy-local,learned,rules || echo local)) \
+	    --out docs/evals/results/routing-$$t-$$s-local.json; done; done
+	for s in dev val test; do $(PY) -m analysis.evals.answers --split $$s --out docs/evals/results/answers-$$s-lexical.json; done
+
+ws-eval-models:  ## the same cases against hosted models (needs a Groq key; paced for the free tier; resumable)
+	for m in gpt-oss-20b gpt-oss-120b qwen3.8-27b; do for t in studio intent chart multiturn; do \
+	  EVAL_PAUSE=$$([ $$t = studio ] || [ $$t = intent ] && echo 4 || echo 16) $(PY) -m analysis.evals.routing --task $$t --split test \
+	    --methods model:$$m --out docs/evals/results/routing-$$t-test-$$m.json; done; done
+	$(PY) -m analysis.evals.routing_table
+
+ws-benchmark:  ## retrieval benchmark (downloads ~2.3 GB of ONNX models once) and worker latency
+	$(PY) -m pip install -q fastembed==0.4.2
+	for s in dev val test; do $(PY) -m analysis.evals.retrieval --split $$s --out docs/evals/results/retrieval-$$s.json; done
+	$(PY) -m analysis.evals.perf --n 20 --out docs/evals/results/perf-spawn.json
+
+.PHONY: ws-setup ws-dev ws-test ws-eval ws-eval-models ws-benchmark

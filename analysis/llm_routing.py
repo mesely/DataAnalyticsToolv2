@@ -113,7 +113,7 @@ def receipt(task, used, *, fallback=None):
     e = entry(task)
     out = {"task": task, "method": e["method"], "used": used, "why": e.get("why"),
            "local_accuracy": e.get("local_accuracy"), "model_accuracy": e.get("model_accuracy"), "n": e.get("n"),
-           "measured_at": e.get("measured_at")}
+           "measured_at": e.get("measured_at"), "model": e.get("model"), "local_method": e.get("local_method")}
     blocked = availability()
     if blocked and e["method"] != "local":
         out["unavailable"] = blocked

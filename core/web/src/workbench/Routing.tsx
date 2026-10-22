@@ -9,6 +9,8 @@ import type { RoutingReceipt } from "./types";
 const TASKS: Record<string, [string, string]> = {
   chart_plan: ["grafik planı", "chart planning"],
   question_route: ["soru yönlendirme", "question routing"],
+  question_intent: ["soru türü", "question type"],
+  network_question: ["ağ sorusu", "network question"],
   studio_route: ["stüdyo seçimi", "studio choice"],
   decision_focus: ["odak seçimi", "focus selection"],
   decision_narrative: ["karar anlatısı", "decision narrative"],
@@ -34,6 +36,8 @@ export function RoutingBadge({
   const { t, locale } = useLocale();
   if (!routing) return null;
   const model = routing.used === "model";
+  // The model measured for this task, when the routing table names one; the configured provider otherwise.
+  const label = routing.model ?? providerLabel;
   const task = TASKS[routing.task] ?? [routing.task, routing.task];
   const unmeasured = routing.local_accuracy == null && routing.model_accuracy == null && routing.method === "local";
   const rule = unmeasured
@@ -61,7 +65,7 @@ export function RoutingBadge({
         <Verified size={16} />
         {prefix ? `${prefix} · ` : ""}
         {model
-          ? t(`Planlayan: dil modeli${providerLabel ? ` (${providerLabel})` : ""}`, `Planned by: language model${providerLabel ? ` (${providerLabel})` : ""}`)
+          ? t(`Planlayan: dil modeli${label ? ` (${label})` : ""}`, `Planned by: language model${label ? ` (${label})` : ""}`)
           : t("Planlayan: yerel yöntem", "Planned by: local method")}
       </summary>
       <div lang={locale}>

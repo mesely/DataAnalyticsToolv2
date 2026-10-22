@@ -1868,7 +1868,7 @@ def llm_plan(prompt, base_spec, catalog, *, model=None, locale: str = "tr") -> d
     check = assess_input(str(prompt or ""))
     if not check.allowed:
         return {"status": "blocked", "error_code": "input_refused"}
-    cfg = llm.configuration() if model is None else None
+    cfg = llm.configuration(task="chart_plan") if model is None else None
     if model is None and cfg is None:
         return {"status": "unavailable", "error_code": "not_configured"}
     base = validate_spec(base_spec, catalog, locale=locale) if base_spec is not None else default_spec()

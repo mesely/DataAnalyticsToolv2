@@ -112,12 +112,20 @@ def _credentials():
     return {"kind": "huggingface", "base_url": HF_ROUTER, "model": model, "token": token}
 
 
-def configuration(max_tokens=100):
+def configuration(max_tokens=100, task=None):
     """ProviderSettings for the configured provider. ``max_tokens`` is the answer budget; reasoning models get
-    REASONING_HEADROOM on top, applied by :func:`settings_for`."""
+    REASONING_HEADROOM on top, applied by :func:`settings_for`. With ``task``, a Groq provider uses the model the
+    routing table measured for that task (analysis/llm_routing.json `model_id`, AW-24) when it is an allowed one;
+    the configured model otherwise."""
     creds = _credentials()
     if creds is None:
         return None
+    if task and creds["kind"] == "groq":
+        from analysis import llm_routing
+
+        measured = llm_routing.entry(task).get("model_id")
+        if isinstance(measured, str) and _GROQ_MODEL.fullmatch(measured):
+            creds = {**creds, "model": measured}
     return settings_for(creds, max_tokens)
 
 
@@ -217,7 +225,7 @@ def plan_intent(question, *, model=None):
     check = assess_input(question)
     if not check.allowed:
         return {"status": "blocked", "intent": "refuse"}
-    cfg = configuration(max_tokens=30) if model is None else None
+    cfg = configuration(max_tokens=30, task="question_intent") if model is None else None
     if model is None and cfg is None:
         return {"status": "unavailable", "error_code": "not_configured"}
     from analysis.adapted.providers import LLMProviderError
@@ -254,7 +262,7 @@ def validate_studio(text):
 
 def plan_studio(text, *, model=None):
     """Model-side counterpart of analysis.router.route, for the held-out comparison and automatic routing (v3 G6)."""
-    cfg = configuration(max_tokens=20) if model is None else None
+    cfg = configuration(max_tokens=20, task="studio_route") if model is None else None
     if model is None and cfg is None:
         return {"status": "unavailable", "error_code": "not_configured"}
     from analysis.adapted.providers import LLMProviderError

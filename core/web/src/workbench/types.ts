@@ -46,7 +46,8 @@ export interface GraphNode {
 }
 export interface GraphData {
   nodes: GraphNode[];
-  edges: { source: string; target: string; weight: number }[];
+  /** co-purchase links also carry lift and Jaccard (association beyond popularity, v3 G1 follow-up). */
+  edges: { source: string; target: string; weight: number; lift?: number | null; jaccard?: number | null }[];
   mode: string;
   note: string;
   communities: number;
@@ -76,6 +77,9 @@ export interface RoutingReceipt {
   measured_at?: string | null;
   unavailable?: string;
   fallback?: string | null;
+  /** AW-24: the model measured for this task (its label) and the local method it was compared with. */
+  model?: string | null;
+  local_method?: string | null;
 }
 /** v3 G5: what gross sales leaves out, what product views leave out, and how complete the edge months are. */
 export interface ScopeInfo {

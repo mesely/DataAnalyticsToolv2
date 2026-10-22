@@ -2816,6 +2816,9 @@ function NetworkView({
                     >
                       <title>
                         {a.label} ↔ {b.label}: {weightText(e.weight)}
+                        {e.lift != null
+                          ? ` · lift ${e.lift.toFixed(2)} · Jaccard ${(e.jaccard ?? 0).toFixed(2)} ${t("(lift 1 = tesadüf düzeyi)", "(lift 1 = chance level)")}`
+                          : ""}
                       </title>
                     </line>
                   );

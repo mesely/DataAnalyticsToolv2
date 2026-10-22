@@ -70,3 +70,33 @@ def test_product_matching_prefers_the_longest_name():
     assert pid == "85099B" and hit == "jumbo bag red retrospot"
     assert match_product("nothing here", NODES) == (None, None)
     assert local_plan("en güçlü 7", NODES)["k"] == 7
+
+
+# ------------------------------------------------------------------ association measures (lift, Jaccard)
+
+def test_lift_and_jaccard_are_computed_from_order_counts():
+    """Hand check on one UCI pair: co-orders x all orders / (orders with A x orders with B), and co / (A + B - co)."""
+    import duckdb
+
+    from analysis.prepare import DATA
+    from analysis.worker import graph
+
+    g = graph({"dataset": "uci"})
+    e = max(g["edges"], key=lambda x: x["weight"])
+    with duckdb.connect(str(DATA / "uci.duckdb"), read_only=True) as con:
+        n = con.execute("SELECT COUNT(DISTINCT invoice) FROM transactions").fetchone()[0]
+        a = con.execute("SELECT COUNT(DISTINCT invoice) FROM transactions WHERE product_id = ?", [e["source"]]).fetchone()[0]
+        b = con.execute("SELECT COUNT(DISTINCT invoice) FROM transactions WHERE product_id = ?", [e["target"]]).fetchone()[0]
+        co = con.execute("SELECT COUNT(*) FROM (SELECT invoice FROM transactions WHERE product_id IN (?, ?) GROUP BY invoice "
+                         "HAVING COUNT(DISTINCT product_id) = 2)", [e["source"], e["target"]]).fetchone()[0]
+    assert e["weight"] == co and g["association"]["orders_in_scope"] == n
+    assert e["lift"] == round(co * n / (a * b), 4) and e["jaccard"] == round(co / (a + b - co), 4)
+
+
+def test_pairs_can_be_ranked_by_lift():
+    from analysis.network_qa import answer
+
+    by_lift = answer({"dataset": "uci", "question": "lift'e göre en güçlü 3 çift", "locale": "tr"})
+    by_count = answer({"dataset": "uci", "question": "En güçlü 3 ürün çifti", "locale": "tr"})
+    assert by_lift["plan"].get("by") == "lift" and "by" not in by_count["plan"]
+    assert "lift" in by_lift["answer"] and by_lift["highlight"]["edges"] != by_count["highlight"]["edges"]

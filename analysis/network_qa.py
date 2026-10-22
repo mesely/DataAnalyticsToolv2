@@ -31,6 +31,9 @@ RE_BRIDGES = _P(r"(?<!\w)(?:kopru[a-z']*|arac[a-z']*|aradalik|bridg[a-z]*|broker
 RE_HUBS = _P(r"(?<!\w)(?:en (?:cok|fazla) bag(?:lanti|i)[a-z']*|merkez[a-z']*|most connected|hub[s]?|central[a-z]*|degree)")
 RE_NEIGHBORS = _P(r"(?<!\w)(?:ile (?:en cok |birlikte |beraber )|yaninda|beraber|birlikte alin[a-z']*|bought with|purchased with|goes? with|paired with|together with|neighbou?rs?|komsu[a-z']*)")
 RE_STRONG = _P(r"(?<!\w)(?:en guclu|strongest|en cok birlikte|most (?:often )?bought together|top pairs?|en sik|ciftler[a-z']*|pairs?(?![a-z]))")
+# Ranking by association instead of raw co-orders ("lift'e göre", "tesadüften fazla", "beklenenden sık").
+RE_LIFT = _P(r"(?<!\w)(?:lift[a-z']*|jaccard|tesaduf[a-z']*|sans[a-z']*|beklenen(?:den)?|chance|expected|surpris[a-z]*|"
+             r"normali[sz]e?[a-z]*|popularit[a-z]*|populerlik[a-z']*|iliski gucu|association strength|en anlamli|most meaningful)")
 RE_K = _P(r"(?<![\d.])(\d{1,2})(?![\d.])")
 RE_MONTH_ISO = _P(r"(?<!\d)((?:19|20)\d{2})-(0[1-9]|1[0-2])(?!\d)")
 _TR_MONTHS = ["ocak", "subat", "mart", "nisan", "mayis", "haziran", "temmuz", "agustos", "eylul", "ekim", "kasim", "aralik"]
@@ -84,13 +87,20 @@ def local_plan(question, nodes):
         return {"query": "clarify", "k": k, "product": None, "month": None}
     for query, pattern in (("communities", RE_COMMUNITIES), ("bridges", RE_BRIDGES), ("hubs", RE_HUBS), ("strongest_pairs", RE_STRONG)):
         if pattern.search(text):
-            return {"query": query, "k": k, "product": None, "month": None}
+            plan = {"query": query, "k": k, "product": None, "month": None}
+            if query == "strongest_pairs" and RE_LIFT.search(text):
+                plan["by"] = "lift"
+            return plan
+    if RE_LIFT.search(text):
+        return {"query": "strongest_pairs", "k": k, "product": None, "month": None, "by": "lift"}
     return {"query": "clarify", "k": k, "product": None, "month": None}
 
 
 def validate_plan(plan, nodes, months):
     """A planner's output (local or model) must name a known query, an existing node and a month in the data."""
-    if not isinstance(plan, dict) or set(plan) - {"query", "k", "product", "month"} or plan.get("query") not in QUERIES:
+    if not isinstance(plan, dict) or set(plan) - {"query", "k", "product", "month", "by"} or plan.get("query") not in QUERIES:
+        raise ValueError("Invalid network plan")
+    if plan.get("by", "count") not in ("count", "lift"):
         raise ValueError("Invalid network plan")
     k = plan.get("k", 5)
     if type(k) is not int or not K_RANGE[0] <= k <= K_RANGE[1]:
@@ -102,7 +112,10 @@ def validate_plan(plan, nodes, months):
         raise ValueError("Invalid network plan")
     if plan["query"] == "neighbors" and plan.get("product") is None:
         raise ValueError("Invalid network plan")
-    return {"query": plan["query"], "k": k, "product": plan.get("product"), "month": plan.get("month")}
+    out = {"query": plan["query"], "k": k, "product": plan.get("product"), "month": plan.get("month")}
+    if plan.get("by") == "lift":
+        out["by"] = "lift"
+    return out
 
 
 def _months(m):
@@ -172,9 +185,20 @@ def _compute(plan, g, request, m, en):
     if not g["nodes"]:
         return (("There are no products to relate under these filters." if en else "Bu filtrelerle ilişki kurulacak ürün yok."), [], [])
     if q == "strongest_pairs":
-        top = edges[:k]
+        by_lift = plan.get("by") == "lift" and mode == "copurchase" and all(e.get("lift") is not None for e in edges)
+        top = (sorted(edges, key=lambda e: (-e["lift"], e["source"], e["target"])) if by_lift else edges)[:k]
         if not top:
             return (("No links at this threshold." if en else "Bu eşikte bağ yok."), [], [])
+        if by_lift:
+            num = lambda v: f"{v:.2f}" if en else f"{v:.2f}".replace(".", ",")  # noqa: E731
+            lift = lambda e: (f"{names.get(e['source'], e['source'])} ↔ {names.get(e['target'], e['target'])} "  # noqa: E731
+                              + (f"(lift {num(e['lift'])}, Jaccard {num(e['jaccard'])}, {int(e['weight'])} shared invoices)" if en else
+                                 f"(lift {num(e['lift'])}, Jaccard {num(e['jaccard'])}, {int(e['weight'])} ortak fatura)"))
+            lead = (f"The {len(top)} pairs bought together most often relative to chance (lift = co-orders × all orders / "
+                    "(orders with A × orders with B); 1 means independent): " if en else
+                    f"Tesadüfe göre en sık birlikte alınan {len(top)} çift (lift = ortak sipariş × tüm siparişler / "
+                    "(A'lı siparişler × B'li siparişler); 1 bağımsızlık demektir): ")
+            return lead + "; ".join(lift(e) for e in top) + ".", sorted({x for e in top for x in (e["source"], e["target"])}), [[e["source"], e["target"]] for e in top]
         lead = f"The {len(top)} strongest links: " if en else f"En güçlü {len(top)} bağ: "
         return lead + "; ".join(pair(e) for e in top) + ".", sorted({x for e in top for x in (e["source"], e["target"])}), [[e["source"], e["target"]] for e in top]
     if q == "neighbors":

@@ -47,7 +47,10 @@ def studio_method(name: str):
     if name == "learned":
         from analysis import textclf
 
-        return lambda text: (textclf.predict("studio-router", text)[0], {})
+        def learned(text):
+            label, p = textclf.predict("studio-router", text)
+            return label, {"confidence": round(p, 4)}
+        return learned
     if name == "router":
         from analysis.router import route
 
@@ -79,7 +82,11 @@ def intent_method(name: str):
         from analysis import intents
 
         method = {"learned": "learned", "rules": "rules", "pipeline": "auto"}[name]
-        return lambda q: (intents.classify(q, method=method)["intent"], {})
+
+        def local(q):
+            out = intents.classify(q, method=method)
+            return out["intent"], {"confidence": out["confidence"]}
+        return local
     if name.startswith("model:"):
         from analysis.evals.providers import chat
         from analysis.llm import plan_intent
@@ -192,7 +199,7 @@ def run(task: str, split: str, method: str, resume: bool = True, limit: int | No
                 turns.append({"correct": ok, "wrong": wrong})
             row = {"id": c["id"], "lang": c.get("lang"), "turns": turns, "correct": len(turns) == len(c["turns"]) and all(x["correct"] for x in turns)}
         row["latency_ms"] = round((time.perf_counter() - t0) * 1000, 2)
-        row.update({k: v for k, v in meta.items() if k in ("total_tokens", "raw_status", "error_code", "http_status")})
+        row.update({k: v for k, v in meta.items() if k in ("total_tokens", "raw_status", "error_code", "http_status", "confidence")})
         if method.startswith("model:") and _blocked(meta):
             blocked = {k: meta.get(k) for k in ("raw_status", "error_code", "http_status")}
             row = {"id": c["id"], "status": "BLOCKED", "correct": None, "blocked": blocked}

@@ -719,7 +719,7 @@ def handle(request):
         used, fallback = "local", None
         # AW-24: the learned router (trained on the benchmark's dev split); "local first" asks the model only when
         # the router is unsure, if the routing table says so.
-        if llm_routing.use_model("studio_route", local_ok=out.get("confidence", 1.0) >= 0.6):
+        if llm_routing.use_model("studio_route", local_ok=out.get("confidence", 1.0) >= llm_routing.entry("studio_route").get("tau", 0.6)):
             key = llm_routing.cache_key("studio_route", request["text"])
             plan = llm_routing.cache_get(key)
             if plan is None:

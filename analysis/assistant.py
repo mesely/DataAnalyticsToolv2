@@ -32,7 +32,8 @@ def decide_intent(request: dict) -> dict:
     local = intents.classify(q)
     if local["intent"] == "refuse" or request.get("use_llm") is False:
         return {**local, "used": "local"}
-    if request.get("use_llm") is True or llm_routing.use_model("question_intent", local_ok=local["confidence"] >= 0.5):
+    tau = llm_routing.entry("question_intent").get("tau", 0.5)  # chosen on the val split (analysis/evals/routing_table.py)
+    if request.get("use_llm") is True or llm_routing.use_model("question_intent", local_ok=local["confidence"] >= tau):
         from analysis.llm import plan_intent
 
         key = llm_routing.cache_key("question_intent", q)

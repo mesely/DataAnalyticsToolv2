@@ -1,21 +1,23 @@
 {
- "version": "llm-routing-v1",
+ "version": "llm-routing-v2",
  "rule": {
-  "margin": 0.05,
+  "margin": 0.03,
+  "alpha": 0.05,
+  "test": "exact McNemar on paired held-out cases",
   "rescue_rate": 0.6,
-  "rescue_min": 3
+  "rescue_min": 3,
+  "split": "frozen test (analysis/evals/data)"
  },
- "model": "GPT-OSS 20B · Groq",
  "tasks": {
   "chart_plan": {
-   "local_accuracy": 0.8166666666666667,
-   "model_accuracy": 0.5263157894736842,
-   "n": 60,
-   "model_answered": 19,
+   "local_method": "local",
+   "local_accuracy": 0.9231,
+   "n": 104,
+   "receipt": "docs/evals/results/routing-chart-test-*.json",
+   "measured_at": "2026-10-22T18:55:51+00:00",
+   "candidates": {},
    "method": "local",
-   "why": "model not measured on every held-out case",
-   "receipt": "docs/evidence/verification/phase13-heldout-chart.json",
-   "measured_at": "2026-10-17T21:32:56Z"
+   "why": "no model answered every held-out case (quota or not run)"
   },
   "decision_focus": {
    "method": "local",
@@ -37,25 +39,93 @@
    "why": "model not measured yet; local 22/25 on the v3.1 network set (not independent)",
    "receipt": "docs/evidence/verification/phase13-network-local.json"
   },
-  "question_route": {
-   "local_accuracy": 0.525,
-   "model_accuracy": 0.85,
-   "n": 40,
-   "model_answered": 40,
-   "method": "model",
-   "why": "model beats local by >= 5 points",
-   "receipt": "docs/evidence/verification/phase13-heldout-questions.json",
-   "measured_at": "2026-10-17T21:30:36Z"
-  },
   "studio_route": {
-   "local_accuracy": 0.62,
-   "model_accuracy": 0.94,
-   "n": 100,
-   "model_answered": 100,
-   "method": "model",
-   "why": "model beats local by >= 5 points",
-   "receipt": "docs/evidence/verification/phase13-heldout-studio.json",
-   "measured_at": "2026-10-17T21:24:49Z"
+   "local_method": "learned",
+   "local_accuracy": 0.9147,
+   "n": 129,
+   "receipt": "docs/evals/results/routing-studio-test-*.json",
+   "measured_at": "2026-10-22T18:55:51+00:00",
+   "candidates": {
+    "gpt-oss-20b": {
+     "accuracy": 0.8837,
+     "p_value": 0.5413,
+     "rescued": 10,
+     "lost": 14,
+     "latency_p50_ms": 472.85,
+     "tokens": 47719,
+     "n": 129
+    },
+    "gpt-oss-120b": {
+     "accuracy": 0.9457,
+     "p_value": 0.4807,
+     "rescued": 11,
+     "lost": 7,
+     "latency_p50_ms": 404.08,
+     "tokens": 48510,
+     "n": 129
+    },
+    "qwen3.8-27b": {
+     "accuracy": 0.938,
+     "p_value": 0.6476,
+     "rescued": 11,
+     "lost": 8,
+     "latency_p50_ms": 288.56,
+     "tokens": 33947,
+     "n": 129
+    }
+   },
+   "model": "GPT-OSS 120B · Groq",
+   "model_id": "openai/gpt-oss-120b",
+   "model_accuracy": 0.9457,
+   "p_value": 0.48068,
+   "method": "local",
+   "why": "local within 3.1 points of the best model (McNemar p = 0.481); local is free, instant and private"
+  },
+  "question_intent": {
+   "local_method": "rules",
+   "local_accuracy": 0.9278,
+   "n": 97,
+   "receipt": "docs/evals/results/routing-intent-test-*.json",
+   "measured_at": "2026-10-22T18:55:51+00:00",
+   "candidates": {
+    "gpt-oss-20b": {
+     "accuracy": 0.9175,
+     "p_value": 1.0,
+     "rescued": 5,
+     "lost": 6,
+     "latency_p50_ms": 536.65,
+     "tokens": 48915,
+     "n": 97
+    },
+    "gpt-oss-120b": {
+     "accuracy": 0.9691,
+     "p_value": 0.3438,
+     "rescued": 7,
+     "lost": 3,
+     "latency_p50_ms": 471.71,
+     "tokens": 50494,
+     "n": 97
+    },
+    "qwen3.8-27b": {
+     "accuracy": 0.9897,
+     "p_value": 0.0703,
+     "rescued": 7,
+     "lost": 1,
+     "latency_p50_ms": 317.86,
+     "tokens": 40153,
+     "n": 97
+    }
+   },
+   "model": "Qwen3.8 27B · Groq",
+   "model_id": "qwen/qwen3.8-27b",
+   "model_accuracy": 0.9897,
+   "p_value": 0.07031,
+   "method": "local_then_model",
+   "tau": 0.5,
+   "hybrid_accuracy": 0.9691,
+   "model_call_rate": 0.0722,
+   "hybrid_p_value": 0.125,
+   "why": "local when its confidence >= 0.5 (chosen on val: 87.0 -> 100.0 %), the model otherwise; test 96.9 % with the model on 7 % of questions"
   }
  }
 }

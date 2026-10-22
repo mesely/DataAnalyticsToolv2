@@ -1,0 +1,1523 @@
+{
+ "local": {
+  "task": "chart",
+  "split": "test",
+  "method": "local",
+  "n": 104,
+  "answered": 104,
+  "accuracy": 0.875,
+  "ci95": [
+   0.797808355315222,
+   0.9254746820284376
+  ],
+  "blocked": null,
+  "latency_ms": {
+   "p50": 0.3,
+   "p95": 0.538,
+   "p99": 0.808,
+   "mean": 0.413
+  },
+  "tokens": 0,
+  "rows": [
+   {
+    "id": "c001",
+    "category": "period_relative",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "start": "2011-10-01",
+     "end": "2011-12-09"
+    },
+    "latency_ms": 8.18
+   },
+   {
+    "id": "c004",
+    "category": "period_relative",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "start": "2011-10-01",
+     "end": "2011-12-09"
+    },
+    "latency_ms": 0.39
+   },
+   {
+    "id": "c005",
+    "category": "period_relative",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "start": "2011-07-01",
+     "end": "2011-12-09"
+    },
+    "latency_ms": 0.49
+   },
+   {
+    "id": "c007",
+    "category": "period_relative",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "start": "2011-04-01",
+     "end": "2011-12-09"
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c008",
+    "category": "period_relative",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "start": "2011-07-01",
+     "end": "2011-12-09",
+     "dimension": "week",
+     "metric": "orders"
+    },
+    "latency_ms": 0.32
+   },
+   {
+    "id": "c014",
+    "category": "period_named",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "start": "2011-02-01",
+     "end": "2011-02-28"
+    },
+    "latency_ms": 0.63
+   },
+   {
+    "id": "c017",
+    "category": "period_named",
+    "lang": "tr",
+    "correct": false,
+    "wrong": [
+     "end"
+    ],
+    "got": {
+     "start": "2011-01-01",
+     "end": "2011-12-09"
+    },
+    "latency_ms": 0.32
+   },
+   {
+    "id": "c022",
+    "category": "period_named",
+    "lang": "tr",
+    "correct": false,
+    "wrong": [
+     "start"
+    ],
+    "got": {
+     "start": "2011-06-01",
+     "end": "2011-06-30"
+    },
+    "latency_ms": 0.31
+   },
+   {
+    "id": "c023",
+    "category": "period_named",
+    "lang": "en",
+    "correct": false,
+    "wrong": [
+     "start"
+    ],
+    "got": {
+     "start": "2011-05-01",
+     "end": "2011-05-31"
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c024",
+    "category": "period_named",
+    "lang": "tr",
+    "correct": false,
+    "wrong": [
+     "end"
+    ],
+    "got": {
+     "start": "2011-01-01",
+     "end": "2011-12-09"
+    },
+    "latency_ms": 0.27
+   },
+   {
+    "id": "c026",
+    "category": "period_named",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "start": null,
+     "end": null
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c027",
+    "category": "period_named",
+    "lang": "mixed",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "start": "2011-04-01",
+     "end": "2011-06-30"
+    },
+    "latency_ms": 0.27
+   },
+   {
+    "id": "c029",
+    "category": "countries",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [
+      "France"
+     ]
+    },
+    "latency_ms": 0.25
+   },
+   {
+    "id": "c031",
+    "category": "countries",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [
+      "RSA"
+     ]
+    },
+    "latency_ms": 0.28
+   },
+   {
+    "id": "c033",
+    "category": "countries",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [
+      "United Kingdom"
+     ]
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c036",
+    "category": "countries",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [
+      "Sweden",
+      "Finland",
+      "Norway"
+     ]
+    },
+    "latency_ms": 0.29
+   },
+   {
+    "id": "c037",
+    "category": "countries",
+    "lang": "tr",
+    "correct": false,
+    "wrong": [
+     "countries"
+    ],
+    "got": {
+     "countries": [
+      "France",
+      "Spain"
+     ]
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c040",
+    "category": "countries",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [
+      "United Arab Emirates",
+      "Saudi Arabia"
+     ]
+    },
+    "latency_ms": 0.38
+   },
+   {
+    "id": "c043",
+    "category": "exclusions",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "exclude_countries": [
+      "United Kingdom"
+     ]
+    },
+    "latency_ms": 0.38
+   },
+   {
+    "id": "c044",
+    "category": "exclusions",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "exclude_countries": [
+      "United Kingdom"
+     ]
+    },
+    "latency_ms": 0.24
+   },
+   {
+    "id": "c045",
+    "category": "exclusions",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [],
+     "exclude_countries": [
+      "United Kingdom"
+     ]
+    },
+    "latency_ms": 0.31
+   },
+   {
+    "id": "c046",
+    "category": "exclusions",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "exclude_countries": [
+      "EIRE",
+      "Unspecified"
+     ]
+    },
+    "latency_ms": 0.31
+   },
+   {
+    "id": "c047",
+    "category": "exclusions",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "exclude_countries": [
+      "Netherlands",
+      "Australia"
+     ]
+    },
+    "latency_ms": 0.41
+   },
+   {
+    "id": "c054",
+    "category": "exclusions",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [],
+     "exclude_countries": []
+    },
+    "latency_ms": 0.27
+   },
+   {
+    "id": "c055",
+    "category": "exclusions",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [],
+     "exclude_countries": []
+    },
+    "latency_ms": 0.25
+   },
+   {
+    "id": "c061",
+    "category": "compare",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [
+      "Spain",
+      "Italy",
+      "Portugal"
+     ],
+     "split_by_country": true,
+     "dimension": "month"
+    },
+    "latency_ms": 0.34
+   },
+   {
+    "id": "c064",
+    "category": "compare",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [
+      "Germany",
+      "France",
+      "Netherlands"
+     ],
+     "split_by_country": true,
+     "dimension": "month"
+    },
+    "latency_ms": 0.7
+   },
+   {
+    "id": "c066",
+    "category": "compare",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [
+      "France",
+      "EIRE"
+     ],
+     "split_by_country": true
+    },
+    "latency_ms": 0.75
+   },
+   {
+    "id": "c068",
+    "category": "compare",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [
+      "Germany",
+      "France"
+     ],
+     "split_by_country": true,
+     "dimension": "month",
+     "metric": "orders"
+    },
+    "latency_ms": 0.48
+   },
+   {
+    "id": "c072",
+    "category": "compare",
+    "lang": "mixed",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [
+      "Germany",
+      "France"
+     ],
+     "split_by_country": true,
+     "dimension": "month"
+    },
+    "latency_ms": 0.36
+   },
+   {
+    "id": "c075",
+    "category": "metric",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "metric": "aov"
+    },
+    "latency_ms": 0.28
+   },
+   {
+    "id": "c076",
+    "category": "metric",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "metric": "orders"
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c078",
+    "category": "metric",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "metric": "aov"
+    },
+    "latency_ms": 0.24
+   },
+   {
+    "id": "c080",
+    "category": "metric",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "metric": "gross_sales"
+    },
+    "latency_ms": 0.35
+   },
+   {
+    "id": "c084",
+    "category": "dimension",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "month"
+    },
+    "latency_ms": 0.38
+   },
+   {
+    "id": "c088",
+    "category": "dimension",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "product"
+    },
+    "latency_ms": 0.27
+   },
+   {
+    "id": "c090",
+    "category": "dimension",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "week"
+    },
+    "latency_ms": 0.23
+   },
+   {
+    "id": "c094",
+    "category": "chart_type",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "chart": "area"
+    },
+    "latency_ms": 0.27
+   },
+   {
+    "id": "c096",
+    "category": "chart_type",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "chart": "line"
+    },
+    "latency_ms": 0.34
+   },
+   {
+    "id": "c097",
+    "category": "chart_type",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "chart": "line"
+    },
+    "latency_ms": 0.28
+   },
+   {
+    "id": "c100",
+    "category": "sort",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "sort": "value_desc"
+    },
+    "latency_ms": 0.33
+   },
+   {
+    "id": "c102",
+    "category": "sort",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "sort": "value_asc"
+    },
+    "latency_ms": 0.28
+   },
+   {
+    "id": "c103",
+    "category": "sort",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "sort": "value_asc"
+    },
+    "latency_ms": 0.29
+   },
+   {
+    "id": "c109",
+    "category": "top_n",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country",
+     "top_n": 5
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c110",
+    "category": "top_n",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "product",
+     "top_n": 20
+    },
+    "latency_ms": 0.26
+   },
+   {
+    "id": "c113",
+    "category": "top_n",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country",
+     "top_n": 8,
+     "metric": "orders"
+    },
+    "latency_ms": 0.35
+   },
+   {
+    "id": "c115",
+    "category": "statistic",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "statistic": "trend"
+    },
+    "latency_ms": 0.26
+   },
+   {
+    "id": "c116",
+    "category": "statistic",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "statistic": "trend"
+    },
+    "latency_ms": 0.26
+   },
+   {
+    "id": "c123",
+    "category": "statistic",
+    "lang": "tr",
+    "correct": false,
+    "wrong": [
+     "statistic"
+    ],
+    "got": {
+     "statistic": "none"
+    },
+    "latency_ms": 0.29
+   },
+   {
+    "id": "c124",
+    "category": "statistic",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "statistic": "control_band"
+    },
+    "latency_ms": 0.34
+   },
+   {
+    "id": "c126",
+    "category": "statistic",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "statistic": "ci95"
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c127",
+    "category": "statistic",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "metric": "aov",
+     "statistic": "ci95"
+    },
+    "latency_ms": 0.33
+   },
+   {
+    "id": "c128",
+    "category": "statistic",
+    "lang": "tr",
+    "correct": false,
+    "wrong": [
+     "statistic"
+    ],
+    "got": {
+     "statistic": "trend"
+    },
+    "latency_ms": 0.28
+   },
+   {
+    "id": "c129",
+    "category": "statistic",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "statistic": "none"
+    },
+    "latency_ms": 0.35
+   },
+   {
+    "id": "c135",
+    "category": "country_group",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country_group",
+     "group": "nato"
+    },
+    "latency_ms": 0.31
+   },
+   {
+    "id": "c137",
+    "category": "country_group",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country_group",
+     "group": "eurozone"
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c138",
+    "category": "country_group",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country_group",
+     "group": "g7"
+    },
+    "latency_ms": 0.26
+   },
+   {
+    "id": "c141",
+    "category": "country_group",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country_group",
+     "group": "eurozone"
+    },
+    "latency_ms": 0.32
+   },
+   {
+    "id": "c143",
+    "category": "country_group",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country_group",
+     "group": "eu"
+    },
+    "latency_ms": 0.38
+   },
+   {
+    "id": "c147",
+    "category": "group_as_of",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "group_as_of": "today"
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c151",
+    "category": "group_as_of",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "group_as_of": "transaction"
+    },
+    "latency_ms": 0.28
+   },
+   {
+    "id": "c155",
+    "category": "group_as_of",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country_group",
+     "group": "nato",
+     "group_as_of": "today"
+    },
+    "latency_ms": 0.34
+   },
+   {
+    "id": "c156",
+    "category": "group_as_of",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country_group",
+     "group": "eu",
+     "group_as_of": "period_end"
+    },
+    "latency_ms": 0.31
+   },
+   {
+    "id": "c158",
+    "category": "group_as_of",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "group_as_of": "today"
+    },
+    "latency_ms": 0.37
+   },
+   {
+    "id": "c159",
+    "category": "disambiguation",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "TRY",
+      "fx": "latest",
+      "real": null,
+      "unit": "money",
+      "index": false,
+      "compare": false
+     },
+     "dimension": "country_group",
+     "group": "eu",
+     "group_as_of": "transaction"
+    },
+    "latency_ms": 0.34
+   },
+   {
+    "id": "c164",
+    "category": "transform",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "TRY",
+      "fx": "transaction",
+      "real": null,
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.23
+   },
+   {
+    "id": "c166",
+    "category": "transform",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "EUR",
+      "fx": "transaction",
+      "real": null,
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c167",
+    "category": "transform",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "TRY",
+      "fx": "latest",
+      "real": null,
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c168",
+    "category": "transform",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "USD",
+      "fx": "latest",
+      "real": null,
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.28
+   },
+   {
+    "id": "c169",
+    "category": "transform",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "TRY",
+      "fx": "latest",
+      "real": null,
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.27
+   },
+   {
+    "id": "c172",
+    "category": "transform",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "TRY",
+      "fx": "transaction",
+      "real": "latest",
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.28
+   },
+   {
+    "id": "c177",
+    "category": "transform",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "TRY",
+      "fx": "transaction",
+      "real": "2011",
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.4
+   },
+   {
+    "id": "c178",
+    "category": "transform",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "USD",
+      "fx": "transaction",
+      "real": "2011",
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c182",
+    "category": "transform",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "GBP",
+      "fx": "transaction",
+      "real": "latest",
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.29
+   },
+   {
+    "id": "c184",
+    "category": "transform",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "GBP",
+      "fx": "transaction",
+      "real": null,
+      "unit": "gold_g",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.31
+   },
+   {
+    "id": "c186",
+    "category": "transform",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "GBP",
+      "fx": "transaction",
+      "real": null,
+      "unit": "gold_oz",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.27
+   },
+   {
+    "id": "c188",
+    "category": "transform",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "TRY",
+      "fx": "transaction",
+      "real": null,
+      "unit": "money",
+      "index": true,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.27
+   },
+   {
+    "id": "c192",
+    "category": "transform",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "TRY",
+      "fx": "transaction",
+      "real": "latest",
+      "unit": "money",
+      "index": false,
+      "compare": true
+     }
+    },
+    "latency_ms": 0.81
+   },
+   {
+    "id": "c193",
+    "category": "transform",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "metric": "aov",
+     "transform": {
+      "currency": "TRY",
+      "fx": "transaction",
+      "real": null,
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.43
+   },
+   {
+    "id": "c198",
+    "category": "transform",
+    "lang": "mixed",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "TRY",
+      "fx": "transaction",
+      "real": "latest",
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.33
+   },
+   {
+    "id": "c201",
+    "category": "defaults",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "metric": "gross_sales",
+     "dimension": "country",
+     "chart": "bar",
+     "sort": "value_desc",
+     "top_n": 10
+    },
+    "latency_ms": 0.26
+   },
+   {
+    "id": "c207",
+    "category": "defaults",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "statistic": "moving_average",
+     "window": 3
+    },
+    "latency_ms": 0.28
+   },
+   {
+    "id": "c208",
+    "category": "defaults",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "metric": "units",
+     "dimension": "country",
+     "chart": "bar",
+     "sort": "value_desc",
+     "top_n": 10
+    },
+    "latency_ms": 0.26
+   },
+   {
+    "id": "c209",
+    "category": "typos",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "start": "2011-10-01",
+     "end": "2011-12-09"
+    },
+    "latency_ms": 0.25
+   },
+   {
+    "id": "c210",
+    "category": "typos",
+    "lang": "tr",
+    "correct": false,
+    "wrong": [
+     "countries",
+     "split_by_country"
+    ],
+    "got": {
+     "countries": [
+      "France"
+     ],
+     "split_by_country": false,
+     "dimension": "month"
+    },
+    "latency_ms": 0.4
+   },
+   {
+    "id": "c216",
+    "category": "typos",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country",
+     "top_n": 5
+    },
+    "latency_ms": 0.25
+   },
+   {
+    "id": "c218",
+    "category": "typos",
+    "lang": "en",
+    "correct": false,
+    "wrong": [
+     "exclude_countries"
+    ],
+    "got": {
+     "exclude_countries": []
+    },
+    "latency_ms": 0.23
+   },
+   {
+    "id": "c219",
+    "category": "typos",
+    "lang": "en",
+    "correct": false,
+    "wrong": [
+     "start",
+     "end"
+    ],
+    "got": {
+     "start": null,
+     "end": null
+    },
+    "latency_ms": 0.29
+   },
+   {
+    "id": "c223",
+    "category": "combined",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "start": "2011-07-01",
+     "end": "2011-12-09",
+     "dimension": "week",
+     "metric": "orders",
+     "statistic": "trend"
+    },
+    "latency_ms": 0.45
+   },
+   {
+    "id": "c224",
+    "category": "combined",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [
+      "Germany",
+      "France"
+     ],
+     "split_by_country": true,
+     "dimension": "month",
+     "metric": "gross_sales",
+     "transform": {
+      "currency": "TRY",
+      "fx": "transaction",
+      "real": null,
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.53
+   },
+   {
+    "id": "c227",
+    "category": "combined",
+    "lang": "tr",
+    "correct": false,
+    "wrong": [
+     "end"
+    ],
+    "got": {
+     "metric": "aov",
+     "dimension": "country",
+     "start": "2011-01-01",
+     "end": "2011-12-09"
+    },
+    "latency_ms": 0.36
+   },
+   {
+    "id": "c229",
+    "category": "combined",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "countries": [
+      "Spain",
+      "Italy"
+     ],
+     "split_by_country": true,
+     "dimension": "month",
+     "metric": "gross_sales",
+     "transform": {
+      "currency": "TRY",
+      "fx": "transaction",
+      "real": "latest",
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.41
+   },
+   {
+    "id": "c230",
+    "category": "combined",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country_group",
+     "group": "nato",
+     "group_as_of": "transaction",
+     "start": "2011-01-01",
+     "end": "2011-12-09",
+     "transform": {
+      "currency": "USD",
+      "fx": "latest",
+      "real": null,
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.46
+   },
+   {
+    "id": "c233",
+    "category": "combined",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country_group",
+     "group": "continent",
+     "exclude_countries": [
+      "Germany"
+     ],
+     "metric": "gross_sales"
+    },
+    "latency_ms": 0.35
+   },
+   {
+    "id": "c239",
+    "category": "combined",
+    "lang": "tr",
+    "correct": false,
+    "wrong": [
+     "transform"
+    ],
+    "got": {
+     "countries": [
+      "Netherlands",
+      "Belgium",
+      "Germany"
+     ],
+     "split_by_country": true,
+     "dimension": "month",
+     "transform": {
+      "currency": "TRY",
+      "fx": "transaction",
+      "real": "latest",
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.5
+   },
+   {
+    "id": "c240",
+    "category": "combined",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "product",
+     "top_n": 20,
+     "start": null,
+     "end": null,
+     "sort": "value_asc"
+    },
+    "latency_ms": 0.4
+   },
+   {
+    "id": "c241",
+    "category": "combined",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "country_group",
+     "group": "eu",
+     "group_as_of": "period_end",
+     "metric": "orders",
+     "start": "2011-10-01",
+     "end": "2011-12-09"
+    },
+    "latency_ms": 0.44
+   },
+   {
+    "id": "c245",
+    "category": "refinement_persist",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "dimension": "week",
+     "countries": [
+      "Germany"
+     ],
+     "transform": {
+      "currency": "TRY",
+      "fx": "transaction",
+      "real": null,
+      "unit": "money",
+      "index": false,
+      "compare": false
+     }
+    },
+    "latency_ms": 0.27
+   },
+   {
+    "id": "c247",
+    "category": "refinement_persist",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "start": "2011-07-01",
+     "end": "2011-12-09",
+     "metric": "aov",
+     "statistic": "ci95"
+    },
+    "latency_ms": 0.3
+   },
+   {
+    "id": "c248",
+    "category": "refinement_persist",
+    "lang": "en",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "chart": "bar",
+     "countries": [
+      "Spain",
+      "Italy"
+     ],
+     "split_by_country": true
+    },
+    "latency_ms": 0.25
+   },
+   {
+    "id": "c249",
+    "category": "refinement_persist",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "transform": {
+      "currency": "TRY",
+      "fx": "transaction",
+      "real": null,
+      "unit": "money",
+      "index": false,
+      "compare": false
+     },
+     "dimension": "country_group",
+     "group": "nato",
+     "group_as_of": "today"
+    },
+    "latency_ms": 0.33
+   },
+   {
+    "id": "c252",
+    "category": "refinement_persist",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "start": "2011-10-01",
+     "end": "2011-12-09",
+     "dimension": "week",
+     "statistic": "moving_average",
+     "window": 4
+    },
+    "latency_ms": 0.54
+   },
+   {
+    "id": "c256",
+    "category": "instead_of",
+    "lang": "tr",
+    "correct": true,
+    "wrong": [],
+    "got": {
+     "metric": "orders"
+    },
+    "latency_ms": 0.33
+   },
+   {
+    "id": "c259",
+    "category": "instead_of",
+    "lang": "en",
+    "correct": false,
+    "wrong": [
+     "end"
+    ],
+    "got": {
+     "start": "2011-01-01",
+     "end": "2011-06-30"
+    },
+    "latency_ms": 0.35
+   }
+  ]
+ }
+}

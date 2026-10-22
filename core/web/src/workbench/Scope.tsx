@@ -47,8 +47,63 @@ export function ScopeView({
   const reasons = (scope.exclusions || []).filter((e) => e.rows > 0);
   const partial = scope.periods.filter((p) => p.partial);
   const adjustment = scope.service.groups.find((g) => g.kind === "adjustment");
+  const rec = scope.reconciliation;
+  const v2 = scope.definition === "retail-v2";
+  const kind = (k: string) => rec?.kinds[k]?.pence ?? 0;
   return (
     <div className="wb-scope-panel">
+      {rec && (
+        <section>
+          <h3>{t("0 · Tanım ve mutabakat", "0 · Definition and reconciliation")}</h3>
+          <p className="wb-small">
+            {t(
+              `Bu görünüm ${scope.definition ?? "retail-v1"} tanımıyla hesaplandı. retail-v1 iptal edilmemiş her pozitif fatura satırıdır; retail-v2 bunlardan satış olmayan muhasebe düzeltmelerini ve pazar yeri/banka ücretlerini çıkarır. Değiştirmek için filtre çubuğundaki “Tanım”. Tutarlar geçerli filtre içindir.`,
+              `This view uses ${scope.definition ?? "retail-v1"}. retail-v1 is every positive, non-cancelled invoice line; retail-v2 removes accounting adjustments and marketplace/bank fees, which are not sales. Switch with “Definition” in the filter bar. Amounts are for the current filters.`,
+            )}
+          </p>
+          <TableWrap>
+            <table className="wb-reconcile">
+              <tbody>
+                <tr className={v2 ? "" : "active"}>
+                  <th>retail-v1 {t("brüt satış", "gross sales")}</th>
+                  <td>{num(rec.retail_v1.lines)}</td>
+                  <td>{money(rec.retail_v1.pence / 100)}</td>
+                </tr>
+                <tr>
+                  <td>− {t("muhasebe düzeltmesi (ör. Adjust bad debt)", "accounting adjustments (e.g. Adjust bad debt)")}</td>
+                  <td>{num(rec.kinds.adjustment?.lines ?? 0)}</td>
+                  <td>{money(-kind("adjustment") / 100)}</td>
+                </tr>
+                <tr>
+                  <td>− {t("pazar yeri ve banka ücretleri (AMAZON FEE, Bank Charges)", "marketplace and bank fees (AMAZON FEE, Bank Charges)")}</td>
+                  <td>{num(rec.kinds.fee?.lines ?? 0)}</td>
+                  <td>{money(-kind("fee") / 100)}</td>
+                </tr>
+                <tr className={v2 ? "active" : ""}>
+                  <th>= retail-v2 {t("müşteri satışı", "customer sales")}</th>
+                  <td>{num(rec.retail_v2.lines)}</td>
+                  <td>{money(rec.retail_v2.pence / 100)}</td>
+                </tr>
+                <tr>
+                  <td>− {t("kargo ve posta", "postage and carriage")}</td>
+                  <td>{num(rec.kinds.shipping?.lines ?? 0)}</td>
+                  <td>{money(-kind("shipping") / 100)}</td>
+                </tr>
+                <tr>
+                  <td>− {t("elle girilmiş kalem, numune, indirim", "manual lines, samples, discounts")}</td>
+                  <td>{num((rec.kinds.manual?.lines ?? 0) + (rec.kinds.sample?.lines ?? 0) + (rec.kinds.discount?.lines ?? 0))}</td>
+                  <td>{money(-(kind("manual") + kind("sample") + kind("discount")) / 100)}</td>
+                </tr>
+                <tr>
+                  <th>= {t("ürün satışı (ürün görünümlerinin tabanı)", "merchandise (what product views count)")}</th>
+                  <td>{num(rec.merchandise.lines)}</td>
+                  <td>{money(rec.merchandise.pence / 100)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </TableWrap>
+        </section>
+      )}
       <section>
         <h3>{t("1 · Brüt satışa hiç girmeyen satırlar", "1 · Lines gross sales never counts")}</h3>
         <p className="wb-small">
@@ -144,11 +199,11 @@ export function ScopeView({
                 </tfoot>
               </table>
             </TableWrap>
-            {adjustment && (
+            {adjustment && !v2 && (
               <p className="wb-callout wb-scope-flag">
                 {t(
-                  `Dikkat: brüt satış toplamı ${money(adjustment.pence / 100)} tutarında muhasebe düzeltmesi içeriyor (ör. “Adjust bad debt”). Bu bir satış değildir; tanım (retail-v1) değişene kadar toplamda kalır ve burada açıkça gösterilir.`,
-                  `Note: the gross-sales total contains ${money(adjustment.pence / 100)} of accounting adjustments (e.g. “Adjust bad debt”). That is not a sale; it stays in the total until the definition (retail-v1) changes, and is shown here openly.`,
+                  `Dikkat: retail-v1 toplamı ${money(adjustment.pence / 100)} tutarında muhasebe düzeltmesi içeriyor (ör. “Adjust bad debt”). Bu bir satış değildir; retail-v2 tanımı bunu ve ücretleri çıkarır (filtre çubuğunda “Tanım”).`,
+                  `Note: the retail-v1 total contains ${money(adjustment.pence / 100)} of accounting adjustments (e.g. “Adjust bad debt”). That is not a sale; the retail-v2 definition removes it and the fees (“Definition” in the filter bar).`,
                 )}
               </p>
             )}

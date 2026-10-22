@@ -26,7 +26,7 @@ import {
 import { api } from "../api";
 import { useLocale } from "./Locale";
 import { RoutingBadge } from "./Routing";
-import type { ChartResult, ChartSpec, Filters } from "./types";
+import type { ChartResult, ChartSpec, ChartUnit, Filters } from "./types";
 import { Mascot } from "./Avatars";
 import { ReasoningTree } from "./Reasoning";
 import { Send, Spinner, Reset, Download, Query, TableView, Trend, Info, Verified } from "./BrandIcons";
@@ -78,10 +78,15 @@ export function ChartStudio({
   const chartRef = useRef<HTMLDivElement>(null);
   const current = steps[steps.length - 1]?.result ?? null;
   const fmt = useMemo(
-    () => (unit: "GBP" | "count", v: number) =>
-      new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-GB", unit === "GBP"
-        ? { style: "currency", currency: "GBP", maximumFractionDigits: v >= 1000 ? 0 : 2 }
-        : { maximumFractionDigits: 0 }).format(v),
+    () => (unit: ChartUnit, v: number) => {
+      const tag = locale === "tr" ? "tr-TR" : "en-GB";
+      if (unit === "GBP" || unit === "TRY" || unit === "USD" || unit === "EUR")
+        return new Intl.NumberFormat(tag, { style: "currency", currency: unit, maximumFractionDigits: Math.abs(v) >= 1000 ? 0 : 2 }).format(v);
+      if (unit === "g" || unit === "oz")
+        return new Intl.NumberFormat(tag, { maximumFractionDigits: Math.abs(v) >= 100 ? 0 : 2 }).format(v) + " " + unit;
+      if (unit === "index") return new Intl.NumberFormat(tag, { maximumFractionDigits: 1 }).format(v);
+      return new Intl.NumberFormat(tag, { maximumFractionDigits: 0 }).format(v);
+    },
     [locale],
   );
 
@@ -178,6 +183,7 @@ export function ChartStudio({
       sort: t("Sıralama", "Sort"),
       group: t("Grup", "Group"),
       group_as_of: t("Üyelik tarihi", "Membership date"),
+      transform: t("Birim / dönüşüm", "Unit / transform"),
     })[k] ?? k;
   const VALUE_LABELS: Record<string, [string, string]> = {
     gross_sales: ["brüt satış", "gross sales"],
@@ -212,6 +218,15 @@ export function ChartStudio({
   };
   const show = (v: unknown) => {
     if (v == null || v === "" || (Array.isArray(v) && !v.length)) return t("yok", "none");
+    if (typeof v === "object" && !Array.isArray(v) && "currency" in (v as object)) {
+      const x = v as NonNullable<ChartSpec["transform"]>;
+      const parts = [x.unit === "gold_g" ? t("altın (g)", "gold (g)") : x.unit === "gold_oz" ? t("altın (ons)", "gold (oz)") : x.currency === "TRY" ? "TL" : x.currency];
+      if (x.fx === "latest") parts.push(t("bugünkü kur", "today's rate"));
+      if (x.real) parts.push(x.real === "latest" ? t("bugünkü fiyatlar", "today's prices") : t(`${x.real} fiyatları`, `${x.real} prices`));
+      if (x.compare) parts.push(t("nominal ve reel", "nominal vs real"));
+      if (x.index) parts.push(t("endeks = 100", "index = 100"));
+      return parts.join(" · ");
+    }
     if (Array.isArray(v)) return v.join(", ");
     if (typeof v === "boolean") return v ? t("evet", "yes") : t("hayır", "no");
     const label = VALUE_LABELS[String(v)];
@@ -431,6 +446,35 @@ export function ChartStudio({
               {rows.some((r) => r.partial) && (
                 <p className="wb-studio-foot">{t("İçi boş nokta veya soluk çubuk: kısmi dönem; trend ve ortalamalara katılmaz.", "Hollow point or faded bar: partial period, excluded from trends and averages.")}</p>
               )}
+              {current.transform && (
+                <details className="wb-studio-provenance">
+                  <summary>
+                    <Info size={16} />
+                    {t("Dönüşüm: ", "Transform: ")}
+                    {current.transform.label}
+                  </summary>
+                  <p>{current.transform.text}</p>
+                  <ul>
+                    {current.transform.sources.map((src) => (
+                      <li key={src.id}>
+                        <a href={src.url} target="_blank" rel="noreferrer noopener">
+                          {src.title}
+                        </a>
+                        {" · "}
+                        {src.series.join(", ")}
+                        {" · "}
+                        {t("sürüm", "version")} {src.version}
+                        {" · "}
+                        {t("indirildi", "retrieved")} {src.retrieved_at.slice(0, 10)}
+                        {" · "}
+                        {src.licence}
+                        {" · "}
+                        <code title={src.sha256}>sha256 {src.sha256.slice(0, 12)}</code>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
             </div>
           )}
           {view === "data" && (
@@ -441,6 +485,7 @@ export function ChartStudio({
                     <th>{fieldLabel("dimension")}</th>
                     {seriesNames.length > 0 && <th>{t("Seri", "Series")}</th>}
                     <th>{t("Değer", "Value")}</th>
+                    {current.transform && current.data.some((d) => d.gbp != null) && <th>{t("Kaynak (GBP)", "Source (GBP)")}</th>}
                     {current.data.some((d) => d.share != null) && <th>{t("Pay", "Share")}</th>}
                     {spec.statistic === "ci95" && <th>%95 GA</th>}
                     {spec.statistic === "ci95" && <th>n</th>}
@@ -454,7 +499,10 @@ export function ChartStudio({
                         {d.partial ? " *" : ""}
                       </td>
                       {seriesNames.length > 0 && <td>{d.series}</td>}
-                      <td className="num">{fmt(unit, d.value)}</td>
+                      <td className="num">{d.value == null ? "—" : fmt(unit, d.value)}</td>
+                      {current.transform && current.data.some((x) => x.gbp != null) && (
+                        <td className="num">{d.gbp != null ? fmt(spec.metric === "gross_sales" || spec.metric === "aov" ? "GBP" : "count", d.gbp) : "—"}</td>
+                      )}
                       {current.data.some((x) => x.share != null) && (
                         <td className="num">{d.share != null ? new Intl.NumberFormat(locale === "tr" ? "tr-TR" : "en-GB", { style: "percent", maximumFractionDigits: 1 }).format(d.share) : "—"}</td>
                       )}

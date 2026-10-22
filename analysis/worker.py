@@ -73,6 +73,13 @@ def meta(dataset):
     return value
 
 
+def metric_definition(request):
+    """The metric definition a request computes with (AW-21): retail-v1 unless its filters say retail-v2."""
+    from analysis.scope import definition
+
+    return definition((request.get("filters") or {}).get("definition"))
+
+
 def filters_for(request, m):
     f = request.get("filters") or {}
     if not isinstance(f, dict):
@@ -95,6 +102,12 @@ def filters_for(request, m):
         clauses.append("country = ?")
         args.append(f["country"])
         clean["country"] = f["country"]
+    from analysis.scope import DEFAULT_DEFINITION, definition, definition_clause
+
+    # Metric definition (AW-21): retail-v1 adds nothing (and is not echoed, so earlier digests stay the same).
+    if definition(f.get("definition")) != DEFAULT_DEFINITION:
+        clauses.append(definition_clause(f["definition"]))
+        clean["definition"] = f["definition"]
     return (" WHERE " + " AND ".join(clauses) if clauses else ""), args, clean
 
 
@@ -166,7 +179,13 @@ def overview(request):
         + " GROUP BY 1 ORDER BY 3 DESC,1 LIMIT 12",
         args,
     )
+    from analysis.scope import definition, reconciliation
+
+    plain = dict(request, filters={k: v for k, v in (request.get("filters") or {}).items() if k != "definition"})
+    where_all, args_all, _ = filters_for(plain, m)
     scope = {
+        "definition": definition((request.get("filters") or {}).get("definition")),
+        "reconciliation": reconciliation(con, where_all, args_all),
         "include_service": include_service(request),
         "service": service_lines(con, where, args, request.get("locale", "tr")),
         "exclusions": (m.get("quality") or {}).get("exclusions"),
@@ -581,7 +600,7 @@ def explain(request, result):
         "reason": "computed_result",
         "text": text,
         "mode": "deterministic",
-        "source": "metrics/retail-v1",
+        "source": "metrics/" + metric_definition(request),
         "claims": claims,
     }
 
@@ -673,7 +692,7 @@ def run(request):
         "output_sha256": content_hash_text(
             json.dumps(body, sort_keys=True, ensure_ascii=False, default=str)
         ),
-        "metric_version": "retail-v1",
+        "metric_version": metric_definition(request),
         "currency": "GBP",
         "sql": result["sql"],
         "parameters": result["params"],

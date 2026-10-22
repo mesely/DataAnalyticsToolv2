@@ -30,6 +30,8 @@ export interface Filters {
   start?: string;
   end?: string;
   country?: string;
+  /** v3 AW-21: metric definition; absent = retail-v1 (every positive, non-cancelled line). */
+  definition?: "retail-v1" | "retail-v2";
 }
 export interface GraphNode {
   id: string;
@@ -87,6 +89,15 @@ export interface ScopeInfo {
   raw_rows?: number;
   excluded_rows?: number;
   periods: { edge: "first" | "last" | "only"; month: string; date: string; covered_days: number; month_days: number; partial: boolean }[];
+  /** v3 AW-21: the active definition and how the totals relate inside the current filters. */
+  definition?: "retail-v1" | "retail-v2";
+  reconciliation?: {
+    retail_v1: { lines: number; pence: number };
+    retail_v2: { lines: number; pence: number };
+    merchandise: { lines: number; pence: number };
+    kinds: Record<string, { lines: number; pence: number }>;
+    v2_excluded_kinds: string[];
+  };
 }
 export interface AnalysisResult {
   run_id: string;
@@ -165,7 +176,18 @@ export interface ChartSpec {
   statistic: "none" | "ci95" | "moving_average" | "trend" | "control_band";
   window: number;
   sort: "natural" | "value_desc" | "value_asc";
+  /** v3 AW-20 (additive): money transform — currency at the order's date, constant prices, gold, index. */
+  transform?: ChartTransform;
 }
+export interface ChartTransform {
+  currency: "GBP" | "TRY" | "USD" | "EUR";
+  fx: "transaction" | "latest";
+  real: string | null;
+  unit: "money" | "gold_g" | "gold_oz";
+  index: boolean;
+  compare: boolean;
+}
+export type ChartUnit = "GBP" | "TRY" | "USD" | "EUR" | "g" | "oz" | "index" | "count";
 export interface ChartPoint {
   x: string;
   series?: string | null;
@@ -176,6 +198,8 @@ export interface ChartPoint {
   partial?: boolean;
   /** country_group charts: the bucket's part of the scope (0–1). */
   share?: number | null;
+  /** transformed charts: the same row in GBP, before the transform. */
+  gbp?: number | null;
 }
 export interface ChartResult {
   spec: ChartSpec;
@@ -189,7 +213,7 @@ export interface ChartResult {
   };
   title: string;
   subtitle: string;
-  unit: "GBP" | "count";
+  unit: ChartUnit;
   data: ChartPoint[];
   overlays: {
     moving_average?: { window: number; points: { x: string; value: number; series: string }[] };
@@ -209,6 +233,19 @@ export interface ChartResult {
     as_of_rule: "period_end" | "today";
     card: { source: string; version: string; sha256: string };
     countries: { country: string; display: string; bucket: string; bucket_label: string; iso3: string | null; note: string | null; pence: number }[];
+  };
+  /** transformed charts: every reference value used, with its source (analysis/transforms.py). */
+  transform?: {
+    label: string;
+    text: string;
+    currency: string;
+    fx: string;
+    base_month: string | null;
+    days_carried_forward?: number;
+    rate?: { quote: string; per: string; min: number; max: number; mean: number };
+    cpi?: { area: string; base_month: string; base_value: number; base_rule: string };
+    gold?: { unit: string; min: number; max: number };
+    sources: { id: string; title: string; publisher: string; url: string; licence: string; retrieved_at: string; sha256: string; series: string[]; version: string }[];
   };
 }
 /** AW-16 developer code export (§1). */

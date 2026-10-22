@@ -23,12 +23,14 @@ from analysis.worker import filters_for, meta, query
 VERSION = "chart-studio-v1"
 SPEC_KEYS = (
     "version", "metric", "dimension", "chart", "start", "end", "countries", "exclude_countries",
-    "split_by_country", "top_n", "statistic", "window", "sort", "group", "group_as_of",
+    "split_by_country", "top_n", "statistic", "window", "sort", "group", "group_as_of", "transform",
 )
 # Additive keys (AW-16 amendment): specs written before the key existed stay valid; validate_spec fills the default.
 # `group`/`group_as_of` (v3, AW-19) exist only on a country_group chart: which reference group (NATO, EU, ...) and
 # whether membership is read at the end of the chart's period or today.
-OPTIONAL_KEYS = ("exclude_countries", "group", "group_as_of")
+# `transform` (v3 G9, AW-20) exists only when a money chart is converted, deflated, shown in gold or indexed
+# (analysis/transforms.py).
+OPTIONAL_KEYS = ("exclude_countries", "group", "group_as_of", "transform")
 # Statement evidence keys (AW-16 amendment): the computed values a statement rests on. "values:<series>" is the
 # plotted series ("all" or a country); the others name one statistic or definition.
 EVIDENCE_KEYS = ("values:<series>", "trend", "ci", "band", "ma", "partial", "share", "metric")
@@ -130,6 +132,9 @@ _T = {
         "s_ma": "{p}{w} dönemlik hareketli ortalamanın son değeri ({x}): {v}.",
         "l_partial": "Kısmi dönemler: {list}. Kapsam bu dönemleri tam kapsamadığı için değerleri düşük görünebilir; değişim, trend, bant ve hareketli ortalamada kullanılmadı.",
         "l_gross": "Brüt satış, iade/iptal hariç pozitif fatura satırlarının toplamıdır; net gelir veya kâr değildir.",
+        "s_nominal": "Nominal", "s_real": "Reel",
+        "note_tx_metric": "Dönüşüm tutara uygulandığı için ölçü brüt satışa çevrildi.",
+        "l_index_none": "Bir serinin tam bir dönemi olmadığı için endeksi hesaplanmadı.",
         "s_missing_days": "Kapsamda satır olmayan günler: {list}.",
         "l_distinct": "Sipariş sayısı benzersiz faturadır; farklı kırılımlardaki sayılar toplanamayabilir.",
         "p_small": "p < 0,001",
@@ -140,7 +145,7 @@ _T = {
                         "end": "bitiş", "countries": "ülkeler", "exclude_countries": "hariç ülkeler",
                         "split_by_country": "ülkeye göre ayırma",
                         "top_n": "ilk N", "statistic": "istatistik", "window": "pencere", "sort": "sıralama",
-                        "group": "grup", "group_as_of": "üyelik tarihi"},
+                        "group": "grup", "group_as_of": "üyelik tarihi", "transform": "birim / dönüşüm"},
         "note_same": "İstek anlaşıldı ancak grafik zaten bu durumda.",
         "note_none": "İstekte tanınan bir grafik değişikliği yok; tahmin yapılmadı.",
         "note_invalid": "İstek geçerli bir grafiğe dönüşmedi: {error}",
@@ -217,6 +222,9 @@ _T = {
         "s_ma": "{p}Latest {w}-period moving average ({x}): {v}.",
         "l_partial": "Partial periods: {list}. The scope does not cover them fully, so their values can look low; they are excluded from change, trend, band and moving-average calculations.",
         "l_gross": "Gross sales sum positive invoice lines excluding returns/cancellations; they are not net revenue or profit.",
+        "s_nominal": "Nominal", "s_real": "Real",
+        "note_tx_metric": "A transform applies to money, so the measure is now gross sales.",
+        "l_index_none": "A series has no complete period, so its index was not computed.",
         "s_missing_days": "Days with no rows in scope: {list}.",
         "l_distinct": "Orders are distinct invoices; counts across breakdowns may not add up.",
         "p_small": "p < 0.001",
@@ -227,7 +235,7 @@ _T = {
                         "end": "end", "countries": "countries", "exclude_countries": "excluded countries",
                         "split_by_country": "country split",
                         "top_n": "top N", "statistic": "statistic", "window": "window", "sort": "sort",
-                        "group": "group", "group_as_of": "membership date"},
+                        "group": "group", "group_as_of": "membership date", "transform": "unit / transform"},
         "note_same": "Request understood, but the chart is already in that state.",
         "note_none": "No chart change recognized in the request; nothing was guessed.",
         "note_invalid": "The request did not produce a valid chart: {error}",
@@ -403,6 +411,14 @@ def validate_spec(obj, catalog, *, locale: str = "tr", warnings: list | None = N
     if time_axis and spec["chart"] in ("line", "area") and spec["sort"] != "natural":
         spec["sort"] = "natural"
         out.append(t["sort_natural"])
+    if obj.get("transform") is not None:
+        from analysis import transforms
+
+        tr = transforms.validate(obj["transform"], metric=spec["metric"], time_axis=time_axis,
+                                 single_series=not spec["split_by_country"], money_metrics=MONEY_METRICS,
+                                 locale=locale, warnings=out)
+        if tr:
+            spec["transform"] = tr
     return spec
 
 
@@ -440,11 +456,16 @@ _RANK = {
 }
 
 
-def scope_where(start, end, filter_country, countries, exclude_countries) -> tuple[list[str], list]:
+def scope_where(start, end, filter_country, countries, exclude_countries, definition=None) -> tuple[list[str], list]:
     """WHERE clauses and bound values for a chart scope: dates, the app's country filter, the chart's
-    countries (``IN``) and its excluded countries (``NOT IN``). Values are always ``?`` parameters."""
+    countries (``IN``) and its excluded countries (``NOT IN``), and the metric definition (AW-21). Values are
+    always ``?`` parameters."""
+    from analysis.scope import definition_clause
+
     where: list[str] = []
     params: list = []
+    if definition_clause(definition):
+        where.append(definition_clause(definition))
     if start:
         where.append("order_date >= ?::DATE")
         params.append(str(start))
@@ -465,16 +486,19 @@ def scope_where(start, end, filter_country, countries, exclude_countries) -> tup
 
 def compile_query(spec: dict, *, start=None, end=None, filter_country=None, source: str = "transactions",
                   with_sd: bool | None = None, locale: str = "en", groups=None,
-                  products_only: bool = False) -> tuple[str, list]:
+                  products_only: bool = False, factors=None, definition=None) -> tuple[str, list]:
     """Readable, parameterized DuckDB SQL for a validated spec. Values are bound with ``?``; identifiers
     come only from the allowlists above. Returns (sql, params).
 
     ``groups`` — (country, bucket) pairs for a country_group chart, bound as a VALUES table.
-    ``products_only`` — a product chart leaves out postage, fees and adjustments (analysis/scope.py)."""
+    ``products_only`` — a product chart leaves out postage, fees and adjustments (analysis/scope.py).
+    ``factors`` — (day, factor, nominal_factor) rows of a money transform (analysis/transforms.py), bound as a
+    VALUES table and joined on each order's date: ``conv_minor`` is the transformed sum in hundredths of the
+    chart's unit, ``nominal_minor`` the same without constant prices."""
     if source not in ("transactions", "sales"):
         raise ValueError("Invalid source")
     dim = spec["dimension"]
-    where, params = scope_where(start, end, filter_country, spec["countries"], spec.get("exclude_countries", []))
+    where, params = scope_where(start, end, filter_country, spec["countries"], spec.get("exclude_countries", []), definition)
     if dim == "product" and products_only:
         from analysis.scope import product_clause
 
@@ -488,12 +512,17 @@ def compile_query(spec: dict, *, start=None, end=None, filter_country=None, sour
                      "    VALUES " + ", ".join("(?, ?)" for _ in pairs) + "\n),\n")
         group_params = [v for pair in pairs for v in pair]
         joined = f"{source} LEFT JOIN country_groups AS g USING (country)"
+    if factors:
+        group_cte += ("fx_factors(d, factor, nominal) AS (\n    -- reference factor per day (rate x CPI ratio, or gold), analysis/transforms.py\n"
+                      "    VALUES " + ", ".join("(?::DATE, ?::DOUBLE, ?::DOUBLE)" for _ in factors) + "\n),\n")
+        group_params += [v for row in factors for v in row]
     where_sql = ("\n    WHERE " + "\n      AND ".join(where)) if where else ""
     product = dim == "product"
     sd = (spec["statistic"] == "ci95") if with_sd is None else with_sd
     series = "country" if spec["split_by_country"] else "'all'"
     categorical = dim in ("country", "product", "country_group")
-    order = f"{_RANK[spec['metric']]} DESC, x" if categorical else "x, series"
+    rank = _RANK[spec["metric"]].replace("order_pence", "order_pence * f.factor") if factors else _RANK[spec["metric"]]
+    order = f"{rank} DESC, x" if categorical else "x, series"
     if locale == "tr":
         header = (f"-- Chart Studio v1: {spec['metric']}, {_BUCKET_NOTE_TR[dim]}"
                   + (", ülke başına bir seri" if spec["split_by_country"] else "") + ".\n"
@@ -511,7 +540,8 @@ def compile_query(spec: dict, *, start=None, end=None, filter_country=None, sour
         "        invoice,\n"
         + ("        MIN(product) AS label,\n" if product else "")
         + "        SUM(line_pence) AS order_pence,\n"
-        "        SUM(quantity) AS order_units\n"
+        + ("        MIN(order_date) AS d,\n" if factors else "")
+        + "        SUM(quantity) AS order_units\n"
         f"    FROM {joined}{where_sql}\n"
         "    GROUP BY x, series, invoice\n"
         ")\n"
@@ -520,10 +550,13 @@ def compile_query(spec: dict, *, start=None, end=None, filter_country=None, sour
         "    series,\n"
         + ("    MIN(label) AS label,\n" if product else "")
         + "    SUM(order_pence)::BIGINT AS pence,\n"
-        "    COUNT(*)::BIGINT AS orders,\n"
+        + ("    SUM(order_pence * f.factor) AS conv_minor,\n    SUM(order_pence * f.nominal) AS nominal_minor,\n"
+           if factors else "")
+        + "    COUNT(*)::BIGINT AS orders,\n"
         "    SUM(order_units)::BIGINT AS units"
-        + (",\n    STDDEV_SAMP(order_pence) AS order_pence_sd" if sd else "")
-        + "\nFROM order_totals\n"
+        + ((",\n    STDDEV_SAMP(order_pence * f.factor) AS order_pence_sd" if factors else
+            ",\n    STDDEV_SAMP(order_pence) AS order_pence_sd") if sd else "")
+        + "\nFROM order_totals" + (" LEFT JOIN fx_factors AS f USING (d)" if factors else "") + "\n"
         "GROUP BY x, series\n"
         f"ORDER BY {order}"
     )
@@ -533,18 +566,27 @@ def compile_query(spec: dict, *, start=None, end=None, filter_country=None, sour
     return sql, group_params + params
 
 
-def _total_query(start, end, filter_country, countries, exclude_countries=(), products_only=False) -> tuple[str, list]:
-    where, params = scope_where(start, end, filter_country, countries, exclude_countries)
+def _total_query(start, end, filter_country, countries, exclude_countries=(), products_only=False,
+                 factors=None, definition=None) -> tuple[str, list]:
+    where, params = scope_where(start, end, filter_country, countries, exclude_countries, definition)
     if products_only:
         from analysis.scope import product_clause
 
         where.append(product_clause())
+    head, fparams, source = "", [], "transactions"
+    if factors:
+        head = ("WITH fx_factors(d, factor, nominal) AS (\n    VALUES "
+                + ", ".join("(?::DATE, ?::DOUBLE, ?::DOUBLE)" for _ in factors) + "\n)\n")
+        fparams = [v for row in factors for v in row]
+        source = "transactions JOIN fx_factors AS f ON f.d = order_date"
     sql = (
-        "-- Scope totals for the top-k share statement.\n"
-        "SELECT\n    SUM(line_pence)::BIGINT AS pence,\n    COUNT(DISTINCT invoice)::BIGINT AS orders,\n"
-        "    SUM(quantity)::BIGINT AS units\nFROM transactions\nWHERE " + "\n  AND ".join(where)
+        "-- Scope totals for the top-k share statement.\n" + head +
+        "SELECT\n    SUM(line_pence)::BIGINT AS pence,\n"
+        + ("    SUM(line_pence * f.factor) AS conv_minor,\n" if factors else "")
+        + "    COUNT(DISTINCT invoice)::BIGINT AS orders,\n"
+        f"    SUM(quantity)::BIGINT AS units\nFROM {source}\nWHERE " + "\n  AND ".join(where)
     )
-    return sql, params
+    return sql, fparams + params
 
 
 # ---------------------------------------------------------------------------------------- periods
@@ -624,6 +666,7 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
     hi = min(d for d in [catalog["end"], filters.get("end"), spec["end"]] if d)
     lo_d, hi_d = date.fromisoformat(lo), date.fromisoformat(hi)
     filter_country = filters.get("country")
+    definition = filters.get("definition")
     if filter_country and spec["countries"] and filter_country not in spec["countries"]:
         warnings.append(t["country_conflict"].format(country=filter_country))
     if filter_country and filter_country in spec["exclude_countries"]:
@@ -634,6 +677,19 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
     time_axis = dim in TIME_DIMS
     periods = [] if empty or not time_axis else (_months if dim == "month" else _weeks)(lo_d, hi_d)
     series_names = list(spec["countries"]) if spec["split_by_country"] else ["all"]
+    xf = spec.get("transform")
+    factors, tr_info = None, None
+    if xf and not empty:
+        from analysis import transforms
+
+        where, wparams = scope_where(lo, hi, filter_country, spec["countries"], spec["exclude_countries"], definition)
+        with duckdb.connect(str(DATA / (catalog["id"] + ".duckdb")), read_only=True) as con:
+            days = [r["d"] for r in query(con, "SELECT DISTINCT order_date::VARCHAR AS d FROM transactions WHERE "
+                                          + " AND ".join(where) + " ORDER BY d", wparams)]
+        factors, tr_info = transforms.factors(xf, days, locale) if days else (None, None)
+    compare = bool(xf and xf["compare"])
+    if compare:
+        series_names = [t["s_nominal"], t["s_real"]]
     if time_axis and len(periods) * len(series_names) > MAX_ROWS:
         raise ValueError(t["too_many_rows"].format(n=len(periods) * len(series_names)))
     membership = None
@@ -645,7 +701,7 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
     products_only = dim == "product" and not include_service
     sql, params = compile_query(spec, start=lo, end=hi, filter_country=filter_country, locale=locale,
                                 groups=sorted((c, m["bucket"]) for c, m in membership["map"].items()) if membership else None,
-                                products_only=products_only)
+                                products_only=products_only, factors=factors, definition=definition)
     support = None
     with duckdb.connect(str(DATA / (catalog["id"] + ".duckdb")), read_only=True) as con:
         rows = query(con, sql, params)
@@ -654,18 +710,27 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
             metric in ("gross_sales", "units") or (metric == "orders" and dim == "country"))
         if share_ok and rows:
             total_sql, total_params = _total_query(lo, hi, filter_country, spec["countries"],
-                                                   spec["exclude_countries"], products_only=products_only)
+                                                   spec["exclude_countries"], products_only=products_only,
+                                                   factors=factors, definition=definition)
             totals = query(con, total_sql, total_params)[0]
             support = {"sql": total_sql, "params": total_params}
         by_country = []
         if membership:
-            where, wparams = scope_where(lo, hi, filter_country, spec["countries"], spec["exclude_countries"])
+            where, wparams = scope_where(lo, hi, filter_country, spec["countries"], spec["exclude_countries"], definition)
             by_country = query(con, "SELECT country, SUM(line_pence)::BIGINT AS pence, COUNT(DISTINCT invoice)::BIGINT AS orders, "
                                "SUM(quantity)::BIGINT AS units FROM transactions WHERE " + " AND ".join(where)
                                + " GROUP BY country ORDER BY pence DESC, country", wparams)
 
     ci = spec["statistic"] == "ci95"
     t975 = {}
+
+    def minor(row, series=None):
+        """The money sum a value is computed from: GBP pence, or hundredths of the transformed unit."""
+        if not factors:
+            return row["pence"]
+        if compare and series == t["s_nominal"]:
+            return row.get("nominal_minor") or 0
+        return row.get("conv_minor") or 0
 
     def interval(row):
         n = row["orders"]
@@ -674,7 +739,7 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
             return None
         if n not in t975:
             t975[n] = float(sp.stdtrit(n - 1, 0.975))
-        mean = row["pence"] / n
+        mean = minor(row) / n
         half = t975[n] * sd / math.sqrt(n)
         return (mean - half) / 100, (mean + half) / 100
 
@@ -685,8 +750,9 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
         for position, (label, first, last) in enumerate(periods):
             partial = lo_d > first or hi_d < last
             for s in series_names:
-                r = found.get((label, s), {"pence": 0, "orders": 0, "units": 0, "order_pence_sd": None})
-                value = _metric_value(metric, r["pence"], r["orders"], r["units"])
+                r = found.get((label, "all" if compare else s),
+                              {"pence": 0, "conv_minor": 0, "nominal_minor": 0, "orders": 0, "units": 0, "order_pence_sd": None})
+                value = _metric_value(metric, minor(r, s), r["orders"], r["units"])
                 item = {"x": label, "series": s, "value": _round(value, metric)}
                 if ci:
                     bounds = interval(r)
@@ -699,7 +765,7 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
     else:
         names = t["weekdays"]
         for r in rows:
-            value = _metric_value(metric, r["pence"], r["orders"], r["units"])
+            value = _metric_value(metric, minor(r), r["orders"], r["units"])
             if dim == "weekday":
                 item = {"x": names[int(r["x"]) - 1], "key": int(r["x"]), "series": "all"}
             elif dim == "product":
@@ -721,6 +787,23 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
         if dim == "weekday" and spec["sort"] == "natural":
             order = sorted(range(len(data)), key=lambda i: data[i]["key"])
             data, raw = [data[i] for i in order], [raw[i] for i in order]
+    # Index (v3 G9): each series over its first complete period with a value, x 100, before any statistic.
+    index_base: dict = {}
+    if xf and xf["index"] and time_axis:
+        for s in series_names:
+            first_r = next((r for r in raw if r["series"] == s and not r["partial"] and r["value"]), None)
+            index_base[s] = {"x": first_r["x"], "value": first_r["value"]} if first_r else None
+            scale = 100 / first_r["value"] if first_r else None
+            for d, r in zip(data, raw):
+                if r["series"] != s:
+                    continue
+                if scale is None or r["value"] is None:
+                    r["value"], d["value"] = None, None
+                    continue
+                r["value"] = r["value"] * scale
+                d["value"] = round(r["value"], 2)
+                if "lower" in d:
+                    d["lower"], d["upper"] = round(d["lower"] * scale, 2), round(d["upper"] * scale, 2)
     # Shares of a country_group chart: each bucket's part of the scope (an order belongs to one country, so the
     # buckets partition orders and units as well as sales).
     if dim == "country_group" and metric != "aov":
@@ -796,7 +879,16 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
     # Every statement carries ``evidence``: short keys naming the computed values it rests on, so a UI can
     # link statements that share them (see EVIDENCE_KEYS). Keys never change the text.
     mname = t["metric"][metric]
-    fmt = lambda v, signed=False: _value_text(v, metric, locale, signed)
+    unit = "GBP" if metric in MONEY_METRICS else "count"
+    if xf:
+        from analysis import transforms
+
+        unit = transforms.unit_of(xf)
+        fmt = lambda v, signed=False: transforms.format_value(v, unit, locale, signed, _num)  # noqa: E731
+        money = lambda v: transforms.format_value(v, unit, locale, False, _num)  # noqa: E731
+    else:
+        fmt = lambda v, signed=False: _value_text(v, metric, locale, signed)  # noqa: E731
+        money = lambda v: _money(v, locale)  # noqa: E731
     values_of = lambda s: f"values:{s}"  # noqa: E731
     every_series = [values_of(s) for s in series_names]
 
@@ -807,7 +899,7 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
         say("fact", t["s_empty"], every_series)
     else:
         for s in series_names:
-            prefix = f"{display_country(s, locale)}: " if spec["split_by_country"] else ""
+            prefix = f"{display_country(s, locale)}: " if spec["split_by_country"] or compare else ""
             pool = [r for r in (complete(s) if time_axis else raw) if r["series"] == s and r["value"] is not None]
             if time_axis and not pool:
                 continue
@@ -825,8 +917,8 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
                     p=prefix, x0=a["x"], v0=fmt(a["value"]), x1=b["x"], v1=fmt(b["value"]), d=fmt(delta, True), pct=pct),
                     [values_of(s)])
         if totals:
-            total = {"gross_sales": totals["pence"], "units": totals["units"], "orders": totals["orders"]}[metric]
-            shown = sum({"gross_sales": r["pence"], "units": r["units"], "orders": r["orders"]}[metric] for r in rows)
+            total = {"gross_sales": minor(totals), "units": totals["units"], "orders": totals["orders"]}[metric]
+            shown = sum({"gross_sales": minor(r), "units": r["units"], "orders": r["orders"]}[metric] for r in rows)
             if total:
                 say("calculation", t["s_share"].format(
                     k=len(rows), dim=t["dimname"][dim], m=mname, pct=_pct(shown / total, locale)),
@@ -850,9 +942,9 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
             narrow = min(widths, key=lambda z: (z[0], str(z[1]["x"])))
             label = lambda d: (f"{display_country(d['series'], locale)} {d['x']}" if spec["split_by_country"] else str(d["x"]))  # noqa: E731
             say("calculation", t["s_ci"].format(
-                avg=_money(sum(w for w, _ in widths) / len(widths), locale),
-                xw=label(wide[1]), w=_money(wide[0], locale), nw=_count(wide[1]["n"], locale),
-                xn=label(narrow[1]), nwid=_money(narrow[0], locale), nn=_count(narrow[1]["n"], locale)),
+                avg=money(sum(w for w, _ in widths) / len(widths)),
+                xw=label(wide[1]), w=money(wide[0]), nw=_count(wide[1]["n"], locale),
+                xn=label(narrow[1]), nwid=money(narrow[0]), nn=_count(narrow[1]["n"], locale)),
                 every_series + ["ci"])
         without = sum(1 for d in data if "lower" not in d and d.get("n", 0) > 0)
         if without:
@@ -871,7 +963,7 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
             pts = [p for p in overlays["moving_average"]["points"] if p["series"] == s]
             if pts:
                 say("calculation", t["s_ma"].format(
-                    p=f"{display_country(s, locale)}: " if spec["split_by_country"] else "", w=spec["window"], x=pts[-1]["x"],
+                    p=f"{display_country(s, locale)}: " if spec["split_by_country"] or compare else "", w=spec["window"], x=pts[-1]["x"],
                     v=fmt(pts[-1]["value"])), [values_of(s), "ma"])
     partial = sorted({d["x"] for d in data if d.get("partial")})
     if partial:
@@ -902,6 +994,12 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
                            "pence": present[c]["pence"], "orders": present[c]["orders"], "units": present[c]["units"]}
                           for c in present if c in membership["map"]],
         }
+    if tr_info:
+        from analysis import transforms
+
+        say("limitation", transforms.describe(tr_info, locale), every_series + ["transform"])
+        if xf["index"] and any(v is None for v in index_base.values()):
+            say("limitation", t["l_index_none"], every_series + ["transform"])
     if metric in MONEY_METRICS:
         say("limitation", t["l_gross"], ["metric"])
     if metric == "orders" and (spec["split_by_country"] or dim == "product"):
@@ -917,17 +1015,22 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
         parts.append(t["ma_label"].format(w=spec["window"]))
     elif spec["statistic"] != "none":
         parts.append(t["stat"][spec["statistic"]])
+    if xf:
+        from analysis import transforms
+
+        parts.append(transforms.label(xf, locale))
     result = {
         "title": title,
         "subtitle": " · ".join(parts),
-        "unit": "GBP" if metric in MONEY_METRICS else "count",
+        "unit": unit,
         "data": data,
         "overlays": overlays,
         "statements": statements,
         "sql": sql,
         "params": params,
         "warnings": warnings,
-        "scope": {"start": lo, "end": hi, "filter_country": filter_country, "countries": spec["countries"],
+        "scope": {"start": lo, "end": hi, "filter_country": filter_country, "definition": definition or "retail-v1",
+                  "countries": spec["countries"],
                   "exclude_countries": spec["exclude_countries"], "dataset": catalog["id"],
                   "dataset_sha256": catalog.get("sha256")},
     }
@@ -935,6 +1038,21 @@ def render(spec: dict, catalog: dict, filters: dict, locale: str = "tr", include
         result["support_sql"] = support
     if groups_out:
         result["groups"] = groups_out
+    if tr_info:
+        from analysis import transforms
+
+        result["transform"] = {**tr_info, "label": transforms.label(xf, locale),
+                               "text": transforms.describe(tr_info, locale),
+                               "index_base": index_base or None}
+        if not compare:
+            # Raw and transformed side by side (Data tab): the GBP value of every row.
+            gbp_rows = {(r["x"], r["series"]): r for r in rows}
+            for d in data:
+                src = gbp_rows.get((d.get("key", d["x"]), d["series"])) if not time_axis else gbp_rows.get((d["x"], d["series"]))
+                if src is not None:
+                    d["gbp"] = _round(_metric_value(metric, src["pence"], src["orders"], src["units"]), metric)
+                elif time_axis:
+                    d["gbp"] = 0.0 if metric == "gross_sales" else None
     if products_only:
         result["scope"]["products_only"] = True
     return result
@@ -1081,6 +1199,32 @@ GROUP_PATTERNS = [
     ("oecd", _P(r"(?<!\w)oecd[a-z']*")),
     ("continent", _P(r"(?<!\w)(?:kita[a-z']*|continent[a-z]*)")),
 ]
+# v3 G9 transforms (AW-20), on folded text. Read before the membership date ("bugünkü TL" is not "today's
+# membership") and before periods ("Ocak 2011 fiyatlarıyla" is a base month, not a date range).
+_MONTH_WORDS = "|".join(_TR_MONTHS + _EN_MONTHS + _EN_ABBR + ["sept"])
+RE_TX_TODAY_RATE = _P(r"(?<!\w)(?:bugunku kur[a-z']*|guncel kur[a-z']*|simdiki kur[a-z']*|son kur[a-z']*|"
+                      r"(?:at )?today'?s? (?:exchange )?rate|(?:at )?(?:the )?current (?:exchange )?rate|latest (?:exchange )?rate)")
+RE_TX_TODAY_VALUE = _P(r"(?<!\w)(?:bugunku (?:fiyat|para|deger|tl|lira|sterlin|dolar|euro|avro)[a-z']*|bugunun (?:fiyat|para)[a-z']*|"
+                       r"guncel fiyat[a-z']*|today'?s? (?:prices?|money|value|terms|tl|lira|pounds?|sterling|dollars?|euros?)|"
+                       r"in today'?s terms|current prices)")
+RE_TX_BASE_MONTH = _P(r"(?<!\w)(?:(?P<m1>" + _MONTH_WORDS + r")[a-z']*\.?\s+(?P<y1>(?:19|20)\d{2})|(?P<y2>(?:19|20)\d{2})[- ](?P<m2>0[1-9]|1[0-2])|"
+                      r"(?P<y3>(?:19|20)\d{2}))(?:'?(?:in|un|nin|nun|un))?\s+(?:sabit\s+)?(?:fiyat[a-z']*|prices?|constant prices|pounds|money)")
+RE_TX_COMPARE = _P(r"(?<!\w)(?:nominal\s+(?:ve|ile|vs\.?|versus|and|against|or)\s+(?:reel|real)[a-z']*|(?:reel|real)\s+(?:ve|ile|vs\.?|versus|and)\s+nominal[a-z']*)")
+RE_TX_REAL = _P(r"(?<!\w)(?:enflasyon[a-z']*|inflation[- ]?adjust[a-z]*|adjust(?:ed)? for inflation|inflation|reel(?![a-z])|real (?:terms|revenue|sales|values?)|"
+                r"real(?= )|sabit fiyat[a-z']*|constant prices?|deflat[a-z]*|tufe[a-z']*|cpi(?![a-z])|alim gucu[a-z']*|purchasing power)")
+RE_TX_GOLD = _P(r"(?<!\w)(?:(?:gram|gr)\s+altin[a-z']*|altin[a-z']*|gold|(?:troy )?ounces?(?: of gold)?|ons(?![a-z])|grams? of gold)")
+RE_TX_OUNCE = _P(r"(?<!\w)(?:ons(?![a-z])|ounces?|troy|oz(?![a-z]))")
+RE_TX_INDEX = _P(r"(?<!\w)(?:endeks[a-z']*|index(?:ed)?(?! of)|rebas[a-z]*|base 100|100'?(?:e|a)? (?:endeks|esitle|sabitle)[a-z']*|ilk donem(?:i)? 100)")
+RE_TX_CURRENCY = [
+    ("TRY", _P(r"(?<!\w)(?:tl(?:'[a-z]+)?(?![a-z])|turk lira[a-z']*|lira[a-z']*|try(?![a-z])|turkish lira[s]?)")),
+    ("USD", _P(r"(?<!\w)(?:dolar[a-z']*|usd(?![a-z])|us dollars?|dollars?|\$)")),
+    ("EUR", _P(r"(?<!\w)(?:euro(?:'[a-z]+|ya|ye)?(?![a-z ]*(?:bolge|alan|area|zone))|avro[a-z']*|eur(?![a-z])|euros)")),
+    ("GBP", _P(r"(?<!\w)(?:sterlin[a-z']*|pounds?(?: sterling)?|gbp(?![a-z])|£)")),
+]
+RE_TX_REMOVE = _P(r"(?<!\w)(?:(?:donusum|enflasyon duzeltme|kur donusum|altin|cevir)[a-z']*\s+(?:kaldir|cikar|iptal|geri al)[a-z']*|"
+                  r"(?:remove|drop|undo|clear|without)\s+(?:the\s+)?(?:conversion|transform\w*|inflation adjustment|gold)|"
+                  r"nominal(?:e|a)? (?:don|gec)[a-z']*|(?:back )?to nominal|sterline? geri don[a-z']*|back to (?:gbp|pounds?|sterling))")
+RE_TX_INDEX_REMOVE = _P(r"(?<!\w)(?:endeks[a-z']*\s+(?:kaldir|cikar|iptal)[a-z']*|(?:remove|drop|undo)\s+(?:the\s+)?index(?:ing)?)")
 RE_ASOF_TODAY = _P(r"(?<!\w)(?:bugun(?:ku)?|guncel|simdiki|su anki|today'?s?|current(?:ly)?)(?![a-z])")
 RE_ASOF_PERIOD = _P(r"(?<!\w)(?:o donem[a-z']*|o zaman[a-z']*|donemin(?: sonu)?|verinin donem[a-z']*|at the time|period end)")
 CHART_PATTERNS = [
@@ -1138,6 +1282,12 @@ def _country_patterns(catalog) -> list[tuple[re.Pattern, str]]:
     return out
 
 
+def transforms_default() -> dict:
+    from analysis.transforms import default
+
+    return default()
+
+
 def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
     """Deterministic TR/EN lexicon planner. Starts from ``base_spec`` (or the default) and changes only
     the fields the request mentions. Returns {spec, changes, status, note, warnings[, suggestions]}."""
@@ -1168,11 +1318,57 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
             mentioned.append(name)
     excluded = _attached_exclusions(text, found)
 
+    # --- money transforms, part 1 (v3 G9): "today's rate / value" and base months, before groups and periods
+    tx = dict(spec.get("transform") or transforms_default())
+    tx_hits: list[str] = []
+    if text.take(RE_TX_INDEX_REMOVE):
+        tx["index"], tx_hits = False, tx_hits + ["index_off"]
+    if text.take(RE_TX_REMOVE):
+        tx, tx_hits = transforms_default(), tx_hits + ["reset"]
+    today_rate = bool(text.take(RE_TX_TODAY_RATE))
+    today_words = " ".join(m.group(0) for m in text.take(RE_TX_TODAY_VALUE))
+    today_value = bool(today_words)
+    base_month = None
+    for m in text.take(RE_TX_BASE_MONTH):
+        if m.group("m1"):
+            word = m.group("m1")
+            month = (_TR_MONTHS.index(word) if word in _TR_MONTHS else _EN_MONTHS.index(word) if word in _EN_MONTHS
+                     else 8 if word == "sept" else _EN_ABBR.index(word)) + 1
+            base_month = f"{m.group('y1')}-{month:02d}"
+        elif m.group("y2"):
+            base_month = f"{m.group('y2')}-{m.group('m2')}"
+        else:
+            base_month = m.group("y3")
+
     # --- reference country groups (v3 G7) and the membership date
     group_hits: list[tuple[int, str]] = []
     for gid, pattern in GROUP_PATTERNS:
         group_hits.extend((m.start(), gid) for m in text.take(pattern))
     as_of = "today" if text.take(RE_ASOF_TODAY) else "period_end" if text.take(RE_ASOF_PERIOD) else None
+
+    # --- money transforms, part 2: target currency, constant prices, gold, index, nominal vs real
+    if text.take(RE_TX_COMPARE):
+        tx["compare"], tx_hits = True, tx_hits + ["compare"]
+        tx["real"] = tx.get("real") or "latest"
+    if text.take(RE_TX_REAL) or today_value or base_month:
+        tx["real"] = base_month or (tx.get("real") if not today_value and tx.get("real") else "latest")
+        tx_hits.append("real")
+    gold = bool(text.take(RE_TX_GOLD))
+    if gold:
+        tx["unit"] = "gold_oz" if RE_TX_OUNCE.search(_fold(prompt or "")) else "gold_g"
+        tx["currency"], tx["real"] = "GBP", None
+        tx_hits.append("gold")
+    for code, pattern in RE_TX_CURRENCY:
+        if text.take(pattern) or pattern.search(today_words):
+            tx["currency"], tx["unit"] = code, "money"
+            tx_hits.append("currency")
+    if today_rate:
+        tx["fx"], tx["real"] = "latest", None
+        tx_hits.append("fx_latest")
+    elif "currency" in tx_hits:
+        tx["fx"] = "transaction"
+    if text.take(RE_TX_INDEX):
+        tx["index"], tx_hits = True, tx_hits + ["index"]
 
     # --- absolute and relative periods
     iso = [date.fromisoformat(m.group(1)) for m in text.take(RE_ISO) if _valid_iso(m.group(1))]
@@ -1378,6 +1574,15 @@ def local_plan(prompt, base_spec, catalog, locale: str = "tr") -> dict:
     if spec["dimension"] != "country_group":
         spec.pop("group", None)
         spec.pop("group_as_of", None)
+    if tx_hits:
+        recognized = True
+        if tx == transforms_default():
+            spec.pop("transform", None)
+        else:
+            spec["transform"] = tx
+            if spec["metric"] not in MONEY_METRICS and not metric_hits:
+                spec["metric"] = "gross_sales"  # "TL'ye çevir" on a units chart means the sales chart
+                notes.append(t["note_tx_metric"])
 
     warnings: list[str] = list(plan_warnings)
     try:
@@ -1468,6 +1673,14 @@ Grouping countries by membership ("NATO / NATO dışı", "AB ülkeleri", "euro a
 dimension country_group, chart bar, and add the two extra keys "group": nato|eu|eurozone|g7|oecd|continent and
 "group_as_of": period_end (membership at the end of the chart's period; default) or today ("bugünkü üyelik", "current
 members"). Membership itself comes from a reference table, never from you. Omit both keys for any other dimension.
+Money transforms (metric gross_sales or aov only): add the key "transform": {"currency":"GBP|TRY|USD|EUR","fx":"transaction|latest",
+"real":null|"latest"|"YYYY-MM"|"YYYY","unit":"money|gold_g|gold_oz","index":false,"compare":false}. "TL'ye çevir"/"in TL" -> currency TRY
+with fx transaction (the rate of each order's date); "bugünkü kurla"/"at today's rate" -> fx latest; "enflasyondan arındır"/
+"inflation-adjusted"/"real terms"/"today's TL"/"bugünkü fiyatlarla" -> real latest; "Ocak 2011 fiyatlarıyla"/"in January 2011 prices" ->
+real "2011-01"; "2011 fiyatlarıyla" -> real "2011"; "gram altın"/"in grams of gold" -> unit gold_g (ounces -> gold_oz; gold keeps
+currency GBP and real null); "100'e endeksle"/"index to 100" -> index true; "nominal ve reel"/"nominal vs real" -> real latest and
+compare true. Rates, CPI and gold prices come from reference tables, never from you. Keep BASE's transform unless the request
+changes it; "dönüşümü kaldır"/"back to pounds" removes the key. Omit the key when no transform is asked.
 If the request is not about a chart, return BASE unchanged.
 BASE: @@BASE@@
 CATALOG: @@CATALOG@@

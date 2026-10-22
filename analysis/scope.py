@@ -33,8 +33,62 @@ KIND_LABELS = {
 }
 
 
-def _codes_sql():
-    return ",".join("'" + c.replace("'", "''") + "'" for c in sorted(SERVICE_CODES))
+# Metric definitions (v3, AW-21). retail-v1 is every positive, non-cancelled invoice line and stays the default, so
+# earlier results, digests and saved findings keep their meaning. retail-v2 ("customer sales") leaves out lines that
+# are not something a customer bought or was billed for: accounting adjustments ("Adjust bad debt") and marketplace or
+# bank fees ("AMAZON FEE", "Bank Charges", "CRUK Commission"). Postage, carriage and manual lines are billed to
+# customers and stay in retail-v2; product views leave them out separately (merchandise only, above).
+DEFINITIONS = ("retail-v1", "retail-v2")
+DEFAULT_DEFINITION = "retail-v1"
+V2_EXCLUDED_KINDS = ("adjustment", "fee")
+
+
+def _codes_sql(kinds=None):
+    codes = sorted(c for c, k in SERVICE_CODES.items() if kinds is None or k in kinds)
+    return ",".join("'" + c.replace("'", "''") + "'" for c in codes)
+
+
+def definition(value):
+    """Validated metric definition (None or "" means the default)."""
+    if value in (None, ""):
+        return DEFAULT_DEFINITION
+    if value not in DEFINITIONS:
+        raise ValueError("Bilinmeyen ölçü tanımı.")
+    return value
+
+
+def definition_clause(value):
+    """SQL predicate a definition adds to every query (constant text; no user input), or None for retail-v1."""
+    if definition(value) == "retail-v2":
+        return f"UPPER(product_id) NOT IN ({_codes_sql(V2_EXCLUDED_KINDS)})"
+    return None
+
+
+def reconciliation(con, where, args):
+    """How the totals inside the current filters relate, line by line (v3, AW-21):
+
+    retail-v1 = retail-v2 + adjustments + fees; retail-v2 = merchandise + postage/carriage + manual + samples.
+    `where`/`args` must not already contain the definition clause. Cancellations and non-positive lines never
+    reach the transactions table; their dataset-wide counts are in the dataset's quality block.
+    """
+    row = con.execute(
+        "SELECT COUNT(*)::BIGINT, COALESCE(SUM(line_pence),0)::BIGINT FROM transactions" + where, args
+    ).fetchone()
+    kinds = {k: {"lines": 0, "pence": 0} for k in sorted(set(SERVICE_CODES.values()))}
+    for code, lines, pence in con.execute(
+        "SELECT UPPER(product_id), COUNT(*)::BIGINT, COALESCE(SUM(line_pence),0)::BIGINT FROM transactions" + where
+        + (" AND " if where else " WHERE ") + f"UPPER(product_id) IN ({_codes_sql()}) GROUP BY 1",
+        args,
+    ).fetchall():
+        kinds[SERVICE_CODES[code]]["lines"] += int(lines)
+        kinds[SERVICE_CODES[code]]["pence"] += int(pence)
+    v1 = {"lines": int(row[0]), "pence": int(row[1])}
+    off_v2 = {k: sum(kinds[x][k] for x in V2_EXCLUDED_KINDS) for k in ("lines", "pence")}
+    v2 = {k: v1[k] - off_v2[k] for k in v1}
+    service_v2 = {k: sum(kinds[x][k] for x in kinds if x not in V2_EXCLUDED_KINDS) for k in ("lines", "pence")}
+    merchandise = {k: v2[k] - service_v2[k] for k in v2}
+    return {"retail_v1": v1, "retail_v2": v2, "merchandise": merchandise, "kinds": kinds,
+            "v2_excluded_kinds": list(V2_EXCLUDED_KINDS)}
 
 
 def product_clause():

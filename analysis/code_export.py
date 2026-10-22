@@ -2362,6 +2362,13 @@ def _chart_bundle(spec_obj, m: dict, locale: str, filters: dict, include_service
 
     warnings: list[str] = []
     spec = validate_spec(spec_obj, m, locale=locale, warnings=warnings)
+    if spec.pop("transform", None):
+        # A money transform (AW-20) is not reproduced by the exported scripts yet: the bundle is the same chart in
+        # GBP and says so, rather than a converted chart whose numbers the scripts could not recompute.
+        warnings.append("Kod paketi dönüşümsüz (GBP) grafiği içerir; kur, enflasyon ve altın dönüşümü pakete henüz "
+                        "aktarılmıyor." if locale == "tr" else
+                        "The bundle contains the chart in GBP without the transform; currency, inflation and gold "
+                        "transforms are not exported yet.")
     from analysis import reference
 
     group = reference.card(spec["group"], locale)["label"] if spec["dimension"] == "country_group" else ""

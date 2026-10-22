@@ -7967,3 +7967,51 @@ failed, because the planner had no grouping and no outside knowledge.
   independent (written with the capability); the model row is pending Groq's daily quota.
 - **Not yet.** Currency, inflation and gold series (G9) need downloaded data; sources and licences are an open
   question for the user (plan, open question 3).
+
+## AW-20 — Money transforms: currency at the order's date, constant prices, gold, index
+
+22 Oct 2026, v3 G9 ("TL'ye çevir, enflasyona veya altına göre normalize et"). Sources chosen on the strength of the
+publisher and the licence (the user's standing instruction of 22 Oct: first-party, open, small):
+
+- **Reference series, downloaded once, shipped with the repository.** `python -m analysis.reference.fetch` writes
+  `fx_ecb.json` (ECB euro reference rates, daily, GBP/USD/TRY per EUR, from 2009), `cpi_oecd.json` (OECD
+  DF_PRICES_ALL national CPI, monthly, 2015 = 100: UK, Türkiye, United States, euro area 20) and
+  `gold_worldbank.json` (World Bank Pink Sheet, monthly average gold, USD per troy ounce). Each records URL, licence,
+  retrieval time, raw-download SHA-256, series identifiers, unit, frequency and its missing-date rule; `--check`
+  rebuilds them from the saved downloads without the network. Requests never download anything.
+- **ChartSpec `transform` (additive, money metrics only):** `currency` GBP|TRY|USD|EUR, `fx` transaction|latest,
+  `real` null|YYYY-MM|YYYY|latest, `unit` money|gold_g|gold_oz, `index`, `compare`. The key exists only on a
+  transformed chart, so earlier specs, digests and exports are unchanged.
+- **Exact by construction.** Every invoice has one date, so each order's GBP total is multiplied by a per-day
+  factor (a bound VALUES table joined on the order's date) before aggregation: sums, averages, confidence
+  intervals, shares and rankings are computed on transformed values, not by converting a monthly total.
+- **Rules.** Cross rate = (target per EUR) / (GBP per EUR) on the order's ECB fixing day; a day without a fixing uses
+  the last fixing before it (at most 7 days; the count is shown). Constant prices use the CPI of the currency shown,
+  base month, year (mean of 12 months) or the series' last month; uncovered months are refused, never
+  extrapolated. Gold = USD on the order's date / that month's average gold price (× 31.1034768 for grams); gold does
+  not combine with a currency or constant prices. "Today's TL" = TL at the order's date restated with Türkiye CPI
+  to its last published month; "at today's rate" (one latest rate for every date) only on explicit request and
+  never with constant prices. Index = first complete period = 100.
+- **On screen.** Subtitle and change chip name the transform; a provenance panel names every series, version,
+  licence and digest; the Data tab shows the GBP source value next to the transformed one; a limitation statement
+  states the rate range, carried-forward days, CPI base value and gold price range.
+- **Not yet:** the developer code export writes the chart in GBP and says so (warning) instead of a converted chart
+  its scripts could not recompute.
+
+## AW-21 — Metric definitions: retail-v1 stays, retail-v2 is customer sales, and the two reconcile
+
+22 Oct 2026, v3 G5 follow-up. The gross total (retail-v1) contains £11,062.06 of "Adjust bad debt" and £13,926.09
+of marketplace and bank fees (AMAZON FEE £13,761.09, Bank Charges £165.00): not sales.
+
+- **No silent change.** retail-v1 (every positive, non-cancelled invoice line) remains the default and is not echoed
+  in filters, so earlier results, digests and saved findings keep their meaning.
+- **retail-v2 — customer sales** = retail-v1 without stock codes of kind `adjustment` (B, ADJUST) and `fee`
+  (AMAZONFEE, BANK CHARGES, CRUK). Postage, carriage and manual lines are billed to customers and stay; product
+  views leave them out separately (merchandise, AW-18 follow-up). UCI: £10,641,696.39 (530,089 lines).
+- **One predicate, every analysis.** `filters.definition` is validated in `filters_for`, so the overview, table,
+  network, change over time, decisions and Chart Studio apply the same clause; results carry the definition
+  (`metric_version`, chart `scope.definition`, the KPI subtitle and a filter chip).
+- **Reconciliation on screen and in tests.** The "Why?" panel opens with retail-v1 − adjustments − fees = retail-v2
+  − postage − manual/samples/discounts = merchandise, inside the current filters;
+  `analysis/tests/test_definitions.py` proves the identities on the whole data and inside filters, against the
+  line amounts.

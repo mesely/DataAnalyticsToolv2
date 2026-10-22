@@ -559,7 +559,7 @@ function Workspace({
   const selected = datasets.find((d) => d.id === dataset),
     s = result?.summary,
     source = selected?.source,
-    filtered = !!(applied.country || applied.start || applied.end);
+    filtered = !!(applied.country || applied.start || applied.end || applied.definition);
   const nav = [
     { id: "overview" as const, icon: Overview },
     { id: "chart" as const, icon: Trend },
@@ -881,6 +881,22 @@ function Workspace({
                   onChange={(e) => setDraft({ ...draft, end: e.target.value })}
                 />
               </label>
+              <label title={t(
+                "retail-v1: iptal edilmemiş her pozitif fatura satırı. retail-v2: muhasebe düzeltmeleri (kötü borç) ve pazar yeri/banka ücretleri hariç müşteri satışı.",
+                "retail-v1: every positive, non-cancelled invoice line. retail-v2: customer sales, without accounting adjustments (bad debt) and marketplace/bank fees.",
+              )}>
+                {t("Tanım", "Definition")}
+                <select
+                  value={draft.definition || "retail-v1"}
+                  onChange={(e) =>
+                    setDraft({ ...draft, definition: e.target.value === "retail-v2" ? "retail-v2" : undefined })
+                  }
+                  aria-label={t("Ölçü tanımı", "Metric definition")}
+                >
+                  <option value="retail-v1">{t("retail-v1 · tüm satırlar", "retail-v1 · every line")}</option>
+                  <option value="retail-v2">{t("retail-v2 · müşteri satışı", "retail-v2 · customer sales")}</option>
+                </select>
+              </label>
               <button
                 className="wb-btn wb-apply"
                 disabled={working}
@@ -911,11 +927,11 @@ function Workspace({
           {section !== "findings" && filtered && (
             <div className="wb-active-filters" role="region" aria-label={t("Etkin filtreler", "Active filters")}>
               <span>{t("Etkin filtre:", "Active filters:")}</span>
-              {(["country", "start", "end"] as const).map((k) =>
+              {(["country", "start", "end", "definition"] as const).map((k) =>
                 applied[k] ? (
                   <button key={k} className="wb-filter-chip" disabled={working} onClick={() => clearFilter(k)}
                     aria-label={t(`${FILTER_NAMES[k][0]} filtresini kaldır`, `Remove ${FILTER_NAMES[k][1]} filter`)}>
-                    {t(FILTER_NAMES[k][0], FILTER_NAMES[k][1])}: <b>{k === "country" ? applied[k] : dateText(applied[k]!)}</b>
+                    {t(FILTER_NAMES[k][0], FILTER_NAMES[k][1])}: <b>{k === "country" || k === "definition" ? applied[k] : dateText(applied[k]!)}</b>
                     <X size={16} />
                   </button>
                 ) : null,
@@ -940,8 +956,8 @@ function Workspace({
                 title={t("Brüt satış", "Gross sales")}
                 value={money(s.gross_sales)}
                 subtitle={t(
-                  "İade ve iptaller hariç · GBP",
-                  "Returns/cancellations excluded · GBP",
+                  `İade ve iptaller hariç · GBP · ${applied.definition ?? "retail-v1"}`,
+                  `Returns/cancellations excluded · GBP · ${applied.definition ?? "retail-v1"}`,
                 )}
                 icon={<GrossSales size={20} />}
                 primary
@@ -2364,14 +2380,18 @@ const FILTER_NAMES: Record<keyof Filters, [string, string]> = {
   country: ["Ülke", "Country"],
   start: ["Başlangıç", "From"],
   end: ["Bitiş", "To"],
+  definition: ["Tanım", "Definition"],
 };
-const FILTER_KEYS = ["country", "start", "end"] as const;
+const FILTER_KEYS = ["country", "start", "end", "definition"] as const;
 function filtersFromAddress(): Filters {
   const q = new URLSearchParams(window.location.search),
     out: Filters = {};
   for (const k of FILTER_KEYS) {
     const v = q.get(k);
-    if (v && (k === "country" ? v.length <= 80 : /^\d{4}-\d{2}-\d{2}$/.test(v))) out[k] = v;
+    if (!v) continue;
+    if (k === "definition") {
+      if (v === "retail-v2") out.definition = v;
+    } else if (k === "country" ? v.length <= 80 : /^\d{4}-\d{2}-\d{2}$/.test(v)) out[k] = v;
   }
   return out;
 }

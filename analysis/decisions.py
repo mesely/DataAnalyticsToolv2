@@ -65,7 +65,7 @@ def context_xml(brief):
         root,
         "scope",
         dataset_sha256=brief["dataset_sha256"],
-        metric_version="retail-v1",
+        metric_version=brief["filters"].get("definition", "retail-v1"),
         currency="GBP",
     )
     facts = ET.SubElement(root, "computed_evidence")
